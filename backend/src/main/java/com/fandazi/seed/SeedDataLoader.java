@@ -38,7 +38,10 @@ public class SeedDataLoader implements ApplicationRunner {
                           UserRepository users, AddressRepository addresses, OrderRepository orders, SeedDishMetadataRepository dishMetadata, SeedAddressMetadataRepository addressMetadata, @Value("${seed.path:../data/seed}") String path) {
         this.mapper=mapper; this.merchants=merchants; this.dishes=dishes; this.options=options; this.users=users; this.addresses=addresses; this.orders=orders; this.dishMetadata=dishMetadata; this.addressMetadata=addressMetadata; this.path=Path.of(path);
     }
-    @Override @Transactional public void run(ApplicationArguments args) throws IOException {
+    @Override @Transactional(rollbackFor = Exception.class) public void run(ApplicationArguments args) {
+        try { load(args); } catch (IOException | RuntimeException ex) { throw new IllegalStateException("Seed fixture load failed", ex); }
+    }
+    private void load(ApplicationArguments args) throws IOException {
         if (users.findByUsername("seed_alice").isPresent()) return;
         JsonNode merchantData = read("merchants.json");
         for (JsonNode m : merchantData) merchants.save(new MerchantEntity(text(m,"name"), text(m,"category"), money(m,"minimumOrder"), money(m,"deliveryFee"), m.get("deliveryMinutes").asInt(), m.get("open").asBoolean(), money(m,"discountThreshold"), money(m,"discountAmount")));

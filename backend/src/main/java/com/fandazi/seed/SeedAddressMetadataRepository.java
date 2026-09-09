@@ -1,3 +1,3 @@
 package com.fandazi.seed;
 import org.springframework.data.jpa.repository.JpaRepository;
-public interface SeedAddressMetadataRepository extends JpaRepository<SeedAddressMetadataEntity, Long> {}
+public interface SeedAddressMetadataRepository extends JpaRepository<SeedAddressMetadataEntity, Long> { java.util.Optional<SeedAddressMetadataEntity> findByAddressId(Long addressId); }

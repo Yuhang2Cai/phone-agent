@@ -11,4 +11,5 @@ public class SeedAddressMetadataEntity {
     @Column(nullable=false) private boolean valid;
     protected SeedAddressMetadataEntity() {}
     public SeedAddressMetadataEntity(Long addressId, String detail, boolean valid) { this.addressId=addressId; this.detail=detail; this.valid=valid; }
+    public Long getAddressId(){return addressId;} public String getDetail(){return detail;} public boolean isValid(){return valid;}
 }

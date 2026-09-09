@@ -1,5 +1,7 @@
 package com.fandazi.feature.catalog;
 
+import com.fandazi.seed.SeedDishMetadataRepository;
+
 import java.math.BigDecimal;
 import java.util.List;
 import jakarta.validation.constraints.Max;
@@ -22,11 +24,13 @@ public class MerchantController {
     private final MerchantRepository merchants;
     private final DishRepository dishes;
     private final DishOptionRepository options;
+    private final SeedDishMetadataRepository metadata;
 
-    public MerchantController(MerchantRepository merchants, DishRepository dishes, DishOptionRepository options) {
+    public MerchantController(MerchantRepository merchants, DishRepository dishes, DishOptionRepository options, SeedDishMetadataRepository metadata) {
         this.merchants = merchants;
         this.dishes = dishes;
         this.options = options;
+        this.metadata = metadata;
     }
 
     @GetMapping
@@ -56,7 +60,7 @@ public class MerchantController {
     @GetMapping("/{id}/dishes")
     public List<DishResponse> dishes(@PathVariable Long id) {
         return dishes.findByMerchantId(id).stream()
-                .map(dish -> DishResponse.from(dish, options.findByDishId(dish.getId())))
+                .map(dish -> metadata.findByDishId(dish.getId()).map(m -> DishResponse.from(dish, options.findByDishId(dish.getId()), m)).orElseGet(() -> DishResponse.from(dish, options.findByDishId(dish.getId()))))
                 .toList();
     }
 }

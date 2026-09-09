@@ -17,4 +17,5 @@ public class SeedDishMetadataEntity {
     @Column(nullable=false, length=2000) private String allergens;
     protected SeedDishMetadataEntity() {}
     public SeedDishMetadataEntity(Long dishId, String dishName, BigDecimal previousPrice, boolean priceChanged, BigDecimal rating, String spiciness, String ingredients, String allergens) { this.dishId=dishId; this.dishName=dishName; this.previousPrice=previousPrice; this.priceChanged=priceChanged; this.rating=rating; this.spiciness=spiciness; this.ingredients=ingredients; this.allergens=allergens; }
+    public Long getDishId(){return dishId;} public String getDishName(){return dishName;} public BigDecimal getPreviousPrice(){return previousPrice;} public boolean isPriceChanged(){return priceChanged;} public BigDecimal getRating(){return rating;} public String getSpiciness(){return spiciness;} public String getIngredients(){return ingredients;} public String getAllergens(){return allergens;}
 }
