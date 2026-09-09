@@ -1,1 +1,1 @@
-[{"username":"seed_alice","merchant":"饭搭子盖饭社","dish":"招牌辣椒鸡盖饭 1","status":"PAID","quantity":1,"idempotencyKey":"seed-history-paid-001"}]
+[{"username":"seed_alice","merchant":"饭搭子盖饭社","address":"演示市春风路 88 号 3 栋 1201","dish":"招牌辣椒鸡盖饭 1","status":"PAID","quantity":1,"idempotencyKey":"seed-history-paid-001"}]

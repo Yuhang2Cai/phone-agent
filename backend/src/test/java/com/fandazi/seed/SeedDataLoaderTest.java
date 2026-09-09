@@ -13,14 +13,19 @@ import com.fandazi.feature.auth.UserRepository;
 import com.fandazi.feature.catalog.DishEntity;
 import com.fandazi.feature.catalog.DishOptionRepository;
 import com.fandazi.feature.catalog.DishRepository;
+import com.fandazi.feature.catalog.DishResponse;
 import com.fandazi.feature.catalog.MerchantRepository;
+import com.fandazi.feature.order.OrderEntity;
 import com.fandazi.feature.order.OrderStatus;
 import com.fandazi.feature.order.OrderRepository;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import javax.sql.DataSource;
 import java.util.stream.Stream;
+import java.util.List;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -99,8 +104,8 @@ class SeedDataLoaderTest {
         for (SeedDishMetadataEntity metadata : dishMetadata.findAll()) {
             assertThat(metadata.getRating()).isPositive();
             assertThat(metadata.getSpiciness()).isNotBlank();
-            assertThat(mapper.readTree(metadata.getIngredients())).isNotEmpty();
-            assertThat(mapper.readTree(metadata.getAllergens())).isNotEmpty();
+            assertThat(metadata.getIngredients()).isNotEmpty();
+            assertThat(metadata.getAllergens()).isNotEmpty();
         }
         assertThat(options.findAll())
                 .anySatisfy(option -> assertThat(option.getGroupName()).isEqualTo("辣度"));
@@ -121,11 +126,17 @@ class SeedDataLoaderTest {
             assertThat(order.getStatus()).isEqualTo(OrderStatus.PAID);
             assertThat(order.getItems()).singleElement().extracting(item -> item.getDishName()).isEqualTo("招牌辣椒鸡盖饭 1");
             assertThat(order.getTotal()).isEqualByComparingTo("21.80");
+            assertThat(order.getUser().getUsername()).isEqualTo("seed_alice");
+            assertThat(order.getAddressDetail()).isEqualTo("演示市春风路 88 号 3 栋 1201");
         });
+        DishEntity seededDish = dishes.findAll().stream().filter(dish -> dish.getName().equals("招牌辣椒鸡盖饭 1")).findFirst().orElseThrow();
+        DishResponse response = DishResponse.from(seededDish, options.findByDishId(seededDish.getId()), dishMetadata.findByDishId(seededDish.getId()).orElseThrow());
+        assertThat(response.ingredients()).containsExactly("鸡肉", "米饭", "青椒");
+        assertThat(response.allergens()).containsExactly("大豆");
         assertThat(jdbc.queryForObject("select previous_price from seed_dish_metadata where dish_name = ?", BigDecimal.class, "招牌辣椒鸡盖饭 1")).isEqualByComparingTo("16.80");
         assertThat(jdbc.queryForObject("select price_changed from seed_dish_metadata where dish_name = ?", Boolean.class, "招牌辣椒鸡盖饭 1")).isTrue();
         assertThat(jdbc.queryForObject("select valid from seed_address_metadata where detail = ?", Boolean.class, "已失效地址：演示市旧站路 9 号")).isFalse();
-        assertThat(jdbc.queryForObject("select ingredients from seed_dish_metadata where dish_name = ?", String.class, "招牌辣椒鸡盖饭 1")).contains("鸡肉");
+        assertThat(dishMetadata.findAll().stream().filter(metadata -> metadata.getDishName().equals("招牌辣椒鸡盖饭 1")).findFirst().orElseThrow().getIngredients()).contains("鸡肉");
         assertThat(jdbc.queryForObject("select count(distinct category) from merchants", Long.class)).isEqualTo(7L);
     }
 
@@ -146,6 +157,53 @@ class SeedDataLoaderTest {
                 .containsExactly(
                         "spicy-under-30", "reorder", "mild-cold", "no-cilantro-default-address", "missing-address",
                         "price-change", "reorder-unlisted", "over-budget", "illegal-parameters");
+    }
+
+    @Test
+    void seedMetadataTablesAreCreatedByMigration() {
+        DataSource migrationDataSource = new org.springframework.jdbc.datasource.DriverManagerDataSource(
+                "jdbc:h2:mem:seed-migration-test;DB_CLOSE_DELAY=-1", "sa", "");
+        Flyway flyway = Flyway.configure().dataSource(migrationDataSource).locations("classpath:db/migration").load();
+        flyway.migrate();
+        JdbcTemplate migrationJdbc = new JdbcTemplate(migrationDataSource);
+        assertThat(migrationJdbc.queryForObject("select count(*) from \"flyway_schema_history\" where \"script\" = 'V1__create_seed_metadata.sql' and \"success\" = true", Integer.class)).isEqualTo(1);
+        assertThat(migrationJdbc.queryForObject("select count(*) from information_schema.tables where table_name = 'SEED_DISH_METADATA'", Integer.class)).isEqualTo(1);
+        assertThat(migrationJdbc.queryForObject("select count(*) from information_schema.tables where table_name = 'SEED_ADDRESS_METADATA'", Integer.class)).isEqualTo(1);
+        assertThat(migrationJdbc.query("select table_name from information_schema.tables where table_schema = 'PUBLIC'", (rs, rowNum) -> rs.getString(1)))
+                .containsAll(List.of("APP_USERS", "MERCHANTS", "DISHES", "DISH_OPTIONS", "ADDRESSES", "CART_DRAFTS", "CART_DRAFT_ITEMS", "CART_DRAFT_ITEM_OPTIONS", "FOOD_ORDERS", "ORDER_ITEMS", "ORDER_ITEM_OPTIONS", "ORDER_TIMELINE"));
+    }
+
+    @Test
+    void changedOrderRelationshipFixtureFailsValidation() throws Exception {
+        deleteSeedRows();
+        ArrayNode ordersFixture = (ArrayNode) mapper.readTree(Files.newInputStream(FIXTURE_DIRECTORY.resolve("orders.json")));
+        ((ObjectNode) ordersFixture.get(0)).put("username", "unknown_seed_user");
+        Files.writeString(FIXTURE_DIRECTORY.resolve("orders.json"), mapper.writeValueAsString(ordersFixture));
+
+        assertThatThrownBy(() -> loader.run(new org.springframework.boot.DefaultApplicationArguments()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("Order fixture references unknown user: unknown_seed_user");
+    }
+
+    @Test
+    void changedOrderMerchantFixtureFailsValidation() throws Exception {
+        assertOrderFieldRejected("merchant", "unknown_merchant", "Order fixture references unknown merchant: unknown_merchant");
+    }
+
+    @Test
+    void changedOrderAddressFixtureFailsValidation() throws Exception {
+        assertOrderFieldRejected("address", "unknown address", "Order fixture references unknown address: unknown address");
+    }
+
+    private void assertOrderFieldRejected(String field, String value, String expectedMessage) throws Exception {
+        deleteSeedRows();
+        ArrayNode ordersFixture = (ArrayNode) mapper.readTree(Files.newInputStream(FIXTURE_DIRECTORY.resolve("orders.json")));
+        ((ObjectNode) ordersFixture.get(0)).put(field, value);
+        Files.writeString(FIXTURE_DIRECTORY.resolve("orders.json"), mapper.writeValueAsString(ordersFixture));
+
+        assertThatThrownBy(() -> loader.run(new org.springframework.boot.DefaultApplicationArguments()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage(expectedMessage);
     }
 
     @Test

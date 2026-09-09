@@ -37,3 +37,17 @@
 - Red: fixture completeness/image-path assertions failed; missing structured metadata initially loaded with a default; and the Agent scenario collection API was absent.
 - Green: `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test` (7 tests, 0 failures).
 - Full: `mvn -f backend/pom.xml test` (49 tests, 0 failures).
+
+## Revision 3
+
+- Added Flyway dependencies and `V1__create_seed_metadata.sql` to create the production application schema, including auth, catalog, address, cart, order, collection, and seed metadata tables before Hibernate validation. The migration is tested on a fresh H2 database, while production remains configured with `ddl-auto=validate`.
+- Changed seed dish metadata and `DishResponse` ingredients/allergens to typed `List<String>` values, with a JPA JSON converter for database storage and list assertions across loader, entity, query, and response layers.
+- Extended `orders.json` with username, merchant, and address fields as the complete order fixture source. The loader now resolves and validates each association and builds the order snapshot from the matched address entity; mutation tests reject unknown users, merchants, and addresses.
+
+## Revision 3 Verification
+
+- Red: the new migration/relationship/typed-array tests first failed because the migration, associations, and response list types were absent.
+- Red: migration coverage test failed with only the two seed metadata tables present.
+- Green: `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test` (11 tests, 0 failures).
+- Full: `mvn -f backend/pom.xml test` (53 tests, 0 failures).
+- Hygiene: `git diff --check` clean; Maven `target` removed after verification.

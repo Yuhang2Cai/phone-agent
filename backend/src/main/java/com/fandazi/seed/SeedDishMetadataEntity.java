@@ -2,6 +2,7 @@ package com.fandazi.seed;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "seed_dish_metadata")
@@ -13,9 +14,9 @@ public class SeedDishMetadataEntity {
     @Column(nullable=false) private boolean priceChanged;
     @Column(nullable=false, precision=3, scale=1) private BigDecimal rating;
     @Column(nullable=false) private String spiciness;
-    @Column(nullable=false, length=2000) private String ingredients;
-    @Column(nullable=false, length=2000) private String allergens;
+    @Column(nullable=false, length=2000) @Convert(converter = StringListJsonConverter.class) private List<String> ingredients;
+    @Column(nullable=false, length=2000) @Convert(converter = StringListJsonConverter.class) private List<String> allergens;
     protected SeedDishMetadataEntity() {}
-    public SeedDishMetadataEntity(Long dishId, String dishName, BigDecimal previousPrice, boolean priceChanged, BigDecimal rating, String spiciness, String ingredients, String allergens) { this.dishId=dishId; this.dishName=dishName; this.previousPrice=previousPrice; this.priceChanged=priceChanged; this.rating=rating; this.spiciness=spiciness; this.ingredients=ingredients; this.allergens=allergens; }
-    public Long getDishId(){return dishId;} public String getDishName(){return dishName;} public BigDecimal getPreviousPrice(){return previousPrice;} public boolean isPriceChanged(){return priceChanged;} public BigDecimal getRating(){return rating;} public String getSpiciness(){return spiciness;} public String getIngredients(){return ingredients;} public String getAllergens(){return allergens;}
+    public SeedDishMetadataEntity(Long dishId, String dishName, BigDecimal previousPrice, boolean priceChanged, BigDecimal rating, String spiciness, List<String> ingredients, List<String> allergens) { this.dishId=dishId; this.dishName=dishName; this.previousPrice=previousPrice; this.priceChanged=priceChanged; this.rating=rating; this.spiciness=spiciness; this.ingredients=List.copyOf(ingredients); this.allergens=List.copyOf(allergens); }
+    public Long getDishId(){return dishId;} public String getDishName(){return dishName;} public BigDecimal getPreviousPrice(){return previousPrice;} public boolean isPriceChanged(){return priceChanged;} public BigDecimal getRating(){return rating;} public String getSpiciness(){return spiciness;} public List<String> getIngredients(){return ingredients;} public List<String> getAllergens(){return allergens;}
 }

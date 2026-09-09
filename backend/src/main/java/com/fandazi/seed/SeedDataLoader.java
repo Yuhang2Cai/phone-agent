@@ -55,16 +55,26 @@ public class SeedDataLoader implements ApplicationRunner {
             for (int i=1;i<=template.get("count").asInt();i++) {
                 boolean listed = i != template.get("count").asInt();
                 DishEntity dish=dishes.save(new DishEntity(merchant,text(template,"category"),text(template,"name")+" "+i,text(template,"description"),money(template,"basePrice").add(BigDecimal.valueOf(i-1)),listed?20:0,listed,text(template,"imageUrl")));
-                dishMetadata.save(new SeedDishMetadataEntity(dish.getId(), dish.getName(), template.has("previousPrice") ? money(template,"previousPrice") : null, template.path("priceChanged").asBoolean(false), requiredRating(template), requiredText(template,"spiciness"), requiredStringArray(template,"ingredients").toString(), requiredStringArray(template,"allergens").toString()));
+                dishMetadata.save(new SeedDishMetadataEntity(dish.getId(), dish.getName(), template.has("previousPrice") ? money(template,"previousPrice") : null, template.path("priceChanged").asBoolean(false), requiredRating(template), requiredText(template,"spiciness"), requiredStringArray(template,"ingredients"), requiredStringArray(template,"allergens")));
                 options.saveAll(List.of(new DishOptionEntity(dish,"辣度","不辣",BigDecimal.ZERO),new DishOptionEntity(dish,"辣度","中辣",new BigDecimal("1.00")),new DishOptionEntity(dish,"加料","加蛋",new BigDecimal("2.00"))));
             }
         }
         JsonNode u=read("users.json").get(0); UserEntity user=users.save(new UserEntity(text(u,"username"),text(u,"email"),text(u,"passwordHash")));
-        for (JsonNode a:read("addresses.json")) { AddressEntity address=addresses.save(new AddressEntity(user,text(a,"recipient"),text(a,"phone"),text(a,"detail"),a.get("default").asBoolean())); addressMetadata.save(new SeedAddressMetadataEntity(address.getId(), address.getDetail(), a.path("valid").asBoolean(true))); }
+        for (JsonNode a:read("addresses.json")) {
+            UserEntity addressUser = users.findByUsername(requiredFixtureText(a, "username")).orElseThrow(() -> new IllegalArgumentException("Address fixture references unknown user: " + a.path("username").asText()));
+            AddressEntity address=addresses.save(new AddressEntity(addressUser,text(a,"recipient"),text(a,"phone"),text(a,"detail"),a.get("default").asBoolean()));
+            addressMetadata.save(new SeedAddressMetadataEntity(address.getId(), address.getDetail(), a.path("valid").asBoolean(true)));
+        }
         for (JsonNode fixture:read("orders.json")) {
-            DishEntity dish=dishes.findAll().stream().filter(d -> d.getName().equals(text(fixture,"dish"))).findFirst().orElseThrow();
-            MerchantEntity merchant=dish.getMerchant(); int quantity=fixture.path("quantity").asInt(); BigDecimal subtotal=dish.getPrice().multiply(BigDecimal.valueOf(quantity));
-            OrderEntity order=new OrderEntity(user,text(fixture,"idempotencyKey"),"seed-history", "合成用户","13900000000","演示市春风路 88 号 3 栋 1201",subtotal,merchant.getDeliveryFee(),BigDecimal.ZERO,subtotal.add(merchant.getDeliveryFee()));
+            String username = requiredFixtureText(fixture, "username");
+            UserEntity orderUser = users.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("Order fixture references unknown user: " + username));
+            String merchantName = requiredFixtureText(fixture, "merchant");
+            MerchantEntity merchant = merchants.findAll().stream().filter(item -> item.getName().equals(merchantName)).findFirst().orElseThrow(() -> new IllegalArgumentException("Order fixture references unknown merchant: " + merchantName));
+            DishEntity dish=dishes.findAll().stream().filter(d -> d.getName().equals(text(fixture,"dish")) && d.getMerchant().getId().equals(merchant.getId())).findFirst().orElseThrow(() -> new IllegalArgumentException("Order fixture references unknown dish for merchant: " + text(fixture,"dish")));
+            String addressDetail = requiredFixtureText(fixture, "address");
+            AddressEntity address = addresses.findAll().stream().filter(item -> item.getUser().getId().equals(orderUser.getId()) && item.getDetail().equals(addressDetail)).findFirst().orElseThrow(() -> new IllegalArgumentException("Order fixture references unknown address: " + addressDetail));
+            int quantity=fixture.path("quantity").asInt(); BigDecimal subtotal=dish.getPrice().multiply(BigDecimal.valueOf(quantity));
+            OrderEntity order=new OrderEntity(orderUser,text(fixture,"idempotencyKey"),"seed-history", address.getRecipient(),address.getPhone(),address.getDetail(),subtotal,merchant.getDeliveryFee(),BigDecimal.ZERO,subtotal.add(merchant.getDeliveryFee()));
             order.addItem(new OrderItemEntity(order,dish.getId(),dish.getName(),quantity,List.of(),"",dish.getPrice())); order.advance(OrderStatus.valueOf(text(fixture,"status"))); orders.save(order);
         }
     }
@@ -93,15 +103,24 @@ public class SeedDataLoader implements ApplicationRunner {
         if (value == null || !value.isTextual() || value.asText().isBlank()) throw new IllegalArgumentException("Dish template requires " + name);
         return value.asText();
     }
-    private static JsonNode requiredStringArray(JsonNode node, String name) {
+    private static List<String> requiredStringArray(JsonNode node, String name) {
         JsonNode value = node.get(name);
         if (value == null || !value.isArray() || value.isEmpty()) throw new IllegalArgumentException("Dish template requires a non-empty " + name + " array");
-        for (JsonNode item : value) if (!item.isTextual() || item.asText().isBlank()) throw new IllegalArgumentException("Dish template requires a non-empty " + name + " array");
-        return value;
+        List<String> result = new ArrayList<>();
+        for (JsonNode item : value) {
+            if (!item.isTextual() || item.asText().isBlank()) throw new IllegalArgumentException("Dish template requires a non-empty " + name + " array");
+            result.add(item.asText());
+        }
+        return List.copyOf(result);
     }
     private static String requiredScenarioText(JsonNode node, String name) {
         JsonNode value = node.get(name);
         if (value == null || !value.isTextual() || value.asText().isBlank()) throw new IllegalArgumentException("Agent scenario requires " + name);
+        return value.asText();
+    }
+    private static String requiredFixtureText(JsonNode node, String name) {
+        JsonNode value = node.get(name);
+        if (value == null || !value.isTextual() || value.asText().isBlank()) throw new IllegalArgumentException("Fixture requires " + name);
         return value.asText();
     }
 }
