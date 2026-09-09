@@ -1,0 +1,11 @@
+.worktrees/
+.superpowers/
+.gradle/
+build/
+**/build/
+.idea/
+local.properties
+*.apk
+*.log
+.env
+*.onnx.zip
