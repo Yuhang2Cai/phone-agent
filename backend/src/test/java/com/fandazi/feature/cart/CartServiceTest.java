@@ -3,6 +3,8 @@ package com.fandazi.feature.cart;
 import com.fandazi.feature.address.AddressService;
 import com.fandazi.feature.catalog.DishEntity;
 import com.fandazi.feature.catalog.DishRepository;
+import com.fandazi.feature.catalog.DishOptionEntity;
+import com.fandazi.feature.catalog.DishOptionRepository;
 import com.fandazi.feature.catalog.MerchantEntity;
 import com.fandazi.feature.catalog.MerchantRepository;
 import com.fandazi.feature.auth.UserEntity;
@@ -26,6 +28,7 @@ class CartServiceTest {
     @Autowired private CartService carts;
     @Autowired private MerchantRepository merchants;
     @Autowired private DishRepository dishes;
+    @Autowired private DishOptionRepository options;
     @Autowired private UserRepository users;
 
     private UserEntity alice;
@@ -48,6 +51,30 @@ class CartServiceTest {
         assertThat(quote.subtotal()).isEqualByComparingTo("24.00");
         assertThat(quote.deliveryFee()).isEqualByComparingTo("3.00");
         assertThat(quote.total()).isEqualByComparingTo("27.00");
+    }
+
+    @Test
+    void persistsValidOptionsAndRecalculatesTheirPriceDelta() {
+        DishEntity dish = dishes.save(new DishEntity(merchant, "主食", "牛肉面", "", new BigDecimal("12.00"), 10, true, "/images/noodle.png"));
+        DishOptionEntity spicy = options.save(new DishOptionEntity(dish, "辣度", "中辣", new BigDecimal("2.00")));
+        CartDraft draft = carts.createDraft(alice.getId(), merchant.getId());
+
+        carts.replaceItems(alice.getId(), draft.getId(), List.of(new CartItemCommand(dish.getId(), 2, List.of(spicy.getId()), null)));
+        CartQuote quote = carts.validate(alice.getId(), draft.getId());
+
+        assertThat(quote.subtotal()).isEqualByComparingTo("28.00");
+        assertThat(quote.lines()).singleElement().satisfies(line -> assertThat(line.optionIds()).containsExactly(spicy.getId()));
+    }
+
+    @Test
+    void rejectsOptionFromAnotherDish() {
+        DishEntity first = dishes.save(new DishEntity(merchant, "主食", "牛肉面", "", new BigDecimal("12.00"), 10, true, ""));
+        DishEntity second = dishes.save(new DishEntity(merchant, "主食", "炸酱面", "", new BigDecimal("12.00"), 10, true, ""));
+        DishOptionEntity option = options.save(new DishOptionEntity(second, "辣度", "中辣", new BigDecimal("2.00")));
+        CartDraft draft = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), draft.getId(), List.of(new CartItemCommand(first.getId(), 1, List.of(option.getId()), null)));
+
+        assertThatThrownBy(() -> carts.validate(alice.getId(), draft.getId())).hasMessageContaining("规格");
     }
 
     @Test

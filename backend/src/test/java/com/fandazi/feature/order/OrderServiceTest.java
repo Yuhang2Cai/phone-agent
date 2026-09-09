@@ -8,6 +8,8 @@ import com.fandazi.feature.cart.CartItemCommand;
 import com.fandazi.feature.cart.CartService;
 import com.fandazi.feature.catalog.DishEntity;
 import com.fandazi.feature.catalog.DishRepository;
+import com.fandazi.feature.catalog.DishOptionEntity;
+import com.fandazi.feature.catalog.DishOptionRepository;
 import com.fandazi.feature.catalog.MerchantEntity;
 import com.fandazi.feature.catalog.MerchantRepository;
 import com.fandazi.feature.auth.UserEntity;
@@ -37,6 +39,7 @@ class OrderServiceTest {
     @Autowired private DeliveryService delivery;
     @Autowired private MerchantRepository merchants;
     @Autowired private DishRepository dishes;
+    @Autowired private DishOptionRepository options;
     @Autowired private UserRepository users;
 
     private UserEntity alice;
@@ -60,6 +63,8 @@ class OrderServiceTest {
                 .first().extracting(AddressEntity::getId).isEqualTo(second.getId());
         assertThatThrownBy(() -> addresses.setDefault(bob.getId(), first.getId()))
                 .hasMessageContaining("地址");
+        assertThatThrownBy(() -> addresses.delete(alice.getId(), second.getId()))
+                .hasMessageContaining("默认地址");
     }
 
     @Test
@@ -79,6 +84,47 @@ class OrderServiceTest {
     }
 
     @Test
+    void rejectsSameIdempotencyKeyForDifferentRequest() {
+        AddressEntity firstAddress = addresses.create(alice.getId(), new AddressCommand("Alice", "13800000000", "A 路 1 号", true));
+        AddressEntity secondAddress = addresses.create(alice.getId(), new AddressCommand("Alice", "13800000000", "A 路 2 号", false));
+        CartDraft cart = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), cart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(), null)));
+        orders.create(alice.getId(), new CreateOrderCommand(cart.getId(), firstAddress.getId(), "order-fingerprint"));
+
+        assertThatThrownBy(() -> orders.create(alice.getId(), new CreateOrderCommand(cart.getId(), secondAddress.getId(), "order-fingerprint")))
+                .hasMessageContaining("幂等键");
+    }
+
+    @Test
+    void decrementsStockWhenOrderIsCreatedAndRejectsTheNextOrder() {
+        DishEntity limited = dishes.save(new DishEntity(merchant, "主食", "限量盖饭", "", new BigDecimal("12.00"), 1, true, ""));
+        AddressEntity address = addresses.create(alice.getId(), new AddressCommand("Alice", "13800000000", "A 路 1 号", true));
+        CartDraft first = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), first.getId(), List.of(new CartItemCommand(limited.getId(), 1, List.of(), null)));
+        orders.create(alice.getId(), new CreateOrderCommand(first.getId(), address.getId(), "stock-1"));
+
+        CartDraft second = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), second.getId(), List.of(new CartItemCommand(limited.getId(), 1, List.of(), null)));
+        assertThatThrownBy(() -> orders.create(alice.getId(), new CreateOrderCommand(second.getId(), address.getId(), "stock-2")))
+                .hasMessageContaining("库存");
+    }
+
+    @Test
+    void storesOptionSnapshotOnOrderItem() {
+        DishOptionEntity option = options.save(new DishOptionEntity(dish, "辣度", "中辣", new BigDecimal("2.00")));
+        AddressEntity address = addresses.create(alice.getId(), new AddressCommand("Alice", "13800000000", "A 路 1 号", true));
+        CartDraft cart = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), cart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(option.getId()), null)));
+
+        OrderEntity order = orders.create(alice.getId(), new CreateOrderCommand(cart.getId(), address.getId(), "snapshot-1"));
+
+        assertThat(order.getItems()).singleElement().satisfies(item -> {
+            assertThat(item.getOptionIds()).containsExactly(option.getId());
+            assertThat(item.getOptionSummary()).isEqualTo("辣度:中辣");
+        });
+    }
+
+    @Test
     void rejectsDuplicatePaymentAndOnlyAllowsForwardDeliveryTransitions() {
         AddressEntity address = addresses.create(alice.getId(), new AddressCommand("Alice", "13800000000", "A 路 1 号", true));
         CartDraft cart = carts.createDraft(alice.getId(), merchant.getId());
@@ -95,5 +141,20 @@ class OrderServiceTest {
         delivery.advance(alice.getId(), order.getId(), OrderStatus.DELIVERED);
         assertThat(orders.get(alice.getId(), order.getId()).getStatus()).isEqualTo(OrderStatus.DELIVERED);
         assertThatThrownBy(() -> delivery.advance(alice.getId(), order.getId(), OrderStatus.PREPARING)).hasMessageContaining("状态");
+    }
+
+    @Test
+    void replaysPaymentWithSameKeyButRejectsASecondPaymentKey() {
+        AddressEntity address = addresses.create(alice.getId(), new AddressCommand("Alice", "13800000000", "A 路 1 号", true));
+        CartDraft cart = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), cart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(), null)));
+        OrderEntity order = orders.create(alice.getId(), new CreateOrderCommand(cart.getId(), address.getId(), "payment-1"));
+
+        OrderEntity first = payments.pay(alice.getId(), order.getId(), "payment-request-1");
+        OrderEntity replay = payments.pay(alice.getId(), order.getId(), "payment-request-1");
+
+        assertThat(replay.getId()).isEqualTo(first.getId());
+        assertThatThrownBy(() -> payments.pay(alice.getId(), order.getId(), "payment-request-2"))
+                .hasMessageContaining("支付");
     }
 }

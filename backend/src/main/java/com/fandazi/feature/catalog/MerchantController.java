@@ -1,3 +1,58 @@
 package com.fandazi.feature.catalog;
-import java.math.BigDecimal; import java.util.*; import org.springframework.data.domain.*; import org.springframework.web.bind.annotation.*;
-@RestController @RequestMapping("/api/merchants") public class MerchantController { private final MerchantRepository merchants; private final DishRepository dishes; public MerchantController(MerchantRepository merchants,DishRepository dishes){this.merchants=merchants;this.dishes=dishes;} @GetMapping public Page<MerchantEntity> search(@RequestParam(required=false) String keyword,@RequestParam(required=false) String category,@RequestParam(required=false) Integer maxDeliveryMinutes,@RequestParam(required=false) BigDecimal maxPrice,@RequestParam(defaultValue="0") int page,@RequestParam(defaultValue="20") int size){var pageable=PageRequest.of(page,Math.min(size,100));var result=merchants.findAll().stream().filter(m->matches(m,keyword,category,maxDeliveryMinutes,maxPrice)).toList();int from=Math.min((int)pageable.getOffset(),result.size());int to=Math.min(from+pageable.getPageSize(),result.size());return new PageImpl<>(result.subList(from,to),pageable,result.size());} private boolean matches(MerchantEntity m,String keyword,String category,Integer minutes,BigDecimal maxPrice){return (keyword==null||m.getName().contains(keyword))&&(category==null||m.getCategory().equals(category))&&(minutes==null||m.getDeliveryMinutes()<=minutes)&&(maxPrice==null||m.getMinimumOrder().compareTo(maxPrice)<=0);} @GetMapping("/{id}/dishes") public List<DishEntity> dishes(@PathVariable Long id){return dishes.findByMerchantId(id);} }
+
+import java.math.BigDecimal;
+import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/merchants")
+public class MerchantController {
+    private final MerchantRepository merchants;
+    private final DishRepository dishes;
+    private final DishOptionRepository options;
+
+    public MerchantController(MerchantRepository merchants, DishRepository dishes, DishOptionRepository options) {
+        this.merchants = merchants;
+        this.dishes = dishes;
+        this.options = options;
+    }
+
+    @GetMapping
+    public Page<MerchantResponse> search(@RequestParam(required = false) String keyword,
+                                         @RequestParam(required = false) String category,
+                                         @RequestParam(required = false) Integer maxDeliveryMinutes,
+                                         @RequestParam(required = false) BigDecimal maxPrice,
+                                         @RequestParam(defaultValue = "0") int page,
+                                         @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, Math.min(size, 100));
+        var result = merchants.findAll().stream()
+                .filter(merchant -> matches(merchant, keyword, category, maxDeliveryMinutes, maxPrice))
+                .map(MerchantResponse::from)
+                .toList();
+        int from = Math.min((int) pageable.getOffset(), result.size());
+        int to = Math.min(from + pageable.getPageSize(), result.size());
+        return new PageImpl<>(result.subList(from, to), pageable, result.size());
+    }
+
+    private boolean matches(MerchantEntity merchant, String keyword, String category, Integer minutes, BigDecimal maxPrice) {
+        return (keyword == null || merchant.getName().contains(keyword))
+                && (category == null || merchant.getCategory().equals(category))
+                && (minutes == null || merchant.getDeliveryMinutes() <= minutes)
+                && (maxPrice == null || merchant.getMinimumOrder().compareTo(maxPrice) <= 0);
+    }
+
+    @GetMapping("/{id}/dishes")
+    public List<DishResponse> dishes(@PathVariable Long id) {
+        return dishes.findByMerchantId(id).stream()
+                .map(dish -> DishResponse.from(dish, options.findByDishId(dish.getId())))
+                .toList();
+    }
+}

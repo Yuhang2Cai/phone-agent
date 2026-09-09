@@ -1,3 +1,3 @@
 package com.fandazi.feature;
-import java.util.Map; import org.springframework.http.*; import org.springframework.web.bind.annotation.*;
-@RestControllerAdvice public class DomainExceptionHandler { @ExceptionHandler(DomainException.class) ResponseEntity<Map<String,String>> handle(DomainException exception){return ResponseEntity.badRequest().body(Map.of("error",exception.getMessage()));} }
+import com.fandazi.feature.order.OrderConflictException; import java.util.Map; import org.springframework.http.*; import org.springframework.web.bind.annotation.*;
+@RestControllerAdvice public class DomainExceptionHandler { @ExceptionHandler(DomainException.class) ResponseEntity<Map<String,String>> handle(DomainException exception){return ResponseEntity.badRequest().body(Map.of("error",exception.getMessage()));} @ExceptionHandler(OrderConflictException.class) ResponseEntity<Map<String,String>> conflict(OrderConflictException exception){return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error",exception.getMessage()));} }
