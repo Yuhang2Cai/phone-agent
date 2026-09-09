@@ -2,6 +2,8 @@ package com.fandazi.feature.catalog;
 
 import java.math.BigDecimal;
 import java.util.List;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -11,9 +13,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
 
 @RestController
 @RequestMapping("/api/merchants")
+@Validated
 public class MerchantController {
     private final MerchantRepository merchants;
     private final DishRepository dishes;
@@ -30,9 +34,9 @@ public class MerchantController {
                                          @RequestParam(required = false) String category,
                                          @RequestParam(required = false) Integer maxDeliveryMinutes,
                                          @RequestParam(required = false) BigDecimal maxPrice,
-                                         @RequestParam(defaultValue = "0") int page,
-                                         @RequestParam(defaultValue = "20") int size) {
-        Pageable pageable = PageRequest.of(page, Math.min(size, 100));
+                                         @RequestParam(defaultValue = "0") @Min(0) int page,
+                                         @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
+        Pageable pageable = PageRequest.of(page, size);
         var result = merchants.findAll().stream()
                 .filter(merchant -> matches(merchant, keyword, category, maxDeliveryMinutes, maxPrice))
                 .map(MerchantResponse::from)

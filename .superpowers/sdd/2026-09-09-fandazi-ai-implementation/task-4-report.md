@@ -92,3 +92,19 @@ Pending at report creation; see the final commit recorded below after staging.
 ### Repair round 3 commit
 
 Pending at report creation; final commit recorded in repository history.
+
+## Repair round 4
+
+- Restricted `DeliveryService.advance` to delivery-only statuses (`PREPARING`, `RIDER_PICKED_UP`, `DELIVERING`, and `DELIVERED`); payment transitions remain owned by `PaymentService`.
+- Added regression coverage proving delivery cannot perform `PENDING_PAYMENT -> PAID` or `PAID -> MERCHANT_ACCEPTED` transitions.
+- Added `@NotNull` and `@Positive` validation to `CreateDraftRequest.merchantId`, enabled `@Valid`, and normalized method-level constraint violations to stable HTTP 400 responses.
+- Constrained merchant paging to `page >= 0` and `size` between 1 and 100, with HTTP regression coverage for invalid values.
+
+### Repair round 4 verification
+
+- `mvn -f backend/pom.xml test`: 41 tests, 0 failures, 0 errors.
+- `git diff --check`: passed with no output.
+
+### Repair round 4 commit
+
+Pending at report creation; final commit recorded in repository history.

@@ -169,4 +169,18 @@ class OrderServiceTest {
                 .hasMessageContaining("状态");
         assertThat(orders.get(alice.getId(), order.getId()).getStatus()).isEqualTo(OrderStatus.PENDING_PAYMENT);
     }
+
+    @Test
+    void deliveryServiceCannotPerformPaymentTransitions() {
+        AddressEntity address = addresses.create(alice.getId(), new AddressCommand("Alice", "13800000000", "A 路 1 号", true));
+        CartDraft cart = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), cart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(), null)));
+        OrderEntity order = orders.create(alice.getId(), new CreateOrderCommand(cart.getId(), address.getId(), "delivery-payment-boundary"));
+
+        assertThatThrownBy(() -> delivery.advance(alice.getId(), order.getId(), OrderStatus.PAID))
+                .hasMessageContaining("状态");
+        payments.pay(alice.getId(), order.getId(), "delivery-payment-key");
+        assertThatThrownBy(() -> delivery.advance(alice.getId(), order.getId(), OrderStatus.MERCHANT_ACCEPTED))
+                .hasMessageContaining("状态");
+    }
 }

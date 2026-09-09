@@ -230,4 +230,25 @@ class DomainControllerTest {
                         .content("{\"cartDraftId\":" + cart.getId() + ",\"addressId\":" + otherAddress.getId() + "}"))
                 .andExpect(status().isConflict());
     }
+
+    @Test
+    void rejectsInvalidDraftMerchantAndMerchantPagingParameters() throws Exception {
+        UserEntity user = users.save(new UserEntity("paging-user", "paging@example.com", "hash"));
+        var auth = authentication(new UsernamePasswordAuthenticationToken(user.getId(), null, List.of()));
+
+        mockMvc.perform(post("/api/cart/drafts").with(auth)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"merchantId\":null}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("请求参数无效"));
+        mockMvc.perform(get("/api/merchants?page=-1").with(auth))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("请求参数无效"));
+        mockMvc.perform(get("/api/merchants?size=0").with(auth))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("请求参数无效"));
+        mockMvc.perform(get("/api/merchants?size=101").with(auth))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("请求参数无效"));
+    }
 }
