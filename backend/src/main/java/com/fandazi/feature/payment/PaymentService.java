@@ -1,0 +1,3 @@
+package com.fandazi.feature.payment;
+import com.fandazi.feature.DomainException; import com.fandazi.feature.order.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
+@Service public class PaymentService { private final OrderService orders; public PaymentService(OrderService orders){this.orders=orders;} @Transactional public OrderEntity pay(Long userId,Long orderId){var order=orders.get(userId,orderId);if(order.getStatus()!=OrderStatus.PENDING_PAYMENT)throw new DomainException("订单已支付或无法支付");orders.transition(userId,orderId,OrderStatus.PENDING_PAYMENT,OrderStatus.PAID);return orders.transition(userId,orderId,OrderStatus.PAID,OrderStatus.MERCHANT_ACCEPTED);} }

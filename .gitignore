@@ -3,6 +3,8 @@
 .gradle/
 build/
 **/build/
+target/
+**/target/
 .idea/
 local.properties
 *.apk

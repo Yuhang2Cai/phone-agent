@@ -1,0 +1,3 @@
+package com.fandazi.feature.cart;
+import com.fandazi.feature.catalog.DishEntity; import jakarta.persistence.*;
+@Entity @Table(name="cart_draft_items") public class CartDraftItem { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @ManyToOne(optional=false) private CartDraft draft; @ManyToOne(optional=false) private DishEntity dish; @Column(nullable=false) private int quantity; protected CartDraftItem(){} CartDraftItem(CartDraft draft,DishEntity dish,int quantity){this.draft=draft;this.dish=dish;this.quantity=quantity;} public DishEntity getDish(){return dish;} public int getQuantity(){return quantity;} }
