@@ -59,3 +59,19 @@ Pending at report creation; see the final commit recorded below after staging.
 ### Repair round 2 commit
 
 `fix: harden food ordering domain concurrency`
+
+## Repair round 2 follow-up
+
+- Moved order-create, order-detail, first-payment, and payment-idempotent-replay response mapping into active service transactions, preventing lazy `timeline` and `optionIds` collections from escaping into HTTP serialization.
+- Added MockMvc coverage for first and replayed order creation and payment responses, including option snapshots and password-hash absence.
+- Added CartService quantity bounds: positive quantities only, a per-line limit of 100, a duplicate-dish aggregate limit of 1,000, and long-based exact aggregation before the stock update.
+- Added a real multi-dish rollback regression proving that an earlier stock reservation is restored when a later dish is unavailable.
+
+### Repair round 2 follow-up verification
+
+- `mvn -f backend/pom.xml test`: 34 tests, 0 failures, 0 errors.
+- `git diff --check`: passed with no output.
+
+### Repair round 2 follow-up commit
+
+`fix: complete task 4 http and cart safeguards` (final commit recorded in repository history)

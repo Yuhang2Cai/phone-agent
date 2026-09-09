@@ -17,6 +17,7 @@ import com.fandazi.feature.catalog.MerchantEntity;
 import com.fandazi.feature.catalog.MerchantRepository;
 import java.math.BigDecimal;
 import java.util.List;
+import com.jayway.jsonpath.JsonPath;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest(classes = FandaziApplication.class)
 @AutoConfigureMockMvc
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class DomainControllerTest {
     @Autowired MockMvc mockMvc;
     @Autowired UserRepository users;
@@ -102,6 +105,59 @@ class DomainControllerTest {
         mockMvc.perform(get("/api/orders/{id}", order.getId()).with(auth))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.timeline[0]").value("PENDING_PAYMENT"))
+                .andExpect(jsonPath("$.items[0].optionIds[0]").value(option.getId()))
+                .andExpect(content().string(not(containsString("passwordHash"))));
+    }
+
+    @Test
+    void orderCreateAndPaymentResponsesAreInitializedForFirstAndIdempotentRequests() throws Exception {
+        UserEntity user = users.save(new UserEntity("http-idem-user", "http-idem-user@example.com", "secret-hash"));
+        MerchantEntity merchant = merchants.save(new MerchantEntity(
+                "HTTP 餐厅", "盖饭", new BigDecimal("10.00"), new BigDecimal("2.00"), 25, true));
+        DishEntity dish = dishes.save(new DishEntity(
+                merchant, "主食", "HTTP 盖饭", "", new BigDecimal("12.00"), 10, true, ""));
+        DishOptionEntity option = options.save(new DishOptionEntity(dish, "辣度", "中辣", new BigDecimal("2.00")));
+        AddressEntity address = addresses.create(user.getId(), new AddressCommand("HTTP User", "13800000000", "HTTP 路 1 号", true));
+        CartDraft cart = carts.createDraft(user.getId(), merchant.getId());
+        carts.replaceItems(user.getId(), cart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(option.getId()), null)));
+        var auth = authentication(new UsernamePasswordAuthenticationToken(user.getId(), null, List.of()));
+        String body = "{\"cartDraftId\":" + cart.getId() + ",\"addressId\":" + address.getId() + "}";
+
+        var firstCreate = mockMvc.perform(post("/api/orders").with(auth)
+                        .header("Idempotency-Key", "http-create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.status").value("PENDING_PAYMENT"))
+                .andExpect(jsonPath("$.timeline[0]").value("PENDING_PAYMENT"))
+                .andExpect(jsonPath("$.items[0].optionIds[0]").value(option.getId()))
+                .andExpect(content().string(not(containsString("passwordHash"))))
+                .andReturn();
+        Long orderId = JsonPath.parse(firstCreate.getResponse().getContentAsString()).read("$.id", Long.class);
+
+        mockMvc.perform(post("/api/orders").with(auth)
+                        .header("Idempotency-Key", "http-create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").value(orderId))
+                .andExpect(jsonPath("$.timeline[0]").value("PENDING_PAYMENT"))
+                .andExpect(jsonPath("$.items[0].optionIds[0]").value(option.getId()))
+                .andExpect(content().string(not(containsString("passwordHash"))));
+
+        mockMvc.perform(post("/api/orders/{id}/pay", orderId).with(auth)
+                        .header("Idempotency-Key", "http-pay"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("MERCHANT_ACCEPTED"))
+                .andExpect(jsonPath("$.timeline[2]").value("MERCHANT_ACCEPTED"))
+                .andExpect(jsonPath("$.items[0].optionIds[0]").value(option.getId()))
+                .andExpect(content().string(not(containsString("passwordHash"))));
+
+        mockMvc.perform(post("/api/orders/{id}/pay", orderId).with(auth)
+                        .header("Idempotency-Key", "http-pay"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("MERCHANT_ACCEPTED"))
+                .andExpect(jsonPath("$.timeline[2]").value("MERCHANT_ACCEPTED"))
                 .andExpect(jsonPath("$.items[0].optionIds[0]").value(option.getId()))
                 .andExpect(content().string(not(containsString("passwordHash"))));
     }

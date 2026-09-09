@@ -100,4 +100,34 @@ class CartServiceTest {
         assertThatThrownBy(() -> carts.validate(bob.getId(), draft.getId()))
                 .hasMessageContaining("购物车");
     }
+
+    @Test
+    void rejectsNonPositiveAndOverLimitQuantitiesBeforePersistingCart() {
+        DishEntity dish = dishes.save(new DishEntity(merchant, "主食", "大份面", "", new BigDecimal("12.00"), 2000, true, ""));
+        CartDraft draft = carts.createDraft(alice.getId(), merchant.getId());
+
+        assertThatThrownBy(() -> carts.replaceItems(alice.getId(), draft.getId(),
+                List.of(new CartItemCommand(dish.getId(), 0, List.of(), null))))
+                .hasMessageContaining("数量");
+        assertThatThrownBy(() -> carts.replaceItems(alice.getId(), draft.getId(),
+                List.of(new CartItemCommand(dish.getId(), 101, List.of(), null))))
+                .hasMessageContaining("数量");
+        assertThatThrownBy(() -> carts.replaceItems(alice.getId(), draft.getId(),
+                List.of(new CartItemCommand(dish.getId(), Integer.MAX_VALUE, List.of(), null))))
+                .hasMessageContaining("数量");
+    }
+
+    @Test
+    void rejectsDuplicateDishTotalAboveSafeAggregateLimitWithoutIntegerOverflow() {
+        DishEntity dish = dishes.save(new DishEntity(merchant, "主食", "大份面", "", new BigDecimal("12.00"), 2000, true, ""));
+        CartDraft draft = carts.createDraft(alice.getId(), merchant.getId());
+        List<CartItemCommand> commands = new java.util.ArrayList<>();
+        for (int i = 0; i < 11; i++) {
+            commands.add(new CartItemCommand(dish.getId(), 100, List.of(), null));
+        }
+        carts.replaceItems(alice.getId(), draft.getId(), commands);
+
+        assertThatThrownBy(() -> carts.validate(alice.getId(), draft.getId()))
+                .hasMessageContaining("数量");
+    }
 }

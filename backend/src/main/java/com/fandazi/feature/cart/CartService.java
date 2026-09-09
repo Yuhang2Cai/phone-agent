@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CartService {
+    private static final int MAX_ITEM_QUANTITY = 100;
+    private static final long MAX_DISH_QUANTITY = 1_000L;
     private final CartDraftRepository drafts;
     private final MerchantRepository merchants;
     private final DishRepository dishes;
@@ -45,7 +47,7 @@ public class CartService {
         }
         List<CartDraftItem> items = new ArrayList<>();
         for (var command : commands) {
-            if (command.quantity() <= 0) {
+            if (command.quantity() <= 0 || command.quantity() > MAX_ITEM_QUANTITY) {
                 throw new DomainException("数量无效");
             }
             var dish = dishes.findById(command.dishId()).orElseThrow(() -> new DomainException("菜品不存在"));
@@ -75,7 +77,7 @@ public class CartService {
         }
 
         List<CartQuote.Line> lines = new ArrayList<>();
-        Map<Long, Integer> requestedStock = new LinkedHashMap<>();
+        Map<Long, Long> requestedStock = new LinkedHashMap<>();
         Map<Long, Integer> availableStock = new LinkedHashMap<>();
         BigDecimal subtotal = BigDecimal.ZERO;
         for (var item : draft.getItems()) {
@@ -83,7 +85,11 @@ public class CartService {
             if (!dish.isListed()) {
                 throw new DomainException("菜品已下架");
             }
-            requestedStock.merge(dish.getId(), item.getQuantity(), Integer::sum);
+            long requested = Math.addExact(requestedStock.getOrDefault(dish.getId(), 0L), item.getQuantity());
+            if (requested > MAX_DISH_QUANTITY) {
+                throw new DomainException("数量超出上限");
+            }
+            requestedStock.put(dish.getId(), requested);
             availableStock.putIfAbsent(dish.getId(), dish.getStock());
 
             BigDecimal optionDelta = BigDecimal.ZERO;
@@ -114,7 +120,7 @@ public class CartService {
         }
         if (reserve) {
             for (var request : requestedStock.entrySet()) {
-                if (dishes.decrementStockIfAvailable(request.getKey(), request.getValue()) != 1) {
+                if (dishes.decrementStockIfAvailable(request.getKey(), Math.toIntExact(request.getValue())) != 1) {
                     throw new DomainException("库存不足");
                 }
             }

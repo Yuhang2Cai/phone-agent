@@ -50,12 +50,23 @@ public class OrderService {
         return orders.save(order);
     }
 
+    @Transactional
+    public OrderResponse createResponse(Long userId, CreateOrderCommand command) {
+        return OrderResponse.from(create(userId, command));
+    }
+
     @Transactional(readOnly = true)
     public OrderEntity get(Long userId, Long id) {
         var order = orders.findByIdAndUserId(id, userId).orElseThrow(() -> new DomainException("订单不存在"));
         order.getTimeline();
         order.getItems().forEach(item -> item.getOptionIds());
         return order;
+    }
+
+    @Transactional(readOnly = true)
+    public OrderResponse getResponse(Long userId, Long id) {
+        return OrderResponse.from(orders.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new DomainException("订单不存在")));
     }
 
     public OrderEntity locked(Long userId, Long id) {
