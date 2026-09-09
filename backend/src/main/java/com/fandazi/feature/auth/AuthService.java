@@ -1,10 +1,11 @@
 package com.fandazi.feature.auth;
 
 import com.fandazi.core.security.JwtService;
+import java.util.Locale;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
 public class AuthService {
@@ -31,7 +32,10 @@ public class AuthService {
                     request.username(), request.email(), passwordEncoder.encode(request.password())));
             return responseFor(user);
         } catch (DataIntegrityViolationException exception) {
-            throw new AuthConflictException("Username or email is already in use");
+            if (isUsernameOrEmailUniqueConstraint(exception)) {
+                throw new AuthConflictException("Username or email is already in use");
+            }
+            throw exception;
         }
     }
 
@@ -54,5 +58,23 @@ public class AuthService {
 
     private AuthDtos.AuthResponse responseFor(UserEntity user) {
         return new AuthDtos.AuthResponse(jwtService.createToken(user.getId()), AuthDtos.UserResponse.from(user));
+    }
+
+    private boolean isUsernameOrEmailUniqueConstraint(Throwable exception) {
+        for (Throwable current = exception; current != null; current = current.getCause()) {
+            String message = current.getMessage();
+            if (message == null) {
+                continue;
+            }
+            String normalized = message.toLowerCase(Locale.ROOT);
+            boolean namesAuthField = normalized.contains("username") || normalized.contains("email");
+            boolean signalsUniqueViolation = normalized.contains("unique")
+                    || normalized.contains("duplicate key")
+                    || normalized.contains("duplicate entry");
+            if (namesAuthField && signalsUniqueViolation) {
+                return true;
+            }
+        }
+        return false;
     }
 }
