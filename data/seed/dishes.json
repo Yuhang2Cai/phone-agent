@@ -1,6 +1,6 @@
 [
-  {"merchant":"饭搭子盖饭社","category":"盖饭","name":"招牌辣椒鸡盖饭","basePrice":18.80,"previousPrice":16.80,"description":"合成菜品；微辣、鸡肉、米饭；含大豆","imageUrl":"/images/seed/meal-placeholder.png","count":10},
-  {"merchant":"热辣快餐站","category":"快餐","name":"香辣鸡腿套餐","basePrice":16.80,"description":"合成菜品；中辣、鸡肉、米饭；含麸质","imageUrl":"/images/seed/meal-placeholder.png","count":10},
+  {"merchant":"饭搭子盖饭社","category":"盖饭","name":"招牌辣椒鸡盖饭","basePrice":18.80,"previousPrice":16.80,"priceChanged":true,"rating":4.8,"spiciness":"中辣","ingredients":["鸡肉","米饭","青椒"],"allergens":["大豆"],"description":"合成菜品；微辣、鸡肉、米饭；含大豆","imageUrl":"/images/seed/meal-placeholder.png","count":10},
+  {"merchant":"热辣快餐站","category":"快餐","name":"香辣鸡腿套餐","basePrice":16.80,"rating":4.6,"spiciness":"中辣","ingredients":["鸡肉","米饭"],"allergens":["麸质"],"description":"合成菜品；中辣、鸡肉、米饭；含麸质","imageUrl":"/images/seed/meal-placeholder.png","count":10},
   {"merchant":"牛气面馆","category":"面食","name":"鲜椒牛肉面","basePrice":17.80,"description":"合成菜品；中辣、牛肉、面条；含麸质","imageUrl":"/images/seed/noodle-placeholder.png","count":10},
   {"merchant":"暖胃粥铺","category":"粥汤","name":"南瓜小米粥","basePrice":9.80,"description":"合成菜品；清淡、南瓜、小米；无香菜","imageUrl":"/images/seed/porridge-placeholder.png","count":10},
   {"merchant":"轻享沙拉","category":"轻食","name":"香煎鸡胸沙拉","basePrice":19.80,"description":"合成菜品；清淡、鸡胸、生菜；含坚果可选","imageUrl":"/images/seed/salad-placeholder.png","count":10},
