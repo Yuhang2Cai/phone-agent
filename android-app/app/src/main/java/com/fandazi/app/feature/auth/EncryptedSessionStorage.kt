@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.gson.Gson
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -31,19 +32,35 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
     override fun read(): Result<PersistedSession?> {
         val currentPreferences = preferences
             ?: return Result.failure(initializationError ?: IllegalStateException("Encrypted session storage unavailable"))
-        return runCatching {
-            currentPreferences.getString(SESSION_KEY, null)?.let {
+        return try {
+            Result.success(currentPreferences.getString(SESSION_KEY, null)?.let {
                 gson.fromJson(it, PersistedSession::class.java)
-            }
+            })
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            Result.failure(exception)
         }
     }
 
     override suspend fun write(value: PersistedSession): Boolean = withContext(Dispatchers.IO) {
-        runCatching { preferences?.edit()?.putString(SESSION_KEY, gson.toJson(value))?.commit() == true }.getOrDefault(false)
+        try {
+            preferences?.edit()?.putString(SESSION_KEY, gson.toJson(value))?.commit() == true
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            false
+        }
     }
 
     override suspend fun clear(): Boolean = withContext(Dispatchers.IO) {
-        runCatching { preferences?.edit()?.remove(SESSION_KEY)?.commit() == true }.getOrDefault(false)
+        try {
+            preferences?.edit()?.remove(SESSION_KEY)?.commit() == true
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            false
+        }
     }
 
     private companion object {

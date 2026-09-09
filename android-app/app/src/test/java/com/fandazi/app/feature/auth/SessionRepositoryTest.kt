@@ -3,6 +3,7 @@ package com.fandazi.app.feature.auth
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CancellationException
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -112,6 +113,22 @@ class SessionRepositoryTest {
         assertEquals(SessionError.StorageReadFailed, repository.error.value)
     }
 
+    @Test
+    fun cancellationDuringSessionWriteIsRethrown() = runBlocking {
+        val cancellation = CancellationException("test cancellation")
+        val repository = SessionRepository(
+            FakeAuthGateway(ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com")))),
+            InMemorySessionStorage(writeFailure = cancellation)
+        )
+
+        try {
+            repository.login("alice", "password123")
+            throw AssertionError("Expected cancellation")
+        } catch (actual: CancellationException) {
+            assertEquals(cancellation, actual)
+        }
+    }
+
     private class FakeAuthGateway(
         private val loginResult: ApiResult<AuthResponse> = ApiResult.Failure(ApiError.Network("not configured"))
     ) : AuthGateway {
@@ -125,13 +142,15 @@ class SessionRepositoryTest {
         private val writeResult: Boolean = true,
         private val clearResult: Boolean = true,
         override val initializationError: Throwable? = null,
-        private val readResult: Result<PersistedSession?>? = null
+        private val readResult: Result<PersistedSession?>? = null,
+        private val writeFailure: Throwable? = null
     ) : SessionStorage {
         private var session = initial
 
         override fun read(): Result<PersistedSession?> = readResult ?: Result.success(session)
 
         override suspend fun write(value: PersistedSession): Boolean {
+            writeFailure?.let { throw it }
             if (writeResult) session = value
             return writeResult
         }

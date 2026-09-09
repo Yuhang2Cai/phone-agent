@@ -2,6 +2,7 @@ package com.fandazi.app.feature.auth
 
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
@@ -88,6 +89,35 @@ class AuthFormProcessorTest {
         assertTrue(processor.state.value.isSubmitting)
         firstRequest.complete(ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com"))))
         first.await()
+    }
+
+    @Test
+    fun changingModeWhileSubmittingPreservesSubmittingState() = runBlocking {
+        val request = CompletableDeferred<ApiResult<AuthResponse>>()
+        val processor = AuthFormProcessor(FakeSessionRepository(loginBlock = { request.await() }))
+
+        val first = async { processor.submitLogin("alice", "password123") }
+        while (!processor.state.value.isSubmitting) kotlinx.coroutines.yield()
+
+        processor.setRegisterMode(true)
+
+        assertTrue(processor.state.value.isSubmitting)
+        assertTrue(processor.state.value.isRegisterMode)
+        request.complete(ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com"))))
+        first.await()
+    }
+
+    @Test
+    fun cancellationFromSessionRequestIsRethrown() = runBlocking {
+        val cancellation = CancellationException("test cancellation")
+        val processor = AuthFormProcessor(FakeSessionRepository(loginBlock = { throw cancellation }))
+
+        try {
+            processor.submitLogin("alice", "password123")
+            throw AssertionError("Expected cancellation")
+        } catch (actual: CancellationException) {
+            assertEquals(cancellation, actual)
+        }
     }
 
     private class FakeSessionRepository(

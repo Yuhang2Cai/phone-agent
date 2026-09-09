@@ -3,6 +3,7 @@ package com.fandazi.app.feature.auth
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,7 +23,7 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     val state: StateFlow<AuthFormState> = mutableState.asStateFlow()
 
     fun setRegisterMode(isRegisterMode: Boolean) {
-        mutableState.value = AuthFormState(isRegisterMode = isRegisterMode)
+        mutableState.value = mutableState.value.copy(isRegisterMode = isRegisterMode)
     }
 
     suspend fun submitLogin(username: String, password: String) {
@@ -35,6 +36,8 @@ class AuthFormProcessor(private val sessions: SessionActions) {
         mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
         val result = try {
             sessions.login(username.trim(), password)
+        } catch (exception: CancellationException) {
+            throw exception
         } catch (exception: Exception) {
             ApiResult.Failure(ApiError.Network(exception.message ?: "Authentication request failed"))
         }
@@ -51,6 +54,8 @@ class AuthFormProcessor(private val sessions: SessionActions) {
         mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
         val result = try {
             sessions.register(username.trim(), email.trim(), password)
+        } catch (exception: CancellationException) {
+            throw exception
         } catch (exception: Exception) {
             ApiResult.Failure(ApiError.Network(exception.message ?: "Registration request failed"))
         }

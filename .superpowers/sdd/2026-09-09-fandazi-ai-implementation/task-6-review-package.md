@@ -9,4 +9,7 @@
 - Fixes under review: debug-only cleartext policy, build-type API URL defaults, single-owner session routing with destination de-duplication, backend error-field mapping, submit race protection, and explicit encrypted-storage initialization/write/clear errors.
 - Commit history: 0c25bfc, b923666, 6c416cb, 424eef9, plus the current Task 6 round 4 fix commit.
 - Round 4 focus: valid Kotlin DSL API URL providers, non-silent encrypted session read failures, SessionRepository restore error state, and visible auth/home feedback.
+- Commit history: 0c25bfc, b923666, 6c416cb, 424eef9, 126b562, plus the current Task 6 round 5 fix commit.
+- Round 5 focus: stable build-script test path, submitting-mode state preservation, and cancellation propagation through auth and session storage.
+- Commit history through round 5: 0c25bfc, b923666, 6c416cb, 424eef9, 126b562, plus the current Task 6 round 5 fix commit.
 - Latest fix: Kotlin parameter ordering, logout failure feedback, and corrected build/cache verification record.

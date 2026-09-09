@@ -1,6 +1,7 @@
 package com.fandazi.app.feature.auth
 
 import com.fandazi.app.core.network.ApiResult
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,7 +31,13 @@ class SessionRepository(
         persistSuccessful(authGateway.register(username, email, password))
 
     override suspend fun logout() {
-        val cleared = runCatching { withContext(Dispatchers.IO) { storage.clear() } }.getOrDefault(false)
+        val cleared = try {
+            withContext(Dispatchers.IO) { storage.clear() }
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            false
+        }
         if (cleared) {
             mutableState.value = SessionState.Unauthenticated
             mutableError.value = null
@@ -51,7 +58,13 @@ class SessionRepository(
             return result
         }
         val session = PersistedSession(result.value.token, result.value.user)
-        val written = runCatching { withContext(Dispatchers.IO) { storage.write(session) } }.getOrDefault(false)
+        val written = try {
+            withContext(Dispatchers.IO) { storage.write(session) }
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            false
+        }
         return if (written) {
             mutableState.value = session.toSessionState()
             mutableError.value = null

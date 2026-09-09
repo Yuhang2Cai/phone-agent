@@ -134,3 +134,30 @@ wrapper 命令在下载 Gradle 8.13 时失败：java.net.SocketException: Permis
 - 当前可见 Gradle 8.13、插件缓存路径和默认 SDK 路径，但 ANDROID_HOME/ANDROID_SDK_ROOT 未设置。
 - 实际未进入源码编译，未生成 APK。使用现有 Gradle 8.13 执行 testDebugUnitTest --offline --no-daemon 与 assembleDebug --offline --no-daemon，均原样失败于 root classpath：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
 - 本轮实际命令：$env:JAVA_HOME='D:\\software\\AdroidStudio\\jbr'; & 'C:\\Users\\caid0\\.gradle\\wrapper\\dists\\gradle-8.13-bin\\5xuhj0ry160q40clulazy9h7d\\gradle-8.13\\bin\\gradle.bat' testDebugUnitTest --offline --no-daemon；以及同路径的 assembleDebug --offline --no-daemon。两条命令均输出 BUILD FAILED in 19s，并在 root project classpath 阶段报告上述两个 No cached version 错误。
+
+## Task 6 修复轮次 5
+
+- ApiBaseUrlBuildTypeTest 不再依赖错误的相对 cwd；测试从当前目录向上查找 android-app/app/build.gradle.kts，兼容 Gradle test worker 的工作目录。
+- AuthFormProcessor.setRegisterMode 改为基于当前状态 copy，正在提交时不再把 isSubmitting 重置为 false，原子提交锁与 UI 状态保持一致。
+- AuthFormProcessor、SessionRepository、EncryptedSessionStorage 对 CancellationException 均重新抛出，不将取消误报为网络或存储失败；补充提交竞态和取消传播测试。
+
+## 修复轮次 5 验证
+
+- XML 静态检查通过：app/src/main/res 与 app/src/debug 共 8 个 XML 文件解析成功。
+- git diff --check 通过。
+- 本轮尝试现有 Gradle 8.13 离线执行 testDebugUnitTest --offline --no-daemon 与 assembleDebug --offline --no-daemon；两者均未进入源码编译，仍在 root classpath 解析阶段失败：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
+- Android SDK 默认目录路径可见，但 ANDROID_HOME/ANDROID_SDK_ROOT 未设置；未生成 APK，不能宣称 Kotlin 测试或 assemble 通过。
+
+## Task 6 修复轮次 5
+
+- ApiBaseUrlBuildTypeTest 改为从 user.dir 向上查找 android-app/app/build.gradle.kts，不再依赖错误的相对 cwd。
+- AuthFormProcessor.setRegisterMode 使用当前状态 copy，提交中的 isSubmitting 不会被模式切换重置；补竞态测试。
+- AuthFormProcessor、SessionRepository、EncryptedSessionStorage 对 CancellationException 重新抛出；补认证请求和会话写入取消传播测试。
+
+## 修复轮次 5 验证
+
+- XML 静态检查通过：app/src/main/res 与 app/src/debug 共 8 个 XML 文件解析成功。
+- git diff --check 通过。
+- 实际命令：Gradle 8.13 路径下执行 testDebugUnitTest --offline --no-daemon 和 assembleDebug --offline --no-daemon。
+- 两条命令均在 root project classpath 阶段失败，原始错误为：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
+- 因此本轮未进入 Kotlin 源码编译或测试执行，未生成 APK。ANDROID_HOME/ANDROID_SDK_ROOT 仍未设置；报告中的“缓存路径可见”仅表示目录可见，不代表 Gradle 能离线解析这些插件。
