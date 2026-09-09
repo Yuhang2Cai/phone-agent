@@ -1,6 +1,13 @@
 apply(plugin = "com.android.application")
 apply(plugin = "org.jetbrains.kotlin.android")
 
+val debugApiBaseUrl = providers.gradleProperty("debugApiBaseUrl")
+    .orElse("http://10.0.2.2:8080/api/")
+    .get()
+val releaseApiBaseUrl = providers.gradleProperty("releaseApiBaseUrl")
+    .orElse("https://api.example.invalid/api/")
+    .get()
+
 android {
     namespace = "com.fandazi.app"
     compileSdk = 35
@@ -21,7 +28,7 @@ android {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "\"\${providers.gradleProperty("debugApiBaseUrl").orElse("http://10.0.2.2:8080/api/").get()}\""
+                "\"$debugApiBaseUrl\""
             )
         }
         release {
@@ -29,7 +36,7 @@ android {
             buildConfigField(
                 "String",
                 "API_BASE_URL",
-                "\"\${providers.gradleProperty("releaseApiBaseUrl").orElse("https://api.example.invalid/api/").get()}\""
+                "\"$releaseApiBaseUrl\""
             )
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

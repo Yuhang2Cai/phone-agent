@@ -17,7 +17,7 @@ class SessionRepositoryTest {
 
         assertTrue(result is ApiResult.Success)
         assertEquals(SessionState.Authenticated("token-1", User("alice", "alice@example.com")), repository.state.value)
-        assertEquals("token-1", storage.read()?.token)
+        assertEquals("token-1", storage.read().getOrNull()?.token)
     }
 
     @Test
@@ -29,7 +29,7 @@ class SessionRepositoryTest {
 
         assertEquals(ApiResult.Failure(ApiError.Http(401, "Invalid username or password")), result)
         assertEquals(SessionState.Unauthenticated, repository.state.value)
-        assertEquals(null, storage.read())
+        assertEquals(null, storage.read().getOrNull())
     }
 
     @Test
@@ -50,7 +50,7 @@ class SessionRepositoryTest {
         repository.logout()
 
         assertEquals(SessionState.Unauthenticated, repository.state.value)
-        assertEquals(null, storage.read())
+        assertEquals(null, storage.read().getOrNull())
     }
 
     @Test
@@ -101,6 +101,17 @@ class SessionRepositoryTest {
         assertEquals(SessionError.StorageClearFailed, repository.error.value)
     }
 
+    @Test
+    fun storageReadFailurePublishesErrorAndDoesNotPretendToRestoreSession() {
+        val repository = SessionRepository(
+            FakeAuthGateway(),
+            InMemorySessionStorage(readResult = Result.failure(IllegalStateException("decrypt failed")))
+        )
+
+        assertEquals(SessionState.Unauthenticated, repository.state.value)
+        assertEquals(SessionError.StorageReadFailed, repository.error.value)
+    }
+
     private class FakeAuthGateway(
         private val loginResult: ApiResult<AuthResponse> = ApiResult.Failure(ApiError.Network("not configured"))
     ) : AuthGateway {
@@ -113,11 +124,12 @@ class SessionRepositoryTest {
         initial: PersistedSession? = null,
         private val writeResult: Boolean = true,
         private val clearResult: Boolean = true,
-        override val initializationError: Throwable? = null
+        override val initializationError: Throwable? = null,
+        private val readResult: Result<PersistedSession?>? = null
     ) : SessionStorage {
         private var session = initial
 
-        override fun read(): PersistedSession? = session
+        override fun read(): Result<PersistedSession?> = readResult ?: Result.success(session)
 
         override suspend fun write(value: PersistedSession): Boolean {
             if (writeResult) session = value

@@ -22,13 +22,14 @@ sealed interface SessionState {
 
 interface SessionStorage {
     val initializationError: Throwable?
-    fun read(): PersistedSession?
+    fun read(): Result<PersistedSession?>
     suspend fun write(value: PersistedSession): Boolean
     suspend fun clear(): Boolean
 }
 
 enum class SessionError {
     StorageUnavailable,
+    StorageReadFailed,
     StorageWriteFailed,
     StorageClearFailed
 }

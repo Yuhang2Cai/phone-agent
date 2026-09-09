@@ -28,9 +28,15 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
     }
     private val gson = Gson()
 
-    override fun read(): PersistedSession? = runCatching {
-        preferences?.getString(SESSION_KEY, null)?.let { gson.fromJson(it, PersistedSession::class.java) }
-    }.getOrNull()
+    override fun read(): Result<PersistedSession?> {
+        val currentPreferences = preferences
+            ?: return Result.failure(initializationError ?: IllegalStateException("Encrypted session storage unavailable"))
+        return runCatching {
+            currentPreferences.getString(SESSION_KEY, null)?.let {
+                gson.fromJson(it, PersistedSession::class.java)
+            }
+        }
+    }
 
     override suspend fun write(value: PersistedSession): Boolean = withContext(Dispatchers.IO) {
         runCatching { preferences?.edit()?.putString(SESSION_KEY, gson.toJson(value))?.commit() == true }.getOrDefault(false)

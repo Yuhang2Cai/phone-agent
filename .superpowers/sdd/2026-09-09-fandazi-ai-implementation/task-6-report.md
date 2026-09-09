@@ -120,3 +120,17 @@ wrapper 命令在下载 Gradle 8.13 时失败：java.net.SocketException: Permis
   - gradle.bat assembleDebug --offline --no-daemon
 - 两个离线命令均在 root project classpath 配置阶段失败，原始错误为：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
 - 因此 Kotlin 单元测试、Kotlin 编译和 assembleDebug 均未运行到源码阶段；默认 SDK 目录虽路径可见，但缺少 ANDROID_HOME/ANDROID_SDK_ROOT，不能据此宣称构建成功。
+
+## Task 6 修复轮次 4
+
+- 修正 app/build.gradle.kts：先通过 providers.gradleProperty(...).orElse(...).get() 得到普通字符串，再传入 buildConfigField，避免嵌套引号和美元转义语法错误。
+- EncryptedSessionStorage.read() 改为返回 Result<PersistedSession?>，解密或读取异常不再静默吞掉；SessionRepository 在进程恢复时发布 StorageReadFailed，认证页提供可见提示。
+- 保留登出清理失败的可见 Toast，失败时继续停留在首页并允许重试。
+
+## 修复轮次 4 验证
+
+- XML 静态检查通过：app/src/main/res 与 app/src/debug 共 8 个 XML 文件解析成功。
+- git diff --check 通过。
+- 当前可见 Gradle 8.13、插件缓存路径和默认 SDK 路径，但 ANDROID_HOME/ANDROID_SDK_ROOT 未设置。
+- 实际未进入源码编译，未生成 APK。使用现有 Gradle 8.13 执行 testDebugUnitTest --offline --no-daemon 与 assembleDebug --offline --no-daemon，均原样失败于 root classpath：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
+- 本轮实际命令：$env:JAVA_HOME='D:\\software\\AdroidStudio\\jbr'; & 'C:\\Users\\caid0\\.gradle\\wrapper\\dists\\gradle-8.13-bin\\5xuhj0ry160q40clulazy9h7d\\gradle-8.13\\bin\\gradle.bat' testDebugUnitTest --offline --no-daemon；以及同路径的 assembleDebug --offline --no-daemon。两条命令均输出 BUILD FAILED in 19s，并在 root project classpath 阶段报告上述两个 No cached version 错误。

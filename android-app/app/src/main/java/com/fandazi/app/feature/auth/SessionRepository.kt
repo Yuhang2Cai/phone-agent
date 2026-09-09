@@ -11,10 +11,15 @@ class SessionRepository(
     private val authGateway: AuthGateway,
     private val storage: SessionStorage
 ) : SessionActions {
-    private val mutableState = MutableStateFlow(storage.read().toSessionState())
+    private val initialRead = storage.read()
+    private val mutableState = MutableStateFlow(initialRead.getOrNull().toSessionState())
     val state: StateFlow<SessionState> = mutableState.asStateFlow()
     private val mutableError = MutableStateFlow(
-        storage.initializationError?.let { SessionError.StorageUnavailable }
+        when {
+            storage.initializationError != null -> SessionError.StorageUnavailable
+            initialRead.isFailure -> SessionError.StorageReadFailed
+            else -> null
+        }
     )
     val error: StateFlow<SessionError?> = mutableError.asStateFlow()
 
