@@ -34,7 +34,8 @@
 - XML 布局
 - 单 Activity、多 Fragment
 - MVVM 分层
-- Retrofit/OkHttp 访问后端
+- OkHttp 直接访问后端 API，统一封装请求、鉴权、超时、重试和错误映射
+- Glide 加载商家、菜品和用户头像图片，配置内存及磁盘缓存
 - Room 保存必要缓存和草稿状态
 - Kotlin Coroutines 与 Flow 管理异步状态
 - 本地 Sherpa-ONNX Paraformer 模型完成中文离线 ASR
@@ -43,7 +44,7 @@
 
 - `presentation`：Activity、Fragment、Adapter、BottomSheet、ViewModel
 - `domain`：UseCase、领域模型和 Repository 接口
-- `data`：远程 API、Room、DTO、Repository 实现
+- `data`：OkHttp API 客户端、Room、Glide 图片加载、DTO、Repository 实现
 - `core`：鉴权、网络、错误映射、日志、设计规范
 - `asr`：录音、音频解码和本地识别
 - `agent-ui`：悬浮球、聊天面板、执行事件和确认卡片
@@ -282,10 +283,12 @@ AI 浮球显示在首页、搜索、商家和订单页面；登录、注册和�
 
 - ViewModel 状态流转单元测试
 - Repository 的网络、缓存和错误分支测试
+- OkHttp API 客户端使用 MockWebServer 覆盖成功、超时、错误码和鉴权失败场景
 - 登录、搜索、加购、地址、确认和订单流程测试
 - ASR 初始化失败、空结果和权限拒绝测试
 - 屏幕旋转、进程重建和网络恢复测试
 - 关键用户流程的 UI 自动化测试
+- Glide 图片加载的占位图、错误图和缓存命中场景测试
 
 ### 12.2 后端
 
