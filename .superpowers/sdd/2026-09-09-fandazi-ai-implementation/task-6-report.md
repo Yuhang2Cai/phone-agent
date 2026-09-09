@@ -104,3 +104,19 @@ $env:JAVA_HOME='D:\software\AdroidStudio\jbr'; & 'C:\Users\caid0\.gradle\wrapper
 ```
 
 wrapper 命令在下载 Gradle 8.13 时失败：java.net.SocketException: Permission denied: getsockopt。本机 Gradle 的两个离线命令均在 root classpath 解析阶段失败，提示上述 AGP/Kotlin 插件无缓存；没有生成 APK，也没有运行到源码编译或测试执行。
+
+## Task 6 修复轮次 3
+
+- 修正 AuthFormProcessor.validate 的 Kotlin 参数调用：所有参数显式命名，消除命名参数后接位置参数的编译错误。
+- HomeFragment 监听 SessionRepository.error；退出清理失败显示明确 Toast，清理失败时保持当前会话和首页，退出按钮仍可再次尝试。
+- 当前环境可见 Gradle 8.13 可执行文件、AGP/Kotlin 插件缓存路径和默认 Android SDK 路径，但 ANDROID_HOME/ANDROID_SDK_ROOT 未设置，且 Gradle 离线解析仍报告插件无可用缓存。
+
+### 修复轮次 3 实际验证
+
+- XML 静态检查通过：app/src/main/res 与 app/src/debug 共 8 个 XML 文件解析成功。
+- git diff --check 通过。
+- 未进入源码编译，未生成 APK。实际命令：
+  - gradle.bat testDebugUnitTest --offline --no-daemon
+  - gradle.bat assembleDebug --offline --no-daemon
+- 两个离线命令均在 root project classpath 配置阶段失败，原始错误为：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
+- 因此 Kotlin 单元测试、Kotlin 编译和 assembleDebug 均未运行到源码阶段；默认 SDK 目录虽路径可见，但缺少 ANDROID_HOME/ANDROID_SDK_ROOT，不能据此宣称构建成功。

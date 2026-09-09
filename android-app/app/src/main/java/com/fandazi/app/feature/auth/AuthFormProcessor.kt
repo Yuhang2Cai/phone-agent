@@ -27,7 +27,7 @@ class AuthFormProcessor(private val sessions: SessionActions) {
 
     suspend fun submitLogin(username: String, password: String) {
         if (!submitting.compareAndSet(false, true)) return
-        val errors = validate(username, email = null, password, isRegisterMode = false)
+        val errors = validate(username = username, email = null, password = password, isRegisterMode = false)
         if (!publishErrors(errors, false)) {
             submitting.set(false)
             return
@@ -43,7 +43,7 @@ class AuthFormProcessor(private val sessions: SessionActions) {
 
     suspend fun submitRegister(username: String, email: String, password: String) {
         if (!submitting.compareAndSet(false, true)) return
-        val errors = validate(username, email, password, isRegisterMode = true)
+        val errors = validate(username = username, email = email, password = password, isRegisterMode = true)
         if (!publishErrors(errors, true)) {
             submitting.set(false)
             return
