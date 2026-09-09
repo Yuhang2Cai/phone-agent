@@ -9,3 +9,6 @@ local.properties
 *.log
 .env
 *.onnx.zip
+# Keep model files that are packaged into the Android APK.
+!android-app/app/src/main/assets/
+!android-app/app/src/main/assets/**
