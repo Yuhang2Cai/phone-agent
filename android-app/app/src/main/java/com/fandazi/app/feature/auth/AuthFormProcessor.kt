@@ -13,8 +13,7 @@ data class AuthFormState(
     val usernameError: String? = null,
     val emailError: String? = null,
     val passwordError: String? = null,
-    val errorMessage: String? = null,
-    val navigateHome: Boolean = false
+    val errorMessage: String? = null
 )
 
 class AuthFormProcessor(private val sessions: SessionActions) {
@@ -24,10 +23,6 @@ class AuthFormProcessor(private val sessions: SessionActions) {
 
     fun setRegisterMode(isRegisterMode: Boolean) {
         mutableState.value = AuthFormState(isRegisterMode = isRegisterMode)
-    }
-
-    fun consumeNavigation() {
-        mutableState.value = mutableState.value.copy(navigateHome = false)
     }
 
     suspend fun submitLogin(username: String, password: String) {
@@ -69,8 +64,7 @@ class AuthFormProcessor(private val sessions: SessionActions) {
             usernameError = errors.username,
             emailError = errors.email,
             passwordError = errors.password,
-            errorMessage = null,
-            navigateHome = false
+            errorMessage = null
         )
         return errors.isValid
     }
@@ -84,7 +78,7 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     private fun complete(result: ApiResult<AuthResponse>) {
         submitting.set(false)
         mutableState.value = when (result) {
-            is ApiResult.Success -> mutableState.value.copy(isSubmitting = false, navigateHome = true, errorMessage = null)
+            is ApiResult.Success -> mutableState.value.copy(isSubmitting = false, errorMessage = null)
             is ApiResult.Failure -> mutableState.value.copy(isSubmitting = false, errorMessage = result.error.toUserMessage())
         }
     }
@@ -92,18 +86,26 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     private fun ApiError.toUserMessage(): String = when (this) {
         is ApiError.Http -> when (code) {
             401 -> "用户名或密码错误"
-            400 -> if (message.lowercase().contains("already in use") || message.lowercase().contains("duplicate")) {
+            400 -> when {
+                message.containsAny("already in use", "duplicate", "already exists") -> "用户名或邮箱已被使用"
+                message.containsAny("invalid username or password", "incorrect password", "invalid credentials") -> "用户名或密码错误"
+                else -> "请求参数有误，请检查后重试"
+            }
+            409 -> if (message.containsAny("already in use", "duplicate", "already exists")) {
                 "用户名或邮箱已被使用"
             } else {
-                "用户名或密码错误"
+                "请求冲突，请稍后重试"
             }
-            409 -> "用户名或邮箱已被使用"
-            else -> message
+            in 422..499 -> "请求参数有误，请检查后重试"
+            else -> message.ifBlank { "服务暂时不可用，请稍后重试" }
         }
         ApiError.Timeout -> "请求超时，请重试"
         is ApiError.Network -> "网络不可用，请检查连接"
         ApiError.Storage -> "本地会话保存失败，请重试"
     }
+
+    private fun String.containsAny(vararg values: String): Boolean =
+        values.any { lowercase().contains(it) }
 
     private data class ValidationErrors(val username: String?, val email: String?, val password: String?) {
         val isValid: Boolean get() = username == null && email == null && password == null

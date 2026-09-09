@@ -11,14 +11,26 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
-        buildConfigField("String", "API_BASE_URL", "\"http://10.0.2.2:8080/api/\"")
+        buildConfigField("String", "API_BASE_URL", "\"https://api.example.invalid/api/\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "\"\${providers.gradleProperty("debugApiBaseUrl").orElse("http://10.0.2.2:8080/api/").get()}\""
+            )
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField(
+                "String",
+                "API_BASE_URL",
+                "\"\${providers.gradleProperty("releaseApiBaseUrl").orElse("https://api.example.invalid/api/").get()}\""
+            )
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

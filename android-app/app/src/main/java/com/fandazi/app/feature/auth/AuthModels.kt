@@ -21,9 +21,16 @@ sealed interface SessionState {
 }
 
 interface SessionStorage {
+    val initializationError: Throwable?
     fun read(): PersistedSession?
     suspend fun write(value: PersistedSession): Boolean
     suspend fun clear(): Boolean
+}
+
+enum class SessionError {
+    StorageUnavailable,
+    StorageWriteFailed,
+    StorageClearFailed
 }
 
 interface AuthGateway {

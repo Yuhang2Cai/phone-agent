@@ -13,6 +13,10 @@ class SessionRepository(
 ) : SessionActions {
     private val mutableState = MutableStateFlow(storage.read().toSessionState())
     val state: StateFlow<SessionState> = mutableState.asStateFlow()
+    private val mutableError = MutableStateFlow(
+        storage.initializationError?.let { SessionError.StorageUnavailable }
+    )
+    val error: StateFlow<SessionError?> = mutableError.asStateFlow()
 
     override suspend fun login(username: String, password: String): ApiResult<AuthResponse> =
         persistSuccessful(authGateway.login(username, password))
@@ -21,8 +25,16 @@ class SessionRepository(
         persistSuccessful(authGateway.register(username, email, password))
 
     override suspend fun logout() {
-        if (withContext(Dispatchers.IO) { storage.clear() }) {
+        val cleared = runCatching { withContext(Dispatchers.IO) { storage.clear() } }.getOrDefault(false)
+        if (cleared) {
             mutableState.value = SessionState.Unauthenticated
+            mutableError.value = null
+        } else {
+            mutableError.value = if (storage.initializationError != null) {
+                SessionError.StorageUnavailable
+            } else {
+                SessionError.StorageClearFailed
+            }
         }
     }
 
@@ -34,11 +46,18 @@ class SessionRepository(
             return result
         }
         val session = PersistedSession(result.value.token, result.value.user)
-        return if (withContext(Dispatchers.IO) { storage.write(session) }) {
+        val written = runCatching { withContext(Dispatchers.IO) { storage.write(session) } }.getOrDefault(false)
+        return if (written) {
             mutableState.value = session.toSessionState()
+            mutableError.value = null
             result
         } else {
             mutableState.value = SessionState.Unauthenticated
+            mutableError.value = if (storage.initializationError != null) {
+                SessionError.StorageUnavailable
+            } else {
+                SessionError.StorageWriteFailed
+            }
             ApiResult.Failure(com.fandazi.app.core.network.ApiError.Storage)
         }
     }

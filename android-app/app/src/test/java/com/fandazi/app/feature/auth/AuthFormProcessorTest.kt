@@ -65,6 +65,17 @@ class AuthFormProcessorTest {
     }
 
     @Test
+    fun parameterErrorIsNotPresentedAsCredentialError() = runBlocking {
+        val processor = AuthFormProcessor(FakeSessionRepository(loginBlock = {
+            ApiResult.Failure(ApiError.Http(400, "email must be valid"))
+        }))
+
+        processor.submitLogin("alice", "password123")
+
+        assertEquals("请求参数有误，请检查后重试", processor.state.value.errorMessage)
+    }
+
+    @Test
     fun secondSubmissionCannotResetFirstSubmissionState() = runBlocking {
         val firstRequest = CompletableDeferred<ApiResult<AuthResponse>>()
         val sessions = FakeSessionRepository(loginBlock = { firstRequest.await() })

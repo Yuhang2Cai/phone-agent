@@ -9,6 +9,7 @@
     <string name="password">密码</string>
     <string name="home">首页</string>
     <string name="welcome_user">你好，%1$s</string>
+    <string name="welcome_signed_out">请先登录</string>
     <string name="home_foundation_message">认证已完成。点餐、订单和 AI 助手将在后续功能中接入。</string>
     <string name="logout">退出登录</string>
 </resources>

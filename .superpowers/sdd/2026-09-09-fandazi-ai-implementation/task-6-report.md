@@ -77,3 +77,30 @@ No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available 
 - `android-app/build/`
 
 未删除任何 Android 源码、测试、资源或 Gradle wrapper 文件。
+
+## Task 6 修复轮次 2
+
+- 导航所有权收敛到 MainActivity：AuthFragment 与 HomeFragment 不再直接调用 Navigation，MainActivity 根据 SessionRepository.state 和当前 destination 去重路由。
+- API_BASE_URL 改为 build type 配置：debug 默认 http://10.0.2.2:8080/api/，release 默认可替换的 HTTPS 占位 https://api.example.invalid/api/，均可通过 Gradle 属性覆盖。
+- 认证文案按 HTTP status 和后端 error message 区分凭证错误、重复注册、参数错误、冲突、网络和超时；普通 400 不再统一显示密码错误。
+- EncryptedSessionStorage 显式暴露初始化异常；写入/清理仍在 IO dispatcher 执行并检查 commit() 返回值，SessionRepository.error 映射初始化、写入和清理失败。
+- 补充 build type、参数错误、存储初始化/清理失败和重复路由回归测试。
+
+## 修复轮次 2 验证
+
+- XML 静态检查通过：app/src/main/res 与 app/src/debug 共 8 个 XML 文件均可解析。
+- 静态检查确认 AuthFragment/HomeFragment 无 navigate(，导航调用仅保留在 MainActivity；build type 地址规则与 debug 明文策略检查通过。
+- git diff --check 通过。
+- 实际未编译：本轮 Kotlin 单元测试、Kotlin 编译和 assembleDebug 均未进入源码编译阶段，不能宣称测试或 APK 通过。
+- Gradle wrapper 下载 gradle-8.13-bin.zip 仍因失效代理/网络权限失败：java.net.SocketException: Permission denied: getsockopt。
+- 本机 Gradle 离线尝试仍缺少 com.android.tools.build:gradle:8.10.1 和 org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 缓存；Android SDK 也未配置可用的 ANDROID_HOME/ANDROID_SDK_ROOT 或 local.properties。
+
+### 本次实际执行命令
+
+```powershell
+$env:JAVA_HOME='D:\software\AdroidStudio\jbr'; .\gradlew.bat testDebugUnitTest --no-daemon
+$env:JAVA_HOME='D:\software\AdroidStudio\jbr'; & 'C:\Users\caid0\.gradle\wrapper\dists\gradle-8.13-bin\5xuhj0ry160q40clulazy9h7d\gradle-8.13\bin\gradle.bat' testDebugUnitTest --offline --no-daemon
+$env:JAVA_HOME='D:\software\AdroidStudio\jbr'; & 'C:\Users\caid0\.gradle\wrapper\dists\gradle-8.13-bin\5xuhj0ry160q40clulazy9h7d\gradle-8.13\bin\gradle.bat' assembleDebug --offline --no-daemon
+```
+
+wrapper 命令在下载 Gradle 8.13 时失败：java.net.SocketException: Permission denied: getsockopt。本机 Gradle 的两个离线命令均在 root classpath 解析阶段失败，提示上述 AGP/Kotlin 插件无缓存；没有生成 APK，也没有运行到源码编译或测试执行。

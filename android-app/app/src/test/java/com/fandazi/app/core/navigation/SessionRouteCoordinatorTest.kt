@@ -24,4 +24,13 @@ class SessionRouteCoordinatorTest {
         assertTrue(SessionRouteCoordinator.shouldNavigate(SessionRoute.HOME, desired))
         assertFalse(SessionRouteCoordinator.shouldNavigate(SessionRoute.AUTH, desired))
     }
+
+    @Test
+    fun sameSessionRouteIsIdempotentForRepeatedStateEmissions() {
+        val first = SessionRouteCoordinator.routeFor(SessionState.Authenticated("token", User("alice", "a@example.com")))
+        val second = SessionRouteCoordinator.routeFor(SessionState.Authenticated("token", User("alice", "a@example.com")))
+
+        assertTrue(first == second)
+        assertFalse(SessionRouteCoordinator.shouldNavigate(first, second))
+    }
 }

@@ -6,7 +6,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.databinding.FragmentHomeBinding
@@ -29,9 +28,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sessions.state.collect { state ->
                     when (state) {
                         is SessionState.Authenticated -> viewBinding.welcomeText.text = getString(R.string.welcome_user, state.user.username)
-                        SessionState.Unauthenticated -> findNavController().navigate(R.id.authFragment, null, androidx.navigation.navOptions {
-                            popUpTo(R.id.homeFragment) { inclusive = true }
-                        })
+                        SessionState.Unauthenticated -> viewBinding.welcomeText.setText(R.string.welcome_signed_out)
                     }
                 }
             }

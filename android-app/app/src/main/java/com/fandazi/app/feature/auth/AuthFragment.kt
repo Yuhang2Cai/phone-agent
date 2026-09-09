@@ -9,7 +9,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.fragment.findNavController
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.databinding.FragmentAuthBinding
@@ -53,12 +52,6 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         viewBinding.emailLayout.error = state.emailError
         viewBinding.passwordLayout.error = state.passwordError
         state.errorMessage?.let { Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show() }
-        if (state.navigateHome) {
-            viewModel.consumeNavigation()
-            findNavController().navigate(R.id.homeFragment, null, androidx.navigation.navOptions {
-                popUpTo(R.id.authFragment) { inclusive = true }
-            })
-        }
     }
 
     override fun onDestroyView() {

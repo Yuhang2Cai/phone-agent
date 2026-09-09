@@ -73,6 +73,32 @@ class SessionRepositoryTest {
 
         assertEquals(ApiResult.Failure(ApiError.Storage), result)
         assertEquals(SessionState.Unauthenticated, repository.state.value)
+        assertEquals(SessionError.StorageWriteFailed, repository.error.value)
+    }
+
+    @Test
+    fun storageInitializationFailureIsExposed() {
+        val repository = SessionRepository(
+            FakeAuthGateway(),
+            InMemorySessionStorage(initializationError = IllegalStateException("keystore unavailable"))
+        )
+
+        assertEquals(SessionState.Unauthenticated, repository.state.value)
+        assertEquals(SessionError.StorageUnavailable, repository.error.value)
+    }
+
+    @Test
+    fun failedClearKeepsSessionAndExposesError() = runBlocking {
+        val session = PersistedSession("token-1", User("alice", "alice@example.com"))
+        val repository = SessionRepository(
+            FakeAuthGateway(),
+            InMemorySessionStorage(initial = session, clearResult = false)
+        )
+
+        repository.logout()
+
+        assertEquals(SessionState.Authenticated("token-1", User("alice", "alice@example.com")), repository.state.value)
+        assertEquals(SessionError.StorageClearFailed, repository.error.value)
     }
 
     private class FakeAuthGateway(
@@ -86,7 +112,8 @@ class SessionRepositoryTest {
     private class InMemorySessionStorage(
         initial: PersistedSession? = null,
         private val writeResult: Boolean = true,
-        private val clearResult: Boolean = true
+        private val clearResult: Boolean = true,
+        override val initializationError: Throwable? = null
     ) : SessionStorage {
         private var session = initial
 
