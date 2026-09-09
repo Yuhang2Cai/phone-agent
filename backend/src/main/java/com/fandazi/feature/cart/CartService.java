@@ -127,8 +127,13 @@ public class CartService {
         }
 
         BigDecimal fee = draft.getMerchant().getDeliveryFee();
+        BigDecimal discount = BigDecimal.ZERO;
+        if (draft.getMerchant().getDiscountThreshold().signum() > 0
+                && subtotal.compareTo(draft.getMerchant().getDiscountThreshold()) >= 0) {
+            discount = draft.getMerchant().getDiscountAmount().min(subtotal).max(BigDecimal.ZERO);
+        }
         return new CartQuote(draft.getMerchant().getId(), List.copyOf(lines), subtotal, fee,
-                BigDecimal.ZERO, subtotal.add(fee));
+                discount, subtotal.add(fee).subtract(discount));
     }
 
     public CartDraft owned(Long userId, Long id) {

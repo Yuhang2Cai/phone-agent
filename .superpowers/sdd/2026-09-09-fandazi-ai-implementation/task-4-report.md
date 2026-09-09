@@ -75,3 +75,20 @@ Pending at report creation; see the final commit recorded below after staging.
 ### Repair round 2 follow-up commit
 
 `fix: complete task 4 http and cart safeguards` (final commit recorded in repository history)
+
+## Repair round 3
+
+- Added server-owned merchant promotion rules using a threshold and fixed discount amount; cart quotes now calculate the discount and final total from persisted merchant data, ignoring client prices/discounts.
+- Added the calculated discount to the immutable order amount snapshot and `OrderResponse`.
+- Added Jakarta Bean Validation to address, cart-item, and order input DTOs, enabled `@Valid` on relevant controllers, and normalized body-validation failures to HTTP 400 with a stable error payload.
+- Centralized adjacent order-state enforcement in `OrderEntity.advance`; delivery service and all internal transitions now use the same guard.
+- Added HTTP regressions for invalid inputs, cross-user order isolation, and same-key/different-request conflicts, plus promotion and non-admission domain tests.
+
+### Repair round 3 verification
+
+- `mvn -f backend/pom.xml test`: 39 tests, 0 failures, 0 errors.
+- `git diff --check`: passed with no output.
+
+### Repair round 3 commit
+
+Pending at report creation; final commit recorded in repository history.

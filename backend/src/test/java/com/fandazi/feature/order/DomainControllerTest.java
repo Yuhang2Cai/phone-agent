@@ -30,6 +30,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.containsString;
@@ -168,5 +169,65 @@ class DomainControllerTest {
         mockMvc.perform(post("/api/orders/1/delivery").with(auth)
                         .contentType("application/json").content("{\"status\":\"PREPARING\"}"))
                 .andExpect(status().is4xxClientError());
+    }
+
+    @Test
+    void rejectsInvalidHttpInputsWithStableBadRequest() throws Exception {
+        UserEntity user = users.save(new UserEntity("validation-user", "validation@example.com", "secret-hash"));
+        var auth = authentication(new UsernamePasswordAuthenticationToken(user.getId(), null, List.of()));
+
+        mockMvc.perform(post("/api/addresses").with(auth)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"recipient\":\"\",\"phone\":\"\",\"detail\":\"\",\"defaultAddress\":true}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("请求参数无效"));
+        mockMvc.perform(post("/api/orders").with(auth)
+                        .header("Idempotency-Key", "validation-order")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cartDraftId\":null,\"addressId\":null}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("请求参数无效"));
+        mockMvc.perform(put("/api/cart/drafts/1/items").with(auth)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("[{\"dishId\":null,\"quantity\":0,\"optionIds\":[]}]"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("请求参数无效"));
+        mockMvc.perform(post("/api/orders").with(auth)
+                        .header("Idempotency-Key", " ")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cartDraftId\":1,\"addressId\":1}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void isolatesOrdersAcrossUsersAndRejectsHttpIdempotencyConflict() throws Exception {
+        UserEntity owner = users.save(new UserEntity("http-owner", "http-owner@example.com", "hash"));
+        UserEntity stranger = users.save(new UserEntity("http-stranger", "http-stranger@example.com", "hash"));
+        MerchantEntity merchant = merchants.save(new MerchantEntity(
+                "隔离餐厅", "盖饭", new BigDecimal("10.00"), new BigDecimal("2.00"), 25, true));
+        DishEntity dish = dishes.save(new DishEntity(
+                merchant, "主食", "隔离盖饭", "", new BigDecimal("12.00"), 10, true, ""));
+        AddressEntity ownerAddress = addresses.create(owner.getId(), new AddressCommand("Owner", "13800000000", "隔离路 1 号", true));
+        AddressEntity otherAddress = addresses.create(owner.getId(), new AddressCommand("Owner", "13800000000", "隔离路 2 号", false));
+        CartDraft cart = carts.createDraft(owner.getId(), merchant.getId());
+        carts.replaceItems(owner.getId(), cart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(), null)));
+        var ownerAuth = authentication(new UsernamePasswordAuthenticationToken(owner.getId(), null, List.of()));
+        var strangerAuth = authentication(new UsernamePasswordAuthenticationToken(stranger.getId(), null, List.of()));
+
+        var created = mockMvc.perform(post("/api/orders").with(ownerAuth)
+                        .header("Idempotency-Key", "http-conflict")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cartDraftId\":" + cart.getId() + ",\"addressId\":" + ownerAddress.getId() + "}"))
+                .andExpect(status().isCreated())
+                .andReturn();
+        Long orderId = JsonPath.parse(created.getResponse().getContentAsString()).read("$.id", Long.class);
+
+        mockMvc.perform(get("/api/orders/{id}", orderId).with(strangerAuth))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(post("/api/orders").with(ownerAuth)
+                        .header("Idempotency-Key", "http-conflict")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cartDraftId\":" + cart.getId() + ",\"addressId\":" + otherAddress.getId() + "}"))
+                .andExpect(status().isConflict());
     }
 }

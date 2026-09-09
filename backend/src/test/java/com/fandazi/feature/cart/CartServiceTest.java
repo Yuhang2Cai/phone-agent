@@ -130,4 +130,33 @@ class CartServiceTest {
         assertThatThrownBy(() -> carts.validate(alice.getId(), draft.getId()))
                 .hasMessageContaining("数量");
     }
+
+    @Test
+    void appliesMerchantPromotionWhenSubtotalReachesThreshold() {
+        merchant = merchants.save(new MerchantEntity("优惠面馆", "面食", new BigDecimal("10.00"),
+                new BigDecimal("3.00"), 30, true, new BigDecimal("20.00"), new BigDecimal("5.00")));
+        DishEntity dish = dishes.save(new DishEntity(merchant, "主食", "优惠面", "", new BigDecimal("12.00"), 10, true, ""));
+        CartDraft draft = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), draft.getId(), List.of(new CartItemCommand(dish.getId(), 2, List.of(), null)));
+
+        CartQuote quote = carts.validate(alice.getId(), draft.getId());
+
+        assertThat(quote.subtotal()).isEqualByComparingTo("24.00");
+        assertThat(quote.discount()).isEqualByComparingTo("5.00");
+        assertThat(quote.total()).isEqualByComparingTo("22.00");
+    }
+
+    @Test
+    void doesNotApplyMerchantPromotionBelowThreshold() {
+        merchant = merchants.save(new MerchantEntity("优惠面馆", "面食", new BigDecimal("10.00"),
+                new BigDecimal("3.00"), 30, true, new BigDecimal("30.00"), new BigDecimal("5.00")));
+        DishEntity dish = dishes.save(new DishEntity(merchant, "主食", "优惠面", "", new BigDecimal("12.00"), 10, true, ""));
+        CartDraft draft = carts.createDraft(alice.getId(), merchant.getId());
+        carts.replaceItems(alice.getId(), draft.getId(), List.of(new CartItemCommand(dish.getId(), 2, List.of(), new BigDecimal("0.01"))));
+
+        CartQuote quote = carts.validate(alice.getId(), draft.getId());
+
+        assertThat(quote.discount()).isZero();
+        assertThat(quote.total()).isEqualByComparingTo("27.00");
+    }
 }

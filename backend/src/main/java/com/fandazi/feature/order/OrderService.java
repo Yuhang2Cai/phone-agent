@@ -42,7 +42,7 @@ public class OrderService {
         var quote = carts.reserveAndQuote(userId, command.cartDraftId());
         var order = new OrderEntity(user, command.idempotencyKey(), fingerprint,
                 address.getRecipient(), address.getPhone(), address.getDetail(),
-                quote.subtotal(), quote.deliveryFee(), quote.total());
+                quote.subtotal(), quote.deliveryFee(), quote.discount(), quote.total());
         for (var line : quote.lines()) {
             order.addItem(new OrderItemEntity(order, line.dishId(), line.dishName(), line.quantity(),
                     line.optionIds(), line.optionSummary(), line.unitPrice()));
