@@ -43,7 +43,7 @@ class AuthFormProcessorTest {
     @Test
     fun authenticationErrorIsPresentedToForm() = runBlocking {
         val processor = AuthFormProcessor(FakeSessionRepository(loginBlock = {
-            ApiResult.Failure(ApiError.Http(401, "Invalid username or password"))
+            ApiResult.Failure(ApiError.Http(400, "Invalid username or password"))
         }))
 
         processor.submitLogin("alice", "wrong-password")
@@ -52,10 +52,38 @@ class AuthFormProcessorTest {
         assertTrue(!processor.state.value.isSubmitting)
     }
 
+    @Test
+    fun duplicateRegistrationShowsConflictMessage() = runBlocking {
+        val processor = AuthFormProcessor(FakeSessionRepository(registerBlock = {
+            ApiResult.Failure(ApiError.Http(400, "Username is already in use"))
+        }))
+        processor.setRegisterMode(true)
+
+        processor.submitRegister("alice", "alice@example.com", "password123")
+
+        assertEquals("用户名或邮箱已被使用", processor.state.value.errorMessage)
+    }
+
+    @Test
+    fun secondSubmissionCannotResetFirstSubmissionState() = runBlocking {
+        val firstRequest = CompletableDeferred<ApiResult<AuthResponse>>()
+        val sessions = FakeSessionRepository(loginBlock = { firstRequest.await() })
+        val processor = AuthFormProcessor(sessions)
+
+        val first = async { processor.submitLogin("alice", "password123") }
+        while (sessions.loginCalls == 0) kotlinx.coroutines.yield()
+        processor.submitLogin("", "short")
+
+        assertTrue(processor.state.value.isSubmitting)
+        firstRequest.complete(ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com"))))
+        first.await()
+    }
+
     private class FakeSessionRepository(
         private val loginBlock: suspend () -> ApiResult<AuthResponse> = {
             ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com")))
-        }
+        },
+        private val registerBlock: suspend () -> ApiResult<AuthResponse> = loginBlock
     ) : SessionActions {
         var loginCalls = 0
 
@@ -64,7 +92,7 @@ class AuthFormProcessorTest {
             return loginBlock()
         }
 
-        override suspend fun register(username: String, email: String, password: String): ApiResult<AuthResponse> = loginBlock()
+        override suspend fun register(username: String, email: String, password: String): ApiResult<AuthResponse> = registerBlock()
 
         override suspend fun logout() = Unit
     }

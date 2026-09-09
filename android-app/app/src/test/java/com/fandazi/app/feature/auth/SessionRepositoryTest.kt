@@ -62,6 +62,19 @@ class SessionRepositoryTest {
         assertEquals(SessionState.Authenticated("token-1", User("alice", "alice@example.com")), repository.state.value)
     }
 
+    @Test
+    fun failedSessionWriteDoesNotPublishAuthenticatedState() = runBlocking {
+        val repository = SessionRepository(
+            FakeAuthGateway(ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com")))),
+            InMemorySessionStorage(writeResult = false)
+        )
+
+        val result = repository.login("alice", "password123")
+
+        assertEquals(ApiResult.Failure(ApiError.Storage), result)
+        assertEquals(SessionState.Unauthenticated, repository.state.value)
+    }
+
     private class FakeAuthGateway(
         private val loginResult: ApiResult<AuthResponse> = ApiResult.Failure(ApiError.Network("not configured"))
     ) : AuthGateway {
@@ -70,17 +83,23 @@ class SessionRepositoryTest {
         override suspend fun register(username: String, email: String, password: String): ApiResult<AuthResponse> = loginResult
     }
 
-    private class InMemorySessionStorage(initial: PersistedSession? = null) : SessionStorage {
+    private class InMemorySessionStorage(
+        initial: PersistedSession? = null,
+        private val writeResult: Boolean = true,
+        private val clearResult: Boolean = true
+    ) : SessionStorage {
         private var session = initial
 
         override fun read(): PersistedSession? = session
 
-        override fun write(value: PersistedSession) {
-            session = value
+        override suspend fun write(value: PersistedSession): Boolean {
+            if (writeResult) session = value
+            return writeResult
         }
 
-        override fun clear() {
-            session = null
+        override suspend fun clear(): Boolean {
+            if (clearResult) session = null
+            return clearResult
         }
     }
 }

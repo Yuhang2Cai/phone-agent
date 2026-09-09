@@ -29,7 +29,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sessions.state.collect { state ->
                     when (state) {
                         is SessionState.Authenticated -> viewBinding.welcomeText.text = getString(R.string.welcome_user, state.user.username)
-                        SessionState.Unauthenticated -> findNavController().navigate(R.id.authFragment)
+                        SessionState.Unauthenticated -> findNavController().navigate(R.id.authFragment, null, androidx.navigation.navOptions {
+                            popUpTo(R.id.homeFragment) { inclusive = true }
+                        })
                     }
                 }
             }

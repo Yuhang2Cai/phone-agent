@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class EncryptedSessionStorage(context: Context) : SessionStorage {
     private val preferences = EncryptedSharedPreferences.create(
@@ -19,12 +21,12 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
         preferences.getString(SESSION_KEY, null)?.let { gson.fromJson(it, PersistedSession::class.java) }
     }.getOrNull()
 
-    override fun write(value: PersistedSession) {
-        preferences.edit().putString(SESSION_KEY, gson.toJson(value)).commit()
+    override suspend fun write(value: PersistedSession): Boolean = withContext(Dispatchers.IO) {
+        runCatching { preferences.edit().putString(SESSION_KEY, gson.toJson(value)).commit() }.getOrDefault(false)
     }
 
-    override fun clear() {
-        preferences.edit().remove(SESSION_KEY).commit()
+    override suspend fun clear(): Boolean = withContext(Dispatchers.IO) {
+        runCatching { preferences.edit().remove(SESSION_KEY).commit() }.getOrDefault(false)
     }
 
     private companion object {

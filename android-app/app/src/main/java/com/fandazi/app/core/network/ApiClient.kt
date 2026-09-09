@@ -22,6 +22,7 @@ sealed interface ApiError {
     data class Http(val code: Int, val message: String) : ApiError
     data class Network(val message: String) : ApiError
     data object Timeout : ApiError
+    data object Storage : ApiError
 }
 
 class ApiClient(
@@ -86,7 +87,8 @@ class ApiClient(
     }
 
     private fun messageFrom(body: String, fallback: String): String = runCatching {
-        JsonParser.parseString(body).asJsonObject.get("message")?.asString
+        val json = JsonParser.parseString(body).asJsonObject
+        json.get("error")?.asString ?: json.get("message")?.asString
     }.getOrNull().orEmpty().ifBlank { fallback.ifBlank { "Request failed" } }
 
     private fun ApiError.isRetryableNetworkFailure(): Boolean = this is ApiError.Network || this is ApiError.Timeout

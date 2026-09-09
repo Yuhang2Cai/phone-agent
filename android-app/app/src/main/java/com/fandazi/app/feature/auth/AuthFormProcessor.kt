@@ -31,25 +31,46 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     }
 
     suspend fun submitLogin(username: String, password: String) {
+        if (!submitting.compareAndSet(false, true)) return
         val errors = validate(username, email = null, password, isRegisterMode = false)
-        if (!publishErrors(errors, false) || !submitting.compareAndSet(false, true)) return
+        if (!publishErrors(errors, false)) {
+            submitting.set(false)
+            return
+        }
         mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
-        complete(sessions.login(username.trim(), password))
+        val result = try {
+            sessions.login(username.trim(), password)
+        } catch (exception: Exception) {
+            ApiResult.Failure(ApiError.Network(exception.message ?: "Authentication request failed"))
+        }
+        complete(result)
     }
 
     suspend fun submitRegister(username: String, email: String, password: String) {
+        if (!submitting.compareAndSet(false, true)) return
         val errors = validate(username, email, password, isRegisterMode = true)
-        if (!publishErrors(errors, true) || !submitting.compareAndSet(false, true)) return
+        if (!publishErrors(errors, true)) {
+            submitting.set(false)
+            return
+        }
         mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
-        complete(sessions.register(username.trim(), email.trim(), password))
+        val result = try {
+            sessions.register(username.trim(), email.trim(), password)
+        } catch (exception: Exception) {
+            ApiResult.Failure(ApiError.Network(exception.message ?: "Registration request failed"))
+        }
+        complete(result)
     }
 
     private fun publishErrors(errors: ValidationErrors, isRegisterMode: Boolean): Boolean {
-        mutableState.value = AuthFormState(
+        mutableState.value = mutableState.value.copy(
             isRegisterMode = isRegisterMode,
+            isSubmitting = false,
             usernameError = errors.username,
             emailError = errors.email,
-            passwordError = errors.password
+            passwordError = errors.password,
+            errorMessage = null,
+            navigateHome = false
         )
         return errors.isValid
     }
@@ -71,11 +92,17 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     private fun ApiError.toUserMessage(): String = when (this) {
         is ApiError.Http -> when (code) {
             401 -> "用户名或密码错误"
+            400 -> if (message.lowercase().contains("already in use") || message.lowercase().contains("duplicate")) {
+                "用户名或邮箱已被使用"
+            } else {
+                "用户名或密码错误"
+            }
             409 -> "用户名或邮箱已被使用"
             else -> message
         }
         ApiError.Timeout -> "请求超时，请重试"
         is ApiError.Network -> "网络不可用，请检查连接"
+        ApiError.Storage -> "本地会话保存失败，请重试"
     }
 
     private data class ValidationErrors(val username: String?, val email: String?, val password: String?) {

@@ -22,8 +22,8 @@ sealed interface SessionState {
 
 interface SessionStorage {
     fun read(): PersistedSession?
-    fun write(value: PersistedSession)
-    fun clear()
+    suspend fun write(value: PersistedSession): Boolean
+    suspend fun clear(): Boolean
 }
 
 interface AuthGateway {
