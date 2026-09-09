@@ -24,3 +24,16 @@
 - Added seed-only `seed_dish_metadata` and `seed_address_metadata` entities/tables. Historical price, change flag, rating, spice level, ingredients, allergens, and address validity are persisted for later Agent queries without changing core business entities.
 - Added tests for metadata recognition, repeated execution, category coverage, and `seed.enabled=false`.
 - Revision verification:专项 3/3 and full backend 44/44 tests passed; `git diff --check` is clean.
+
+## Revision 2
+
+- Made the 12 dish templates explicit about rating, spiciness, ingredients, and allergens. The loader validates these fields as positive/non-blank/non-empty instead of substituting defaults, and the integration test verifies structured metadata for all 120 generated dishes.
+- Added a local PNG seed-food placeholder and verified that every fixture image path resolves to a valid PNG resource.
+- Added an integration regression that corrupts the later `orders.json` fixture, verifies transaction rollback leaves no merchant, user, order, option, address, or metadata rows, restores the fixture, and reloads successfully.
+- Added immutable `SeedScenario` records parsed from `agent-scenarios.json`; the seed test verifies all nine scenario IDs are queryable.
+
+## Revision 2 Verification
+
+- Red: fixture completeness/image-path assertions failed; missing structured metadata initially loaded with a default; and the Agent scenario collection API was absent.
+- Green: `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test` (7 tests, 0 failures).
+- Full: `mvn -f backend/pom.xml test` (49 tests, 0 failures).
