@@ -1,0 +1,14 @@
+[
+  {"merchant":"饭搭子盖饭社","category":"盖饭","name":"招牌辣椒鸡盖饭","basePrice":18.80,"previousPrice":16.80,"description":"合成菜品；微辣、鸡肉、米饭；含大豆","imageUrl":"/images/seed/meal-placeholder.png","count":10},
+  {"merchant":"热辣快餐站","category":"快餐","name":"香辣鸡腿套餐","basePrice":16.80,"description":"合成菜品；中辣、鸡肉、米饭；含麸质","imageUrl":"/images/seed/meal-placeholder.png","count":10},
+  {"merchant":"牛气面馆","category":"面食","name":"鲜椒牛肉面","basePrice":17.80,"description":"合成菜品；中辣、牛肉、面条；含麸质","imageUrl":"/images/seed/noodle-placeholder.png","count":10},
+  {"merchant":"暖胃粥铺","category":"粥汤","name":"南瓜小米粥","basePrice":9.80,"description":"合成菜品；清淡、南瓜、小米；无香菜","imageUrl":"/images/seed/porridge-placeholder.png","count":10},
+  {"merchant":"轻享沙拉","category":"轻食","name":"香煎鸡胸沙拉","basePrice":19.80,"description":"合成菜品；清淡、鸡胸、生菜；含坚果可选","imageUrl":"/images/seed/salad-placeholder.png","count":10},
+  {"merchant":"元气茶饮","category":"饮品","name":"桂花乌龙奶茶","basePrice":12.80,"description":"合成菜品；少糖、乌龙、牛奶；含乳制品","imageUrl":"/images/seed/drink-placeholder.png","count":10},
+  {"merchant":"街角小吃铺","category":"地方小吃","name":"红油抄手","basePrice":14.80,"description":"合成菜品；重辣、猪肉、香菜可去；含麸质","imageUrl":"/images/seed/snack-placeholder.png","count":10},
+  {"merchant":"川味下饭菜","category":"盖饭","name":"麻婆豆腐盖饭","basePrice":15.80,"description":"合成菜品；中辣、豆腐、米饭；含大豆","imageUrl":"/images/seed/meal-placeholder.png","count":10},
+  {"merchant":"北方面点屋","category":"面食","name":"番茄鸡蛋面","basePrice":13.80,"description":"合成菜品；不辣、鸡蛋、面条；含蛋和麸质","imageUrl":"/images/seed/noodle-placeholder.png","count":10},
+  {"merchant":"清润汤饭","category":"粥汤","name":"菌菇鸡汤饭","basePrice":16.80,"description":"合成菜品；清淡、菌菇、鸡肉；无香菜","imageUrl":"/images/seed/porridge-placeholder.png","count":10},
+  {"merchant":"果蔬能量碗","category":"轻食","name":"牛油果能量碗","basePrice":22.80,"description":"合成菜品；清淡、牛油果、藜麦；含坚果","imageUrl":"/images/seed/salad-placeholder.png","count":10},
+  {"merchant":"夜宵小馆","category":"地方小吃","name":"炭烤小串","basePrice":18.80,"description":"合成菜品；中辣、鸡肉、孜然；无远程图片","imageUrl":"/images/seed/snack-placeholder.png","count":10}
+]
