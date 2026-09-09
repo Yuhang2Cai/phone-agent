@@ -1,523 +1,188 @@
-# 饭搭子 AI Implementation Plan
+# 饭搭子 AI 实施计划
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **给执行者：** 必须使用 `superpowers:subagent-driven-development`（推荐）或 `superpowers:executing-plans`，按任务逐项执行。本计划使用复选框跟踪进度。
 
-**Goal:** Build an installable Android XML + MVVM food-ordering app with a Spring Boot backend and a constrained single-agent ordering workflow, supported by an editable HTML/CSS prototype and repeatable test data.
+**目标：** 构建一个可安装的 Android 外卖 App，采用 XML + MVVM，配套 Spring Boot 后端、受约束的单 Agent 点餐流程、可编辑 HTML/CSS 原型和可重复的测试数据。
 
-**Architecture:** The Android app owns presentation, local ASR, cached UI state, and user authorization. Spring Boot owns authentication, catalog, cart, addresses, orders, simulated payment, delivery state transitions, agent orchestration, tool authorization, and persistence. The `FoodOrderingAgent` uses a server-side allowlist of deterministic business tools; Android receives readable execution events over SSE.
+**架构：** Android 负责页面、本地 ASR、缓存和用户授权；Spring Boot 负责登录、菜单、购物车、地址、订单、模拟支付、配送状态、Agent 编排、工具授权和持久化。`FoodOrderingAgent` 只能调用服务端白名单工具，Android 通过 SSE 接收执行事件。
 
-**Tech Stack:** Kotlin, Android XML, MVVM, OkHttp, Glide, Room, Coroutines/Flow, Sherpa-ONNX Paraformer INT8, Java 17, Spring Boot, Spring Security/JWT, Spring Data JPA, MySQL, SSE, OpenAPI/Knife4j, HTML/CSS/JavaScript.
+**技术栈：** Kotlin、Android XML、MVVM、OkHttp、Glide、Room、Coroutines/Flow、Sherpa-ONNX Paraformer INT8、Java 17、Spring Boot、Spring Security/JWT、Spring Data JPA、MySQL、SSE、OpenAPI/Knife4j、HTML/CSS/JavaScript。
 
-**Spec:** `docs/superpowers/specs/2026-09-09-fandazi-ai-design.md`
+**设计文档：** `docs/superpowers/specs/2026-09-09-fandazi-ai-design.md`
 
-## Global Constraints
+## 全局约束
 
-- The product is named “饭搭子 AI”.
-- Android uses XML layouts, MVVM, OkHttp for HTTP, and Glide for images.
-- The backend uses Java 17 and Spring Boot; the LLM key, base URL, and model name stay server-side.
-- The first release uses one `FoodOrderingAgent`, not multiple agents.
-- Default order submission requires an order confirmation card; automatic mode is bounded by address and amount rules.
-- “按上次配置复购” locks the original merchant, dish, quantity, and options; unavailable items stop the flow rather than being replaced.
-- Payment is simulated; post-payment delivery status is advanced by a backend state machine.
-- Only the customer app is built. No merchant, rider, operations, real payment, map picker, or third-party App automation is included.
-- The initial dataset is synthetic, repeatable, and includes normal and failure cases.
-- The local ASR model is packaged in the APK and transcribes after recording ends.
+- 产品名称为“饭搭子 AI”。
+- Android 使用 XML、MVVM、OkHttp 和 Glide。
+- 大模型密钥、Base URL 和模型名称只保存在服务端配置中。
+- 首版只有一个 `FoodOrderingAgent`，不使用多 Agent。
+- 默认下单必须确认；自动模式受默认地址和金额上限约束。
+- “按上次配置复购”锁定原商家、菜品、数量和规格；不可用时停止，不跨店替换。
+- 支付为模拟支付；支付后的配送状态由后端状态机推进。
+- 只开发用户端，不开发商家端、骑手端、运营后台、真实支付、地图选点或第三方 App 自动化。
+- 测试数据由项目提供，必须可重复导入并包含异常样本。
+- 本地 ASR 模型随 APK 打包，录音结束后再识别。
 
 ---
 
-### Task 1: Establish the workspace structure and build contracts
+### 任务 1：建立工作区结构和运行约定
 
-**Files:**
-- Create: `README.md`
-- Create: `.gitignore`
-- Create: `ui-prototype/README.md`
-- Create: `backend/README.md`
-- Create: `android-app/README.md`
-- Create: `data/seed/README.md`
+**文件：** `README.md`、`.gitignore`、`ui-prototype/README.md`、`backend/README.md`、`android-app/README.md`、`data/seed/README.md`
 
-**Interfaces:**
-- Produces the top-level directories and the environment-variable contract consumed by later tasks.
-- The backend exposes `http://localhost:8080/api`; the Android debug build uses a configurable base URL.
+**产出：** 创建 `android-app`、`backend`、`ui-prototype`、`data` 和 `docs` 目录；约定后端 API 根路径为 `http://localhost:8080/api`。
 
-- [ ] **Step 1: Document local prerequisites and run commands**
+- [ ] 记录 Android Studio、JDK 17、MySQL、后端启动、Android 构建和 HTML 原型预览方式。
+- [ ] 记录 `DB_URL`、`DB_USERNAME`、`DB_PASSWORD`、`LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL`、`JWT_SECRET` 的配置含义，并明确禁止提交密钥。
+- [ ] 忽略 `.gradle/`、`build/`、`.idea/`、`local.properties`、APK、日志、`.env` 和模型压缩包。
+- [ ] 执行 `Get-ChildItem -Force`，确认目录完整。
+- [ ] 提交：`git add README.md .gitignore ui-prototype/README.md backend/README.md android-app/README.md data/seed/README.md && git commit -m "chore: establish 饭搭子 AI workspace"`
 
-Write README sections for Android Studio, JDK 17, MySQL, Node-free browser preview, backend environment variables (`DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`, `JWT_SECRET`), and the rule that secrets must not be committed.
+### 任务 2：制作可编辑 HTML/CSS UI 原型
 
-- [ ] **Step 2: Add ignore rules**
+**文件：** `ui-prototype/index.html`、`ui-prototype/styles.css`、`ui-prototype/app.js`、`ui-prototype/assets/README.md`
 
-Ignore `.gradle/`, `build/`, `.idea/`, `local.properties`, generated APKs, runtime logs, `.env`, and downloaded model archives while keeping checked-in model assets under `android-app/app/src/main/assets/`.
+**产出接口：** `app.js` 管理 `currentPage`、`cart`、`agentMode`、`orderStatus` 和 `agentEvents`；页面包括 `login`、`home`、`search`、`merchant`、`checkout`、`payment`、`orders`、`order-detail`、`addresses`、`profile`、`agent`。
 
-- [ ] **Step 3: Verify the structure**
+- [ ] 以 390 × 844 为基准，使用明亮黄色、浅灰白背景、白色卡片和蓝紫色 AI 强调色；用 CSS 变量集中管理颜色、字号、间距、圆角和阴影。
+- [ ] 制作登录/注册、首页、搜索、商家菜单、规格选择、购物车、确认订单、模拟支付、订单列表/详情、地址、个人中心、自动化设置和 AI 助手页面。
+- [ ] 实现 `navigate(page)`、`addToCart(dishId, options)`、`changeQuantity(itemId, delta)`、`submitMockPayment()`、`advanceOrderStatus()`、`toggleAutomation()` 和 `runAgentDemo(prompt)`。
+- [ ] 让 `runAgentDemo` 依次产生“解析意图、搜索商家、查询菜品、构建购物车、校验订单、等待确认”事件。
+- [ ] 在浏览器中完成人工验收：登录 → 首页 → 商家 → 规格 → 购物车 → 结算 → 支付 → 订单详情，以及悬浮助手 → 执行事件 → 确认卡片。
+- [ ] 提交：`git add ui-prototype && git commit -m "feat: add editable 饭搭子 AI ui prototype"`
 
-Run `Get-ChildItem -Force` from the workspace root and confirm `android-app`, `backend`, `ui-prototype`, `data`, and `docs` exist.
+### 任务 3：建立 Spring Boot 后端基础和认证
 
-- [ ] **Step 4: Commit**
+**文件：** `backend/pom.xml`、`backend/src/main/java/com/fandazi/FandaziApplication.java`、`backend/src/main/java/com/fandazi/core/security/`、`backend/src/main/java/com/fandazi/feature/auth/`、`backend/src/main/resources/application.yml`、`backend/src/test/java/com/fandazi/feature/auth/AuthControllerTest.java`
 
-```bash
-git add README.md .gitignore ui-prototype/README.md backend/README.md android-app/README.md data/seed/README.md
-git commit -m "chore: establish 饭搭子 AI workspace"
-```
+**接口：** `POST /api/auth/register`、`POST /api/auth/login` 返回 `{ token, user }`；`GET /api/users/me` 根据 Bearer Token 返回当前用户。
 
-### Task 2: Build the editable HTML/CSS UI prototype
+- [ ] 先写测试：注册成功、用户名重复、登录成功、密码错误、缺少 Token。
+- [ ] 执行 `mvn -f backend/pom.xml -Dtest=AuthControllerTest test`，确认实现前失败。
+- [ ] 实现 `UserEntity`、`UserRepository`、BCrypt、`AuthService`、`AuthController`、JWT 和无状态 `SecurityFilterChain`。
+- [ ] 重新执行测试，确认通过。
+- [ ] 提交：`git add backend && git commit -m "feat: add backend authentication"`
 
-**Files:**
-- Create: `ui-prototype/index.html`
-- Create: `ui-prototype/styles.css`
-- Create: `ui-prototype/app.js`
-- Create: `ui-prototype/assets/README.md`
+### 任务 4：实现商家、地址、购物车、订单、支付和配送状态
 
-**Interfaces:**
-- `app.js` exposes client-side state for `currentPage`, `cart`, `agentMode`, `orderStatus`, and `agentEvents`.
-- Navigation targets are `login`, `home`, `search`, `merchant`, `checkout`, `payment`, `orders`, `order-detail`, `addresses`, `profile`, and `agent`.
+**文件：** `backend/src/main/java/com/fandazi/feature/catalog/`、`address/`、`cart/`、`order/`、`payment/`、`delivery/`；测试文件为 `OrderServiceTest.java` 和 `CartServiceTest.java`。
 
-- [ ] **Step 1: Write the prototype interaction checklist**
+**接口：**
 
-Add comments to `ui-prototype/README.md` listing the exact clickable acceptance flow: login → home → merchant → option picker → cart → checkout → payment → order detail, plus floating assistant → prompt → execution events → confirmation card.
+- `GET /api/merchants?keyword=&category=&maxDeliveryMinutes=&maxPrice=` 分页搜索商家。
+- `GET /api/merchants/{merchantId}/dishes` 返回菜单、规格、库存和图片地址。
+- `GET/POST/PUT/DELETE /api/addresses` 管理地址；`PATCH /api/addresses/{id}/default` 设置默认地址。
+- `POST /api/cart/drafts`、`PUT /api/cart/drafts/{id}/items`、`POST /api/cart/drafts/{id}/validate` 管理候选购物车。
+- `POST /api/orders` 使用幂等键创建 `PENDING_PAYMENT` 订单。
+- `POST /api/orders/{id}/pay` 将订单变为 `PAID` 和 `MERCHANT_ACCEPTED`。
+- `GET /api/orders/{id}` 返回订单及配送时间线。
 
-- [ ] **Step 2: Create the phone shell and reusable visual tokens**
+- [ ] 先写业务测试：地址归属、默认地址唯一、下架菜品拒绝、价格重新计算、起送价、订单幂等、重复支付拒绝和状态流转。
+- [ ] 实现 `MerchantEntity`、`DishEntity`、`DishOptionEntity`、`AddressEntity`、Repository、DTO 和 Controller。
+- [ ] 购物车校验时重新读取菜品和规格，计算小计、配送费、优惠和总价，返回不可变快照。
+- [ ] 订单保存地址和菜品快照；相同用户重复使用同一 `Idempotency-Key` 时返回原订单。
+- [ ] 实现 `PENDING_PAYMENT → PAID → MERCHANT_ACCEPTED → PREPARING → RIDER_PICKED_UP → DELIVERING → DELIVERED`。
+- [ ] 执行 `mvn -f backend/pom.xml -Dtest=OrderServiceTest,CartServiceTest test` 并提交：`git add backend && git commit -m "feat: add food ordering domain"`
 
-Define CSS variables for the bright yellow brand color, neutral backgrounds, AI blue-purple accent, card radius, spacing scale, and typography. Build a 390 x 844 phone viewport with bottom navigation and a global AI floating button.
+### 任务 5：制作可重复的合成测试数据
 
-- [ ] **Step 3: Add the core screens**
+**文件：** `data/seed/merchants.json`、`dishes.json`、`users.json`、`addresses.json`、`orders.json`、`agent-scenarios.json`、`backend/src/main/resources/db/seed/SeedDataLoader.java`、`SeedDataLoaderTest.java`
 
-Render login/register, home, search results, merchant menu, checkout, mock payment, order list/detail, address management, profile, automation settings, and the AI assistant panel from data objects in `app.js`.
+**产出：** 约 12 家商户、100–140 个菜品，覆盖快餐、盖饭、面食、粥汤、轻食、饮品和地方小吃；包含评分、配送费、配送时间、优惠、辣度、配料、过敏标签和库存状态。
 
-- [ ] **Step 4: Add deterministic prototype actions**
+- [ ] 先写测试，断言商户/菜品数量、规格组、下架样本、价格变化、默认/失效地址和已支付历史订单。
+- [ ] 整理“30 元以内想吃辣的”“按上次配置再来一单”“我感冒了中午推荐清淡一点”“不要香菜使用默认地址”等场景。
+- [ ] 增加地址缺失、价格变化、复购菜品下架、金额超限和非法参数场景。
+- [ ] 使用 `seed.enabled` 配置控制加载；执行 `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test`。
+- [ ] 菜单与价格使用合成数据，图片使用本地授权素材或占位图；提交：`git add data backend/src/main/resources/db/seed backend/src/test/java/com/fandazi/seed && git commit -m "test: add deterministic food ordering data"`
 
-Implement `navigate(page)`, `addToCart(dishId, options)`, `changeQuantity(itemId, delta)`, `submitMockPayment()`, `advanceOrderStatus()`, `toggleAutomation()`, and `runAgentDemo(prompt)`. `runAgentDemo` must emit events in this order: intent parsed → searching merchants → checking dishes → drafting cart → validating order → waiting for confirmation.
+### 任务 6：实现 Android 外壳、认证、OkHttp 和 Glide
 
-- [ ] **Step 5: Add prototype acceptance checks**
+**文件：** `android-app/settings.gradle.kts`、`build.gradle.kts`、`app/src/main/AndroidManifest.xml`、`app/src/main/java/com/fandazi/app/core/network/`、`core/image/ImageLoader.kt`、`feature/auth/`、`res/layout/`。
 
-Open `ui-prototype/index.html` in a browser and verify that all navigation buttons, quantity controls, option selections, assistant open/close behavior, confirmation card, and delivery timeline work without a backend.
+**产出接口：** `ApiClient` 封装 OkHttp 和 `ApiError`；`SessionRepository` 暴露 `StateFlow<SessionState>` 与 `suspend login/register/logout`；`ImageLoader.load(ImageView, url, placeholder, error)` 统一调用 Glide。
 
-- [ ] **Step 6: Commit**
+- [ ] 写登录、凭证错误、超时、退出登录和进程重建测试。
+- [ ] 建立单 Activity、Navigation、Fragment、ViewModel、生命周期收集和共享主题；所有页面使用 XML。
+- [ ] 配置 OkHttp 超时、JWT 拦截器、JSON 解析、幂等 GET 的一次重试和服务端错误码映射。
+- [ ] 配置 Glide 内存/磁盘缓存、圆角转换、占位图和错误图；图片失败不能阻断文字展示。
+- [ ] 实现登录注册表单、字段错误、重复提交保护、Token 保存和首页路由。
+- [ ] 在 `android-app` 执行 `.\gradlew.bat testDebugUnitTest assembleDebug`，确认通过并生成 APK。
+- [ ] 提交：`git add android-app && git commit -m "feat: add android shell and network foundation"`
 
-```bash
-git add ui-prototype
-git commit -m "feat: add editable 饭搭子 AI ui prototype"
-```
+### 任务 7：实现 Android 外卖流程、地址、订单和模拟支付
 
-### Task 3: Create the Spring Boot backend foundation and authentication
+**文件：** `android-app/app/src/main/java/com/fandazi/app/feature/home/`、`catalog/`、`cart/`、`address/`、`order/`、`res/layout/` 及对应测试目录。
 
-**Files:**
-- Create: `backend/pom.xml`
-- Create: `backend/src/main/java/com/fandazi/FandaziApplication.java`
-- Create: `backend/src/main/java/com/fandazi/core/security/SecurityConfig.java`
-- Create: `backend/src/main/java/com/fandazi/core/security/JwtService.java`
-- Create: `backend/src/main/java/com/fandazi/feature/auth/*`
-- Create: `backend/src/main/resources/application.yml`
-- Create: `backend/src/test/java/com/fandazi/feature/auth/AuthControllerTest.java`
+- [ ] 测试搜索加载/错误/空状态、分类、规格、数量、地址、结算金额、支付结果和订单刷新。
+- [ ] 实现首页、搜索、商家卡片、菜品卡片、配送信息、骨架屏、空状态和重试状态。
+- [ ] 使用 RecyclerView 展示菜单分类和规格弹窗；用 Room 保存离开页面时的购物车草稿。
+- [ ] 实现地址新增、编辑、删除和默认地址；自动化依赖的唯一默认地址不得直接删除。
+- [ ] 实现结算、幂等键、模拟支付和订单详情；未结束订单刷新详情，结束后停止刷新。
+- [ ] 执行单元测试，安装 APK，完成注册 → 搜索 → 加购 → 结算 → 支付 → 配送时间线。
+- [ ] 提交：`git add android-app && git commit -m "feat: add android food ordering flow"`
 
-**Interfaces:**
-- `POST /api/auth/register` accepts `{ "username": string, "password": string, "nickname": string }` and returns `{ "token": string, "user": UserSummary }`.
-- `POST /api/auth/login` accepts `{ "username": string, "password": string }` and returns the same response shape.
-- `GET /api/users/me` returns `UserSummary` for a valid bearer token.
+### 任务 8：集成本地 ASR 模型
 
-- [ ] **Step 1: Write failing authentication tests**
+**文件：** `feature/asr/SpeechRecognizer.kt`、`AudioRecorder.kt`、`AsrViewModel.kt`、ASR 资源和测试。
 
-Cover successful registration, duplicate username rejection, successful login, incorrect password rejection, and missing-token rejection. Assert HTTP status and response JSON fields.
-
-- [ ] **Step 2: Run the tests and confirm failure**
-
-Run `mvn -f backend/pom.xml -Dtest=AuthControllerTest test`. Expected result: tests fail because the Spring Boot application and endpoints do not yet exist.
-
-- [ ] **Step 3: Implement the minimum authentication stack**
-
-Add `UserEntity`, `UserRepository`, password hashing with BCrypt, `AuthService`, `AuthController`, JWT creation/validation, and a stateless `SecurityFilterChain`. Keep database and LLM credentials sourced from environment properties.
-
-- [ ] **Step 4: Run the tests and confirm success**
-
-Run the same Maven command and verify all authentication tests pass.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add backend
-git commit -m "feat: add backend authentication"
-```
-
-### Task 4: Implement catalog, addresses, cart, orders, simulated payment, and delivery state
-
-**Files:**
-- Create: `backend/src/main/java/com/fandazi/feature/catalog/*`
-- Create: `backend/src/main/java/com/fandazi/feature/address/*`
-- Create: `backend/src/main/java/com/fandazi/feature/cart/*`
-- Create: `backend/src/main/java/com/fandazi/feature/order/*`
-- Create: `backend/src/main/java/com/fandazi/feature/payment/*`
-- Create: `backend/src/main/java/com/fandazi/feature/delivery/*`
-- Test: `backend/src/test/java/com/fandazi/feature/order/OrderServiceTest.java`
-- Test: `backend/src/test/java/com/fandazi/feature/cart/CartServiceTest.java`
-
-**Interfaces:**
-- `GET /api/merchants?keyword=&category=&maxDeliveryMinutes=&maxPrice=` returns paginated merchant summaries.
-- `GET /api/merchants/{merchantId}/dishes` returns menu categories, dishes, options, availability, and image URLs.
-- `GET/POST/PUT/DELETE /api/addresses` manages user-owned addresses; `PATCH /api/addresses/{id}/default` sets the default.
-- `POST /api/cart/drafts`, `PUT /api/cart/drafts/{id}/items`, and `POST /api/cart/drafts/{id}/validate` manage candidate carts.
-- `POST /api/orders` requires an idempotency key and returns an order with `PENDING_PAYMENT` status.
-- `POST /api/orders/{id}/pay` changes payment to `PAID` and delivery to `MERCHANT_ACCEPTED`.
-- `GET /api/orders/{id}` returns the latest order and delivery timeline.
-
-- [ ] **Step 1: Write service tests for business invariants**
-
-Cover owner-only address access, default-address uniqueness, unavailable dish rejection, price recalculation from database values, minimum order validation, idempotent order creation, duplicate payment rejection, and delivery transitions.
-
-- [ ] **Step 2: Implement catalog and address entities/services**
-
-Create `MerchantEntity`, `DishEntity`, `DishOptionEntity`, `AddressEntity`, repositories, DTOs, and controllers. Add server-side filtering for keyword, category, price, delivery time, rating, and availability.
-
-- [ ] **Step 3: Implement cart draft validation**
-
-Use `CartDraft` and `CartDraftItem` entities. On validation, reload every dish and option, reject unavailable items, calculate subtotal, delivery fee, discount, and total, then return an immutable validation snapshot.
-
-- [ ] **Step 4: Implement order creation and idempotency**
-
-Persist address and item snapshots in `Order` and `OrderItem`. Require `Idempotency-Key`; repeated requests with the same user and key return the original order without another insert.
-
-- [ ] **Step 5: Implement simulated payment and scheduled delivery transitions**
-
-Allow only `PENDING_PAYMENT → PAID`; reject repeated payment. A scheduled service advances `MERCHANT_ACCEPTED → PREPARING → RIDER_PICKED_UP → DELIVERING → DELIVERED` using timestamps, while every transition is persisted.
-
-- [ ] **Step 6: Run the service tests**
-
-Run `mvn -f backend/pom.xml -Dtest=OrderServiceTest,CartServiceTest test`. Expected result: PASS.
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add backend
-git commit -m "feat: add food ordering domain"
-```
-
-### Task 5: Create and validate the synthetic test dataset
-
-**Files:**
-- Create: `data/seed/merchants.json`
-- Create: `data/seed/dishes.json`
-- Create: `data/seed/users.json`
-- Create: `data/seed/addresses.json`
-- Create: `data/seed/orders.json`
-- Create: `data/seed/agent-scenarios.json`
-- Create: `backend/src/main/resources/db/seed/SeedDataLoader.java`
-- Create: `backend/src/test/java/com/fandazi/seed/SeedDataLoaderTest.java`
-
-**Interfaces:**
-- Seed files are deterministic UTF-8 JSON and load through `SeedDataLoader` only when the `seed.enabled` profile is active.
-- `agent-scenarios.json` contains `name`, `userMessage`, `expectedTools`, `requiresConfirmation`, and `expectedOutcome`.
-
-- [ ] **Step 1: Write seed validation tests**
-
-Assert 12 merchants, 100–140 dishes, at least one option group per applicable dish, at least one unavailable dish, at least one price-change scenario, at least one default and invalid address, and at least one paid historical order.
-
-- [ ] **Step 2: Author the dataset**
-
-Create synthetic Chinese merchant and dish names across fast food, rice bowls, noodles, congee/soup, light meals, drinks, and regional snacks. Add ratings, fees, delivery times, discounts, spicy levels, garnish tags, allergy tags, and stock states.
-
-- [ ] **Step 3: Add known Agent scenarios**
-
-Include “30 元以内想吃辣的”, “按上次配置再来一单”, “我感冒了中午推荐清淡一点”, “不要香菜使用默认地址”, plus missing address, price increase, unavailable repeat item, amount over limit, and malformed tool argument cases.
-
-- [ ] **Step 4: Run seed tests and load data locally**
-
-Run `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test`, then start the seed profile and verify the catalog count and user-owned history through the API.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add data backend/src/main/resources/db/seed backend/src/test/java/com/fandazi/seed
-git commit -m "test: add deterministic food ordering data"
-```
-
-### Task 6: Implement Android shell, authentication, networking, and image loading
-
-**Files:**
-- Create: `android-app/settings.gradle.kts`
-- Create: `android-app/build.gradle.kts`
-- Create: `android-app/app/src/main/AndroidManifest.xml`
-- Create: `android-app/app/src/main/java/com/fandazi/app/core/network/*`
-- Create: `android-app/app/src/main/java/com/fandazi/app/core/image/ImageLoader.kt`
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/auth/*`
-- Create: `android-app/app/src/main/res/layout/*`
-- Test: `android-app/app/src/test/java/com/fandazi/app/feature/auth/*`
-
-**Interfaces:**
-- `ApiClient` wraps OkHttp and exposes suspend request functions with bearer-token injection and structured `ApiError` mapping.
-- `SessionRepository` exposes `StateFlow<SessionState>` and `suspend login/register/logout`.
-- `ImageLoader.load(ImageView, url, placeholder, error)` is the only feature-level image-loading entry point and delegates to Glide.
-
-- [ ] **Step 1: Create failing ViewModel tests**
-
-Test login success, invalid credentials, timeout mapping, logout clearing the token, and process recreation restoring the session from encrypted local storage or a protected preference wrapper.
-
-- [ ] **Step 2: Create the Android XML/MVVM project shell**
-
-Set up one Activity, Navigation component, Fragment destinations, ViewModel factories, lifecycle collection, and a shared theme. Use XML layouts only for screens.
-
-- [ ] **Step 3: Implement the OkHttp client**
-
-Configure connect/read/write timeouts, an interceptor for the JWT header, JSON serialization, one retry for idempotent GET requests, and response parsing that preserves server error codes.
-
-- [ ] **Step 4: Implement Glide image loading**
-
-Configure memory and disk caching, rounded image transformation, a local placeholder, and a local error drawable. Do not let image failure block merchant or dish text rendering.
-
-- [ ] **Step 5: Implement login/register screens and session state**
-
-Connect XML forms to ViewModels, show field errors, disable duplicate submissions, persist the token, and route authenticated users to Home.
-
-- [ ] **Step 6: Run Android unit tests and compile**
-
-Run `.\gradlew.bat testDebugUnitTest assembleDebug` from `android-app`. Expected result: PASS and a debug APK is produced.
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add android-app
-git commit -m "feat: add android shell and network foundation"
-```
-
-### Task 7: Implement Android food flow, addresses, orders, and simulated payment
-
-**Files:**
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/home/*`
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/catalog/*`
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/cart/*`
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/address/*`
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/order/*`
-- Create: `android-app/app/src/main/res/layout/*`
-- Test: `android-app/app/src/test/java/com/fandazi/app/feature/order/*`
-
-**Interfaces:**
-- Each screen exposes a `UiState` data class through `StateFlow`; one-shot navigation and toast events use a separate event flow.
-- `OrderRepository.createOrder(request, idempotencyKey)` returns `OrderDetail`; `pay(orderId)` returns the updated order.
-
-- [ ] **Step 1: Write ViewModel tests**
-
-Cover search loading/error/empty states, menu category selection, option validation, quantity changes, address selection, checkout total refresh, payment result, and order status refresh.
-
-- [ ] **Step 2: Implement Home and Search**
-
-Build yellow search header, categories, merchant cards, dish result cards, delivery metadata, Glide images, loading skeletons, empty state, and retry state.
-
-- [ ] **Step 3: Implement Merchant Detail and Cart**
-
-Use RecyclerView with menu sections, an option dialog, cart quantity controls, and a sticky cart summary. Persist draft cart state in Room when leaving the screen.
-
-- [ ] **Step 4: Implement Address Management**
-
-Build list, add, edit, delete, and set-default flows. Prevent deletion of the only required default address when an active automation policy depends on it.
-
-- [ ] **Step 5: Implement Checkout and Mock Payment**
-
-Render address, item snapshots, options, notes, delivery fee, discounts, and final total. Send an idempotency key, show the mock payment page, and route success to Order Detail.
-
-- [ ] **Step 6: Implement Orders and status timeline**
-
-Show active/history tabs and a detail timeline driven by backend status. Poll the detail endpoint while the order is not terminal; stop polling at `DELIVERED`, cancellation, or screen disposal.
-
-- [ ] **Step 7: Run Android tests and manual flow**
-
-Run unit tests, install the debug APK, and complete registration → search → add → checkout → payment → delivery timeline using seeded data.
-
-- [ ] **Step 8: Commit**
-
-```bash
-git add android-app
-git commit -m "feat: add android food ordering flow"
-```
-
-### Task 8: Integrate the local ASR model
-
-**Files:**
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/asr/SpeechRecognizer.kt`
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/asr/AudioRecorder.kt`
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/asr/AsrViewModel.kt`
-- Create: `android-app/app/src/main/res/drawable/*`
-- Copy: `redBook/app/libs/sherpa-onnx-1.12.39.aar` to `android-app/app/libs/`
-- Copy: `redBook/app/libs/sherpa-onnx-classes.jar` to `android-app/app/libs/`
-- Copy: `redBook/app/src/main/assets/sherpa-onnx/.../model.int8.onnx` and `tokens.txt` to `android-app/app/src/main/assets/sherpa-onnx/.../`
-- Test: `android-app/app/src/test/java/com/fandazi/app/feature/asr/AsrViewModelTest.kt`
-
-**Interfaces:**
-- `SpeechRecognizer.transcribe(file: File): Result<String>` runs off the main thread.
-- `AsrViewModel` exposes `AsrUiState.Idle`, `Recording`, `Recognizing`, `Success(text)`, and `Error(message)`.
-
-- [ ] **Step 1: Add the Sherpa-ONNX dependencies and assets**
-
-Copy only the model/runtime files from the existing redBook project after verifying checksums and file sizes. Do not copy unrelated chat code or configuration secrets.
-
-- [ ] **Step 2: Write ASR state tests**
-
-Cover permission denial, empty result, successful result, recognizer initialization failure, and retry after failure using a fake `SpeechRecognizer`.
-
-- [ ] **Step 3: Implement recording and offline recognition**
-
-Use a press-and-hold microphone action, save a temporary recording, decode to 16 kHz mono PCM, run the offline Paraformer recognizer on `Dispatchers.Default`, delete temporary audio after completion, and never submit an empty transcript.
-
-- [ ] **Step 4: Connect ASR to the Agent input**
-
-Return recognized text to the assistant input field; allow editing before sending. The initial release does not show partial transcripts or perform TTS.
-
-- [ ] **Step 5: Build and verify APK size and function**
-
-Run `.\gradlew.bat assembleDebug`, inspect the APK size, install it, record a Chinese food request, and confirm text is inserted into the assistant input.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add android-app
-git commit -m "feat: add offline chinese asr"
-```
-
-### Task 9: Implement the constrained single Agent and streaming events
-
-**Files:**
-- Create: `backend/src/main/java/com/fandazi/feature/agent/*`
-- Create: `backend/src/main/java/com/fandazi/feature/automation/*`
-- Create: `backend/src/main/java/com/fandazi/feature/preference/*`
-- Test: `backend/src/test/java/com/fandazi/feature/agent/AgentOrchestratorTest.java`
-- Test: `backend/src/test/java/com/fandazi/feature/automation/AutomationPolicyTest.java`
-
-**Interfaces:**
-- `POST /api/agent/sessions/{sessionId}/messages` accepts `{ "text": string, "mode": "CONFIRM" | "THIS_TASK_AUTO" }` and returns an event-stream identifier.
-- `GET /api/agent/sessions/{sessionId}/events` streams `AgentEvent` records with `type`, `summary`, `toolName`, `status`, and optional `payload`.
-- `AgentOrchestrator.handle(userId, sessionId, text, mode)` returns a terminal `AgentResult` after recording every event.
-- Tools are server-side methods: `searchMerchants`, `searchDishes`, `getDishDetail`, `getUserPreferences`, `getDefaultAddress`, `getLastOrder`, `createCartDraft`, `updateCartDraft`, `validateCart`, `createOrder`, and `getOrderStatus`.
-
-- [ ] **Step 1: Write failing Agent tests**
-
-Test normal recommendation, missing-information clarification, confirmation-required order, task-scoped auto order under the amount limit, long-term policy validation, exact repeat-order behavior, unavailable repeat item termination, and rejection of an unregistered tool.
-
-- [ ] **Step 2: Define typed tool contracts**
-
-Create request/response records for every tool. Each write tool receives authenticated `userId`, `sessionId`, and an idempotency context from the orchestrator rather than accepting them from model-generated arguments.
-
-- [ ] **Step 3: Implement deterministic policy gates**
-
-Create `AutomationPolicyService` and `OrderAuthorizationService`. Enforce confirmation mode, one-task grants, long-term default address, maximum amount, current price, availability, and expiry before `createOrder`.
-
-- [ ] **Step 4: Implement the model adapter and tool loop**
-
-Use a provider-neutral server configuration (`LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`). Send tool schemas to the model, execute only registered tools, append validated tool results, cap the tool loop, and return a structured final response. Never expose hidden chain-of-thought.
-
-- [ ] **Step 5: Implement preference analysis**
-
-Extract candidate preferences from confirmed order history. Save only user-confirmed long-term preferences; preserve allergy and dietary restrictions with higher priority than ordinary taste preferences.
-
-- [ ] **Step 6: Implement the health-context policy**
-
-For statements such as “我感冒了”, constrain output to general meal filtering. Do not diagnose, prescribe, or claim food treats illness. Escalate concerning symptom descriptions to a safety message and do not auto-order.
-
-- [ ] **Step 7: Implement SSE event publication**
-
-Publish readable events for intent parsing, search, filtering, draft-cart changes, validation, confirmation required, order creation, payment, failure, and completion. Persist events so reconnecting clients can resume from the last event ID.
-
-- [ ] **Step 8: Run Agent tests**
-
-Run `mvn -f backend/pom.xml -Dtest=AgentOrchestratorTest,AutomationPolicyTest test`. Expected result: PASS.
-
-- [ ] **Step 9: Commit**
-
-```bash
-git add backend
-git commit -m "feat: add constrained food ordering agent"
-```
-
-### Task 10: Integrate the Android Agent UI and end-to-end behavior
-
-**Files:**
-- Create: `android-app/app/src/main/java/com/fandazi/app/feature/agent/*`
-- Create: `android-app/app/src/main/res/layout/fragment_agent_sheet.xml`
-- Create: `android-app/app/src/main/res/layout/item_agent_event.xml`
-- Create: `android-app/app/src/main/res/layout/item_order_confirmation.xml`
-- Modify: Android host fragments to mount the floating assistant
-- Test: `android-app/app/src/test/java/com/fandazi/app/feature/agent/AgentViewModelTest.kt`
-
-**Interfaces:**
-- `AgentViewModel` exposes `AgentUiState` containing messages, execution events, draft cart, confirmation card, authorization mode, and error state.
-- `AgentRepository.sendMessage` starts a session request; `observeEvents` consumes SSE and maps reconnects to the last event ID.
-
-- [ ] **Step 1: Write Agent ViewModel tests**
-
-Cover opening/closing the half-sheet, expanding full-screen, sending text, ASR text insertion, rendering events, showing confirmation, confirming/canceling, and recovering after SSE disconnect.
-
-- [ ] **Step 2: Build the floating assistant**
-
-Add a global yellow/AI-accent floating button on Home, Search, Merchant, and Order screens. Hide it on authentication and mock payment screens.
-
-- [ ] **Step 3: Build half-sheet and full-screen chat**
-
-Render user/assistant messages, quick prompts, microphone input, execution event cards, retry actions, and the draft cart summary. Keep the underlying food page synchronized with Agent changes.
-
-- [ ] **Step 4: Build the order confirmation card**
-
-Show merchant, items, options, address, delivery fee, discounts, total, authorization mode, amount limit, and confirm/cancel actions. Disable confirm while validation is in progress.
-
-- [ ] **Step 5: Connect auto modes**
-
-Implement per-task authorization in the current session and long-term automation settings with default address and amount cap. Show a forced confirmation whenever the backend rejects automatic execution.
-
-- [ ] **Step 6: Run the main end-to-end scenario**
-
-Use the seeded account and send: “我感冒了，中午想吃清淡点，不要香菜，30 元以内，按默认地址帮我点。” Verify ASR/text input, event stream, recommendation, draft cart, confirmation card, simulated payment, and delivery timeline.
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add android-app
-git commit -m "feat: integrate android food ordering agent"
-```
-
-### Task 11: Complete cross-layer tests, documentation, and portfolio evidence
-
-**Files:**
-- Create: `docs/api-and-agent.md`
-- Create: `docs/architecture.md`
-- Create: `docs/interview-notes.md`
-- Create: `backend/src/test/java/com/fandazi/e2e/*`
-- Create: `android-app/app/src/androidTest/java/com/fandazi/app/flow/*`
-- Modify: `README.md`
-
-**Interfaces:**
-- The README provides one reproducible command sequence for seed data, backend startup, Android base URL configuration, APK build, and UI prototype preview.
-- The evidence directory contains test output, screenshots, and the final demo recording location without committing secrets.
-
-- [ ] **Step 1: Add backend integration tests**
-
-Use an isolated test database or H2 profile to verify register → catalog → address → cart → order → payment → delivery status. Assert that ownership and idempotency rules hold across HTTP boundaries.
-
-- [ ] **Step 2: Add Android flow tests**
-
-Cover login, merchant search, option selection, cart, address selection, checkout, simulated payment, order status display, and AI confirmation using a fake API client.
-
-- [ ] **Step 3: Add Agent scenario evaluation**
-
-Run every record in `data/seed/agent-scenarios.json`; compare actual tool sequence, confirmation requirement, and outcome to the expected fields. Store results as a readable Markdown report.
-
-- [ ] **Step 4: Add architecture and interview documentation**
-
-Document Android MVVM boundaries, OkHttp and Glide choices, ASR packaging tradeoff, SSE event model, tool authorization, idempotency, single-Agent rationale, and why deterministic business rules remain outside the model.
-
-- [ ] **Step 5: Run the complete verification set**
-
-Run `mvn -f backend/pom.xml test`, `.\gradlew.bat testDebugUnitTest connectedDebugAndroidTest assembleDebug`, and manually open the HTML prototype. Confirm no API keys, database passwords, or personal account data appear in tracked files.
-
-- [ ] **Step 6: Build portfolio evidence**
-
-Capture the UI prototype, Android APK home screen, ASR input, Agent execution events, confirmation card, mock payment, order timeline, and error recovery. Record one normal confirmation flow and one bounded automatic flow.
-
-- [ ] **Step 7: Commit**
-
-```bash
-git add README.md docs backend/src/test android-app/app/src/androidTest
-git commit -m "test: document and verify 饭搭子 AI"
-```
-
-## Execution Checkpoints
-
-- Checkpoint A: Tasks 1–2 produce a navigable, editable UI prototype.
-- Checkpoint B: Tasks 3–5 produce a seeded, independently testable backend.
-- Checkpoint C: Tasks 6–8 produce an installable Android food app with offline ASR.
-- Checkpoint D: Tasks 9–10 connect the constrained Agent to Android.
-- Checkpoint E: Task 11 produces the verified APK, reports, documentation, and portfolio evidence.
-
-Each checkpoint must pass its listed tests before the next checkpoint begins.
+**来源：** 从 `D:\project\redBook` 复制 `sherpa-onnx-1.12.39.aar`、`sherpa-onnx-classes.jar`、Paraformer 的 `model.int8.onnx` 和 `tokens.txt`；不复制聊天业务和敏感配置。
+
+- [ ] 校验模型文件大小和校验和。
+- [ ] 测试权限拒绝、空结果、成功结果、初始化失败和失败重试。
+- [ ] 实现按住录音、松开结束、16 kHz 单声道 PCM 解码、后台识别、临时文件清理和空结果拦截。
+- [ ] 将结果回填 AI 输入框，允许编辑后发送；不做实时转写和语音播报。
+- [ ] 执行 `.\gradlew.bat assembleDebug`，检查 APK 体积并在设备上完成中文点餐语音测试。
+- [ ] 提交：`git add android-app && git commit -m "feat: add offline chinese asr"`
+
+### 任务 9：实现受约束的单 Agent 和 SSE 事件
+
+**文件：** `backend/src/main/java/com/fandazi/feature/agent/`、`automation/`、`preference/` 及对应测试。
+
+**接口：**
+
+- `POST /api/agent/sessions/{sessionId}/messages` 接收 `{ text, mode }`，`mode` 为 `CONFIRM` 或 `THIS_TASK_AUTO`。
+- `GET /api/agent/sessions/{sessionId}/events` 推送 `AgentEvent`，包含 `type`、`summary`、`toolName`、`status` 和可选 `payload`。
+- `AgentOrchestrator.handle(userId, sessionId, text, mode)` 返回终态 `AgentResult`。
+
+- [ ] 测试普通推荐、缺少信息追问、确认下单、任务自动下单、长期策略、精确复购、复购下架终止和非法工具拒绝。
+- [ ] 定义工具请求/响应对象；`userId`、`sessionId` 和幂等上下文由服务端注入。
+- [ ] 实现 `AutomationPolicyService` 和 `OrderAuthorizationService`，在 `createOrder` 前校验授权、地址、金额、价格、库存和有效期。
+- [ ] 通过 `LLM_BASE_URL`、`LLM_API_KEY`、`LLM_MODEL` 配置模型；只执行已注册工具，限制工具循环次数，不输出隐含推理。
+- [ ] 从历史订单提取候选偏好，只有用户确认后才写入长期偏好；过敏和忌口优先。
+- [ ] 对“我感冒了”等输入只做一般饮食筛选，不诊断、不处方、不声称食物治疗疾病。
+- [ ] 发布并持久化解析、搜索、筛选、加购、校验、确认、创建订单、支付、失败和完成事件，支持最后事件 ID 重连。
+- [ ] 执行 `mvn -f backend/pom.xml -Dtest=AgentOrchestratorTest,AutomationPolicyTest test` 并提交：`git add backend && git commit -m "feat: add constrained food ordering agent"`
+
+### 任务 10：接入 Android Agent UI 和端到端流程
+
+**文件：** `feature/agent/`、`fragment_agent_sheet.xml`、`item_agent_event.xml`、`item_order_confirmation.xml`、首页/搜索/商家/订单 Fragment 和测试。
+
+- [ ] `AgentViewModel` 暴露消息、事件、候选购物车、确认卡片、授权模式和错误状态。
+- [ ] 测试助手打开/关闭、半屏/全屏、文字发送、ASR 回填、事件展示、确认/取消和 SSE 断线恢复。
+- [ ] 在首页、搜索、商家和订单页面展示 AI 浮球；认证和模拟支付页面隐藏。
+- [ ] 实现半屏/全屏聊天、快捷指令、麦克风、事件卡片、重试和购物车摘要。
+- [ ] 订单确认卡片展示商家、菜品、规格、地址、配送费、优惠、总价、授权模式和金额上限。
+- [ ] 运行主场景：“我感冒了，中午想吃清淡点，不要香菜，30 元以内，按默认地址帮我点。”
+- [ ] 提交：`git add android-app && git commit -m "feat: integrate android food ordering agent"`
+
+### 任务 11：完成跨层测试、文档和作品集材料
+
+**文件：** `docs/api-and-agent.md`、`docs/architecture.md`、`docs/interview-notes.md`、后端集成测试、Android 流程测试和 `README.md`。
+
+- [ ] 用独立测试数据库或 H2 验证注册 → 菜单 → 地址 → 购物车 → 订单 → 支付 → 配送状态，并验证资源归属和幂等。
+- [ ] 使用 Fake API Client 覆盖 Android 登录、搜索、规格、购物车、地址、结算、支付、订单和 Agent 确认。
+- [ ] 执行 `data/seed/agent-scenarios.json`，比较实际工具序列、确认要求和结果，生成 Markdown 报告。
+- [ ] 文档说明 MVVM、OkHttp/Glide、ASR 体积取舍、SSE、工具授权、幂等性和单 Agent 选择。
+- [ ] 执行 `mvn -f backend/pom.xml test` 和 `.\gradlew.bat testDebugUnitTest connectedDebugAndroidTest assembleDebug`，确认跟踪文件中没有密钥和个人数据。
+- [ ] 制作 UI 原型、APK、ASR、Agent 事件、确认卡片、模拟支付、订单时间线和异常恢复截图/视频。
+- [ ] 提交：`git add README.md docs backend/src/test android-app/app/src/androidTest && git commit -m "test: document and verify 饭搭子 AI"`
+
+## 阶段验收点
+
+- **验收点 A：** 任务 1–2 完成可导航、可编辑的 UI 原型。
+- **验收点 B：** 任务 3–5 完成有种子数据、可独立测试的后端。
+- **验收点 C：** 任务 6–8 完成可安装、支持离线 ASR 的 Android 外卖 App。
+- **验收点 D：** 任务 9–10 完成 Agent 与 Android 的连接。
+- **验收点 E：** 任务 11 完成 APK、测试报告、技术文档和作品集材料。
+
+每个验收点的测试通过后，才能进入下一个验收点。
