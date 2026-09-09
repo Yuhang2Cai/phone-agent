@@ -4,6 +4,7 @@ import com.fandazi.core.security.JwtService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Service
 public class AuthService {
@@ -25,8 +26,13 @@ public class AuthService {
         if (users.existsByEmail(request.email())) {
             throw new InvalidCredentialsException("Email is already in use");
         }
-        UserEntity user = users.save(new UserEntity(request.username(), request.email(), passwordEncoder.encode(request.password())));
-        return responseFor(user);
+        try {
+            UserEntity user = users.saveAndFlush(new UserEntity(
+                    request.username(), request.email(), passwordEncoder.encode(request.password())));
+            return responseFor(user);
+        } catch (DataIntegrityViolationException exception) {
+            throw new AuthConflictException("Username or email is already in use");
+        }
     }
 
     @Transactional(readOnly = true)

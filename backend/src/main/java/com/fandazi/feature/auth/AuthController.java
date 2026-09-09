@@ -40,4 +40,9 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> invalidCredentials(InvalidCredentialsException exception) {
         return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
     }
+
+    @ExceptionHandler(AuthConflictException.class)
+    public ResponseEntity<Map<String, String>> authConflict(AuthConflictException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", exception.getMessage()));
+    }
 }
