@@ -25,7 +25,7 @@
 
 ---
 
-### 任务 1：建立工作区结构和运行约定
+### 任务 1（Task 1）：建立工作区结构和运行约定
 
 **文件：** `README.md`、`.gitignore`、`ui-prototype/README.md`、`backend/README.md`、`android-app/README.md`、`data/seed/README.md`
 
@@ -37,7 +37,7 @@
 - [ ] 执行 `Get-ChildItem -Force`，确认目录完整。
 - [ ] 提交：`git add README.md .gitignore ui-prototype/README.md backend/README.md android-app/README.md data/seed/README.md && git commit -m "chore: establish 饭搭子 AI workspace"`
 
-### 任务 2：制作可编辑 HTML/CSS UI 原型
+### 任务 2（Task 2）：制作可编辑 HTML/CSS UI 原型
 
 **文件：** `ui-prototype/index.html`、`ui-prototype/styles.css`、`ui-prototype/app.js`、`ui-prototype/assets/README.md`
 
@@ -50,7 +50,7 @@
 - [ ] 在浏览器中完成人工验收：登录 → 首页 → 商家 → 规格 → 购物车 → 结算 → 支付 → 订单详情，以及悬浮助手 → 执行事件 → 确认卡片。
 - [ ] 提交：`git add ui-prototype && git commit -m "feat: add editable 饭搭子 AI ui prototype"`
 
-### 任务 3：建立 Spring Boot 后端基础和认证
+### 任务 3（Task 3）：建立 Spring Boot 后端基础和认证
 
 **文件：** `backend/pom.xml`、`backend/src/main/java/com/fandazi/FandaziApplication.java`、`backend/src/main/java/com/fandazi/core/security/`、`backend/src/main/java/com/fandazi/feature/auth/`、`backend/src/main/resources/application.yml`、`backend/src/test/java/com/fandazi/feature/auth/AuthControllerTest.java`
 
@@ -62,7 +62,7 @@
 - [ ] 重新执行测试，确认通过。
 - [ ] 提交：`git add backend && git commit -m "feat: add backend authentication"`
 
-### 任务 4：实现商家、地址、购物车、订单、支付和配送状态
+### 任务 4（Task 4）：实现商家、地址、购物车、订单、支付和配送状态
 
 **文件：** `backend/src/main/java/com/fandazi/feature/catalog/`、`address/`、`cart/`、`order/`、`payment/`、`delivery/`；测试文件为 `OrderServiceTest.java` 和 `CartServiceTest.java`。
 
@@ -83,7 +83,7 @@
 - [ ] 实现 `PENDING_PAYMENT → PAID → MERCHANT_ACCEPTED → PREPARING → RIDER_PICKED_UP → DELIVERING → DELIVERED`。
 - [ ] 执行 `mvn -f backend/pom.xml -Dtest=OrderServiceTest,CartServiceTest test` 并提交：`git add backend && git commit -m "feat: add food ordering domain"`
 
-### 任务 5：制作可重复的合成测试数据
+### 任务 5（Task 5）：制作可重复的合成测试数据
 
 **文件：** `data/seed/merchants.json`、`dishes.json`、`users.json`、`addresses.json`、`orders.json`、`agent-scenarios.json`、`backend/src/main/resources/db/seed/SeedDataLoader.java`、`SeedDataLoaderTest.java`
 
@@ -95,7 +95,7 @@
 - [ ] 使用 `seed.enabled` 配置控制加载；执行 `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test`。
 - [ ] 菜单与价格使用合成数据，图片使用本地授权素材或占位图；提交：`git add data backend/src/main/resources/db/seed backend/src/test/java/com/fandazi/seed && git commit -m "test: add deterministic food ordering data"`
 
-### 任务 6：实现 Android 外壳、认证、OkHttp 和 Glide
+### 任务 6（Task 6）：实现 Android 外壳、认证、OkHttp 和 Glide
 
 **文件：** `android-app/settings.gradle.kts`、`build.gradle.kts`、`app/src/main/AndroidManifest.xml`、`app/src/main/java/com/fandazi/app/core/network/`、`core/image/ImageLoader.kt`、`feature/auth/`、`res/layout/`。
 
@@ -109,7 +109,7 @@
 - [ ] 在 `android-app` 执行 `.\gradlew.bat testDebugUnitTest assembleDebug`，确认通过并生成 APK。
 - [ ] 提交：`git add android-app && git commit -m "feat: add android shell and network foundation"`
 
-### 任务 7：实现 Android 外卖流程、地址、订单和模拟支付
+### 任务 7（Task 7）：实现 Android 外卖流程、地址、订单和模拟支付
 
 **文件：** `android-app/app/src/main/java/com/fandazi/app/feature/home/`、`catalog/`、`cart/`、`address/`、`order/`、`res/layout/` 及对应测试目录。
 
@@ -121,7 +121,7 @@
 - [ ] 执行单元测试，安装 APK，完成注册 → 搜索 → 加购 → 结算 → 支付 → 配送时间线。
 - [ ] 提交：`git add android-app && git commit -m "feat: add android food ordering flow"`
 
-### 任务 8：集成本地 ASR 模型
+### 任务 8（Task 8）：集成本地 ASR 模型
 
 **文件：** `feature/asr/SpeechRecognizer.kt`、`AudioRecorder.kt`、`AsrViewModel.kt`、ASR 资源和测试。
 
@@ -134,7 +134,7 @@
 - [ ] 执行 `.\gradlew.bat assembleDebug`，检查 APK 体积并在设备上完成中文点餐语音测试。
 - [ ] 提交：`git add android-app && git commit -m "feat: add offline chinese asr"`
 
-### 任务 9：实现受约束的单 Agent 和 SSE 事件
+### 任务 9（Task 9）：实现受约束的单 Agent 和 SSE 事件
 
 **文件：** `backend/src/main/java/com/fandazi/feature/agent/`、`automation/`、`preference/` 及对应测试。
 
@@ -153,7 +153,7 @@
 - [ ] 发布并持久化解析、搜索、筛选、加购、校验、确认、创建订单、支付、失败和完成事件，支持最后事件 ID 重连。
 - [ ] 执行 `mvn -f backend/pom.xml -Dtest=AgentOrchestratorTest,AutomationPolicyTest test` 并提交：`git add backend && git commit -m "feat: add constrained food ordering agent"`
 
-### 任务 10：接入 Android Agent UI 和端到端流程
+### 任务 10（Task 10）：接入 Android Agent UI 和端到端流程
 
 **文件：** `feature/agent/`、`fragment_agent_sheet.xml`、`item_agent_event.xml`、`item_order_confirmation.xml`、首页/搜索/商家/订单 Fragment 和测试。
 
@@ -165,7 +165,7 @@
 - [ ] 运行主场景：“我感冒了，中午想吃清淡点，不要香菜，30 元以内，按默认地址帮我点。”
 - [ ] 提交：`git add android-app && git commit -m "feat: integrate android food ordering agent"`
 
-### 任务 11：完成跨层测试、文档和作品集材料
+### 任务 11（Task 11）：完成跨层测试、文档和作品集材料
 
 **文件：** `docs/api-and-agent.md`、`docs/architecture.md`、`docs/interview-notes.md`、后端集成测试、Android 流程测试和 `README.md`。
 
