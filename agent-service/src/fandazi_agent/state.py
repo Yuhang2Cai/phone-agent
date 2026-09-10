@@ -14,6 +14,7 @@ class AgentState(BaseModel):
     session_id: str
     workflow_id: str
     workflow_version: int = 1
+    workflow_signature: str = ""
     messages: list[str] = Field(default_factory=list)
     intent: str | None = None
     candidate_cart: dict[str, Any] = Field(default_factory=dict)

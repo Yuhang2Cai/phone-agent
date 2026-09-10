@@ -175,3 +175,63 @@ def test_order_mode_fails_closed_and_records_event_when_configured_model_fails()
     assert result.error == "模型意图识别失败"
     assert any(event.node == "parse_intent" and event.kind == "error" for event in result.events)
     assert not client.requests
+
+
+def test_restore_rejects_unsupported_version_and_tampered_workflow_id():
+    """Break caught: arbitrary snapshot version or thread ID becomes a trusted graph workflow."""
+    client = FakeSpringBootToolClient()
+    agent = FoodOrderingAgent(client)
+    agent.run(request("宫保鸡丁", session_id="trusted"))
+    snapshot = agent.export_session("u-1", "trusted")
+
+    unsupported = {**snapshot, "workflow_version": 999}
+    tampered = {**snapshot, "workflow_id": "00000000-0000-0000-0000-000000000000"}
+
+    with pytest.raises(ValueError, match="workflow_version"):
+        FoodOrderingAgent(client).restore_session("u-1", "trusted", unsupported)
+    with pytest.raises(ValueError, match="workflow"):
+        FoodOrderingAgent(client).restore_session("u-1", "trusted", tampered)
+
+
+def test_non_confirmation_reply_can_pause_again_then_confirm_without_graph_update_error():
+    """Break caught: a second interrupt makes later confirmation crash LangGraph."""
+    client = FakeSpringBootToolClient()
+    agent = FoodOrderingAgent(client)
+    agent.run(request("宫保鸡丁", session_id="multi-reply"))
+
+    waiting_again = agent.run(request("我再想想", session_id="multi-reply", trace_id="trace-later"))
+    completed = agent.run(request("确认", session_id="multi-reply", trace_id="trace-confirm"))
+
+    assert waiting_again.status == "awaiting_confirmation"
+    assert completed.status == "completed"
+    assert [item.tool_name for item in client.requests].count("create_order") == 1
+
+
+def test_order_creation_survives_payment_failure_and_retry_only_retries_payment():
+    """Break caught: payment failure clears the workflow and repeats create_order on retry."""
+
+    class PaymentFailsOnceClient(FakeSpringBootToolClient):
+        def __init__(self):
+            super().__init__()
+            self.payment_attempts = 0
+
+        def call(self, tool_request):
+            if tool_request.tool_name == "pay_mock_order":
+                self.requests.append(tool_request)
+                self.payment_attempts += 1
+                return ToolResult(ok=self.payment_attempts > 1, error="payment_pending")
+            return super().call(tool_request)
+
+    client = PaymentFailsOnceClient()
+    agent = FoodOrderingAgent(client)
+
+    first = agent.run(request("宫保鸡丁", mode="auto_order", session_id="payment-retry"))
+    retry = agent.run(request("继续支付", mode="auto_order", session_id="payment-retry", trace_id="trace-retry"))
+
+    create_orders = [item for item in client.requests if item.tool_name == "create_order"]
+    payments = [item for item in client.requests if item.tool_name == "pay_mock_order"]
+    assert first.status == "failed"
+    assert first.next_action == "payment_retry"
+    assert retry.status == "completed"
+    assert len(create_orders) == 1
+    assert len(payments) == 2

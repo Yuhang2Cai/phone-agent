@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from hashlib import sha256
+import hmac
+import secrets
 from typing import Any
 from uuid import uuid4
 
@@ -23,6 +26,9 @@ class WorkflowInput(TypedDict, total=False):
     resume_text: str | None
 
 
+_PROCESS_WORKFLOW_SIGNING_KEY = secrets.token_bytes(32)
+
+
 @dataclass
 class WorkflowRecord:
     user_id: str
@@ -36,6 +42,7 @@ class FoodOrderingAgent:
         self.settings = settings or Settings.from_env()
         self.tool_client = tool_client
         self.max_order_amount = self.settings.max_order_amount if max_order_amount is None else max_order_amount
+        self._workflow_signing_key = (self.settings.workflow_signing_key or "").encode() or _PROCESS_WORKFLOW_SIGNING_KEY
         self.model = LangChainModelAdapter(self.settings)
         self.tool_descriptions = langchain_tool_descriptions()
         self._checkpointer = MemorySaver()
@@ -50,14 +57,14 @@ class FoodOrderingAgent:
 
     def export_session(self, user_id: str, session_id: str) -> dict[str, Any]:
         state = self._checkpoint_state(user_id, session_id)
-        self._assert_owner(state, user_id, session_id)
+        self._assert_trusted_owner(state, user_id, session_id)
         if state.next_action != "wait_confirmation":
             raise ValueError("Only a wait_confirmation state may be exported")
         return state.model_dump(mode="json")
 
     def restore_session(self, user_id: str, session_id: str, snapshot: dict[str, Any]) -> None:
         state = AgentState.model_validate(snapshot)
-        self._assert_owner(state, user_id, session_id)
+        self._assert_trusted_owner(state, user_id, session_id)
         if state.next_action != "wait_confirmation":
             raise ValueError("Only a wait_confirmation state may be restored")
         self._sessions[(user_id, session_id)] = WorkflowRecord(user_id, session_id, state.workflow_id, state)
@@ -76,12 +83,13 @@ class FoodOrderingAgent:
             record.restored_state = None
             output = self.langgraph.invoke({"agent_state": self._dump(state), "request": self._request_data(request), "resume_text": request.text}, self.workflow_config(*key))
         else:
-            state = self._checkpoint_state(*key)
-            self._reset_budget(state, request)
-            output = self.langgraph.invoke(Command(update={"agent_state": self._dump(state), "request": self._request_data(request)}, resume={"text": request.text}), self.workflow_config(*key))
+            config = self.workflow_config(*key)
+            output = self.langgraph.invoke(Command(resume={"text": request.text}), config)
         state = self._state_from_output(output, *key)
         result = self._result(state)
-        if result.status != "awaiting_confirmation":
+        if state.next_action in {"payment_retry", "order_recovery"}:
+            record.restored_state = state
+        elif result.status != "awaiting_confirmation":
             self._sessions.pop(key, None)
             self._checkpointer.delete_thread(record.workflow_id)
         return result
@@ -89,7 +97,7 @@ class FoodOrderingAgent:
     # Real nodes. Each goes through _enter, the common hard budget guard.
     def parse_intent(self, values: WorkflowInput) -> dict[str, Any]:
         state, request = self._unpack(values)
-        if state.next_action == "wait_confirmation":
+        if state.next_action in {"wait_confirmation", "payment_retry", "order_recovery"}:
             return self._pack(state)
         if not self._enter(state, "parse_intent"):
             return self._pack(state)
@@ -164,20 +172,21 @@ class FoodOrderingAgent:
         if not self._enter(state, "wait_confirmation"):
             return self._pack(state)
         answer = values.get("resume_text")
-        if answer is None:
-            answer = interrupt({"kind": "confirmation_required", "workflowId": state.workflow_id})
-            if isinstance(answer, dict):
-                answer = answer.get("text", "")
-        text = str(answer).strip()
-        if self._is_cancel(text):
-            state.next_action = "cancelled"
-            self._event(state, "wait_confirmation", "info", "用户取消了下单。")
-        elif self._is_confirmation(text):
-            state.authorization["confirmed"] = True
-            state.next_action = "create_order"
-            self._event(state, "wait_confirmation", "info", "已收到确定性确认。")
-        else:
-            interrupt({"kind": "confirmation_required", "workflowId": state.workflow_id})
+        while True:
+            if answer is None:
+                answer = interrupt({"kind": "confirmation_required", "workflowId": state.workflow_id})
+            if isinstance(answer, dict): answer = answer.get("text", "")
+            text = str(answer).strip()
+            if self._is_cancel(text):
+                state.next_action = "cancelled"
+                self._event(state, "wait_confirmation", "info", "用户取消了下单。")
+                break
+            if self._is_confirmation(text):
+                state.authorization["confirmed"] = True
+                state.next_action = "create_order"
+                self._event(state, "wait_confirmation", "info", "已收到确定性确认。")
+                break
+            answer = None
         return self._pack(state)
 
     def create_order(self, values: WorkflowInput) -> dict[str, Any]:
@@ -207,6 +216,8 @@ class FoodOrderingAgent:
                 state.next_action, state.authorization["message"] = "completed", "订单已创建并完成模拟支付。"
             else:
                 state.error = result.error or "模拟支付失败"
+                state.next_action = "payment_retry"
+                state.authorization["order_created"] = True
         else:
             state.next_action, state.authorization["message"] = "payment_followup", "订单已创建，请继续支付。"
         return self._pack(state)
@@ -230,6 +241,8 @@ class FoodOrderingAgent:
         state = self._route_state(values)
         if state.error: return END
         if state.next_action == "wait_confirmation": return "wait_confirmation"
+        if state.next_action == "payment_retry": return "payment_followup"
+        if state.next_action == "order_recovery": return "create_order"
         if state.intent == "strategy": return "payment_followup"
         return "search_candidates" if state.intent == "recommend" else "collect_missing_info"
 
@@ -300,18 +313,31 @@ class FoodOrderingAgent:
     def _unpack(values: WorkflowInput) -> tuple[AgentState, AgentRunRequest]: return AgentState.model_validate(values["agent_state"]), AgentRunRequest.model_validate(values["request"])
     @staticmethod
     def _route_state(values: WorkflowInput) -> AgentState: return AgentState.model_validate(values["agent_state"])
-    def _new_state(self, request: AgentRunRequest) -> AgentState: return AgentState(user_id=request.user_id, session_id=request.session_id, workflow_id=str(uuid4()))
+    def _new_state(self, request: AgentRunRequest) -> AgentState:
+        state = AgentState(user_id=request.user_id, session_id=request.session_id, workflow_id=str(uuid4()))
+        state.workflow_signature = self._sign_workflow(state)
+        return state
     def _checkpoint_state(self, user_id: str, session_id: str) -> AgentState: return AgentState.model_validate(self.langgraph.get_state(self.workflow_config(user_id, session_id)).values["agent_state"])
     def _state_from_output(self, output: dict[str, Any], user_id: str, session_id: str) -> AgentState: return AgentState.model_validate(output["agent_state"]) if "agent_state" in output else self._checkpoint_state(user_id, session_id)
     @staticmethod
     def _reset_budget(state: AgentState, request: AgentRunRequest) -> None: state.graph_steps = state.tool_calls = 0; state.error = None; state.messages.append(request.text)
-    @staticmethod
-    def _assert_owner(state: AgentState, user_id: str, session_id: str) -> None:
-        if state.user_id != user_id or state.session_id != session_id: raise ValueError("Snapshot owner does not match userId and sessionId")
+    def _sign_workflow(self, state: AgentState) -> str:
+        payload = f"{state.workflow_version}|{state.user_id}|{state.session_id}|{state.workflow_id}".encode()
+        return hmac.new(self._workflow_signing_key, payload, sha256).hexdigest()
+
+    def _assert_trusted_owner(self, state: AgentState, user_id: str, session_id: str) -> None:
+        if state.workflow_version != 1:
+            raise ValueError("Unsupported workflow_version")
+        if state.user_id != user_id or state.session_id != session_id:
+            raise ValueError("Snapshot owner does not match userId and sessionId")
+        if not state.workflow_id or not hmac.compare_digest(state.workflow_signature, self._sign_workflow(state)):
+            raise ValueError("Untrusted workflow identifier")
 
     @staticmethod
     def _result(state: AgentState) -> AgentResult:
-        if state.error: return AgentResult(status="failed", message="请求未完成。", next_action="error", candidate_cart=state.candidate_cart, events=state.events, error=state.error)
+        if state.error:
+            action = state.next_action if state.next_action in {"payment_retry", "order_recovery"} else "error"
+            return AgentResult(status="failed", message="请求未完成。", next_action=action, candidate_cart=state.candidate_cart, events=state.events, error=state.error)
         if state.next_action == "collect_missing_info": return AgentResult(status="needs_input", message="请告诉我想吃的菜品或商家。", next_action=state.next_action, candidate_cart=state.candidate_cart, events=state.events)
         if state.next_action == "wait_confirmation": return AgentResult(status="awaiting_confirmation", message="购物车已校验，请回复“确认”后下单。", next_action=state.next_action, candidate_cart=state.candidate_cart, events=state.events)
         if state.next_action == "cancelled": return AgentResult(status="completed", message="已取消本次下单。", next_action="cancelled", candidate_cart=state.candidate_cart, events=state.events)

@@ -63,3 +63,19 @@ git diff --check
 ```
 
 结果：`27 passed, 9 warnings in 1.05s`，其余两项退出码为 0。新增回归覆盖否定确认、LLM 授权隔离、跨用户同 session 隔离、终态后新订单、真实 LangGraph checkpoint/interrupt、策略图步上限、稳定恢复幂等键、显式零金额上限、快照所有权以及模型失败关闭。9 条告警仍全部来自已记录的第三方依赖兼容层。
+
+## 修复轮次 2（恢复与部分成功整改）
+
+- 恢复快照新增 HMAC `workflow_signature`，签名绑定受支持的 `workflow_version=1`、`userId`、`sessionId` 和 `workflowId`；不支持版本、篡改工作流 ID、所有者不匹配的快照均在进入 LangGraph 前拒绝。可跨进程恢复时应配置不提交的 `AGENT_WORKFLOW_SIGNING_KEY`；未配置时使用进程内随机密钥并安全拒绝跨进程伪造快照。
+- `wait_confirmation` 改为 LangGraph 节点内的重复 interrupt 循环。普通回复继续暂停，后续确认或取消可安全恢复，不再向同一步同时写入状态而触发 `InvalidUpdateError`。
+- 支付失败被标记为 `payment_retry` 部分成功状态：保留同一 workflow、checkpoint、已完成的 `create_order` 和稳定 `{workflowId}:create_order` 幂等键；下一次请求只重试支付，不再创建订单。
+
+本轮执行：
+
+```powershell
+python -m pytest agent-service/tests -q
+python -m compileall -q agent-service/src
+git diff --check
+```
+
+结果：`30 passed, 9 warnings in 1.12s`，编译及差异检查退出码均为 0。新增回归覆盖版本/ID 篡改快照拒绝、普通回复后的再次确认以及支付失败后的仅支付重试。9 条警告仍来自第三方兼容/弃用层。

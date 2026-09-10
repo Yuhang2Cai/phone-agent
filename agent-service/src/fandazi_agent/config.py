@@ -15,6 +15,7 @@ class Settings:
     max_graph_steps: int
     max_tool_calls: int
     max_order_amount: int
+    workflow_signing_key: str | None = None
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -26,4 +27,5 @@ class Settings:
             max_graph_steps=int(os.getenv("AGENT_MAX_GRAPH_STEPS", "16")),
             max_tool_calls=int(os.getenv("AGENT_MAX_TOOL_CALLS", "8")),
             max_order_amount=int(os.getenv("AGENT_MAX_ORDER_AMOUNT", "100")),
+            workflow_signing_key=os.getenv("AGENT_WORKFLOW_SIGNING_KEY"),
         )
