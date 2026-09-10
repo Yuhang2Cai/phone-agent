@@ -12,4 +12,8 @@
 - Commit history: 0c25bfc, b923666, 6c416cb, 424eef9, 126b562, plus the current Task 6 round 5 fix commit.
 - Round 5 focus: stable build-script test path, submitting-mode state preservation, and cancellation propagation through auth and session storage.
 - Commit history through round 5: 0c25bfc, b923666, 6c416cb, 424eef9, 126b562, plus the current Task 6 round 5 fix commit.
+- Commit history through round 6: 0c25bfc, b923666, 6c416cb, 424eef9, 126b562, b0a0ca0, plus the current Task 6 round 6 fix commit.
+- Round 6 focus: stable project-file discovery in static tests, cancellation-safe submission cleanup, and cancellation-safe retry eligibility.
+- Commit history through round 7: 0c25bfc, b923666, 6c416cb, 424eef9, 126b562, b0a0ca0, plus the current Task 6 round 7 fix commit.
+- Round 7 focus: URL configuration parsing without build-type literal assumptions, stable manifest discovery, and cancellation followed by a valid resubmission.
 - Latest fix: Kotlin parameter ordering, logout failure feedback, and corrected build/cache verification record.

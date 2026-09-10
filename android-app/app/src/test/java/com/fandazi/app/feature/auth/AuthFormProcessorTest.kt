@@ -120,6 +120,31 @@ class AuthFormProcessorTest {
         }
     }
 
+    @Test
+    fun cancellationReleasesLockAndAllowsAnotherSubmission() = runBlocking {
+        val cancellation = CancellationException("first request cancelled")
+        lateinit var sessions: FakeSessionRepository
+        sessions = FakeSessionRepository(loginBlock = {
+            if (sessions.loginCalls == 1) throw cancellation
+            ApiResult.Success(AuthResponse("token-2", User("alice", "alice@example.com")))
+        })
+        val processor = AuthFormProcessor(sessions)
+
+        try {
+            processor.submitLogin("alice", "password123")
+            throw AssertionError("Expected cancellation")
+        } catch (actual: CancellationException) {
+            assertEquals(cancellation, actual)
+        }
+        assertFalse(processor.state.value.isSubmitting)
+
+        processor.submitLogin("alice", "password123")
+
+        assertEquals(2, sessions.loginCalls)
+        assertFalse(processor.state.value.isSubmitting)
+        assertEquals(null, processor.state.value.errorMessage)
+    }
+
     private class FakeSessionRepository(
         private val loginBlock: suspend () -> ApiResult<AuthResponse> = {
             ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com")))

@@ -8,16 +8,24 @@ import java.io.File
 class DebugNetworkPolicyTest {
     @Test
     fun cleartextIsEnabledOnlyByDebugManifest() {
-        val projectRoot = File(System.getProperty("user.dir"))
-        val appRoot = if (File(projectRoot, "app/src/main/AndroidManifest.xml").exists()) {
-            File(projectRoot, "app")
-        } else {
-            projectRoot
-        }
+        val appRoot = findAppRoot()
         val mainManifest = File(appRoot, "src/main/AndroidManifest.xml").readText()
         val debugManifest = File(appRoot, "src/debug/AndroidManifest.xml").readText()
 
         assertFalse(mainManifest.contains("usesCleartextTraffic=\"true\""))
         assertTrue(debugManifest.contains("usesCleartextTraffic=\"true\""))
+    }
+
+    private fun findAppRoot(): File {
+        var directory = File(
+            DebugNetworkPolicyTest::class.java.protectionDomain.codeSource.location.toURI()
+        ).absoluteFile
+        if (directory.isFile) directory = directory.parentFile
+        while (true) {
+            val candidate = File(directory, "app/src/main/AndroidManifest.xml")
+            if (candidate.isFile) return directory
+            directory = directory.parentFile ?: break
+        }
+        error("Unable to locate Android app root from test classes")
     }
 }

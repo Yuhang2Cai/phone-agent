@@ -161,3 +161,30 @@ wrapper 命令在下载 Gradle 8.13 时失败：java.net.SocketException: Permis
 - 实际命令：Gradle 8.13 路径下执行 testDebugUnitTest --offline --no-daemon 和 assembleDebug --offline --no-daemon。
 - 两条命令均在 root project classpath 阶段失败，原始错误为：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
 - 因此本轮未进入 Kotlin 源码编译或测试执行，未生成 APK。ANDROID_HOME/ANDROID_SDK_ROOT 仍未设置；报告中的“缓存路径可见”仅表示目录可见，不代表 Gradle 能离线解析这些插件。
+
+## Task 6 修复轮次 6
+
+- ApiBaseUrlBuildTypeTest 改为从测试 classpath 位置向上定位 app/build.gradle.kts，解析 debug/release 变量的 orElse 默认值，并只校验 build type 引用变量名，不断言 build type 内出现 URL 字面量。
+- AuthFormProcessor 的登录/注册提交统一使用 try/finally；CancellationException 或其他退出路径都会释放 submitting 原子锁并恢复 isSubmitting，补充取消后再次提交测试。
+- DebugNetworkPolicyTest 改为从测试 classpath 位置向上查找 app/src/main/AndroidManifest.xml，不再依赖 user.dir。
+
+## 修复轮次 6 验证
+
+- XML 静态检查通过：app/src/main/res 与 app/src/debug 共 8 个 XML 文件解析成功。
+- git diff --check 通过。
+- 尝试现有 Gradle 8.13 执行 testDebugUnitTest --offline --no-daemon 与 assembleDebug --offline --no-daemon；两者均未进入源码编译，仍在 root classpath 阶段失败：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
+- Android SDK 路径虽可见，但 ANDROID_HOME/ANDROID_SDK_ROOT 未设置；未生成 APK，Kotlin 测试和 assemble 未验证。
+
+## Task 6 修复轮次 7
+
+- ApiBaseUrlBuildTypeTest 不再断言 build type 内出现 URL 字面量，改为解析顶层 debugApiBaseUrl/releaseApiBaseUrl 的 orElse 默认值，并检查 build type 引用了对应变量。
+- AuthFormProcessor 登录/注册使用 try/finally 释放提交锁并恢复 UI 状态；CancellationException 后可再次提交，补充对应回归测试。
+- DebugNetworkPolicyTest 从测试 classpath 位置向上查找 Android app 根目录，不依赖 user.dir。
+
+## 修复轮次 7 验证
+
+- XML 静态检查通过：app/src/main/res 与 app/src/debug 共 8 个 XML 文件解析成功。
+- git diff --check 通过。
+- 实际命令：Gradle 8.13 路径下执行 testDebugUnitTest --offline --no-daemon 与 assembleDebug --offline --no-daemon。
+- 两条命令均未进入源码编译，原始阻塞为：No cached version of com.android.tools.build:gradle:8.10.1 available for offline mode；No cached version of org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20 available for offline mode。
+- ANDROID_HOME/ANDROID_SDK_ROOT 未设置；未生成 APK，Kotlin 测试和 assemble 未验证。

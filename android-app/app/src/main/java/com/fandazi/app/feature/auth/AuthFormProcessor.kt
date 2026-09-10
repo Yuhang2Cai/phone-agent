@@ -28,38 +28,46 @@ class AuthFormProcessor(private val sessions: SessionActions) {
 
     suspend fun submitLogin(username: String, password: String) {
         if (!submitting.compareAndSet(false, true)) return
-        val errors = validate(username = username, email = null, password = password, isRegisterMode = false)
-        if (!publishErrors(errors, false)) {
+        try {
+            val errors = validate(username = username, email = null, password = password, isRegisterMode = false)
+            if (!publishErrors(errors, false)) {
+                return
+            }
+            mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
+            val result = try {
+                sessions.login(username.trim(), password)
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                ApiResult.Failure(ApiError.Network(exception.message ?: "Authentication request failed"))
+            }
+            complete(result)
+        } finally {
             submitting.set(false)
-            return
+            mutableState.value = mutableState.value.copy(isSubmitting = false)
         }
-        mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
-        val result = try {
-            sessions.login(username.trim(), password)
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (exception: Exception) {
-            ApiResult.Failure(ApiError.Network(exception.message ?: "Authentication request failed"))
-        }
-        complete(result)
     }
 
     suspend fun submitRegister(username: String, email: String, password: String) {
         if (!submitting.compareAndSet(false, true)) return
-        val errors = validate(username = username, email = email, password = password, isRegisterMode = true)
-        if (!publishErrors(errors, true)) {
+        try {
+            val errors = validate(username = username, email = email, password = password, isRegisterMode = true)
+            if (!publishErrors(errors, true)) {
+                return
+            }
+            mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
+            val result = try {
+                sessions.register(username.trim(), email.trim(), password)
+            } catch (exception: CancellationException) {
+                throw exception
+            } catch (exception: Exception) {
+                ApiResult.Failure(ApiError.Network(exception.message ?: "Registration request failed"))
+            }
+            complete(result)
+        } finally {
             submitting.set(false)
-            return
+            mutableState.value = mutableState.value.copy(isSubmitting = false)
         }
-        mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
-        val result = try {
-            sessions.register(username.trim(), email.trim(), password)
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (exception: Exception) {
-            ApiResult.Failure(ApiError.Network(exception.message ?: "Registration request failed"))
-        }
-        complete(result)
     }
 
     private fun publishErrors(errors: ValidationErrors, isRegisterMode: Boolean): Boolean {
@@ -81,7 +89,6 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     )
 
     private fun complete(result: ApiResult<AuthResponse>) {
-        submitting.set(false)
         mutableState.value = when (result) {
             is ApiResult.Success -> mutableState.value.copy(isSubmitting = false, errorMessage = null)
             is ApiResult.Failure -> mutableState.value.copy(isSubmitting = false, errorMessage = result.error.toUserMessage())
