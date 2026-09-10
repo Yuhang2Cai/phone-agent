@@ -81,7 +81,7 @@ class LangChainModelAdapter:
                 # The service remains testable without optional installed packages.
                 self._chain = None
 
-    def classify(self, text: str, requested_mode: str) -> IntentOutput:
+    def fallback_classify(self, text: str, requested_mode: str) -> IntentOutput:
         lowered = text.lower()
         fallback = IntentOutput(
             intent=(
@@ -93,9 +93,13 @@ class LangChainModelAdapter:
                 if requested_mode in {"order", "auto_order"}
                 else "recommend"
             ),
-            needs_confirmation=("确认" in text or "下单" in text),
+            needs_confirmation=False,
             health_sensitive=any(word in lowered for word in ("感冒", "发烧", "咳嗽", "生病")),
         )
+        return fallback
+
+    def classify(self, text: str, requested_mode: str) -> IntentOutput:
+        fallback = self.fallback_classify(text, requested_mode)
         if self._chain is None:
             return fallback
         try:
@@ -105,5 +109,9 @@ class LangChainModelAdapter:
                 f"Request: {text}"
             )
             return result if isinstance(result, IntentOutput) else IntentOutput.model_validate(result)
-        except Exception:
-            return fallback
+        except Exception as exc:
+            raise ModelClassificationError("llm_classification_failed") from exc
+
+
+class ModelClassificationError(RuntimeError):
+    """A configured LLM failed to produce valid structured intent output."""

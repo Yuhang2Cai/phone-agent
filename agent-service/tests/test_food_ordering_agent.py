@@ -69,11 +69,15 @@ def test_confirmation_creates_order_once_then_waits_for_payment():
         }
     )
 
-    result = FoodOrderingAgent(client).run(request("确认下单，宫保鸡丁", mode="order"))
+    agent = FoodOrderingAgent(client)
+    paused = agent.run(request("宫保鸡丁", mode="order"))
+    result = agent.run(request("确认", mode="order"))
 
+    assert paused.status == "awaiting_confirmation"
     assert result.status == "completed"
     assert result.next_action == "payment_followup"
     assert [item.tool_name for item in client.requests] == [
+        "search_merchants",
         "create_cart_draft",
         "validate_cart",
         "create_order",
@@ -120,8 +124,11 @@ def test_exact_reorder_calls_last_order_then_creates_new_order():
         }
     )
 
-    result = FoodOrderingAgent(client).run(request("按上次一样下单", mode="order"))
+    agent = FoodOrderingAgent(client)
+    paused = agent.run(request("按上次一样下单", mode="order"))
+    result = agent.run(request("确认", mode="order"))
 
+    assert paused.status == "awaiting_confirmation"
     assert result.status == "completed"
     assert [item.tool_name for item in client.requests] == [
         "get_last_order",
@@ -158,7 +165,7 @@ def test_amount_limit_stops_before_create_order():
 
     assert result.status == "failed"
     assert "金额超过单次限额" in (result.error or "")
-    assert [item.tool_name for item in client.requests] == ["create_cart_draft", "validate_cart"]
+    assert [item.tool_name for item in client.requests] == ["search_merchants", "create_cart_draft", "validate_cart"]
 
 
 def test_illegal_tool_is_rejected_without_network_call():
@@ -189,6 +196,7 @@ def test_wait_confirmation_state_resumes_without_repeating_cart_creation():
     assert paused.status == "awaiting_confirmation"
     assert resumed.status == "completed"
     assert [item.tool_name for item in client.requests] == [
+        "search_merchants",
         "create_cart_draft",
         "validate_cart",
         "create_order",
@@ -207,13 +215,14 @@ def test_serialized_confirmation_state_can_be_restored_without_replaying_tools()
     first_agent = FoodOrderingAgent(client)
     first_agent.run(request("宫保鸡丁", mode="order", session_id="s-snapshot"))
 
-    snapshot = first_agent.export_session("s-snapshot")
+    snapshot = first_agent.export_session("u-1", "s-snapshot")
     restarted_agent = FoodOrderingAgent(client)
-    restarted_agent.restore_session("s-snapshot", snapshot)
+    restarted_agent.restore_session("u-1", "s-snapshot", snapshot)
     result = restarted_agent.run(request("确认", mode="order", session_id="s-snapshot"))
 
     assert result.status == "completed"
     assert [item.tool_name for item in client.requests] == [
+        "search_merchants",
         "create_cart_draft",
         "validate_cart",
         "create_order",
@@ -289,7 +298,7 @@ def test_tool_loop_limit_returns_an_event_before_second_backend_call():
 
     assert result.status == "failed"
     assert result.error == "工具调用次数超过上限"
-    assert [item.tool_name for item in client.requests] == ["create_cart_draft"]
+    assert [item.tool_name for item in client.requests] == ["search_merchants"]
     assert any(event.node == "tool_guard" for event in result.events)
 
 

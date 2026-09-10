@@ -43,3 +43,23 @@ git diff --check
 已在当前 Python 3.13 环境安装并验证 FastAPI、LangChain、LangGraph 与项目可编辑包；无需兼容实现替代真实依赖。`LLM_BASE_URL`、`LLM_API_KEY` 与 `LLM_MODEL` 只从环境读取且未提交。未配置真实模型时，服务使用受限的确定性意图降级路径，方便离线契约测试。
 
 测试中仍有 9 条第三方依赖告警：LangChain 0.3 在 Python 3.13 的 Pydantic v1 兼容层警告、LangGraph 0.6 的未来默认值警告，以及 Starlette TestClient 的 AnyIO 弃用警告。它们不来自本项目代码，未影响 17 个测试全部通过；后续依赖大版本升级时应复查。
+
+## 修复轮次 1（Task 9 复核整改）
+
+已将手写流程替换为实际执行的 LangGraph `StateGraph`：八个节点均执行真实业务编排，条件路由覆盖推荐、策略、信息缺失、校验失败、确认、自动下单与终态；确认使用 LangGraph `interrupt` 和 `MemorySaver` checkpoint 暂停/恢复。
+
+- C1：LLM 仅用于意图识别，绝不写入确认授权。只有暂停态下的精确确认词可进入下单；“不要下单”“取消”等确定性否定会终止工作流。
+- C2：活动状态和恢复快照均校验 `userId + sessionId` 所有权，工作流另有不可变 `workflowId` 与版本。
+- I2/I4：终态会清理 workflow/checkpoint；每个工具操作的幂等键固定为 `{workflowId}:{toolName}`，恢复和新 trace 不会改变逻辑操作键。
+- I3：全部节点经统一图步数硬限制，工具调用同样受每次图执行预算保护；超限立即产生错误事件并终止。
+- M1/M2：显式 `max_order_amount=0` 生效；已配置 LLM 的失败在订单/自动下单模式失败关闭并记录结构化事件，非订单模式才使用可观测的受限降级。
+
+本轮验证命令：
+
+```powershell
+python -m pytest agent-service/tests -q
+python -m compileall -q agent-service/src
+git diff --check
+```
+
+结果：`27 passed, 9 warnings in 1.05s`，其余两项退出码为 0。新增回归覆盖否定确认、LLM 授权隔离、跨用户同 session 隔离、终态后新订单、真实 LangGraph checkpoint/interrupt、策略图步上限、稳定恢复幂等键、显式零金额上限、快照所有权以及模型失败关闭。9 条告警仍全部来自已记录的第三方依赖兼容层。
