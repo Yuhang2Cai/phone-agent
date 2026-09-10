@@ -79,3 +79,19 @@ git diff --check
 ```
 
 结果：`30 passed, 9 warnings in 1.12s`，编译及差异检查退出码均为 0。新增回归覆盖版本/ID 篡改快照拒绝、普通回复后的再次确认以及支付失败后的仅支付重试。9 条警告仍来自第三方兼容/弃用层。
+
+## 修复轮次 3（快照完整性与不确定下单整改）
+
+- 工作流签名改为对排除签名字段后的完整可恢复 `AgentState` 进行排序、紧凑的 canonical JSON HMAC；所有者、版本、购物车、授权、下一动作、已完成工具、操作键和预算状态均被认证，不再依赖可能碰撞的分隔符拼接。
+- `create_order` 的网络超时/不确定失败会持久化为 `order_recovery`；下次请求从同一 LangGraph workflow 恢复，复用相同的 `create_order` 操作键进行幂等对账式重试。
+- interrupt resume 值携带当前请求上下文，但不直接写入 LangGraph channel；确认节点在唯一节点更新中将最新请求传播给后续工具，`create_order` 使用当前 `traceId`。确认节点也在收到每个 HTTP resume 后重置本次图/工具预算。
+
+本轮执行：
+
+```powershell
+python -m pytest agent-service/tests -q
+python -m compileall -q agent-service/src
+git diff --check
+```
+
+结果：`38 passed, 9 warnings in 1.25s`，编译及差异检查退出码均为 0。新增回归逐项覆盖 user/session 分隔符碰撞、cart/authorization/next_action/completed_tools 篡改、create_order 不确定失败的同键恢复、当前 trace 传播和跨 HTTP run 预算重置。9 条警告仍来自第三方兼容/弃用层。

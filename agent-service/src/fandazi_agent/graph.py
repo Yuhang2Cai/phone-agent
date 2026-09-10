@@ -4,6 +4,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from hashlib import sha256
 import hmac
+import json
 import secrets
 from typing import Any
 from uuid import uuid4
@@ -84,7 +85,7 @@ class FoodOrderingAgent:
             output = self.langgraph.invoke({"agent_state": self._dump(state), "request": self._request_data(request), "resume_text": request.text}, self.workflow_config(*key))
         else:
             config = self.workflow_config(*key)
-            output = self.langgraph.invoke(Command(resume={"text": request.text}), config)
+            output = self.langgraph.invoke(Command(resume={"text": request.text, "request": self._request_data(request)}), config)
         state = self._state_from_output(output, *key)
         result = self._result(state)
         if state.next_action in {"payment_retry", "order_recovery"}:
@@ -169,13 +170,19 @@ class FoodOrderingAgent:
 
     def wait_confirmation(self, values: WorkflowInput) -> dict[str, Any]:
         state, _ = self._unpack(values)
-        if not self._enter(state, "wait_confirmation"):
-            return self._pack(state)
+        current_request = values["request"]
         answer = values.get("resume_text")
         while True:
             if answer is None:
                 answer = interrupt({"kind": "confirmation_required", "workflowId": state.workflow_id})
-            if isinstance(answer, dict): answer = answer.get("text", "")
+            if isinstance(answer, dict):
+                if "request" in answer:
+                    current_request = answer["request"]
+                    state.graph_steps = state.tool_calls = 0
+                    state.error = None
+                answer = answer.get("text", "")
+            if not self._enter(state, "wait_confirmation"):
+                return self._pack(state, current_request)
             text = str(answer).strip()
             if self._is_cancel(text):
                 state.next_action = "cancelled"
@@ -187,7 +194,7 @@ class FoodOrderingAgent:
                 self._event(state, "wait_confirmation", "info", "已收到确定性确认。")
                 break
             answer = None
-        return self._pack(state)
+        return self._pack(state, current_request)
 
     def create_order(self, values: WorkflowInput) -> dict[str, Any]:
         state, request = self._unpack(values)
@@ -201,6 +208,7 @@ class FoodOrderingAgent:
                 state.candidate_cart.update(result.data)
             else:
                 state.error = result.error or "创建订单失败"
+                state.next_action = "order_recovery"
         return self._pack(state)
 
     def payment_followup(self, values: WorkflowInput) -> dict[str, Any]:
@@ -307,8 +315,11 @@ class FoodOrderingAgent:
     def _dump(state: AgentState) -> dict[str, Any]: return state.model_dump(mode="json")
     @staticmethod
     def _request_data(request: AgentRunRequest) -> dict[str, Any]: return request.model_dump(by_alias=True, mode="json")
-    @staticmethod
-    def _pack(state: AgentState) -> dict[str, Any]: return {"agent_state": state.model_dump(mode="json")}
+    def _pack(self, state: AgentState, request: dict[str, Any] | None = None) -> dict[str, Any]:
+        state.workflow_signature = self._sign_workflow(state)
+        output: dict[str, Any] = {"agent_state": state.model_dump(mode="json")}
+        if request is not None: output["request"] = request
+        return output
     @staticmethod
     def _unpack(values: WorkflowInput) -> tuple[AgentState, AgentRunRequest]: return AgentState.model_validate(values["agent_state"]), AgentRunRequest.model_validate(values["request"])
     @staticmethod
@@ -322,8 +333,9 @@ class FoodOrderingAgent:
     @staticmethod
     def _reset_budget(state: AgentState, request: AgentRunRequest) -> None: state.graph_steps = state.tool_calls = 0; state.error = None; state.messages.append(request.text)
     def _sign_workflow(self, state: AgentState) -> str:
-        payload = f"{state.workflow_version}|{state.user_id}|{state.session_id}|{state.workflow_id}".encode()
-        return hmac.new(self._workflow_signing_key, payload, sha256).hexdigest()
+        payload = state.model_dump(mode="json", exclude={"workflow_signature"})
+        encoded = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return hmac.new(self._workflow_signing_key, encoded, sha256).hexdigest()
 
     def _assert_trusted_owner(self, state: AgentState, user_id: str, session_id: str) -> None:
         if state.workflow_version != 1:
