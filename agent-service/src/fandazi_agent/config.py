@@ -16,6 +16,7 @@ class Settings:
     max_tool_calls: int
     max_order_amount: int
     workflow_signing_key: str | None = None
+    workflow_store_dir: str | None = None
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -28,4 +29,5 @@ class Settings:
             max_tool_calls=int(os.getenv("AGENT_MAX_TOOL_CALLS", "8")),
             max_order_amount=int(os.getenv("AGENT_MAX_ORDER_AMOUNT", "100")),
             workflow_signing_key=os.getenv("AGENT_WORKFLOW_SIGNING_KEY"),
+            workflow_store_dir=os.getenv("AGENT_WORKFLOW_STORE_DIR"),
         )

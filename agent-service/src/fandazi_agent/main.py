@@ -6,6 +6,7 @@ from .config import Settings
 from .graph import FoodOrderingAgent
 from .models import AgentResult, AgentRunRequest
 from .spring_client import SpringBootToolClient
+from .workflow_store import FileWorkflowStore
 
 
 def create_app(agent: FoodOrderingAgent | None = None):
@@ -16,7 +17,8 @@ def create_app(agent: FoodOrderingAgent | None = None):
 
     settings = Settings.from_env()
     agent = agent or FoodOrderingAgent(
-        SpringBootToolClient(settings.spring_boot_base_url), settings=settings
+        SpringBootToolClient(settings.spring_boot_base_url), settings=settings,
+        workflow_store=FileWorkflowStore(settings.workflow_store_dir) if settings.workflow_store_dir else None,
     )
     app = FastAPI(title="饭搭子 AI Agent Service", docs_url=None, redoc_url=None)
 

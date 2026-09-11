@@ -42,6 +42,8 @@ class ToolResult(BaseModel):
     ok: bool
     data: dict[str, Any] = Field(default_factory=dict)
     error: str | None = None
+    # An ordinary negative business result is terminal unless explicitly classified.
+    error_kind: Literal["rejected", "retryable", "uncertain"] | None = None
 
 
 class AgentResult(BaseModel):

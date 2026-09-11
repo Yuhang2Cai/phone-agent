@@ -95,3 +95,49 @@ git diff --check
 ```
 
 结果：`38 passed, 9 warnings in 1.25s`，编译及差异检查退出码均为 0。新增回归逐项覆盖 user/session 分隔符碰撞、cart/authorization/next_action/completed_tools 篡改、create_order 不确定失败的同键恢复、当前 trace 传播和跨 HTTP run 预算重置。9 条警告仍来自第三方兼容/弃用层。
+
+## 修复轮次 4（持久恢复、错误分类与取消）
+
+本轮先阅读 worktree 内的 `task-9-r3-review.md`、`task-9-brief.md` 及本报告，核查并保留上一代理未提交的存储接口、文件适配器、错误分类、取消逻辑和回归测试。在可用测试环境中，接手实现的基线为 `103 passed, 1 failed, 2 warnings`；失败项证实恢复过程中保存失败后，“取消”会重新进入旧下单节点。未重置工作区，未派生子代理，未修改 Spring Boot 或其他任务的文件。
+
+### 完成的修复
+
+- I4：新增可注入的 `WorkflowStore` 协议及 `FileWorkflowStore`。文件适配器以完整 user/session 元组的 JSON 哈希定位快照，写入时刷新文件并原子替换；FastAPI 可通过 `AGENT_WORKFLOW_STORE_DIR` 启用，启用时必须提供重启后不变的 `AGENT_WORKFLOW_SIGNING_KEY`。读写错误和损坏快照均失败关闭，不会被误认为没有工作流。
+- 在调用 `create_order` 前保存完整签名的 `order_recovery` 状态。新的 Agent 实例或 Python 进程自动加载原工作流，继续通过 LangGraph 执行，保持原 `workflow_id`、`{workflow_id}:create_order` 和请求载荷，只更新当前请求的 trace 与本次执行预算。下单成功后先保存完成标记和 `payment_retry`，避免后续支付失败或进程退出导致重新下单。
+- `ToolResult.error_kind` 区分 `rejected`、`retryable`、`uncertain`。普通未分类业务否定以及权限、库存、金额和状态的明确拒绝都会终止并清理；只有明确重试/不确定结果保留 `order_recovery`。工具边界对 4xx 拒绝、408/429/5xx、连接/超时/协议异常和损坏响应按 HTTP/契约分类，并修复了未分类 408/429/5xx 错误体丢失恢复语义的问题，不按错误消息子串猜测。
+- 恢复态支持明确取消，取消请求不会调用 `create_order`；提示仅承诺停止重试，要求用户到订单页核实此前请求是否已成功。取消/拒绝先保存带签名的终态，再删除存储记录及内存/checkpoint。删除失败后，即使重建 Agent，也只重试清理而不再次下单。
+- 修复执行前清空恢复记录的问题；内存保留最新已知状态，包括存储写入失败时已成功创建的订单。下一请求经图入口处理取消或后续支付，不会用旧请求重放失败节点。
+- 保持完整 canonical JSON HMAC、版本验证及 user/session 所有权校验。公开 `invoke_tool` 现拒绝绕过图执行，避免直接创建未授权订单或覆盖活动恢复快照；订单、权限、库存、金额和业务状态仍由 Spring Boot 最终裁定，Python 源码未增加 MySQL/SQL 访问。
+
+### 回归与验证
+
+保留并扩展上一代理的测试：文件/可替换存储的自动恢复、公开快照恢复、当前 trace 与稳定操作键、真实独立 Python 进程恢复、`os._exit(23)` 直接退出后的同键重试和取消、下单成功后的仅支付恢复、存储读写/删除故障、损坏和篡改快照、用户及会话隔离、四类业务拒绝、恢复态取消、HTTP 错误分类及工具入口防绕过。
+
+新补的定向测试先复现了 7 个恢复/分类/入口失败场景，修复后通过；随后又复现并修复了 4 个取消/拒绝终态删除失败后重复下单的场景。
+
+本机默认 `python` 是 Windows 商店占位程序，因此使用可用的 Python 3.12.14 创建了被忽略的 `agent-service/.venv`，按现有 `pyproject.toml` 安装依赖。旧 pytest 缓存及系统临时目录存在访问权限问题，本次将测试临时目录和缓存定向至该虚拟环境内，未删除或更改旧目录权限。
+
+在 worktree 根目录、虚拟环境位于当前命令的 PATH 首位时执行：
+
+```powershell
+$env:PYTHONUTF8 = '1'
+$env:PYTEST_DEBUG_TEMPROOT = (Resolve-Path 'agent-service/.venv/task9-pytest').Path
+$env:PYTEST_ADDOPTS = '-o cache_dir=.venv/task9-pytest/cache'
+python -m pytest agent-service/tests -q
+python -m compileall -q agent-service/src
+git diff --check
+```
+
+测试结果：
+
+```text
+........................................................................ [ 59%]
+..................................................                       [100%]
+122 passed, 2 warnings in 10.26s
+```
+
+三项命令的退出码均为 0。两条告警来自 LangGraph checkpoint 序列化器未来默认值和 Starlette TestClient 的 AnyIO 弃用提示；Git 的 LF/CRLF 提示不属于差异检查失败。
+
+### 部署边界与剩余事项
+
+本轮要求均已实现并通过离线回归。文件存储需要保留的私有目录与稳定签名密钥；未配置存储时不会自动跨进程恢复。文件适配器支持同机进程重启，不提供多主机存储、分布式锁或断电保障；调用方须按 user/session 串行执行，多 worker 需配置相应串行化与存储适配器。真实 Spring Boot 的同键幂等结果、工具权限及库存等最终校验仍需服务联调验证，本轮未连接真实后端或 LLM，也未扩大 Spring Boot 任务范围。运行配置和行为说明已补入 `agent-service/README.md`。

@@ -287,7 +287,7 @@ def test_uncertain_create_order_keeps_workflow_and_reuses_same_operation_key():
                 self.requests.append(tool_request)
                 self.create_attempts += 1
                 if self.create_attempts == 1:
-                    return ToolResult(ok=False, error="spring_tool_unavailable: timeout")
+                    return ToolResult(ok=False, error="spring_tool_unavailable: timeout", error_kind="uncertain")
                 return ToolResult(ok=True, data={"orderId": "reconciled-order"})
             return super().call(tool_request)
 
