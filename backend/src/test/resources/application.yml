@@ -13,3 +13,9 @@ security:
   jwt:
     secret: 0123456789012345678901234567890123456789012345678901234567890123
     expiration-minutes: 60
+
+agent:
+  internal-token: test-agent-token
+  service:
+    base-url: http://127.0.0.1:8090
+    timeout-millis: 200
