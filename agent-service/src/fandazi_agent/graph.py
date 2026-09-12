@@ -333,7 +333,7 @@ class FoodOrderingAgent:
             # cart and authorization available for reconciliation through LangGraph.
             state.next_action = "order_recovery"
             self._persist_state(state)
-        result = self.tool_client.call(ToolRequest(tool_name=tool_name, userId=request.user_id, sessionId=request.session_id, traceId=request.trace_id, idempotencyKey=key, payload=payload))
+        result = self.tool_client.call(ToolRequest(tool_name=tool_name, userId=request.user_id, sessionId=request.session_id, traceId=request.trace_id, idempotencyKey=key, workflowId=state.workflow_id, payload=payload))
         state.tool_calls += 1
         if result.ok: state.completed_tools.append(tool_name)
         self._event(state, "tool", "tool" if result.ok else "error", "工具调用完成。" if result.ok else "工具调用失败。", tool_name)

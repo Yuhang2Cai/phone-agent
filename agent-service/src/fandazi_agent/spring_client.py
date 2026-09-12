@@ -3,15 +3,27 @@
 from __future__ import annotations
 
 import httpx
+import os
 
+from .config import Settings
 from .models import ToolRequest, ToolResult
 from .tools import is_allowed_tool
 
 
 class SpringBootToolClient:
-    def __init__(self, base_url: str = "http://localhost:8080", timeout_seconds: float = 10.0):
+    def __init__(
+        self,
+        base_url: str = "http://localhost:8080",
+        timeout_seconds: float = 10.0,
+        *,
+        settings: Settings | None = None,
+        agent_internal_token: str | None = None,
+    ):
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
+        self.agent_internal_token = agent_internal_token if agent_internal_token is not None else (
+            settings.agent_internal_token if settings is not None else os.getenv("AGENT_INTERNAL_TOKEN")
+        )
 
     def call(self, request: ToolRequest) -> ToolResult:
         if not is_allowed_tool(request.tool_name):
@@ -21,6 +33,7 @@ class SpringBootToolClient:
                 f"{self.base_url}/internal/tools/{request.tool_name}",
                 json=request.model_dump(by_alias=True, mode="json", exclude={"tool_name"}),
                 timeout=self.timeout_seconds,
+                headers={"X-Agent-Token": self.agent_internal_token} if self.agent_internal_token else {},
             )
         except httpx.RequestError as exc:
             # A lost response cannot establish whether Spring Boot committed the order.

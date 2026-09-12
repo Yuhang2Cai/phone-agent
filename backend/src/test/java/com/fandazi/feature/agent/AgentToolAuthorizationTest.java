@@ -17,6 +17,7 @@ import com.fandazi.feature.catalog.MerchantEntity;
 import com.fandazi.feature.catalog.MerchantRepository;
 import com.fandazi.feature.order.CreateOrderCommand;
 import com.fandazi.feature.order.OrderService;
+import com.fandazi.feature.order.OrderResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -124,6 +125,77 @@ class AgentToolAuthorizationTest {
         mockMvc.perform(post("/internal/tools/get_last_order").header("X-Agent-Token", "test-agent-token")
                         .contentType(MediaType.APPLICATION_JSON).content(lastOrder))
                 .andExpect(status().isBadRequest()).andExpect(content().string(containsString("下架")));
+    }
+
+    @Test
+    void consumesConfirmedAuthorizationSoItCannotCreateAnotherCartOrder() throws Exception {
+        CartDraft firstCart = cartWithDish();
+        CartDraft secondCart = cartWithDish();
+        AgentSession confirmSession = sessions.start(owner.getId(), "single-confirm-session", AgentMode.CONFIRM, "trace");
+        sessions.confirm(owner.getId(), confirmSession.getSessionId());
+
+        mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody(confirmSession, "first-confirmed-order", Map.of("cartDraftId", firstCart.getId(), "addressId", ownerAddressId()))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody(confirmSession, "second-confirmed-order", Map.of("cartDraftId", secondCart.getId(), "addressId", ownerAddressId()))))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("确认")));
+    }
+
+    @Test
+    void returnsExistingAgentOrderBeforeRecheckingStockOrAuthorization() throws Exception {
+        MerchantEntity merchant = merchants.findAll().get(0);
+        DishEntity onlyDish = dishes.save(new DishEntity(merchant, "主食", "最后一份", "", new BigDecimal("20"), 1, true, ""));
+        CartDraft cart = carts.createDraft(owner.getId(), merchant.getId());
+        carts.replaceItems(owner.getId(), cart.getId(), java.util.List.of(new CartItemCommand(onlyDish.getId(), 1, java.util.List.of(), null)));
+        String body = toolBody("recovery-order", Map.of("cartDraftId", cart.getId(), "addressId", ownerAddressId()));
+
+        var first = mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk()).andReturn();
+        var retry = mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON).content(body))
+                .andExpect(status().isOk()).andReturn();
+
+        assertThat(objectMapper.readTree(retry.getResponse().getContentAsString()).at("/data/order/id").asLong())
+                .isEqualTo(objectMapper.readTree(first.getResponse().getContentAsString()).at("/data/order/id").asLong());
+    }
+
+    @Test
+    void autoPaymentRejectsAnOrderNotCreatedByTheCurrentSession() throws Exception {
+        CartDraft cart = cartWithDish();
+        OrderResponse otherOrder = orders.createResponse(owner.getId(), new CreateOrderCommand(cart.getId(), ownerAddressId(), "manual-order"));
+
+        mockMvc.perform(post("/internal/tools/pay_mock_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody("wrong-payment", Map.of("orderId", otherOrder.id()))))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("当前会话")));
+    }
+
+    @Test
+    void consumesSingleTaskGrantAfterBoundOrderIsPaidAndRejectsAnotherOrder() throws Exception {
+        CartDraft firstCart = cartWithDish();
+        CartDraft secondCart = cartWithDish();
+        var created = mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody("single-auto-order", Map.of("cartDraftId", firstCart.getId(), "addressId", ownerAddressId()))))
+                .andExpect(status().isOk()).andReturn();
+        Long orderId = objectMapper.readTree(created.getResponse().getContentAsString()).at("/data/order/id").asLong();
+
+        mockMvc.perform(post("/internal/tools/pay_mock_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody("single-auto-payment", Map.of("orderId", orderId))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody("second-single-auto-order", Map.of("cartDraftId", secondCart.getId(), "addressId", ownerAddressId()))))
+                .andExpect(status().isBadRequest()).andExpect(content().string(containsString("授权")));
     }
 
     @Test

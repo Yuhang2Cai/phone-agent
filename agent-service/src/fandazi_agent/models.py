@@ -35,6 +35,7 @@ class ToolRequest(BaseModel):
     session_id: str = Field(alias="sessionId")
     trace_id: str = Field(alias="traceId")
     idempotency_key: str = Field(alias="idempotencyKey")
+    workflow_id: str | None = Field(default=None, alias="workflowId")
     payload: dict[str, Any] = Field(default_factory=dict)
 
 

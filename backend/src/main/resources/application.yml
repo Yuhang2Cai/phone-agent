@@ -14,3 +14,9 @@ security:
   jwt:
     secret: ${JWT_SECRET}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+
+agent:
+  internal-token: ${AGENT_INTERNAL_TOKEN:}
+  service:
+    base-url: ${AGENT_SERVICE_URL:http://127.0.0.1:8090}
+    timeout-millis: ${AGENT_SERVICE_TIMEOUT_MILLIS:5000}

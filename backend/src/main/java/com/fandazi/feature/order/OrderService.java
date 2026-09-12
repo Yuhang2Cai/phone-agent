@@ -56,6 +56,11 @@ public class OrderService {
     }
 
     @Transactional(readOnly = true)
+    public java.util.Optional<OrderEntity> findByIdempotencyKey(Long userId, String key) {
+        return orders.findByUserIdAndIdempotencyKey(userId, key);
+    }
+
+    @Transactional(readOnly = true)
     public OrderEntity get(Long userId, Long id) {
         var order = orders.findByIdAndUserId(id, userId).orElseThrow(() -> new DomainException("订单不存在"));
         order.getTimeline();

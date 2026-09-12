@@ -25,4 +25,8 @@ public class AgentSessionService {
         return sessions.findBySessionId(sessionId).orElseThrow(() -> new DomainException("会话不存在"));
     }
     @Transactional public void confirm(Long userId, String sessionId) { owned(userId, sessionId).confirm(); }
+    @Transactional public void bindWorkflow(AgentSession session, String workflowId) { session.bindWorkflow(workflowId); }
+    @Transactional public void bindCreatedOrder(AgentSession session, Long orderId, String workflowId) { session.bindCreatedOrder(orderId, workflowId); }
+    @Transactional public void consumeConfirmation(AgentSession session) { session.consumeConfirmation(); }
+    @Transactional public void settleCreatedOrder(AgentSession session) { session.settleCreatedOrder(); }
 }

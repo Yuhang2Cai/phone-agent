@@ -30,6 +30,8 @@ class HttpAgentServiceClient implements AgentServiceClient {
         } catch (AgentServiceUnavailableException exception) { throw exception;
         } catch (RestClientException exception) {
             throw new AgentServiceUnavailableException("Agent 服务暂不可用，请稍后重试", exception);
+        } catch (RuntimeException exception) {
+            throw new AgentServiceUnavailableException("Agent 服务返回格式无效，请稍后重试", exception);
         }
     }
     private AgentResult result(Map<?, ?> body) {
