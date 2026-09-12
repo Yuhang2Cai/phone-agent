@@ -35,15 +35,25 @@ data class CandidateCart(
     val discount: String,
     val total: String,
     val maxAmount: String,
-    val addressId: Long
-)
+    val addressId: Long,
+    val authorizationMode: AgentMode? = null
+) {
+    fun isCompleteForConfirmation() = merchantName.isNotBlank() && items.isNotEmpty() &&
+        items.all { it.name.isNotBlank() && it.specification.isNotBlank() && it.price.isMoney() } &&
+        address.isNotBlank() && deliveryFee.isMoney() && discount.isMoney() && total.isMoney() &&
+        maxAmount.isMoney() && addressId > 0 && authorizationMode != null
+
+    private fun String.isMoney() = isNotBlank() && this != "—" && replace(Regex("[^0-9.]"), "")
+        .toBigDecimalOrNull()?.let { it >= BigDecimal.ZERO } == true
+}
 
 data class AgentMessageResult(
     val status: AgentStatus,
     val message: String,
     val nextAction: String?,
     val candidateCart: CandidateCart?,
-    val events: List<AgentEvent>
+    val events: List<AgentEvent>,
+    val error: String? = null
 )
 
 data class OrderConfirmation(
@@ -68,6 +78,7 @@ sealed interface AgentError {
     data object Authentication : AgentError
     data class Server(val message: String) : AgentError
     data class Network(val message: String) : AgentError
+    data class Asr(val message: String) : AgentError
 }
 
 data class AgentUiState(
@@ -75,6 +86,7 @@ data class AgentUiState(
     val composerText: String = "",
     val messages: List<ChatMessage> = emptyList(),
     val events: List<AgentEvent> = emptyList(),
+    val candidateCart: CandidateCart? = null,
     val confirmation: OrderConfirmation? = null,
     val authorization: AgentAuthorization = AgentAuthorization(),
     val error: AgentError? = null,

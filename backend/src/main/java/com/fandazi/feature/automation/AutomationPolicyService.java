@@ -17,5 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
     @Transactional public AutomationGrant lockedGrant(Long userId,String sessionId){return grants.findByUserIdAndSessionIdForUpdate(userId,sessionId).orElse(null);}
     @Transactional public void bindTaskGrant(Long userId,String sessionId,String workflowId,Long cartDraftId,Long orderId){var grant=lockedGrant(userId,sessionId);if(grant!=null)grant.bind(workflowId,cartDraftId,orderId);}
     @Transactional public void consumeTaskGrant(Long userId,String sessionId,String workflowId,Long orderId){var grant=lockedGrant(userId,sessionId);if(grant!=null&&grant.canPay(workflowId,orderId))grant.consume();}
+    @Transactional public void revokeTaskGrant(Long userId,String sessionId){var grant=lockedGrant(userId,sessionId);if(grant!=null)grant.revoke();}
     private void validate(Long userId,Long addressId,BigDecimal maxAmount){if(!addresses.owned(userId,addressId).isDefaultAddress())throw new DomainException("自动授权必须使用当前默认地址");if(maxAmount==null||maxAmount.signum()<=0)throw new DomainException("金额上限无效");}
 }

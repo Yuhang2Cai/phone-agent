@@ -16,6 +16,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.lifecycle.createSavedStateHandle
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.R
 import com.fandazi.app.databinding.FragmentAgentSheetBinding
@@ -35,6 +36,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
     }
     private val microphonePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) beginRecognition()
+        else viewModel.onAsrError(getString(R.string.agent_asr_unavailable))
     }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog =
@@ -109,6 +111,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
             AgentError.Authentication -> getString(R.string.agent_auth_required)
             is AgentError.Network -> error.message
             is AgentError.Server -> error.message
+            is AgentError.Asr -> error.message
             null -> ""
         }
         dialog?.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)?.let { bottomSheet ->
@@ -130,7 +133,9 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         cardViews.confirmMode.text = if (card.authorizationMode == AgentMode.THIS_TASK_AUTO) getString(R.string.agent_this_task_auto) else getString(R.string.agent_confirm_mode)
         cardViews.confirmLimit.text = getString(R.string.agent_limit_value, card.amountLimitText)
         cardViews.confirmAutoAuthorization.isChecked = card.authorizationMode == AgentMode.THIS_TASK_AUTO
-        cardViews.confirmAutoAuthorization.setOnClickListener { viewModel.selectThisTaskAuto() }
+        cardViews.confirmAutoAuthorization.setOnClickListener {
+            if (cardViews.confirmAutoAuthorization.isChecked) viewModel.selectThisTaskAuto() else viewModel.cancelOrder()
+        }
         cardViews.confirmOrderButton.setOnClickListener { viewModel.confirmOrder() }
         cardViews.cancelOrderButton.setOnClickListener { viewModel.cancelOrder() }
         cardViews.modifyOrderButton.setOnClickListener { viewModel.modifyOrder() }
@@ -144,7 +149,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
 
     private fun beginRecognition() {
         if (!SpeechRecognizer.isRecognitionAvailable(requireContext())) {
-            viewModel.onAsrResult(getString(R.string.agent_asr_unavailable))
+            viewModel.onAsrError(getString(R.string.agent_asr_unavailable))
             return
         }
         recognizer?.destroy()
@@ -158,7 +163,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
                 override fun onRmsChanged(rmsdB: Float) = Unit
                 override fun onBufferReceived(buffer: ByteArray?) = Unit
                 override fun onEndOfSpeech() = Unit
-                override fun onError(error: Int) = Unit
+                override fun onError(error: Int) = viewModel.onAsrError(getString(R.string.agent_asr_unavailable))
                 override fun onPartialResults(partialResults: Bundle?) = Unit
                 override fun onEvent(eventType: Int, params: Bundle?) = Unit
             })
@@ -185,4 +190,10 @@ class AgentViewModelFactory(private val repository: AgentRepository) : androidx.
     @Suppress("UNCHECKED_CAST")
     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
         AgentViewModel(repository, androidx.lifecycle.SavedStateHandle()) as T
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : androidx.lifecycle.ViewModel> create(
+        modelClass: Class<T>,
+        extras: androidx.lifecycle.viewmodel.CreationExtras
+    ): T = AgentViewModel(repository, extras.createSavedStateHandle()) as T
 }

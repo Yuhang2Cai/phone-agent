@@ -27,4 +27,5 @@ public class AutomationGrant {
     void update(Long address,BigDecimal amount,Instant expires){addressId=address;maxAmount=amount;expiresAt=expires;workflowId=null;cartDraftId=null;orderId=null;consumed=false;}
     void bind(String workflow,Long cart,Long order){workflowId=workflow;cartDraftId=cart;orderId=order;}
     void consume(){consumed=true;}
+    void revoke(){consumed=true; expiresAt=Instant.EPOCH;}
 }

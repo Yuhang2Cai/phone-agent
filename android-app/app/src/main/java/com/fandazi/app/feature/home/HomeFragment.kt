@@ -17,7 +17,6 @@ import com.fandazi.app.feature.agent.AgentSurface
 import com.fandazi.app.feature.agent.openAgentAssistant
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
     private var binding: FragmentHomeBinding? = null
@@ -45,8 +44,9 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                sessions.error.distinctUntilChanged().collect { error ->
+                sessions.error.collect { error ->
                     val message = when (error) {
+                        SessionError.StorageReadFailed -> getString(R.string.session_read_failed)
                         SessionError.StorageClearFailed -> getString(R.string.logout_failed_retry)
                         SessionError.StorageUnavailable,
                         SessionError.StorageWriteFailed -> getString(R.string.session_storage_unavailable)

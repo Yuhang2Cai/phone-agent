@@ -23,7 +23,7 @@ class AgentViewModel(
     private val savedState: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(AgentUiState())
+    private val _uiState = MutableStateFlow(AgentUiState(lastEventId = savedState[LAST_EVENT_ID] ?: 0L))
     val uiState = _uiState.asStateFlow()
     private var eventsJob: Job? = null
     private val sessionId: String = savedState[SESSION_ID] ?: UUID.randomUUID().toString().also { savedState[SESSION_ID] = it }
@@ -32,7 +32,7 @@ class AgentViewModel(
 
     fun openAssistant() {
         _uiState.update { it.copy(sheetMode = AgentSheetMode.HALF, error = null) }
-        if (eventsJob?.isActive != true) subscribeEvents()
+        if (savedState.get<Boolean>(SESSION_ESTABLISHED) == true && eventsJob?.isActive != true) subscribeEvents()
     }
 
     fun closeAssistant() {
@@ -48,6 +48,7 @@ class AgentViewModel(
     fun updateComposer(value: String) = _uiState.update { it.copy(composerText = value) }
 
     fun onAsrResult(text: String) = updateComposer(text)
+    fun onAsrError(message: String) = _uiState.update { it.copy(error = AgentError.Asr(message)) }
 
     fun sendComposer() = sendText(_uiState.value.composerText)
 
@@ -59,7 +60,11 @@ class AgentViewModel(
         _uiState.update { it.copy(composerText = "", messages = it.messages + ChatMessage(request, true), error = null, isSending = true) }
         viewModelScope.launch(dispatcher) {
             when (val result = repository.sendMessage(sessionId, request, mode())) {
-                is ApiResult.Success -> applyResult(result.value)
+                is ApiResult.Success -> {
+                    savedState[SESSION_ESTABLISHED] = true
+                    applyResult(result.value)
+                    if (_uiState.value.sheetMode != AgentSheetMode.HIDDEN && eventsJob?.isActive != true) subscribeEvents()
+                }
                 is ApiResult.Failure -> showError(result.error)
             }
         }
@@ -69,8 +74,17 @@ class AgentViewModel(
 
     fun confirmOrder() { sendText("确认下单") }
 
-    fun cancelOrder() = _uiState.update {
-        it.copy(confirmation = null, messages = it.messages + ChatMessage("已取消本次下单。", false))
+    fun cancelOrder() {
+        if (!_uiState.value.authorization.isTaskAuto) {
+            clearConfirmation("已取消本次下单。")
+            return
+        }
+        viewModelScope.launch(dispatcher) {
+            when (val result = repository.revokeThisTaskAuto(sessionId)) {
+                is ApiResult.Success -> clearConfirmation("已取消本次下单，自动授权已撤销。")
+                is ApiResult.Failure -> showError(result.error)
+            }
+        }
     }
 
     fun modifyOrder() = _uiState.update { it.copy(confirmation = null, composerText = "请修改订单：") }
@@ -110,19 +124,42 @@ class AgentViewModel(
         _uiState.update { state ->
             val allEvents = result.events.fold(state.events) { current, event -> current.addIfNew(event) }
             val cart = result.candidateCart
-            state.copy(
-                isSending = false,
-                messages = state.messages + ChatMessage(result.message, false),
-                events = allEvents,
-                lastEventId = allEvents.mapNotNull(AgentEvent::id).maxOrNull() ?: state.lastEventId,
-                confirmation = if (cart != null && result.status == AgentStatus.AWAITING_CONFIRMATION) cart.toConfirmation(mode()) else state.confirmation
-            )
+            when (result.status) {
+                AgentStatus.FAILED -> state.copy(
+                    isSending = false,
+                    messages = state.messages + ChatMessage(result.message, false),
+                    events = allEvents,
+                    lastEventId = allEvents.mapNotNull(AgentEvent::id).maxOrNull() ?: state.lastEventId,
+                    confirmation = null,
+                    candidateCart = null,
+                    error = AgentError.Server(result.error ?: result.message)
+                )
+                AgentStatus.AWAITING_CONFIRMATION -> state.copy(
+                    isSending = false,
+                    messages = state.messages + ChatMessage(result.message, false),
+                    events = allEvents,
+                    lastEventId = allEvents.mapNotNull(AgentEvent::id).maxOrNull() ?: state.lastEventId,
+                    candidateCart = cart,
+                    confirmation = cart?.takeIf(CandidateCart::isCompleteForConfirmation)?.toConfirmation(),
+                    error = if (cart?.isCompleteForConfirmation() == true) null else AgentError.Server("订单详情不完整，不能确认或开启自动授权")
+                )
+                else -> state.copy(
+                    isSending = false,
+                    messages = state.messages + ChatMessage(result.message, false),
+                    events = allEvents,
+                    lastEventId = allEvents.mapNotNull(AgentEvent::id).maxOrNull() ?: state.lastEventId,
+                    confirmation = null,
+                    candidateCart = null
+                )
+            }
         }
     }
 
     private fun appendEvent(event: AgentEvent) = _uiState.update { state ->
         val updated = state.events.addIfNew(event)
-        state.copy(events = updated, lastEventId = event.id ?: state.lastEventId)
+        state.copy(events = updated, lastEventId = event.id ?: state.lastEventId).also {
+            savedState[LAST_EVENT_ID] = it.lastEventId
+        }
     }
 
     private fun showError(error: ApiError) = _uiState.update {
@@ -136,14 +173,20 @@ class AgentViewModel(
 
     private fun mode() = if (_uiState.value.authorization.isTaskAuto) AgentMode.THIS_TASK_AUTO else AgentMode.CONFIRM
     private fun List<AgentEvent>.addIfNew(event: AgentEvent) = if (event.id != null && any { it.id == event.id }) this else this + event
-    private fun CandidateCart.toConfirmation(mode: AgentMode) = OrderConfirmation(
-        merchantName, items, address, deliveryFee, discount, total, mode,
-        maxAmount.takeUnless { it == "—" || it.isBlank() } ?: requestedAmountLimit ?: "未设置", addressId
+    private fun CandidateCart.toConfirmation() = OrderConfirmation(
+        merchantName, items, address, deliveryFee, discount, total, requireNotNull(authorizationMode), maxAmount, addressId
     )
+    private fun clearConfirmation(message: String) = _uiState.update {
+        it.copy(confirmation = null, candidateCart = null, authorization = AgentAuthorization(), messages = it.messages + ChatMessage(message, false))
+    }
     private fun String.toAmountOrNull(): BigDecimal? = replace(Regex("[^0-9.]"), "").toBigDecimalOrNull()?.takeIf { it > BigDecimal.ZERO }
     private fun String.requestedAmountLimit(): String? = Regex("(\\d+(?:\\.\\d+)?)\\s*元\\s*以内").find(this)?.groupValues?.get(1)?.let { "¥$it" }
 
     override fun onCleared() { eventsJob?.cancel(); super.onCleared() }
 
-    private companion object { const val SESSION_ID = "agent_session_id" }
+    private companion object {
+        const val SESSION_ID = "agent_session_id"
+        const val SESSION_ESTABLISHED = "agent_session_established"
+        const val LAST_EVENT_ID = "agent_last_event_id"
+    }
 }

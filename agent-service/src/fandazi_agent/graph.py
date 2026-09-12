@@ -196,6 +196,8 @@ class FoodOrderingAgent:
                 state.error = result.error or "购物车校验未通过"
                 return self._pack(state)
             state.candidate_cart.update(result.data)
+        # The public Gateway must be able to show the authoritative ceiling before any confirmation.
+        state.candidate_cart["maxAmount"] = self.max_order_amount
         if state.candidate_cart.get("total", 0) > self.max_order_amount:
             state.error = f"金额超过单次限额（{self.max_order_amount}）"
             self._event(state, "validate_order", "error", state.error)

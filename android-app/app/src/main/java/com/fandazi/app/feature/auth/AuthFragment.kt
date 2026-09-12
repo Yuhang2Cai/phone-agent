@@ -14,7 +14,6 @@ import com.fandazi.app.R
 import com.fandazi.app.databinding.FragmentAuthBinding
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 class AuthFragment : Fragment(R.layout.fragment_auth) {
     private var binding: FragmentAuthBinding? = null
@@ -43,7 +42,6 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 (requireActivity() as MainActivity).applicationSession().error
-                    .distinctUntilChanged()
                     .collect { error ->
                         val message = when (error) {
                             SessionError.StorageReadFailed -> getString(R.string.session_read_failed)

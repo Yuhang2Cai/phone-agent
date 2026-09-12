@@ -30,7 +30,7 @@ class ApiClient(
     private val tokenProvider: () -> String?,
     okHttpClient: OkHttpClient? = null
 ) {
-    private val client = (okHttpClient ?: OkHttpClient.Builder()).newBuilder()
+    private val client = (okHttpClient ?: OkHttpClient()).newBuilder()
         .connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)

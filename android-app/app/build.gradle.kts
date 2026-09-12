@@ -1,5 +1,7 @@
-apply(plugin = "com.android.application")
-apply(plugin = "org.jetbrains.kotlin.android")
+plugins {
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+}
 
 val debugApiBaseUrl = providers.gradleProperty("debugApiBaseUrl")
     .orElse("http://10.0.2.2:8080/api/")

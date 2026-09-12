@@ -16,8 +16,14 @@ class FandaziApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        val apiClient = ApiClient(BuildConfig.API_BASE_URL) { sessionRepository.tokenOrNull() }
+        val apiClient = ApiClient(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenProvider = { sessionRepository.tokenOrNull() }
+        )
         sessionRepository = SessionRepository(ApiAuthGateway(apiClient), EncryptedSessionStorage(this))
-        agentRepository = HttpAgentRepository(BuildConfig.API_BASE_URL) { sessionRepository.tokenOrNull() }
+        agentRepository = HttpAgentRepository(
+            baseUrl = BuildConfig.API_BASE_URL,
+            tokenProvider = { sessionRepository.tokenOrNull() }
+        )
     }
 }

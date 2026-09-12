@@ -13,6 +13,7 @@ import java.util.UUID;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -63,5 +64,12 @@ public class AutomationController {
         sessions.owned(userId, sessionId);
         AutomationGrant grant = policies.grant(userId, sessionId);
         return grant == null ? null : TaskGrantResponse.from(grant);
+    }
+
+    @DeleteMapping("/task-grants")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void revokeTaskGrant(@AuthenticationPrincipal Long userId, @org.springframework.web.bind.annotation.RequestParam String sessionId) {
+        sessions.owned(userId, sessionId);
+        policies.revokeTaskGrant(userId, sessionId);
     }
 }

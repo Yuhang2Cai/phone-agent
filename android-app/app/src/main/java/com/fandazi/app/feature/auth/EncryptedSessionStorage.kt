@@ -10,23 +10,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class EncryptedSessionStorage(context: Context) : SessionStorage {
-    private val preferences: SharedPreferences?
-    override val initializationError: Throwable?
-    init {
-        try {
-            preferences = EncryptedSharedPreferences.create(
+    private val initialization = runCatching {
+        EncryptedSharedPreferences.create(
                 context,
                 PREFERENCES_NAME,
                 MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
                 EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
                 EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-            )
-            initializationError = null
-        } catch (exception: Throwable) {
-            preferences = null
-            initializationError = exception
-        }
+        )
     }
+    private val preferences: SharedPreferences? = initialization.getOrNull()
+    override val initializationError: Throwable? = initialization.exceptionOrNull()
     private val gson = Gson()
 
     override fun read(): Result<PersistedSession?> {

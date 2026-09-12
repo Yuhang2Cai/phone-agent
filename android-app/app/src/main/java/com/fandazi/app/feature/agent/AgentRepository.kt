@@ -9,6 +9,7 @@ import com.google.gson.JsonObject
 import com.google.gson.JsonParser
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -30,6 +32,7 @@ interface AgentRepository {
     suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult>
     fun streamEvents(sessionId: String, afterEventId: Long?): Flow<AgentEvent>
     suspend fun grantThisTaskAuto(request: ThisTaskAutoRequest): ApiResult<Unit>
+    suspend fun revokeThisTaskAuto(sessionId: String): ApiResult<Unit>
 }
 
 /**
@@ -41,9 +44,10 @@ class HttpAgentRepository(
     private val tokenProvider: () -> String?,
     private val gson: Gson = Gson(),
     client: OkHttpClient? = null,
-    private val reconnectDelayMillis: Long = 500L
+    private val reconnectDelayMillis: Long = 500L,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : AgentRepository {
-    private val client = (client ?: OkHttpClient.Builder()).newBuilder()
+    private val client = (client ?: OkHttpClient()).newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.SECONDS)
         .retryOnConnectionFailure(false)
@@ -101,8 +105,11 @@ class HttpAgentRepository(
                 } catch (cancelled: CancellationException) {
                     throw cancelled
                 } catch (failure: AgentStreamException) {
-                    close(failure)
-                    return@launch
+                    if (failure.code == 401 || failure.code == 403) {
+                        close(failure)
+                        return@launch
+                    }
+                    if (currentCoroutineContext().isActive) delay(reconnectDelayMillis)
                 } catch (_: IOException) {
                     if (currentCoroutineContext().isActive) delay(reconnectDelayMillis)
                 }
@@ -125,18 +132,24 @@ class HttpAgentRepository(
             ).build()
     ) { Unit }
 
-    private suspend fun <T> executeJson(request: Request, parser: (String) -> T): ApiResult<T> = try {
-        client.newCall(request).execute().use { response ->
-            val body = response.body?.string().orEmpty()
-            if (response.isSuccessful) ApiResult.Success(parser(body))
-            else ApiResult.Failure(ApiError.Http(response.code, errorMessage(body, response.message)))
+    override suspend fun revokeThisTaskAuto(sessionId: String): ApiResult<Unit> = executeJson(
+        Request.Builder().url(url("automation/task-grants?sessionId=$sessionId")).delete().build()
+    ) { Unit }
+
+    private suspend fun <T> executeJson(request: Request, parser: (String) -> T): ApiResult<T> = withContext(ioDispatcher) {
+        try {
+            client.newCall(request).execute().use { response ->
+                val body = response.body?.string().orEmpty()
+                if (response.isSuccessful) ApiResult.Success(parser(body))
+                else ApiResult.Failure(ApiError.Http(response.code, errorMessage(body, response.message)))
+            }
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (error: IOException) {
+            ApiResult.Failure(ApiError.Network(error.message ?: "Network request failed"))
+        } catch (error: Exception) {
+            ApiResult.Failure(ApiError.Network(error.message ?: "Unable to read server response"))
         }
-    } catch (cancelled: CancellationException) {
-        throw cancelled
-    } catch (error: IOException) {
-        ApiResult.Failure(ApiError.Network(error.message ?: "Network request failed"))
-    } catch (error: Exception) {
-        ApiResult.Failure(ApiError.Network(error.message ?: "Unable to read server response"))
     }
 
     private fun parseMessage(body: String): AgentMessageResult {
@@ -146,7 +159,8 @@ class HttpAgentRepository(
             message = value.string("message").orEmpty(),
             nextAction = value.string("nextAction"),
             candidateCart = value.objectOrNull("candidateCart")?.toCandidateCart(),
-            events = value.array("events").mapNotNull { it.asJsonObjectOrNull()?.toEvent() }
+            events = value.array("events").mapNotNull { it.asJsonObjectOrNull()?.toEvent() },
+            error = value.string("error")
         )
     }
 
@@ -164,8 +178,7 @@ class HttpAgentRepository(
     )
 
     private fun JsonObject.toCandidateCart(): CandidateCart? {
-        val merchant = string("merchantName") ?: string("merchant") ?: array("merchants").firstOrNull()
-            ?.asJsonObjectOrNull()?.string("name") ?: "已选商家"
+        val merchant = string("merchantName").orEmpty()
         val addressId = string("addressId")?.toLongOrNull()
             ?: get("addressId")?.takeUnless { it.isJsonNull }?.asLong
             ?: return null
@@ -182,12 +195,15 @@ class HttpAgentRepository(
         return CandidateCart(
             merchantName = merchant,
             items = items,
-            address = string("address") ?: string("defaultAddress") ?: "默认地址（ID $addressId）",
+            address = string("address").orEmpty(),
             deliveryFee = priceText("deliveryFee"),
             discount = priceText("discount"),
             total = priceText("total"),
             maxAmount = priceText("maxAmount"),
-            addressId = addressId
+            addressId = addressId,
+            authorizationMode = string("authorizationMode")?.let { value ->
+                runCatching { AgentMode.valueOf(value) }.getOrNull()
+            }
         )
     }
 

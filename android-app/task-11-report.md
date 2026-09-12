@@ -38,4 +38,18 @@
 
 ## 剩余集成注意事项
 
-当前 Gateway 的候选购物车公开响应会提供商家候选、购物车/地址 ID、配送费和总价，但确认前不一定携带菜品规格、地址文字或金额上限。客户端能在字段存在时完整显示；缺少时显示“服务端已校验购物车”提示、默认地址 ID，并从“30 元以内”这类用户输入提取上限。若要始终展示精确菜品/规格和地址文字，公开 Gateway 响应需补充这些展示字段；本任务未修改 backend 或 agent-service。
+确认 DTO 已在修复轮中补全；客户端仍以 fail-closed 方式对未来的缺字段响应处理，避免把非完整的公开响应展示成可确认订单。
+
+## 修复轮 1（2026-09-12）
+
+- Gateway 在 `AWAITING_CONFIRMATION` 时以服务端 cart quote 与地址补全商家、菜品、规格、地址文本、配送费、优惠和总价；Agent 服务明确携带其权威的金额上限，Gateway 明确携带授权模式。Android 对缺少任一字段的响应只暴露 `candidateCart`，不会创建确认卡片、确认下单或 `THIS_TASK_AUTO` 授权。
+- `AgentUiState` 增加 `candidateCart`；取消自动授权通过公开 `DELETE /api/automation/task-grants?sessionId=...` 撤销且使 grant 已消费/过期，只有服务端撤销成功后 UI 才清除授权状态。
+- 所有 Repository 的阻塞 JSON OkHttp `execute()` 均进入可注入的 `Dispatchers.IO`；SSE 对首次 404 和非鉴权断线保留游标重试，鉴权失败才终止。会话在首条消息成功后再订阅 SSE，游标和已建立会话标记保存在 `SavedStateHandle`。
+- HTTP 200 的 `FAILED/error` 映射为可重试错误并清除确认/候选卡；所有非确认终态也清除旧卡。ASR 拒权、不可用和识别错误进入可见错误 UI，自动授权开关取消会走撤销流程。
+- 构建脚本改为 Kotlin DSL `plugins {}`，补齐 AndroidX 与非 ASCII worktree 的 AGP 配置；同时修复原有 OkHttp/SessionStorage/Flow 编译阻塞，使 Android JVM 测试可运行。
+
+### 修复轮验证
+
+- `testDebugUnitTest --tests 'com.fandazi.app.feature.agent.*'`：通过。新增/更新覆盖不完整卡片 fail-closed、candidateCart、HTTP 200 FAILED、首条消息后的 SSE、404 重连 `Last-Event-ID`、公开 revoke 和自动授权撤销。
+- 全量 `testDebugUnitTest`：Agent 测试通过；已有 3 个非 Agent 失败仍存在：`ApiBaseUrlBuildTypeTest`、`DebugNetworkPolicyTest`（依赖源路径，ASCII junction 测试路径不满足其假设）和 `SessionRepositoryTest.cancellationDuringSessionWriteIsRethrown`（既有断言失败）。
+- 后端未提供 Maven wrapper，且本机没有 `mvn`；Agent 服务环境没有 `python` 命令，因此本轮无法执行它们的编译/测试。未声称其通过。

@@ -73,6 +73,7 @@ class AgentViewModelTest {
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
 
         viewModel.openAssistant()
+        viewModel.sendText("帮我点午餐")
         advanceUntilIdle()
 
         assertEquals(listOf(event), viewModel.uiState.value.events)
@@ -114,6 +115,23 @@ class AgentViewModelTest {
     }
 
     @Test
+    fun cancellingTaskAutoWaitsForServerRevocationBeforeClearingAuthorization() = runTest {
+        val repository = FakeAgentRepository(result = confirmationResult())
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.sendText("帮我点午餐")
+        advanceUntilIdle()
+        viewModel.selectThisTaskAuto()
+        advanceUntilIdle()
+
+        viewModel.cancelOrder()
+        advanceUntilIdle()
+
+        assertEquals(1, repository.revokeRequests)
+        assertFalse(viewModel.uiState.value.authorization.isTaskAuto)
+        assertEquals(null, viewModel.uiState.value.confirmation)
+    }
+
+    @Test
     fun amountLimitInRequestIsShownWhenGatewayCartOmitsIt() = runTest {
         val original = confirmationResult().value
         val resultWithoutLimit = original.copy(candidateCart = original.candidateCart!!.copy(maxAmount = ""))
@@ -122,7 +140,40 @@ class AgentViewModelTest {
         viewModel.sendText("清淡午餐，30 元以内")
         advanceUntilIdle()
 
-        assertEquals("¥30", viewModel.uiState.value.confirmation?.amountLimitText)
+        assertEquals(null, viewModel.uiState.value.confirmation)
+        assertEquals(resultWithoutLimit.candidateCart, viewModel.uiState.value.candidateCart)
+    }
+
+    @Test
+    fun firstMessageEstablishesSseAfterTheSessionExists() = runTest {
+        val repository = FakeAgentRepository(result = confirmationResult())
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+
+        viewModel.openAssistant()
+        assertEquals(null, repository.streamStartCursor)
+
+        viewModel.sendText("帮我点午餐")
+        advanceUntilIdle()
+
+        assertEquals(0L, repository.streamStartCursor)
+    }
+
+    @Test
+    fun failedGatewayResultShowsRetryableErrorAndClearsConfirmation() = runTest {
+        val repository = FakeAgentRepository(result = confirmationResult())
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.sendText("帮我点午餐")
+        advanceUntilIdle()
+
+        repository.result = ApiResult.Success(
+            AgentMessageResult(AgentStatus.FAILED, "请求未完成。", "retry", null, emptyList(), "服务暂不可用")
+        )
+        viewModel.sendText("重试")
+        advanceUntilIdle()
+
+        assertEquals(AgentError.Server("服务暂不可用"), viewModel.uiState.value.error)
+        assertEquals(null, viewModel.uiState.value.confirmation)
+        assertEquals(null, viewModel.uiState.value.candidateCart)
     }
 
     @Test
@@ -151,14 +202,15 @@ class AgentViewModelTest {
                 discount = "-¥1.00",
                 total = "¥14.00",
                 maxAmount = "¥30.00",
-                addressId = 9L
+                addressId = 9L,
+                authorizationMode = AgentMode.CONFIRM
             ),
             events = emptyList()
         )
     )
 
     private class FakeAgentRepository(
-        private val result: ApiResult<AgentMessageResult> = ApiResult.Success(
+        var result: ApiResult<AgentMessageResult> = ApiResult.Success(
             AgentMessageResult(AgentStatus.COMPLETED, "好的", null, null, emptyList())
         ),
         private val events: List<AgentEvent> = emptyList()
@@ -167,6 +219,7 @@ class AgentViewModelTest {
         var lastMode: AgentMode? = null
         var streamStartCursor: Long? = null
         var grantRequests = 0
+        var revokeRequests = 0
 
         override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult> {
             lastText = text
@@ -176,11 +229,16 @@ class AgentViewModelTest {
 
         override fun streamEvents(sessionId: String, afterEventId: Long?): Flow<AgentEvent> {
             streamStartCursor = afterEventId
-            return kotlinx.coroutines.flow.flow { events.forEach(::emit) }
+            return kotlinx.coroutines.flow.flow { events.forEach { event -> emit(event) } }
         }
 
         override suspend fun grantThisTaskAuto(request: ThisTaskAutoRequest): ApiResult<Unit> {
             grantRequests += 1
+            return ApiResult.Success(Unit)
+        }
+
+        override suspend fun revokeThisTaskAuto(sessionId: String): ApiResult<Unit> {
+            revokeRequests += 1
             return ApiResult.Success(Unit)
         }
     }

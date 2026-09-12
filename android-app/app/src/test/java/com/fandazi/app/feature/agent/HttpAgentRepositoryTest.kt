@@ -51,11 +51,12 @@ class HttpAgentRepositoryTest {
     }
 
     @Test
-    fun mapsTheCurrentGatewayCartShapeUsingMerchantCandidateAndQuote() = runBlocking {
+    fun acceptsOnlyCompleteGatewayConfirmationCart() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("""
             {"status":"AWAITING_CONFIRMATION","message":"请确认","candidateCart":{
-              "merchants":[{"id":3,"name":"清粥小菜"}],"cartDraftId":8,"addressId":9,
-              "deliveryFee":3,"discount":0,"total":14
+              "merchantName":"清粥小菜","items":[{"name":"南瓜小米粥","specification":"去香菜","price":12,"quantity":1}],
+              "address":"公司默认地址","addressId":9,"deliveryFee":3,"discount":0,"total":14,"maxAmount":30,
+              "authorizationMode":"CONFIRM"
             },"events":[]}
         """.trimIndent()))
         val repository = HttpAgentRepository(server.url("/api/").toString(), { null })
@@ -66,6 +67,35 @@ class HttpAgentRepositoryTest {
         assertEquals("¥3", result.value.candidateCart?.deliveryFee)
         assertEquals("¥14", result.value.candidateCart?.total)
         assertEquals(9L, result.value.candidateCart?.addressId)
+        assertEquals(AgentMode.CONFIRM, result.value.candidateCart?.authorizationMode)
+        assertTrue(result.value.candidateCart?.isCompleteForConfirmation() == true)
+    }
+
+    @Test
+    fun retriesSseAfterInitialSessionNotFoundAndRetainsCursor() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(404).setBody("{\"error\":\"会话不存在\"}"))
+        server.enqueue(sse(3, "parsed", "已接收点餐请求"))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { null }, reconnectDelayMillis = 1)
+
+        val event = withTimeout(2_000) { repository.streamEvents("session-1", 2).take(1).toList().single() }
+
+        assertEquals(3L, event.id)
+        assertEquals("2", server.takeRequest().getHeader("Last-Event-ID"))
+        assertEquals("2", server.takeRequest().getHeader("Last-Event-ID"))
+    }
+
+    @Test
+    fun revokesTaskGrantThroughPublicApi() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(204))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { "session-jwt" })
+
+        val result = repository.revokeThisTaskAuto("session-1")
+
+        assertTrue(result is ApiResult.Success)
+        val request = server.takeRequest()
+        assertEquals("DELETE", request.method)
+        assertEquals("/api/automation/task-grants?sessionId=session-1", request.path)
+        assertEquals("Bearer session-jwt", request.getHeader("Authorization"))
     }
 
     private fun sse(id: Long, type: String, summary: String) = MockResponse()
