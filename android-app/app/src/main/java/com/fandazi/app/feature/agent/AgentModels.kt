@@ -1,0 +1,90 @@
+package com.fandazi.app.feature.agent
+
+import java.math.BigDecimal
+import java.time.Instant
+
+/** Only modes exposed by the public Agent Gateway.  CONFIRM is intentionally the default. */
+enum class AgentMode { CONFIRM, THIS_TASK_AUTO }
+
+enum class AgentStatus { COMPLETED, NEEDS_INPUT, AWAITING_CONFIRMATION, FAILED }
+
+enum class AgentSheetMode { HIDDEN, HALF, FULL }
+
+data class ChatMessage(val text: String, val fromUser: Boolean)
+
+data class AgentEvent(
+    val id: Long?,
+    val type: String,
+    val summary: String,
+    val toolName: String? = null,
+    val status: String? = null
+)
+
+data class CandidateCartItem(
+    val name: String,
+    val specification: String = "",
+    val price: String,
+    val quantity: Int = 1
+)
+
+data class CandidateCart(
+    val merchantName: String,
+    val items: List<CandidateCartItem>,
+    val address: String,
+    val deliveryFee: String,
+    val discount: String,
+    val total: String,
+    val maxAmount: String,
+    val addressId: Long
+)
+
+data class AgentMessageResult(
+    val status: AgentStatus,
+    val message: String,
+    val nextAction: String?,
+    val candidateCart: CandidateCart?,
+    val events: List<AgentEvent>
+)
+
+data class OrderConfirmation(
+    val merchantName: String,
+    val items: List<CandidateCartItem>,
+    val address: String,
+    val deliveryFee: String,
+    val discount: String,
+    val total: String,
+    val authorizationMode: AgentMode,
+    val amountLimitText: String,
+    val addressId: Long
+)
+
+data class AgentAuthorization(
+    val isTaskAuto: Boolean = false,
+    val defaultAddress: String? = null,
+    val maxAmount: String? = null
+)
+
+sealed interface AgentError {
+    data object Authentication : AgentError
+    data class Server(val message: String) : AgentError
+    data class Network(val message: String) : AgentError
+}
+
+data class AgentUiState(
+    val sheetMode: AgentSheetMode = AgentSheetMode.HIDDEN,
+    val composerText: String = "",
+    val messages: List<ChatMessage> = emptyList(),
+    val events: List<AgentEvent> = emptyList(),
+    val confirmation: OrderConfirmation? = null,
+    val authorization: AgentAuthorization = AgentAuthorization(),
+    val error: AgentError? = null,
+    val lastEventId: Long? = 0L,
+    val isSending: Boolean = false
+)
+
+data class ThisTaskAutoRequest(
+    val sessionId: String,
+    val addressId: Long,
+    val maxAmount: BigDecimal,
+    val expiresAt: Instant
+)

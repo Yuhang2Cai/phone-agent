@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/agent_confirmation_card" android:orientation="vertical" android:padding="16dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/agent_confirmation_title" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
+    <TextView android:id="@+id/confirm_merchant" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
+    <TextView android:id="@+id/confirm_items" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" />
+    <TextView android:id="@+id/confirm_address" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" />
+    <TextView android:id="@+id/confirm_fees" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <TextView android:id="@+id/confirm_mode" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" />
+    <TextView android:id="@+id/confirm_limit" android:layout_width="match_parent" android:layout_height="wrap_content" />
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/confirm_auto_authorization" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/agent_auto_choice" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton android:id="@+id/cancel_order_button" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/agent_cancel" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/modify_order_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/agent_modify" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/confirm_order_button" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/agent_confirm" />
+    </LinearLayout>
+</LinearLayout>

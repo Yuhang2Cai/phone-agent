@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/agent_title" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/expand_agent_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_full_screen" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/close_agent_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_close" />
+    </LinearLayout>
+
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true" android:scrollbars="none">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
+            <com.google.android.material.button.MaterialButton android:id="@+id/quick_light_meal" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/quick_light_meal" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/quick_repeat_order" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/quick_repeat_order" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/quick_track_order" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/quick_track_order" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <TextView android:id="@+id/agent_error_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@android:color/holo_red_dark" android:visibility="gone" />
+            <com.google.android.material.button.MaterialButton android:id="@+id/agent_retry_button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_retry" android:visibility="gone" />
+            <LinearLayout android:id="@+id/agent_messages" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            <LinearLayout android:id="@+id/agent_events" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            <LinearLayout android:id="@+id/agent_confirmation_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+        <com.google.android.material.button.MaterialButton android:id="@+id/agent_mic_button" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_mic" />
+        <com.google.android.material.textfield.TextInputEditText android:id="@+id/agent_composer" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:hint="@string/agent_input_hint" android:inputType="textMultiLine" android:maxLines="3" />
+        <com.google.android.material.button.MaterialButton android:id="@+id/agent_send_button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_send" />
+    </LinearLayout>
+</LinearLayout>

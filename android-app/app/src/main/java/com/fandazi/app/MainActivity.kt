@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
         val desired = SessionRouteCoordinator.routeFor(state)
         val current = when (navHost.navController.currentDestination?.id) {
             R.id.authFragment -> SessionRoute.AUTH
-            R.id.homeFragment -> SessionRoute.HOME
+            R.id.homeFragment, R.id.searchFragment, R.id.merchantFragment, R.id.ordersFragment, R.id.paymentFragment -> SessionRoute.HOME
             else -> null
         }
         if (!SessionRouteCoordinator.shouldNavigate(current, desired)) return

@@ -1,0 +1,74 @@
+package com.fandazi.app.feature.agent
+
+import com.fandazi.app.core.network.ApiResult
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+
+class HttpAgentRepositoryTest {
+    private lateinit var server: MockWebServer
+
+    @Before fun setUp() { server = MockWebServer().also { it.start() } }
+    @After fun tearDown() { server.shutdown() }
+
+    @Test
+    fun sendsOnlyBearerTokenToPublicAgentMessageApi() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody("""
+            {"status":"COMPLETED","message":"已完成","nextAction":"none","candidateCart":{},"events":[]}
+        """.trimIndent()))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { "session-jwt" })
+
+        val result = repository.sendMessage("session-1", "午餐", AgentMode.CONFIRM)
+
+        assertTrue(result is ApiResult.Success)
+        val request = server.takeRequest()
+        assertEquals("/api/agent/sessions/session-1/messages", request.path)
+        assertEquals("Bearer session-jwt", request.getHeader("Authorization"))
+        assertNull(request.getHeader("X-Agent-Token"))
+        assertTrue(request.body.readUtf8().contains("\"mode\":\"CONFIRM\""))
+    }
+
+    @Test
+    fun sseReconnectsWithLastEventIdAfterDisconnectAndContinuesEvents() = runBlocking {
+        server.enqueue(sse(1, "parsed", "已接收点餐请求"))
+        server.enqueue(sse(2, "completed", "已生成购物车"))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { null }, reconnectDelayMillis = 1)
+
+        val events = withTimeout(2_000) { repository.streamEvents("session-1", 0).take(2).toList() }
+
+        assertEquals(listOf(1L, 2L), events.map(AgentEvent::id))
+        assertEquals("0", server.takeRequest().getHeader("Last-Event-ID"))
+        assertEquals("1", server.takeRequest().getHeader("Last-Event-ID"))
+    }
+
+    @Test
+    fun mapsTheCurrentGatewayCartShapeUsingMerchantCandidateAndQuote() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody("""
+            {"status":"AWAITING_CONFIRMATION","message":"请确认","candidateCart":{
+              "merchants":[{"id":3,"name":"清粥小菜"}],"cartDraftId":8,"addressId":9,
+              "deliveryFee":3,"discount":0,"total":14
+            },"events":[]}
+        """.trimIndent()))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { null })
+
+        val result = repository.sendMessage("session-1", "清淡午餐", AgentMode.CONFIRM) as ApiResult.Success
+
+        assertEquals("清粥小菜", result.value.candidateCart?.merchantName)
+        assertEquals("¥3", result.value.candidateCart?.deliveryFee)
+        assertEquals("¥14", result.value.candidateCart?.total)
+        assertEquals(9L, result.value.candidateCart?.addressId)
+    }
+
+    private fun sse(id: Long, type: String, summary: String) = MockResponse()
+        .setHeader("Content-Type", "text/event-stream")
+        .setBody("id: $id\nevent: agent-event\ndata: {\"id\":$id,\"type\":\"$type\",\"summary\":\"$summary\",\"status\":\"completed\"}\n\n")
+}
