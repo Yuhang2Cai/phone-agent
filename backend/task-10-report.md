@@ -47,3 +47,23 @@ Set `AGENT_INTERNAL_TOKEN` in Spring Boot and have the isolated Agent Service (o
 | `git diff --check` | passed |
 
 The deployment note above is superseded for this fix round: the Agent Service now sends the internal token. The only observed test output beyond pass/fail status was dependency deprecation/Flyway compatibility warnings; no functional test issue remains known.
+
+## Fix round 2 completion
+
+- Serialized authorization consumption with pessimistic row locks on `agent_sessions` and `automation_grants`. Every internal tool execution locks its session before checking, binding, and consuming CONFIRM or task-grant state; task-grant authorization, binding, and consumption use the same locked grant row in that transaction. Concurrent workflows now leave exactly one successful order and reject the competing request.
+- Preserved idempotent recovery before mutable validation while comparing the stored order request fingerprint with the incoming `cartDraftId:addressId`; a mismatched reuse now returns `OrderConflictException` (HTTP 409).
+- Enforced current default-address semantics for automation configuration and execution. Long-term policies and task grants may only be created for the current default address, and automatic order creation rejects a saved policy/grant address after it is no longer default.
+- Added two concurrent authorization integration tests (CONFIRM and THIS_TASK_AUTO grant), idempotency-fingerprint conflict coverage, policy configuration/execution negative tests, and a cross-language HTTP contract test. The contract starts a real Spring Boot server, executes the production Python `SpringBootToolClient`, and verifies it is accepted by `InternalToolController` with `X-Agent-Token`.
+- Kept the Flyway migration, live/replayable SSE implementation, production automation endpoints, Agent Service error mapping, and existing idempotent recovery behavior intact.
+
+## Fix round 2 verification
+
+| Command | Result |
+| --- | --- |
+| Targeted authorization/default-address/contract backend tests | 15 passed, 0 failed, 0 errors |
+| `mvn -f backend/pom.xml test` | 78 passed, 0 failed, 0 errors |
+| `python -m pytest agent-service/tests -q --basetemp <writable-temp> -p no:cacheprovider` | 125 passed, 2 third-party deprecation warnings |
+| `python -m compileall -q agent-service/src agent-service/tests` | passed |
+| `git diff --check` | passed |
+
+The only observed warnings are the pre-existing LangGraph checkpoint serializer and Starlette/AnyIO deprecations, plus Maven's existing Mockito dynamic-agent and Flyway/H2 compatibility notices. No remaining Task 10 functional issue is known from this repair round.

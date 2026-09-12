@@ -166,6 +166,24 @@ class AgentToolAuthorizationTest {
     }
 
     @Test
+    void rejectsIdempotentRecoveryWhenTheExistingOrderHasAnotherCartOrAddress() throws Exception {
+        CartDraft firstCart = cartWithDish();
+        CartDraft otherCart = cartWithDish();
+        String idempotencyKey = "fingerprint-conflict";
+
+        mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody(idempotencyKey, Map.of("cartDraftId", firstCart.getId(), "addressId", ownerAddressId()))))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody(idempotencyKey, Map.of("cartDraftId", otherCart.getId(), "addressId", ownerAddressId()))))
+                .andExpect(status().isConflict())
+                .andExpect(content().string(containsString("幂等键")));
+    }
+
+    @Test
     void autoPaymentRejectsAnOrderNotCreatedByTheCurrentSession() throws Exception {
         CartDraft cart = cartWithDish();
         OrderResponse otherOrder = orders.createResponse(owner.getId(), new CreateOrderCommand(cart.getId(), ownerAddressId(), "manual-order"));

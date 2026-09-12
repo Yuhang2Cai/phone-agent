@@ -11,7 +11,7 @@ public class AgentSessionService {
     public AgentSessionService(AgentSessionRepository sessions, UserRepository users) { this.sessions = sessions; this.users = users; }
     @Transactional public AgentSession start(Long userId, String sessionId, AgentMode mode, String traceId) {
         if (sessionId == null || sessionId.isBlank()) throw new DomainException("会话不能为空");
-        var existing = sessions.findBySessionId(sessionId);
+        var existing = sessions.findBySessionIdForUpdate(sessionId);
         if (existing.isPresent()) {
             if (!existing.get().getUser().getId().equals(userId)) throw new DomainException("会话不属于当前用户");
             existing.get().update(mode, traceId); return existing.get();
@@ -24,7 +24,12 @@ public class AgentSessionService {
     @Transactional(readOnly = true) public AgentSession trusted(String sessionId) {
         return sessions.findBySessionId(sessionId).orElseThrow(() -> new DomainException("会话不存在"));
     }
-    @Transactional public void confirm(Long userId, String sessionId) { owned(userId, sessionId).confirm(); }
+    @Transactional public AgentSession trustedForUpdate(String sessionId) {
+        return sessions.findBySessionIdForUpdate(sessionId).orElseThrow(() -> new DomainException("会话不存在"));
+    }
+    @Transactional public void confirm(Long userId, String sessionId) {
+        sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在")).confirm();
+    }
     @Transactional public void bindWorkflow(AgentSession session, String workflowId) { session.bindWorkflow(workflowId); }
     @Transactional public void bindCreatedOrder(AgentSession session, Long orderId, String workflowId) { session.bindCreatedOrder(orderId, workflowId); }
     @Transactional public void consumeConfirmation(AgentSession session) { session.consumeConfirmation(); }
