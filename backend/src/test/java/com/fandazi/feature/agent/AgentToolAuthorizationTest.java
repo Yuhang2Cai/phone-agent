@@ -113,6 +113,7 @@ class AgentToolAuthorizationTest {
     void permitsConfirmedOrderButTerminatesReorderWhenItsDishHasBeenUnlisted() throws Exception {
         CartDraft cart = cartWithDish();
         AgentSession confirmSession = sessions.start(owner.getId(), "confirm-session", AgentMode.CONFIRM, "trace");
+        bindAuthorizedCart(confirmSession, "trace", cart);
         sessions.confirm(owner.getId(), confirmSession.getSessionId());
         String confirmed = toolBody(confirmSession, "confirmed-order", Map.of("cartDraftId", cart.getId(), "addressId", ownerAddressId()));
         mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
@@ -132,6 +133,7 @@ class AgentToolAuthorizationTest {
         CartDraft firstCart = cartWithDish();
         CartDraft secondCart = cartWithDish();
         AgentSession confirmSession = sessions.start(owner.getId(), "single-confirm-session", AgentMode.CONFIRM, "trace");
+        bindAuthorizedCart(confirmSession, "trace", firstCart);
         sessions.confirm(owner.getId(), confirmSession.getSessionId());
 
         mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
@@ -144,6 +146,36 @@ class AgentToolAuthorizationTest {
                         .content(toolBody(confirmSession, "second-confirmed-order", Map.of("cartDraftId", secondCart.getId(), "addressId", ownerAddressId()))))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string(containsString("确认")));
+    }
+
+    @Test
+    void confirmedAuthorizationRejectsCartReplacementAfterUserSawAnotherCart() throws Exception {
+        CartDraft displayedCart = cartWithDish();
+        CartDraft replacedCart = cartWithDish();
+        AgentSession confirmSession = sessions.start(owner.getId(), "bound-confirm-session", AgentMode.CONFIRM, "trace");
+        bindAuthorizedCart(confirmSession, "bound-workflow", displayedCart);
+        sessions.confirm(owner.getId(), confirmSession.getSessionId());
+
+        mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody(confirmSession, "replaced-confirmed-order", "bound-workflow",
+                                Map.of("cartDraftId", replacedCart.getId(), "addressId", ownerAddressId()))))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("授权")));
+    }
+
+    @Test
+    void thisTaskAutoGrantRejectsCartReplacementAfterUserAuthorizedAnotherCart() throws Exception {
+        CartDraft displayedCart = cartWithDish();
+        CartDraft replacedCart = cartWithDish();
+        bindAuthorizedCart(session, "auto-workflow", displayedCart);
+
+        mockMvc.perform(post("/internal/tools/create_order").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody(session, "replaced-auto-order", "auto-workflow",
+                                Map.of("cartDraftId", replacedCart.getId(), "addressId", ownerAddressId()))))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("授权")));
     }
 
     @Test
@@ -239,10 +271,25 @@ class AgentToolAuthorizationTest {
         return carts.replaceItems(owner.getId(), cart.getId(), java.util.List.of(new CartItemCommand(dish.getId(), 1, java.util.List.of(), null)));
     }
 
+    private void bindAuthorizedCart(AgentSession value, String workflowId, CartDraft cart) {
+        bindAuthorizedCart(value, workflowId, cart.getId());
+    }
+
+    private void bindAuthorizedCart(AgentSession value, String workflowId, Long cartId) {
+        sessions.bindAuthorizedCart(value, workflowId, cartId, ownerAddressId(), carts.validate(owner.getId(), cartId).total());
+    }
+
     private Long ownerAddressId() { return addresses.list(owner.getId()).get(0).getId(); }
     private String toolBody(String key, Map<String, Object> payload) throws Exception { return toolBody(session, key, payload); }
     private String toolBody(AgentSession value, String key, Map<String, Object> payload) throws Exception {
+        if (value.getMode() == AgentMode.THIS_TASK_AUTO && payload.get("cartDraftId") instanceof Number cartId) {
+            bindAuthorizedCart(value, value.getTraceId(), cartId.longValue());
+        }
         return objectMapper.writeValueAsString(Map.of("userId", attacker.getId().toString(), "sessionId", value.getSessionId(),
                 "traceId", "forged-trace", "idempotencyKey", key, "payload", payload));
+    }
+    private String toolBody(AgentSession value, String key, String workflowId, Map<String, Object> payload) throws Exception {
+        return objectMapper.writeValueAsString(Map.of("userId", attacker.getId().toString(), "sessionId", value.getSessionId(),
+                "traceId", "forged-trace", "idempotencyKey", key, "workflowId", workflowId, "payload", payload));
     }
 }

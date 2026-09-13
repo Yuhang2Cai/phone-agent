@@ -2,6 +2,7 @@ package com.fandazi.feature.agent;
 
 import com.fandazi.feature.auth.UserEntity;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 
 @Entity @Table(name = "agent_sessions", uniqueConstraints = @UniqueConstraint(columnNames = "session_id"))
 public class AgentSession {
@@ -14,6 +15,7 @@ public class AgentSession {
     @Column(name = "confirmation_workflow_id", length = 100) private String confirmationWorkflowId;
     @Column(name = "confirmed_cart_draft_id") private Long confirmedCartDraftId;
     @Column(name = "confirmed_address_id") private Long confirmedAddressId;
+    @Column(name = "confirmed_total", precision = 12, scale = 2) private BigDecimal confirmedTotal;
     @Column(nullable = false) private boolean confirmationConsumed;
     @Column(name = "active_workflow_id", length = 100) private String activeWorkflowId;
     @Column(name = "created_order_id") private Long createdOrderId;
@@ -31,11 +33,19 @@ public class AgentSession {
     void update(AgentMode value, String newTraceId) {
         mode = value; traceId = newTraceId;
         confirmed = false; confirmationConsumed = false;
-        confirmationWorkflowId = null; confirmedCartDraftId = null; confirmedAddressId = null;
     }
     void confirm() {
         confirmed = true; confirmationConsumed = false;
-        confirmationWorkflowId = null; confirmedCartDraftId = null; confirmedAddressId = null;
+    }
+    void bindAuthorizedCart(String workflowId, Long cartDraftId, Long addressId, BigDecimal total) {
+        if (workflowId == null || workflowId.isBlank() || cartDraftId == null || addressId == null || total == null) {
+            throw new com.fandazi.feature.DomainException("授权购物车不完整");
+        }
+        confirmationWorkflowId = workflowId;
+        confirmedCartDraftId = cartDraftId;
+        confirmedAddressId = addressId;
+        confirmedTotal = total;
+        activeWorkflowId = workflowId;
     }
     void bindWorkflow(String workflowId) {
         if (workflowId == null || workflowId.isBlank()) workflowId = traceId;
@@ -50,19 +60,21 @@ public class AgentSession {
             confirmationWorkflowId = null;
             confirmedCartDraftId = null;
             confirmedAddressId = null;
+            confirmedTotal = null;
             return;
         }
         throw new com.fandazi.feature.DomainException("当前会话已有未完成订单工作流");
     }
-    public boolean canUseConfirmation(String workflowId, Long cartDraftId, Long addressId) {
+    public boolean canUseConfirmation(String workflowId, Long cartDraftId, Long addressId, BigDecimal total) {
         if (!confirmed || confirmationConsumed) return false;
+        return canUseAuthorizedCart(workflowId, cartDraftId, addressId, total);
+    }
+    public boolean canUseAuthorizedCart(String workflowId, Long cartDraftId, Long addressId, BigDecimal total) {
         String currentWorkflow = workflowId == null || workflowId.isBlank() ? traceId : workflowId;
-        if (confirmationWorkflowId == null) confirmationWorkflowId = currentWorkflow;
-        if (!confirmationWorkflowId.equals(currentWorkflow)) return false;
-        if (confirmedCartDraftId == null) {
-            confirmedCartDraftId = cartDraftId; confirmedAddressId = addressId;
-        }
-        return confirmedCartDraftId.equals(cartDraftId) && confirmedAddressId.equals(addressId);
+        if (!currentWorkflow.equals(confirmationWorkflowId)) return false;
+        return confirmedCartDraftId != null && confirmedCartDraftId.equals(cartDraftId)
+                && confirmedAddressId != null && confirmedAddressId.equals(addressId)
+                && confirmedTotal != null && total != null && confirmedTotal.compareTo(total) == 0;
     }
     void bindCreatedOrder(Long orderId, String workflowId) {
         createdOrderId = orderId;

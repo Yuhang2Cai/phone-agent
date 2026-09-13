@@ -198,12 +198,15 @@ class FoodOrderingAgent:
             state.candidate_cart.update(result.data)
         # The public Gateway must be able to show the authoritative ceiling before any confirmation.
         state.candidate_cart["maxAmount"] = self.max_order_amount
+        state.candidate_cart["workflowId"] = state.workflow_id
         if state.candidate_cart.get("total", 0) > self.max_order_amount:
             state.error = f"金额超过单次限额（{self.max_order_amount}）"
             self._event(state, "validate_order", "error", state.error)
-        elif not state.authorization.get("auto_order"):
-            state.next_action = "wait_confirmation"
-            self._event(state, "wait_confirmation", "info", "购物车已校验，等待用户确认。")
+        else:
+            self._capture_authorized_cart(state)
+            if not state.authorization.get("auto_order"):
+                state.next_action = "wait_confirmation"
+                self._event(state, "wait_confirmation", "info", "购物车已校验，等待用户确认。")
         return self._pack(state)
 
     def wait_confirmation(self, values: WorkflowInput) -> dict[str, Any]:
@@ -245,9 +248,15 @@ class FoodOrderingAgent:
         elif "create_order" not in state.completed_tools:
             recovering = state.next_action == "order_recovery"
             calls_before = state.tool_calls
-            result = self._call_tool(state, request, "create_order", state.candidate_cart)
+            payload = self._authorized_order_payload(state)
+            if payload is None:
+                state.error = "授权购物车已变更"
+                state.next_action = "error"
+                self._persist_state(state)
+                return self._pack(state)
+            result = self._call_tool(state, request, "create_order", payload)
             if result.ok:
-                state.candidate_cart.update(result.data)
+                self._merge_order_result(state, result.data)
                 # Persist the completed order before payment can fail or the process exits.
                 state.next_action = "payment_retry"
                 self._persist_state(state)
@@ -268,9 +277,9 @@ class FoodOrderingAgent:
         if state.intent == "strategy":
             state.next_action, state.authorization["message"] = "strategy_ready", "已生成可按预算和口味调整的一般饮食策略。"
         elif state.authorization.get("auto_order") and "pay_mock_order" not in state.completed_tools:
-            result = self._call_tool(state, request, "pay_mock_order", state.candidate_cart)
+            result = self._call_tool(state, request, "pay_mock_order", self._payment_payload(state))
             if result.ok:
-                state.candidate_cart.update(result.data)
+                self._merge_order_result(state, result.data)
                 state.next_action, state.authorization["message"] = "completed", "订单已创建并完成模拟支付。"
             else:
                 state.error = result.error or "模拟支付失败"
@@ -344,6 +353,57 @@ class FoodOrderingAgent:
     def invoke_tool(self, tool_name: str, request: AgentRunRequest, payload: dict[str, Any]) -> ToolResult:
         if not is_allowed_tool(tool_name): return ToolResult(ok=False, error="tool_not_allowed")
         return ToolResult(ok=False, error="tools_require_workflow", error_kind="rejected")
+
+    @staticmethod
+    def _cart_id(cart: dict[str, Any]) -> Any:
+        return cart.get("cartDraftId", cart.get("cartId"))
+
+    def _capture_authorized_cart(self, state: AgentState) -> None:
+        cart_id = self._cart_id(state.candidate_cart)
+        address_id = state.candidate_cart.get("addressId")
+        total = state.candidate_cart.get("total")
+        state.authorization["authorized_cart"] = {
+            "workflowId": state.workflow_id,
+            "cartDraftId": cart_id,
+            "addressId": address_id,
+            "total": total,
+        }
+        if cart_id is not None:
+            state.candidate_cart["cartDraftId"] = cart_id
+
+    def _authorized_order_payload(self, state: AgentState) -> dict[str, Any] | None:
+        snapshot = state.authorization.get("authorized_cart")
+        if not isinstance(snapshot, dict):
+            return None
+        if snapshot.get("workflowId") != state.workflow_id:
+            return None
+        current = {
+            "cartDraftId": self._cart_id(state.candidate_cart),
+            "addressId": state.candidate_cart.get("addressId"),
+            "total": state.candidate_cart.get("total"),
+        }
+        expected = {
+            "cartDraftId": snapshot.get("cartDraftId"),
+            "addressId": snapshot.get("addressId"),
+            "total": snapshot.get("total"),
+        }
+        if current != expected:
+            return None
+        payload = dict(expected)
+        payload["cartId"] = expected["cartDraftId"]
+        return payload
+
+    @staticmethod
+    def _merge_order_result(state: AgentState, data: dict[str, Any]) -> None:
+        state.candidate_cart.update(data)
+        order = data.get("order")
+        if isinstance(order, dict) and order.get("id") is not None:
+            state.candidate_cart["orderId"] = order["id"]
+
+    @staticmethod
+    def _payment_payload(state: AgentState) -> dict[str, Any]:
+        order_id = state.candidate_cart.get("orderId")
+        return {"orderId": order_id} if order_id is not None else {}
 
     def _enter(self, state: AgentState, node: str) -> bool:
         state.graph_steps += 1

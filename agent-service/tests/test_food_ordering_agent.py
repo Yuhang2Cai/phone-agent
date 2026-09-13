@@ -102,6 +102,34 @@ def test_auto_order_pays_once_after_order_creation():
     assert [item.tool_name for item in client.requests][-2:] == ["create_order", "pay_mock_order"]
 
 
+def test_auto_order_pays_java_nested_order_response_with_top_level_order_id():
+    """Break caught: Java returns data.order.id but Python pays only if data.orderId exists."""
+
+    class RequiresOrderIdClient(FakeSpringBootToolClient):
+        def call(self, tool_request):
+            self.requests.append(tool_request)
+            if tool_request.tool_name == "create_cart_draft":
+                return ToolResult(ok=True, data={"cartDraftId": "c-1", "total": 28})
+            if tool_request.tool_name == "validate_cart":
+                return ToolResult(ok=True, data={"valid": True, "cartDraftId": "c-1", "addressId": "a-1", "total": 28})
+            if tool_request.tool_name == "create_order":
+                return ToolResult(ok=True, data={"order": {"id": "o-1", "total": 28}})
+            if tool_request.tool_name == "pay_mock_order":
+                if tool_request.payload.get("orderId") != "o-1":
+                    return ToolResult(ok=False, error="missing_order_id")
+                return ToolResult(ok=True, data={"order": {"id": "o-1", "status": "PAID"}})
+            return ToolResult(ok=True, data={})
+
+    client = RequiresOrderIdClient()
+
+    result = FoodOrderingAgent(client).run(request("宫保鸡丁", mode="auto_order"))
+
+    payments = [item for item in client.requests if item.tool_name == "pay_mock_order"]
+    assert result.status == "completed"
+    assert result.next_action == "completed"
+    assert payments[0].payload == {"orderId": "o-1"}
+
+
 def test_long_term_strategy_never_calls_ordering_tools():
     """Break caught: strategy advice mutates a cart or creates an order."""
     client = FakeSpringBootToolClient()

@@ -12,6 +12,7 @@ from fandazi_agent.config import Settings
 from fandazi_agent.graph import FoodOrderingAgent
 from fandazi_agent.models import AgentRunRequest, IntentOutput, ModelClassificationError, ToolResult
 from fandazi_agent.spring_client import SpringBootToolClient
+from fandazi_agent.state import AgentState
 
 
 class FakeSpringBootToolClient(SpringBootToolClient):
@@ -325,3 +326,23 @@ def test_confirmation_budget_is_reset_for_each_http_run():
 
     assert paused.status == "awaiting_confirmation"
     assert confirmed.status == "completed"
+
+
+def test_restored_confirmation_rejects_candidate_cart_replacement_after_authorization():
+    """Break caught: a signed recovery can swap the cart after the user saw another one."""
+    client = FakeSpringBootToolClient()
+    agent = FoodOrderingAgent(client)
+    agent.run(request("宫保鸡丁", session_id="authorized-cart"))
+    snapshot = copy.deepcopy(agent.export_session("u-1", "authorized-cart"))
+    snapshot["candidate_cart"]["cartDraftId"] = "cart-tampered"
+    tampered_state = AgentState.model_validate(snapshot)
+    snapshot["workflow_signature"] = agent._sign_workflow(tampered_state)
+    restored = FoodOrderingAgent(client)
+    restored.restore_session("u-1", "authorized-cart", snapshot)
+
+    result = restored.run(request("确认", session_id="authorized-cart", trace_id="trace-confirm"))
+
+    assert result.status == "failed"
+    assert result.next_action == "error"
+    assert "授权" in (result.error or "")
+    assert "create_order" not in [item.tool_name for item in client.requests]

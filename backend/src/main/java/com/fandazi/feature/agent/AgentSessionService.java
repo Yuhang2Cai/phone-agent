@@ -2,6 +2,7 @@ package com.fandazi.feature.agent;
 
 import com.fandazi.feature.DomainException;
 import com.fandazi.feature.auth.UserRepository;
+import java.math.BigDecimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,12 @@ public class AgentSessionService {
     }
     @Transactional public void confirm(Long userId, String sessionId) {
         sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在")).confirm();
+    }
+    @Transactional public void bindAuthorizedCart(Long userId, String sessionId, String workflowId, Long cartDraftId, Long addressId, BigDecimal total) {
+        sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在")).bindAuthorizedCart(workflowId, cartDraftId, addressId, total);
+    }
+    @Transactional public void bindAuthorizedCart(AgentSession session, String workflowId, Long cartDraftId, Long addressId, BigDecimal total) {
+        session.bindAuthorizedCart(workflowId, cartDraftId, addressId, total);
     }
     @Transactional public void bindWorkflow(AgentSession session, String workflowId) { session.bindWorkflow(workflowId); }
     @Transactional public void bindCreatedOrder(AgentSession session, Long orderId, String workflowId) { session.bindCreatedOrder(orderId, workflowId); }
