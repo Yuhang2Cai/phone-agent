@@ -292,6 +292,7 @@ AI 生成候选订单后，必须在对话中展示独立确认卡片：
 | AI 助手底部面板 | A | `docs/ui-design-references/ai-panel-a.png` | 对话气泡、推荐订单卡片、地址/金额确认、修改与确认下单 |
 | 搜索页 | A | `docs/ui-design-references/search-a.png` | 传统高效率商家列表、AI 建议横幅、评分/配送/价格信息 |
 | 商家菜单页 | A | `docs/ui-design-references/merchant-menu-a.png` | 左侧分类、右侧菜品列表、图片/描述/价格、底部购物车 |
+| 菜品规格选择弹层 | A | `docs/ui-design-references/dish-options-a.png` | 大图沉浸、忌口选择、数量控制、底部加入购物车 |
 
 ### 15.1 当前页面关系
 
@@ -305,7 +306,6 @@ AI 生成候选订单后，必须在对话中展示独立确认卡片：
 
 ### 15.2 待确认页面
 
-- 菜品规格选择弹层：A / B / C 待生成。
 - 购物车与结算页：A / B / C 待生成。
 - 模拟支付页：A / B / C 待生成。
 - 订单列表与配送时间线：A / B / C 待生成。
