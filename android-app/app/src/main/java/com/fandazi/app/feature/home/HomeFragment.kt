@@ -30,6 +30,8 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
         viewBinding.agentFab.setOnClickListener { openAgentAssistant(AgentSurface.HOME) }
         viewBinding.searchPageButton.setOnClickListener { view.findNavController().navigate(R.id.searchFragment) }
+        viewBinding.homeSearchButton.setOnClickListener { view.findNavController().navigate(R.id.searchFragment) }
+        viewBinding.repeatOrderButton.setOnClickListener { view.findNavController().navigate(R.id.searchFragment) }
         viewBinding.merchantPageButton.setOnClickListener { view.findNavController().navigate(R.id.merchantFragment) }
         viewBinding.ordersPageButton.setOnClickListener { view.findNavController().navigate(R.id.ordersFragment) }
         viewLifecycleOwner.lifecycleScope.launch {

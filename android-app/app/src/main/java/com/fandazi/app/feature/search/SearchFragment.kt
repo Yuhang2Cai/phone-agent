@@ -3,6 +3,8 @@ package com.fandazi.app.feature.search
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
+import android.view.inputmethod.InputMethodManager
+import android.content.Context
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -16,6 +18,7 @@ import com.fandazi.app.feature.agent.openAgentAssistant
 import com.fandazi.app.feature.agent.AgentSurface
 import com.fandazi.app.feature.ordering.OrderingViewModel
 import com.fandazi.app.feature.ordering.OrderingViewModelFactory
+import com.fandazi.app.feature.ordering.SearchStatus
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -26,7 +29,10 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentSearchBinding.bind(view)
+        binding.searchInput.requestFocus()
+        (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)?.showSoftInput(binding.searchInput, InputMethodManager.SHOW_IMPLICIT)
         binding.agentFab.setOnClickListener { openAgentAssistant(AgentSurface.SEARCH) }
+        binding.filterButton.setOnClickListener { viewModel.toggleOnlyOpen() }
         binding.searchButton.setOnClickListener {
             viewModel.search(binding.searchInput.text?.toString().orEmpty().ifBlank { "清淡" })
         }
@@ -34,7 +40,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     binding.searchResults.removeAllViews()
-                    state.merchants.forEach { merchant ->
+                    val merchants = state.merchants.filter { !state.onlyOpen || it.open }
+                    merchants.forEach { merchant ->
                         TextView(requireContext()).apply {
                             text = "${merchant.name}\n${merchant.category} · ${merchant.deliveryMinutes}分钟 · 起送 ¥${merchant.minimumOrder}"
                             textSize = 17f
@@ -46,7 +53,15 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                             binding.searchResults.addView(this)
                         }
                     }
-                    binding.searchStatus.text = state.error ?: if (state.isLoading) "正在搜索真实商家..." else "选择一家商家查看菜单"
+                    binding.filterButton.text = if (state.onlyOpen) "筛选：营业中" else "筛选：全部"
+                    binding.searchStatus.text = state.error ?: when (state.searchStatus) {
+                        SearchStatus.Idle -> "输入关键词，搜索商家或菜品"
+                        SearchStatus.Searching -> "正在搜索真实商家..."
+                        SearchStatus.Empty -> "没有找到匹配的商家，换个关键词试试"
+                        SearchStatus.Results -> "选择一家商家查看菜单"
+                        SearchStatus.NetworkError -> "网络异常，请重试"
+                        SearchStatus.AuthRequired -> "登录后可查看个性化结果"
+                    }
                 }
             }
         }

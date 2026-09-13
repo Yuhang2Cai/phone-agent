@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
+enum class SearchStatus { Idle, Searching, Results, Empty, NetworkError, AuthRequired }
+
 data class OrderingUiState(
     val keyword: String = "",
     val merchants: List<Merchant> = emptyList(),
@@ -27,6 +29,8 @@ data class OrderingUiState(
     val orders: List<Order> = emptyList(),
     val currentOrder: Order? = null,
     val isLoading: Boolean = false,
+    val searchStatus: SearchStatus = SearchStatus.Idle,
+    val onlyOpen: Boolean = false,
     val error: String? = null
 )
 
@@ -38,13 +42,19 @@ class OrderingViewModel(
     val uiState = _uiState.asStateFlow()
 
     fun search(keyword: String) {
-        _uiState.update { it.copy(keyword = keyword, isLoading = true, error = null) }
+        _uiState.update { it.copy(keyword = keyword, isLoading = true, searchStatus = SearchStatus.Searching, error = null) }
         viewModelScope.launch(dispatcher) {
             when (val result = repository.searchMerchants(keyword)) {
-                is ApiResult.Success -> _uiState.update { it.copy(merchants = result.value, isLoading = false) }
-                is ApiResult.Failure -> showError(result.error)
+                is ApiResult.Success -> _uiState.update {
+                    it.copy(merchants = result.value, isLoading = false, searchStatus = if (result.value.isEmpty()) SearchStatus.Empty else SearchStatus.Results)
+                }
+                is ApiResult.Failure -> showSearchError(result.error)
             }
         }
+    }
+
+    fun toggleOnlyOpen() {
+        _uiState.update { it.copy(onlyOpen = !it.onlyOpen) }
     }
 
     fun openMerchant(merchantId: Long) {
@@ -156,6 +166,22 @@ class OrderingViewModel(
             ApiError.Timeout -> "请求超时，请稍后重试"
             ApiError.Storage -> "本地会话不可用"
         })
+    }
+
+    private fun showSearchError(error: ApiError) = _uiState.update {
+        it.copy(
+            isLoading = false,
+            searchStatus = when (error) {
+                is ApiError.Http -> if (error.code == 401 || error.code == 403) SearchStatus.AuthRequired else SearchStatus.NetworkError
+                else -> SearchStatus.NetworkError
+            },
+            error = when (error) {
+                is ApiError.Http -> error.message
+                is ApiError.Network -> error.message
+                ApiError.Timeout -> "请求超时，请稍后重试"
+                ApiError.Storage -> "本地会话不可用"
+            }
+        )
     }
 }
 

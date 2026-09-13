@@ -1,0 +1,14 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "先看看，不登录"
+- assertVisible: "首页"
+- tapOn: "搜索商家或菜品"
+- assertVisible: "搜索"
+- tapOn: "搜索商家或口味"
+- inputText: "清淡"
+- tapOn: "搜索"
+- assertVisible: "清粥小菜"
+- tapOn: "清粥小菜"
+- assertVisible: "南瓜小米粥"

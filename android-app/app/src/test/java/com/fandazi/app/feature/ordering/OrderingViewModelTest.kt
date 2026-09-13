@@ -13,6 +13,26 @@ import java.math.BigDecimal
 @OptIn(ExperimentalCoroutinesApi::class)
 class OrderingViewModelTest {
     @Test
+    fun emptySearchResultsExposeEmptyState() = runTest {
+        val viewModel = OrderingViewModel(FakeOrderingRepository(searchResult = ApiResult.Success(emptyList())), StandardTestDispatcher(testScheduler))
+
+        viewModel.search("不存在")
+        advanceUntilIdle()
+
+        assertEquals(SearchStatus.Empty, viewModel.uiState.value.searchStatus)
+    }
+
+    @Test
+    fun unauthorizedSearchExposesAuthRequiredState() = runTest {
+        val viewModel = OrderingViewModel(FakeOrderingRepository(searchResult = ApiResult.Failure(com.fandazi.app.core.network.ApiError.Http(401, "login required"))), StandardTestDispatcher(testScheduler))
+
+        viewModel.search("清淡")
+        advanceUntilIdle()
+
+        assertEquals(SearchStatus.AuthRequired, viewModel.uiState.value.searchStatus)
+    }
+
+    @Test
     fun selectingMerchantOptionAddressAndPayingProducesCompletedOrderTimeline() = runTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
@@ -41,7 +61,11 @@ class OrderingViewModelTest {
         assertTrue(repository.payKey?.startsWith("android-pay-") == true)
     }
 
-    private class FakeOrderingRepository : OrderingRepository {
+    private class FakeOrderingRepository(
+        private val searchResult: ApiResult<List<Merchant>> = ApiResult.Success(
+            listOf(Merchant(1, "清粥小菜", "粥汤", BigDecimal.TEN, BigDecimal("3"), 25, true))
+        )
+    ) : OrderingRepository {
         var createOrderKey: String? = null
         var payKey: String? = null
         private val merchant = Merchant(1, "清粥小菜", "粥汤", BigDecimal.TEN, BigDecimal("3"), 25, true)
@@ -51,7 +75,7 @@ class OrderingViewModelTest {
         private val draft = CartDraft(200, 1, emptyList())
         private val line = CartLine(10, "南瓜小米粥", 1, listOf(99), "不要香菜", BigDecimal("12"))
 
-        override suspend fun searchMerchants(keyword: String) = ApiResult.Success(listOf(merchant))
+        override suspend fun searchMerchants(keyword: String) = searchResult
         override suspend fun loadMenu(merchantId: Long) = ApiResult.Success(listOf(dish))
         override suspend fun createCartDraft(merchantId: Long) = ApiResult.Success(draft)
         override suspend fun updateCart(cartDraftId: Long, items: List<CartItemInput>) = ApiResult.Success(draft.copy(items = listOf(line)))
