@@ -1,0 +1,11 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "先看看，不登录"
+- assertVisible: "今天吃什么？"
+- assertVisible: "附近好店"
+- assertVisible: "再来一单"
+- tapOn: "搜索商家或菜品"
+- assertVisible: "搜索"
+- assertVisible: "搜索商家或口味"

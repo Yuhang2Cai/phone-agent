@@ -11,7 +11,6 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.databinding.FragmentHomeBinding
-import com.fandazi.app.feature.auth.SessionState
 import com.fandazi.app.feature.auth.SessionError
 import com.fandazi.app.feature.agent.AgentSurface
 import com.fandazi.app.feature.agent.openAgentAssistant
@@ -34,17 +33,6 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         viewBinding.repeatOrderButton.setOnClickListener { view.findNavController().navigate(R.id.searchFragment) }
         viewBinding.merchantPageButton.setOnClickListener { view.findNavController().navigate(R.id.merchantFragment) }
         viewBinding.ordersPageButton.setOnClickListener { view.findNavController().navigate(R.id.ordersFragment) }
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                sessions.state.collect { state ->
-                    when (state) {
-                        is SessionState.Authenticated -> viewBinding.welcomeText.text = getString(R.string.welcome_user, state.user.username)
-                        SessionState.Guest -> viewBinding.welcomeText.setText(R.string.welcome_guest)
-                        SessionState.Unauthenticated -> viewBinding.welcomeText.setText(R.string.welcome_signed_out)
-                    }
-                }
-            }
-        }
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 sessions.error.collect { error ->

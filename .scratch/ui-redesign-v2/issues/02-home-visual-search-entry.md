@@ -4,7 +4,7 @@
 
 **Blocked by:** 01: Android UI 基线与登录壳
 
-**Status:** ready-for-agent
+**Status:** in-review
 
 - [ ] 首页完全按 `ui-redesign.md` 首页 B 图片重建，包含顶部区域、主视觉、层级、间距、颜色、卡片和底部栏。
 - [ ] 搜索入口完全按搜索入口 A 图片实现，点击后进入独立搜索页并自动聚焦。
@@ -13,3 +13,5 @@
 - [ ] 实现首页 Initial、Loading、Content、Empty、Error 状态及重试操作。
 - [ ] 首页组件提供稳定 Resource ID/content description，并通过 ViewModel 测试验证状态转移。
 - [ ] 提供首页到搜索页的模拟器 Maestro 流程，并附设计图对照证据。
+
+**Maestro:** passed on emulator-5554 with the latest debug APK via `maestro/ticket-02-home-visual.yaml`.

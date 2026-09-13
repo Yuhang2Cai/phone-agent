@@ -22,6 +22,13 @@
     <string name="home_notification">通知</string>
     <string name="home_search_hint">搜索商家或菜品</string>
     <string name="home_ai_card">告诉我想吃什么，我来帮你推荐附近好店</string>
+    <string name="home_address">当前配送地址</string>
+    <string name="home_hero_title">今天吃什么？</string>
+    <string name="home_hero_subtitle">让饭搭子帮你挑一份刚刚好的午餐</string>
+    <string name="home_ai_title">想吃什么，告诉我</string>
+    <string name="home_quick_title">快捷入口</string>
+    <string name="home_nearby_title">附近好店</string>
+    <string name="home_nearby_empty">先搜索一家店，附近的好味道会出现在这里</string>
     <string name="logout">退出登录</string>
     <string name="agent_title">饭搭子 AI</string>
     <string name="agent_open">打开 AI 助手</string>
