@@ -4,7 +4,7 @@
 
 **Blocked by:** 01、02、03、04、05、06、07
 
-**Status:** ready-for-agent
+**Status:** in-review
 
 - [ ] 验证登录输入、搜索关键词、购物车、当前地址、AI 会话和待支付订单的旋转/进程恢复。
 - [ ] 恢复失败时显示可理解的提示和重新开始入口，不误显示为空状态。
@@ -14,3 +14,5 @@
 - [ ] 使用 Maestro hierarchy 检查 Android Accessibility 控件树，并用 TalkBack 验证核心流程。
 - [ ] 运行全部普通点餐和 AI 点餐 Maestro 流程，记录截图、失败原因和最终验收结果。
 - [ ] 只有完整回归通过后，才能将 UI 重构规格标记为完成。
+
+**Maestro:** blocked — emulator-5554 is online and booted, but after clearing stale Maestro processes the smoke flow still fails with `Android instrumentation could not be initialized`. Targeted flows for Tickets 01–07 passed individually; full recovery, hierarchy and TalkBack acceptance remains open and the UI specification is intentionally not marked complete.
