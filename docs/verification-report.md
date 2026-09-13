@@ -11,7 +11,7 @@ Task 12 added cross-layer/static verification and documentation. Commands below 
 | Command | Result |
 | --- | --- |
 | `.\agent-service\.venv\Scripts\python.exe -m pytest agent-service/tests/test_agent_seed_scenarios.py -q --basetemp agent-service/.pytest-basetemp-task12-review-seed -o cache_dir=agent-service/.pytest-cache-task12-review-seed` | PASS: 11 passed, 1 warning in 0.38s after the review fix. Warning was LangGraph serializer deprecation. |
-| `.\agent-service\.venv\Scripts\python.exe -m pytest agent-service/tests -q --basetemp agent-service/.pytest-basetemp-task12-review -o cache_dir=agent-service/.pytest-cache-task12-review` | PASS: 136 passed, 2 warnings in 11.45s. |
+| `.\agent-service\.venv\Scripts\python.exe -m pytest agent-service/tests -q --basetemp agent-service/.pytest-basetemp-task12-review -o cache_dir=agent-service/.pytest-cache-task12-review` | PASS: 136 passed, 2 warnings in 11.45s; after the review fixes, a local rerun passed `142 passed, 2 warnings`. |
 | `.\agent-service\.venv\Scripts\python.exe -m compileall -q agent-service/src agent-service/tests` | PASS: exit code 0. |
 | `.\agent-service\.venv\Scripts\python.exe -c "<redacted DeepSeek connectivity probe>"` | PASS: HTTP 200. The script loaded local ignored `.env`, did not print `LLM_API_KEY`, and did not print response content. |
 | `mvn -f backend/pom.xml -Dtest=CrossLayerOrderingFlowTest test` | BLOCKED: `mvn` is not installed or not on PATH. Repository has no Maven wrapper. |
@@ -44,6 +44,7 @@ Task 12 added cross-layer/static verification and documentation. Commands below 
 - Backend: `CrossLayerOrderingFlowTest` covers public API registration, merchant/menu lookup, address defaulting, cart validation, order creation, payment, timeline, ownership isolation, and create/pay idempotency using H2 test configuration.
 - Android: `FakeApiOrderingFlowTest` covers login, search, dish option selection, cart, address, checkout, payment, order timeline, and Agent confirmation with a fake API client.
 - Agent Service: `test_agent_seed_scenarios.py` covers seed scenario tool sequences with Fake Spring Boot Tool Client and no real LLM quota. The review fix also resumes a confirmed seed order through the real Agent workflow to assert `create_order` is dispatched with current trace, workflow, idempotency key, cart, and address context. A separate `auto_order` seed path asserts production orchestration dispatches `create_order -> pay_mock_order` with stable workflow-scoped idempotency keys.
+- Review fixes: confirmation and automatic authorization bind to the confirmed cart snapshot; nested Java order responses are normalized to the payment `orderId`; user-requested budget limits are enforced; the Agent HTTP entry point requires the shared internal token; ambiguous merchant/dish selection fails instead of silently choosing the first result.
 
 ### Not Covered By The Android Fake Test
 
