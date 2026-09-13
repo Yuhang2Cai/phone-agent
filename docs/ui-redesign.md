@@ -297,6 +297,7 @@ AI 生成候选订单后，必须在对话中展示独立确认卡片：
 | 模拟支付页 | C | `docs/ui-design-references/mock-payment-c.png` | 多种模拟支付方式、醒目演示提示、支付金额固定展示 |
 | 订单列表与配送时间线 | C | `docs/ui-design-references/orders-timeline-c.png` | 可展开订单卡片、纵向状态时间线、AI 下单标签、联系骑手 |
 | 地址管理页 | C | `docs/ui-design-references/address-management-c.png` | 单选切换默认地址、地址信息卡片、编辑删除、添加新地址 |
+| 设置与自动化策略页 | A | `docs/ui-design-references/automation-settings-a.png` | AI 说明卡、本次/长期自动下单开关、最高金额、默认地址、模型配置、安全提示 |
 
 ### 15.1 当前页面关系
 
@@ -310,4 +311,4 @@ AI 生成候选订单后，必须在对话中展示独立确认卡片：
 
 ### 15.2 待确认页面
 
-- 设置与自动化策略页：A / B / C 待生成。
+暂无。
