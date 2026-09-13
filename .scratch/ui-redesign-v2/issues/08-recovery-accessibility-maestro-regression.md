@@ -15,4 +15,4 @@
 - [ ] 运行全部普通点餐和 AI 点餐 Maestro 流程，记录截图、失败原因和最终验收结果。
 - [ ] 只有完整回归通过后，才能将 UI 重构规格标记为完成。
 
-**Maestro:** blocked — emulator-5554 is online and booted, but after clearing stale Maestro processes the smoke flow still fails with `Android instrumentation could not be initialized`. Targeted flows for Tickets 01–07 passed individually; full recovery, hierarchy and TalkBack acceptance remains open and the UI specification is intentionally not marked complete.
+**Maestro:** smoke flow passed on emulator-5554 with the latest debug APK via `maestro/ticket-08-recovery-smoke.yaml`. Detailed session logs confirmed guest persistence and `AUTH → HOME` navigation. Full recovery, hierarchy and TalkBack acceptance remains open and the UI specification is intentionally not marked complete.

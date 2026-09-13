@@ -1,5 +1,6 @@
 package com.fandazi.app.feature.auth
 
+import android.util.Log
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,11 +51,14 @@ class SessionRepository(
     }
 
     override suspend fun continueAsGuest() {
+        Log.d(TAG, "continueAsGuest requested")
         if (storage.writeGuest()) {
             mutableState.value = SessionState.Guest
             mutableError.value = null
+            Log.d(TAG, "continueAsGuest succeeded: state=Guest")
         } else {
             mutableError.value = SessionError.StorageWriteFailed
+            Log.e(TAG, "continueAsGuest failed: state remains ${mutableState.value}, error=StorageWriteFailed")
         }
     }
 
@@ -92,5 +96,9 @@ class SessionRepository(
         this != null -> SessionState.Authenticated(token, user)
         guest -> SessionState.Guest
         else -> SessionState.Unauthenticated
+    }
+
+    private companion object {
+        const val TAG = "FandaziSession"
     }
 }

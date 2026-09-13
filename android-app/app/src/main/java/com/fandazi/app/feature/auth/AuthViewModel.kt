@@ -1,5 +1,6 @@
 package com.fandazi.app.feature.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -13,6 +14,7 @@ class AuthViewModel(private val processor: AuthFormProcessor) : ViewModel() {
     fun showRegister() = processor.setRegisterMode(true)
     fun updateDraft(username: String, email: String, password: String) = processor.updateDraft(username, email, password)
     fun continueAsGuest() {
+        Log.d(TAG, "AuthViewModel continueAsGuest started")
         viewModelScope.launch { processor.continueAsGuest() }
     }
     fun submit(username: String, email: String, password: String) {
@@ -20,6 +22,10 @@ class AuthViewModel(private val processor: AuthFormProcessor) : ViewModel() {
             if (state.value.isRegisterMode) processor.submitRegister(username, email, password)
             else processor.submitLogin(username, password)
         }
+    }
+
+    private companion object {
+        const val TAG = "FandaziSession"
     }
 }
 

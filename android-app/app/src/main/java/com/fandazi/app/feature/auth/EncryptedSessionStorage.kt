@@ -2,6 +2,7 @@ package com.fandazi.app.feature.auth
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.google.gson.Gson
@@ -23,16 +24,30 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
     override val initializationError: Throwable? = initialization.exceptionOrNull()
     private val gson = Gson()
 
+    init {
+        if (initializationError == null) {
+            Log.d(TAG, "storage initialized: preferences available")
+        } else {
+            Log.e(TAG, "storage initialization failed: ${initializationError::class.java.simpleName}: ${initializationError.message}", initializationError)
+        }
+    }
+
     override fun read(): Result<PersistedSession?> {
         val currentPreferences = preferences
-            ?: return Result.failure(initializationError ?: IllegalStateException("Encrypted session storage unavailable"))
+            ?: run {
+                Log.e(TAG, "read session skipped: preferences unavailable")
+                return Result.failure(initializationError ?: IllegalStateException("Encrypted session storage unavailable"))
+            }
         return try {
-            Result.success(currentPreferences.getString(SESSION_KEY, null)?.let {
+            val session = currentPreferences.getString(SESSION_KEY, null)?.let {
                 gson.fromJson(it, PersistedSession::class.java)
-            })
+            }
+            Log.d(TAG, "read session completed: present=${session != null}")
+            Result.success(session)
         } catch (exception: CancellationException) {
             throw exception
         } catch (exception: Exception) {
+            Log.e(TAG, "read session failed: ${exception::class.java.simpleName}: ${exception.message}", exception)
             Result.failure(exception)
         }
     }
@@ -64,9 +79,20 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
     }
 
     override suspend fun writeGuest(): Boolean = withContext(Dispatchers.IO) {
-        try { preferences?.edit()?.putBoolean(GUEST_KEY, true)?.remove(SESSION_KEY)?.commit() == true }
-        catch (exception: CancellationException) { throw exception }
-        catch (exception: Exception) { false }
+        if (preferences == null) {
+            Log.e(TAG, "write guest skipped: preferences unavailable")
+            return@withContext false
+        }
+        try {
+            val committed = preferences.edit().putBoolean(GUEST_KEY, true).remove(SESSION_KEY).commit()
+            Log.d(TAG, "write guest completed: committed=$committed, stored=${preferences.getBoolean(GUEST_KEY, false)}")
+            committed
+        } catch (exception: CancellationException) {
+            throw exception
+        } catch (exception: Exception) {
+            Log.e(TAG, "write guest failed: ${exception::class.java.simpleName}: ${exception.message}", exception)
+            false
+        }
     }
 
     override suspend fun clearGuest(): Boolean = withContext(Dispatchers.IO) {
@@ -76,6 +102,7 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
     }
 
     private companion object {
+        const val TAG = "FandaziSession"
         const val PREFERENCES_NAME = "fandazi_secure_session"
         const val SESSION_KEY = "session"
         const val GUEST_KEY = "guest"

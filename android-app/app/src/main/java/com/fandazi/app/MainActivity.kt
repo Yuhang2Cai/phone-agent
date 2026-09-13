@@ -9,6 +9,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.core.view.isVisible
+import android.util.Log
 import com.fandazi.app.core.navigation.SessionRoute
 import com.fandazi.app.core.navigation.SessionRouteCoordinator
 import com.fandazi.app.feature.auth.SessionState
@@ -48,6 +49,7 @@ class MainActivity : AppCompatActivity() {
             R.id.homeFragment, R.id.searchFragment, R.id.merchantFragment, R.id.ordersFragment, R.id.profileFragment, R.id.paymentFragment -> SessionRoute.HOME
             else -> null
         }
+        Log.d("FandaziSession", "session navigation: state=${state::class.java.simpleName}, current=$current, desired=$desired")
         if (!SessionRouteCoordinator.shouldNavigate(current, desired)) return
         when (desired) {
             SessionRoute.HOME -> navHost.navController.navigate(R.id.homeFragment, null, navOptions {

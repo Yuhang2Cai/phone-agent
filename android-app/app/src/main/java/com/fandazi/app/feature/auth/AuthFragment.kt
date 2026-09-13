@@ -2,6 +2,7 @@ package com.fandazi.app.feature.auth
 
 import android.os.Bundle
 import android.view.View
+import android.util.Log
 import android.widget.Toast
 import androidx.core.view.isVisible
 import androidx.core.widget.doAfterTextChanged
@@ -27,7 +28,10 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         binding = viewBinding
         viewBinding.loginModeButton.setOnClickListener { viewModel.showLogin() }
         viewBinding.registerModeButton.setOnClickListener { viewModel.showRegister() }
-        viewBinding.skipLoginButton.setOnClickListener { viewModel.continueAsGuest() }
+        viewBinding.skipLoginButton.setOnClickListener {
+            Log.d(TAG, "skip login clicked")
+            viewModel.continueAsGuest()
+        }
         viewBinding.usernameInput.setText(savedInstanceState?.getString(KEY_USERNAME) ?: viewModel.state.value.username)
         viewBinding.emailInput.setText(savedInstanceState?.getString(KEY_EMAIL) ?: viewModel.state.value.email)
         viewBinding.passwordInput.setText(savedInstanceState?.getString(KEY_PASSWORD) ?: viewModel.state.value.password)
@@ -91,6 +95,7 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
     }
 
     private companion object {
+        const val TAG = "FandaziSession"
         const val KEY_USERNAME = "auth.username"
         const val KEY_EMAIL = "auth.email"
         const val KEY_PASSWORD = "auth.password"
