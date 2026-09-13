@@ -3,6 +3,7 @@
     <string name="app_name">饭搭子 AI</string>
     <string name="auth_subtitle">登录后探索你的专属点餐体验</string>
     <string name="auth_title">今天吃什么，让我来帮你</string>
+    <string name="auth_login_hint">登录后即可保存地址和点餐偏好</string>
     <string name="login">登录</string>
     <string name="register">注册</string>
     <string name="skip_login">先看看，不登录</string>

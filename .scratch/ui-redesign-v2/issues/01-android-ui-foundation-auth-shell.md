@@ -4,7 +4,9 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** in-review
+
+**Maestro:** passed on `emulator-5554` with the latest debug APK.
 
 - [ ] 直接依据 `ui-redesign.md` 已确认图片建立 Android XML UI 基线：颜色、字体、间距、圆角、按钮、卡片、输入框和图标；HTML 与旧 XML 不作为视觉基准。
 - [ ] 按登录与注册设计图重建页面，用户文案全部为中文且不暴露 Agent、模型、API Base URL 或 API Key。
