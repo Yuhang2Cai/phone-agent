@@ -106,7 +106,7 @@ class AgentViewModel(
                         authorization = AgentAuthorization(true, card.address, card.amountLimitText),
                         confirmation = card.copy(authorizationMode = AgentMode.THIS_TASK_AUTO)
                     )
-                }
+                }.also { sendText("确认下单") }
                 is ApiResult.Failure -> showError(result.error)
             }
         }
@@ -123,7 +123,7 @@ class AgentViewModel(
     private fun applyResult(result: AgentMessageResult) {
         _uiState.update { state ->
             val allEvents = result.events.fold(state.events) { current, event -> current.addIfNew(event) }
-            val cart = result.candidateCart
+            val cart = result.candidateCart?.withEffectiveAmountLimit()
             when (result.status) {
                 AgentStatus.FAILED -> state.copy(
                     isSending = false,
@@ -176,6 +176,12 @@ class AgentViewModel(
     private fun CandidateCart.toConfirmation() = OrderConfirmation(
         merchantName, items, address, deliveryFee, discount, total, requireNotNull(authorizationMode), maxAmount, addressId
     )
+    private fun CandidateCart.withEffectiveAmountLimit(): CandidateCart {
+        val requested = requestedAmountLimit ?: return this
+        val requestedAmount = requested.toAmountOrNull() ?: return this
+        val serverAmount = maxAmount.toAmountOrNull()
+        return if (serverAmount == null || requestedAmount < serverAmount) copy(maxAmount = requested) else this
+    }
     private fun clearConfirmation(message: String) = _uiState.update {
         it.copy(confirmation = null, candidateCart = null, authorization = AgentAuthorization(), messages = it.messages + ChatMessage(message, false))
     }

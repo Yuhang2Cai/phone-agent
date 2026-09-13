@@ -166,6 +166,27 @@ def test_exact_reorder_calls_last_order_then_creates_new_order():
     ]
 
 
+def test_reorder_cart_draft_uses_history_mapping_without_guessing_items():
+    """Break caught: reorder ignores the backend's historical dish mapping and drafts a guessed cart."""
+
+    class RequiresHistoryItemsClient(FakeSpringBootToolClient):
+        def call(self, tool_request):
+            self.requests.append(tool_request)
+            if tool_request.tool_name == "get_last_order":
+                return ToolResult(ok=True, data={"merchantId": "m-1", "items": [{"dishId": "d-1", "quantity": 2, "optionIds": ["o-1"]}]})
+            if tool_request.tool_name == "create_cart_draft":
+                if tool_request.payload.get("merchantId") != "m-1" or tool_request.payload.get("items") != [{"dishId": "d-1", "quantity": 2, "optionIds": ["o-1"]}]:
+                    return ToolResult(ok=False, error="missing_history_mapping", error_kind="rejected")
+                return ToolResult(ok=True, data={"cartDraftId": "c-1", "total": 36})
+            if tool_request.tool_name == "validate_cart":
+                return ToolResult(ok=True, data={"valid": True, "cartDraftId": "c-1", "addressId": "a-1", "total": 36})
+            return ToolResult(ok=True, data={})
+
+    result = FoodOrderingAgent(RequiresHistoryItemsClient()).run(request("按上次一样下单", mode="order"))
+
+    assert result.status == "awaiting_confirmation"
+
+
 def test_reorder_stops_when_last_order_is_unavailable():
     """Break caught: unavailable reorder still reaches cart/order tools."""
     client = FakeSpringBootToolClient(
@@ -194,6 +215,36 @@ def test_amount_limit_stops_before_create_order():
     assert result.status == "failed"
     assert "金额超过单次限额" in (result.error or "")
     assert [item.tool_name for item in client.requests] == ["search_merchants", "create_cart_draft", "validate_cart"]
+
+
+def test_user_budget_becomes_confirmation_limit_when_stricter_than_global_default():
+    """Break caught: default global limit widens a user-requested budget in the confirmation card."""
+    client = FakeSpringBootToolClient(
+        {
+            "create_cart_draft": ToolResult(ok=True, data={"cartDraftId": "c-1", "total": 45}),
+            "validate_cart": ToolResult(ok=True, data={"valid": True, "cartDraftId": "c-1", "addressId": "a-1", "total": 45}),
+        }
+    )
+
+    result = FoodOrderingAgent(client, max_order_amount=100).run(request("宫保鸡丁，50 元以内", mode="order"))
+
+    assert result.status == "awaiting_confirmation"
+    assert result.candidate_cart["maxAmount"] == 50
+
+
+def test_user_budget_below_cart_total_stops_at_user_limit_not_global_default():
+    """Break caught: a user budget is treated as display text while authorization uses the global cap."""
+    client = FakeSpringBootToolClient(
+        {
+            "create_cart_draft": ToolResult(ok=True, data={"cartDraftId": "c-1", "total": 45}),
+            "validate_cart": ToolResult(ok=True, data={"valid": True, "cartDraftId": "c-1", "addressId": "a-1", "total": 45}),
+        }
+    )
+
+    result = FoodOrderingAgent(client, max_order_amount=100).run(request("宫保鸡丁，30元以内", mode="order"))
+
+    assert result.status == "failed"
+    assert result.error == "金额超过单次限额（30）"
 
 
 def test_illegal_tool_is_rejected_without_network_call():
@@ -337,10 +388,15 @@ def test_internal_fastapi_route_returns_agent_result_contract():
     client = FakeSpringBootToolClient(
         {"search_merchants": ToolResult(ok=True, data={"merchants": []})}
     )
-    app = create_app(agent=FoodOrderingAgent(client))
+    settings = Settings(
+        None, None, None, "http://localhost:8080", 16, 8, 100,
+        agent_internal_token="route-token",
+    )
+    app = create_app(agent=FoodOrderingAgent(client, settings=settings), settings=settings)
 
     response = TestClient(app).post(
         "/internal/agent/run",
+        headers={"X-Agent-Token": "route-token"},
         json={
             "userId": "u-1",
             "sessionId": "s-http",
@@ -352,6 +408,31 @@ def test_internal_fastapi_route_returns_agent_result_contract():
 
     assert response.status_code == 200
     assert response.json()["next_action"] == "recommendation_ready"
+
+
+def test_internal_fastapi_route_requires_configured_agent_token():
+    """Break caught: any local process can call the internal agent run endpoint."""
+    from fastapi.testclient import TestClient
+
+    client = FakeSpringBootToolClient(
+        {"search_merchants": ToolResult(ok=True, data={"merchants": []})}
+    )
+    settings = Settings(
+        None, None, None, "http://localhost:8080", 16, 8, 100,
+        agent_internal_token="route-token",
+    )
+    app = create_app(agent=FoodOrderingAgent(client, settings=settings), settings=settings)
+    body = {
+        "userId": "u-1",
+        "sessionId": "s-http-token",
+        "text": "推荐午餐",
+        "mode": "recommend",
+        "traceId": "trace-http",
+    }
+
+    assert TestClient(app).post("/internal/agent/run", json=body).status_code == 403
+    assert TestClient(app).post("/internal/agent/run", headers={"X-Agent-Token": "wrong"}, json=body).status_code == 403
+    assert TestClient(app).post("/internal/agent/run", headers={"X-Agent-Token": "route-token"}, json=body).status_code == 200
 
 
 def test_langchain_tool_descriptions_use_a_real_payload_schema_without_runtime_warning():

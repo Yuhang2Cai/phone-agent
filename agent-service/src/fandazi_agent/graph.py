@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from hashlib import sha256
 import hmac
 import json
+import re
 import secrets
 from typing import Any
 from uuid import uuid4
@@ -149,7 +150,10 @@ class FoodOrderingAgent:
             self._event(state, "parse_intent", "warning", "模型不可用，已使用受限分类。")
         state.messages.append(request.text)
         state.intent = intent.intent
+        requested_limit = self._requested_amount_limit(request.text)
         state.authorization.update(auto_order=request.mode == "auto_order", health_sensitive=intent.health_sensitive, confirmed=False)
+        if requested_limit is not None:
+            state.authorization["requested_amount_limit"] = requested_limit
         self._event(state, "parse_intent", "info", "已识别请求意图。")
         return self._pack(state)
 
@@ -179,7 +183,7 @@ class FoodOrderingAgent:
     def build_cart(self, values: WorkflowInput) -> dict[str, Any]:
         state, request = self._unpack(values)
         if self._enter(state, "build_cart") and "create_cart_draft" not in state.completed_tools:
-            result = self._call_tool(state, request, "create_cart_draft", {"text": request.text})
+            result = self._call_tool(state, request, "create_cart_draft", self._cart_draft_payload(state, request))
             if result.ok:
                 state.candidate_cart.update(result.data)
             else:
@@ -197,10 +201,11 @@ class FoodOrderingAgent:
                 return self._pack(state)
             state.candidate_cart.update(result.data)
         # The public Gateway must be able to show the authoritative ceiling before any confirmation.
-        state.candidate_cart["maxAmount"] = self.max_order_amount
+        max_amount = self._effective_order_limit(state)
+        state.candidate_cart["maxAmount"] = max_amount
         state.candidate_cart["workflowId"] = state.workflow_id
-        if state.candidate_cart.get("total", 0) > self.max_order_amount:
-            state.error = f"金额超过单次限额（{self.max_order_amount}）"
+        if self._amount_value(state.candidate_cart.get("total", 0)) > max_amount:
+            state.error = f"金额超过单次限额（{max_amount:g}）"
             self._event(state, "validate_order", "error", state.error)
         else:
             self._capture_authorized_cart(state)
@@ -349,6 +354,43 @@ class FoodOrderingAgent:
         if result.ok: state.completed_tools.append(tool_name)
         self._event(state, "tool", "tool" if result.ok else "error", "工具调用完成。" if result.ok else "工具调用失败。", tool_name)
         return result
+
+    @staticmethod
+    def _requested_amount_limit(text: str) -> float | None:
+        match = re.search(r"(\d+(?:\.\d+)?)\s*元\s*(?:以内|以下|之内|内)", text)
+        if match is None:
+            return None
+        value = float(match.group(1))
+        return value if value > 0 else None
+
+    def _effective_order_limit(self, state: AgentState) -> float:
+        requested = state.authorization.get("requested_amount_limit")
+        if isinstance(requested, (int, float)):
+            return min(float(self.max_order_amount), float(requested))
+        return float(self.max_order_amount)
+
+    @staticmethod
+    def _amount_value(value: Any) -> float:
+        if isinstance(value, (int, float)):
+            return float(value)
+        if isinstance(value, str):
+            cleaned = re.sub(r"[^0-9.]", "", value)
+            if cleaned:
+                return float(cleaned)
+        return 0.0
+
+    @staticmethod
+    def _cart_draft_payload(state: AgentState, request: AgentRunRequest) -> dict[str, Any]:
+        payload: dict[str, Any] = {"text": request.text}
+        for key in ("merchantId", "items"):
+            if key in state.candidate_cart:
+                payload[key] = state.candidate_cart[key]
+        merchants = state.candidate_cart.get("merchants")
+        if "merchantId" not in payload and isinstance(merchants, list) and len(merchants) == 1 and isinstance(merchants[0], dict):
+            merchant_id = merchants[0].get("id")
+            if merchant_id is not None:
+                payload["merchantId"] = merchant_id
+        return payload
 
     def invoke_tool(self, tool_name: str, request: AgentRunRequest, payload: dict[str, Any]) -> ToolResult:
         if not is_allowed_tool(tool_name): return ToolResult(ok=False, error="tool_not_allowed")

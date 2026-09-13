@@ -115,6 +115,25 @@ class AgentViewModelTest {
     }
 
     @Test
+    fun choosingTaskAutoGrantsThenResumesWorkflowInAutoMode() = runTest {
+        val repository = FakeAgentRepository(result = confirmationResult())
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.sendText("帮我点午餐")
+        advanceUntilIdle()
+        repository.result = ApiResult.Success(
+            AgentMessageResult(AgentStatus.COMPLETED, "订单已创建并完成模拟支付。", "completed", null, emptyList())
+        )
+
+        viewModel.selectThisTaskAuto()
+        advanceUntilIdle()
+
+        assertEquals(1, repository.grantRequests)
+        assertEquals("确认下单", repository.lastText)
+        assertEquals(AgentMode.THIS_TASK_AUTO, repository.lastMode)
+        assertEquals(null, viewModel.uiState.value.confirmation)
+    }
+
+    @Test
     fun cancellingTaskAutoWaitsForServerRevocationBeforeClearingAuthorization() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -140,8 +159,23 @@ class AgentViewModelTest {
         viewModel.sendText("清淡午餐，30 元以内")
         advanceUntilIdle()
 
-        assertEquals(null, viewModel.uiState.value.confirmation)
-        assertEquals(resultWithoutLimit.candidateCart, viewModel.uiState.value.candidateCart)
+        assertEquals("¥30", viewModel.uiState.value.confirmation?.amountLimitText)
+    }
+
+    @Test
+    fun taskAutoGrantUsesNaturalLanguageBudgetWhenItIsStricterThanGatewayLimit() = runTest {
+        val repository = FakeAgentRepository(result = confirmationResult())
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.sendText("清淡午餐，20 元以内")
+        advanceUntilIdle()
+        repository.result = ApiResult.Success(
+            AgentMessageResult(AgentStatus.COMPLETED, "订单已创建并完成模拟支付。", "completed", null, emptyList())
+        )
+
+        viewModel.selectThisTaskAuto()
+        advanceUntilIdle()
+
+        assertEquals("20", repository.lastGrantAmount?.stripTrailingZeros()?.toPlainString())
     }
 
     @Test
@@ -220,6 +254,7 @@ class AgentViewModelTest {
         var streamStartCursor: Long? = null
         var grantRequests = 0
         var revokeRequests = 0
+        var lastGrantAmount: java.math.BigDecimal? = null
 
         override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult> {
             lastText = text
@@ -234,6 +269,7 @@ class AgentViewModelTest {
 
         override suspend fun grantThisTaskAuto(request: ThisTaskAutoRequest): ApiResult<Unit> {
             grantRequests += 1
+            lastGrantAmount = request.maxAmount
             return ApiResult.Success(Unit)
         }
 

@@ -419,10 +419,12 @@ def test_http_app_uses_configured_file_store_after_app_restart(tmp_path, monkeyp
 
     monkeypatch.setenv("AGENT_WORKFLOW_STORE_DIR", str(tmp_path))
     monkeypatch.setenv("AGENT_WORKFLOW_SIGNING_KEY", "r4-http-test-signing-key")
+    monkeypatch.setenv("AGENT_INTERNAL_TOKEN", "r4-http-test-token")
     client = RecoveryToolClient([uncertain_failure()])
     monkeypatch.setattr("fandazi_agent.main.SpringBootToolClient", lambda *args: client)
-    first = TestClient(create_app()).post("/internal/agent/run", json=request().model_dump(by_alias=True))
-    second = TestClient(create_app()).post("/internal/agent/run", json=request("继续", trace_id="trace-http-restart").model_dump(by_alias=True))
+    headers = {"X-Agent-Token": "r4-http-test-token"}
+    first = TestClient(create_app()).post("/internal/agent/run", headers=headers, json=request().model_dump(by_alias=True))
+    second = TestClient(create_app()).post("/internal/agent/run", headers=headers, json=request("继续", trace_id="trace-http-restart").model_dump(by_alias=True))
 
     assert first.status_code == second.status_code == 200
     assert first.json()["next_action"] == "order_recovery"

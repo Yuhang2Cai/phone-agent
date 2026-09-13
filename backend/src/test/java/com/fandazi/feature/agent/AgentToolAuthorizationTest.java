@@ -249,6 +249,43 @@ class AgentToolAuthorizationTest {
     }
 
     @Test
+    void createCartDraftRejectsMissingExplicitMerchantInsteadOfChoosingFirstOpenMerchant() throws Exception {
+        DishEntity dish = dishes.save(new DishEntity(merchants.findAll().get(0), "主食", "工具套餐", "", new BigDecimal("20"), 3, true, ""));
+
+        mockMvc.perform(post("/internal/tools/create_cart_draft").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody("draft-no-merchant", Map.of("items", java.util.List.of(Map.of("dishId", dish.getId(), "quantity", 1))))))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("商家")));
+    }
+
+    @Test
+    void createCartDraftRejectsMissingExplicitItemsInsteadOfChoosingFirstListedDish() throws Exception {
+        Long merchantId = merchants.findAll().get(0).getId();
+        dishes.save(new DishEntity(merchants.findAll().get(0), "主食", "工具套餐", "", new BigDecimal("20"), 3, true, ""));
+
+        mockMvc.perform(post("/internal/tools/create_cart_draft").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody("draft-no-items", Map.of("merchantId", merchantId))))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("菜品")));
+    }
+
+    @Test
+    void createCartDraftUsesExplicitMerchantAndItemPayload() throws Exception {
+        MerchantEntity merchant = merchants.findAll().get(0);
+        DishEntity dish = dishes.save(new DishEntity(merchant, "主食", "工具套餐", "", new BigDecimal("20"), 3, true, ""));
+
+        mockMvc.perform(post("/internal/tools/create_cart_draft").header("X-Agent-Token", "test-agent-token")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(toolBody("draft-explicit", Map.of("merchantId", merchant.getId(),
+                                "items", java.util.List.of(Map.of("dishId", dish.getId(), "quantity", 2))))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.ok").value(true))
+                .andExpect(jsonPath("$.data.merchantId").value(merchant.getId()));
+    }
+
+    @Test
     void terminatesReorderWhenAnOriginalDishOptionIsNoLongerAvailable() throws Exception {
         MerchantEntity merchant = merchants.findAll().get(0);
         DishEntity dish = dishes.save(new DishEntity(merchant, "主食", "规格套餐", "", new BigDecimal("20"), 3, true, ""));
