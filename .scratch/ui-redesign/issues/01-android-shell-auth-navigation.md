@@ -1,10 +1,12 @@
+> **历史版本：** 本 ticket 属于旧 UI 增量实现方案，不再作为当前执行依据。当前任务请使用 `.scratch/ui-redesign-v2/issues/01-android-ui-foundation-auth-shell.md`。
+
 # 01: Android UI 壳、登录与访客导航
 
 **What to build:** 用户可以启动 App，完成登录或跳过登录，进入新的四项底部导航：首页、商家、订单、我的。认证页面遵循当前设计稿，旋转屏幕后登录输入和当前路由可以恢复。
 
 **Blocked by:** None (can start immediately)
 
-**Status:** in-review
+**Status:** historical
 
 - [ ] 登录页和注册页按当前设计稿实现用户名、密码、字段错误、提交中和成功状态。
 - [ ] 支持跳过登录；访客可以进入首页、商家、订单和我的页面的访客态。

@@ -1,10 +1,12 @@
+> **历史版本：** 本 ticket 属于旧 UI 增量实现方案，不再作为当前执行依据。当前任务请使用 `.scratch/ui-redesign-v2/issues/04-address-settings-visual-rebuild.md`。
+
 # 03: 地址管理、我的页面与自动化边界
 
 **What to build:** 用户可以在“我的”中管理收货地址并配置自动化策略；没有有效地址、默认地址或金额超出限制时，自动下单会被明确阻断。
 
 **Blocked by:** 01: Android UI 壳、登录与访客导航
 
-**Status:** in-review
+**Status:** historical
 
 - [ ] 访客进入用户相关功能时要求登录，登录成功后返回原操作。
 - [ ] 地址页支持加载、空列表、新增、编辑、删除和设置默认地址。

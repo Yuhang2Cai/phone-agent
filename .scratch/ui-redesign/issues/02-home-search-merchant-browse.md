@@ -1,10 +1,12 @@
+> **历史版本：** 本 ticket 属于旧 UI 增量实现方案，不再作为当前执行依据。当前任务请使用 `.scratch/ui-redesign-v2/issues/02-home-visual-search-entry.md`。
+
 # 02: 首页、搜索与商家浏览
 
 **What to build:** 用户可以从新首页搜索商家或菜品，进入搜索结果和商家菜单；首页采用设计稿确定的视觉主体与搜索框交互，并正确呈现加载、空结果、网络错误和无地址状态。
 
 **Blocked by:** 01: Android UI 壳、登录与访客导航
 
-**Status:** in-review
+**Status:** historical
 
 - [ ] 首页实现地址、通知、搜索框、AI 点餐卡片、“再来一单”快捷建议和附近好店。
 - [ ] 首页不展示独立历史订单卡片；无地址时仍允许搜索和 AI 推荐。
