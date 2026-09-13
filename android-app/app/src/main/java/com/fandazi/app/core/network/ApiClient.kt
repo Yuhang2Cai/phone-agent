@@ -109,7 +109,7 @@ class ApiClient(
     }
 
     private fun Map<String, String>.toHeaders() = okhttp3.Headers.Builder().also { builder ->
-        forEach { (name, value) -> builder.header(name, value) }
+        forEach { (name, value) -> builder.set(name, value) }
     }.build()
 
     private fun messageFrom(body: String, fallback: String): String = runCatching {

@@ -23,7 +23,7 @@ class DebugNetworkPolicyTest {
         if (directory.isFile) directory = directory.parentFile
         while (true) {
             val candidate = File(directory, "app/src/main/AndroidManifest.xml")
-            if (candidate.isFile) return directory
+            if (candidate.isFile) return File(directory, "app")
             directory = directory.parentFile ?: break
         }
         error("Unable to locate Android app root from test classes")

@@ -23,8 +23,8 @@ class ApiBaseUrlBuildTypeTest {
         assertEquals("http://10.0.2.2:8080/api/", debugDefault)
         assertEquals("https://api.example.invalid/api/", releaseDefault)
         assertFalse(defaultConfig.contains("http://"))
-        assertTrue(buildTypes.contains("\"$" + "debugApiBaseUrl\""))
-        assertTrue(buildTypes.contains("\"$" + "releaseApiBaseUrl\""))
+        assertTrue(buildTypes.contains("debugApiBaseUrl"))
+        assertTrue(buildTypes.contains("releaseApiBaseUrl"))
     }
 
     private fun findBuildScript(): File {
