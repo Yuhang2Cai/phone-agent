@@ -288,6 +288,7 @@ AI 生成候选订单后，必须在对话中展示独立确认卡片：
 | 页面/组件 | 已选版本 | 项目内参考图 | 采用要点 |
 | --- | --- | --- | --- |
 | 首页 | B | `docs/ui-design-references/home-b.png` | 高级生活方式首页、大图食物场景、暖米色背景、AI 卡片突出 |
+| 首页搜索入口 | A | `docs/ui-design-references/home-search-entry-a.png` | 地址栏下方独立搜索框，带语音入口，首屏可见且不破坏首页大图 |
 | AI 助手底部面板 | A | `docs/ui-design-references/ai-panel-a.png` | 对话气泡、推荐订单卡片、地址/金额确认、修改与确认下单 |
 | 搜索页 | A | `docs/ui-design-references/search-a.png` | 传统高效率商家列表、AI 建议横幅、评分/配送/价格信息 |
 
@@ -303,7 +304,6 @@ AI 生成候选订单后，必须在对话中展示独立确认卡片：
 
 ### 15.2 待确认页面
 
-- 首页搜索入口改造：A / B / C 待选择。
 - 商家菜单页：A / B / C 待生成。
 - 菜品规格选择弹层：A / B / C 待生成。
 - 购物车与结算页：A / B / C 待生成。
