@@ -5,6 +5,6 @@
     <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="14dp" android:layout_marginBottom="12dp">
         <LinearLayout android:id="@+id/menu_items" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
     </ScrollView>
-    <com.google.android.material.button.MaterialButton android:id="@+id/checkout_button" android:layout_width="match_parent" android:layout_height="52dp" android:text="@string/checkout" app:cornerRadius="26dp" app:backgroundTint="@color/brand_orange" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/checkout_button" android:layout_width="match_parent" android:layout_height="52dp" android:contentDescription="@string/checkout" android:text="@string/checkout" app:cornerRadius="26dp" app:backgroundTint="@color/brand_orange" />
     <com.google.android.material.card.MaterialCardView android:id="@+id/agent_fab" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:layout_marginBottom="12dp" android:contentDescription="@string/agent_open" android:clickable="true" android:focusable="true" app:cardBackgroundColor="@color/brand_orange" app:cardCornerRadius="24dp"><TextView android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="@string/agent_open" android:textColor="#FFFFFF" android:textStyle="bold" /></com.google.android.material.card.MaterialCardView>
 </LinearLayout>
