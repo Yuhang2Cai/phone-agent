@@ -1,5 +1,7 @@
 __pycache__/
 .pytest_cache/
+.pytest-basetemp-task12/
+.pytest-cache-task12/
 *.egg-info/
 .venv/
 .env

@@ -31,6 +31,14 @@ uvicorn fandazi_agent.main:app --host 127.0.0.1 --port 8090
 python -m pytest agent-service/tests -q
 ```
 
+在 Windows 环境中，如果系统 `python` 是 Microsoft Store stub，请使用项目虚拟环境解释器：
+
+```powershell
+.\agent-service\.venv\Scripts\python.exe -m pytest agent-service/tests -q --basetemp agent-service/.pytest-basetemp-task12
+```
+
+Task 12 的 seed 场景测试读取 `data/seed/agent-scenarios.json`，使用 Fake Spring Boot Tool Client 验证工具序列、确认暂停和失败分支，不调用真实 LLM。
+
 工具调用严格限于 `search_merchants`、`list_dishes`、`get_last_order`、`create_cart_draft`、`validate_cart`、`get_addresses`、`create_order` 和 `pay_mock_order`。每次调用都会传递用户、会话、追踪和幂等键。
 
 ## 重启后恢复下单
