@@ -72,6 +72,67 @@ def test_seed_agent_scenarios_have_expected_tool_sequence_confirmation_and_resul
     assert "medical" not in result.message.lower()
 
 
+def test_seed_order_scenario_confirm_resume_creates_order_with_backend_authorization_context():
+    client = ScenarioToolClient()
+    agent = FoodOrderingAgent(client, max_order_amount=50)
+    scenario = next(item for item in SCENARIOS if item["id"] == "no-cilantro-default-address")
+
+    paused = agent.run(request_for(scenario))
+    resumed = agent.run(
+        AgentRunRequest(
+            userId="u-1",
+            sessionId=f"seed-{scenario['id']}",
+            text="确认",
+            mode="order",
+            traceId=f"trace-{scenario['id']}-confirm",
+        )
+    )
+
+    assert paused.status == "awaiting_confirmation"
+    assert resumed.status == "completed"
+    assert [request.tool_name for request in client.requests] == [
+        "search_merchants",
+        "create_cart_draft",
+        "validate_cart",
+        "create_order",
+    ]
+    create_order = client.requests[-1]
+    assert create_order.trace_id == "trace-no-cilantro-default-address-confirm"
+    assert create_order.workflow_id
+    assert create_order.idempotency_key == f"{create_order.workflow_id}:create_order"
+    assert create_order.payload["cartId"] == "cart-1"
+    assert create_order.payload["addressId"] == "addr-default"
+
+
+def test_seed_auto_order_scenario_creates_order_then_pays_with_backend_tools_and_stable_idempotency():
+    client = ScenarioToolClient()
+    agent = FoodOrderingAgent(client, max_order_amount=50)
+
+    result = agent.run(
+        AgentRunRequest(
+            userId="u-1",
+            sessionId="seed-this-task-auto",
+            text="不要香菜使用默认地址",
+            mode="auto_order",
+            traceId="trace-this-task-auto",
+        )
+    )
+
+    assert result.status == "completed"
+    assert [request.tool_name for request in client.requests] == [
+        "search_merchants",
+        "create_cart_draft",
+        "validate_cart",
+        "create_order",
+        "pay_mock_order",
+    ]
+    create_order, pay_mock_order = client.requests[-2:]
+    assert create_order.workflow_id == pay_mock_order.workflow_id
+    assert create_order.idempotency_key == f"{create_order.workflow_id}:create_order"
+    assert pay_mock_order.idempotency_key == f"{pay_mock_order.workflow_id}:pay_mock_order"
+    assert pay_mock_order.payload["orderId"] == "order-1"
+
+
 def request_for(scenario):
     mode = "recommend" if scenario["id"] in {"spicy-under-30", "mild-cold"} else "order"
     text = "帮我点个外卖" if scenario["id"] == "illegal-parameters" else scenario["prompt"]
