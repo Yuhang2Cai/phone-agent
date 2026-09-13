@@ -14,9 +14,10 @@ Task 12 added cross-layer/static verification and documentation. Commands below 
 | `.\agent-service\.venv\Scripts\python.exe -m pytest agent-service/tests -q --basetemp agent-service/.pytest-basetemp-task12-review -o cache_dir=agent-service/.pytest-cache-task12-review` | PASS: 136 passed, 2 warnings in 11.45s; after the review fixes, a local rerun passed `142 passed, 2 warnings`. |
 | `.\agent-service\.venv\Scripts\python.exe -m compileall -q agent-service/src agent-service/tests` | PASS: exit code 0. |
 | `.\agent-service\.venv\Scripts\python.exe -c "<redacted DeepSeek connectivity probe>"` | PASS: HTTP 200. The script loaded local ignored `.env`, did not print `LLM_API_KEY`, and did not print response content. |
-| `mvn -f backend/pom.xml -Dtest=CrossLayerOrderingFlowTest test` | BLOCKED: `mvn` is not installed or not on PATH. Repository has no Maven wrapper. |
-| `.\gradlew.bat --no-daemon testDebugUnitTest --tests "com.fandazi.app.feature.order.FakeApiOrderingFlowTest"` from `android-app` | BLOCKED: Gradle started, but Android Gradle Plugin `com.android.application:8.10.1` could not be resolved from configured repositories in this environment. |
-| `java -version` / `javac -version` | BLOCKED: `java` and `javac` are not on PATH in this shell. |
+| `D:\software\IntelliJ IDEA 2025.2.4\plugins\maven\lib\maven3\bin\mvn.cmd -q -f backend/pom.xml test` | PASS: all 85 backend tests passed. |
+| `C:\fdz-build\android-app\gradlew.bat --no-daemon --max-workers=1 testDebugUnitTest` | PASS: Android JVM unit tests passed. The single-worker option avoids a Windows stale test-worker lock in this environment. |
+| `C:\fdz-build\android-app\gradlew.bat --no-daemon --max-workers=1 assembleDebug` | PASS: debug APK assembled successfully. |
+| `java -version` / `javac -version` | PASS via Android Studio JBR: Java 21.0.8. |
 | `python -m pytest agent-service/tests/test_agent_seed_scenarios.py -q` | BLOCKED: system `python` is a Microsoft Store stub. The project venv Python was used instead. |
 | `rg -n "(sk-[A-Za-z0-9_-]{20,}\|LLM_API_KEY\s*=\|JWT_SECRET\s*=\|AGENT_INTERNAL_TOKEN\s*=\|Bearer\s+[A-Za-z0-9._-]{20,}\|api[_-]?key\s*[:=])" ...` | PASS WITH REVIEW: no committed secret values found. Matches were variable names/placeholders in docs/config/tests and the untracked `task-10-r1-review.md` review text. |
 | `git diff --check` | PASS: exit code 0. |
@@ -50,11 +51,11 @@ Task 12 added cross-layer/static verification and documentation. Commands below 
 
 - `FakeApiOrderingFlowTest` is a client-side flow test, not a production backend or Agent Service integration test.
 - It does not prove production `AgentViewModel` networking against a live Spring Boot service, production internal-tool authorization, server-side confirmation consumption, or create/pay idempotency.
-- Those authorization and idempotency guarantees are covered by the backend H2 tests and Agent Service pytest listed above; a true Android-to-backend closed loop still requires a runnable Android/Gradle environment and live service wiring.
+- Those authorization and idempotency guarantees are covered by the backend H2 tests and Agent Service pytest listed above. The production Android ordering repository and screens are compiled and unit-tested; live device verification still depends on connecting an emulator/device and starting the local services.
 
 ## Environment Limits
 
-- Backend Maven tests could not be executed here because Maven and Java are not available on PATH.
-- Android JVM tests/lint/build could not be executed here because the Android Gradle Plugin dependency could not be resolved in this environment. No APK was produced.
+- The project shell does not expose Maven/Java on PATH; verification uses IntelliJ's Maven and Android Studio's bundled JBR explicitly.
+- ADB reported no connected emulator/device during verification, so the APK was built but not installed automatically.
 - `agent-service/.pytest_cache` has a pre-existing permission issue; full pytest passed after using workspace-local `--basetemp` and cache directory.
 - The untracked root `task-10-r1-review.md` predates this Task 12 work and was not staged.

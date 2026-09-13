@@ -2,11 +2,9 @@ package com.fandazi.app.feature.auth
 
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.withContext
 
 class SessionRepository(
     private val authGateway: AuthGateway,
@@ -32,10 +30,9 @@ class SessionRepository(
 
     override suspend fun logout() {
         val cleared = try {
-            withContext(Dispatchers.IO) { storage.clear() }
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (exception: Exception) {
+            storage.clear()
+        } catch (exception: Throwable) {
+            if (exception is CancellationException) throw exception
             false
         }
         if (cleared) {
@@ -59,10 +56,9 @@ class SessionRepository(
         }
         val session = PersistedSession(result.value.token, result.value.user)
         val written = try {
-            withContext(Dispatchers.IO) { storage.write(session) }
-        } catch (exception: CancellationException) {
-            throw exception
-        } catch (exception: Exception) {
+            storage.write(session)
+        } catch (exception: Throwable) {
+            if (exception is CancellationException) throw exception
             false
         }
         return if (written) {
