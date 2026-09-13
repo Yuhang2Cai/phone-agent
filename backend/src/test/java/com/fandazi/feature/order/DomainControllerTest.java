@@ -111,6 +111,35 @@ class DomainControllerTest {
     }
 
     @Test
+    void orderListReturnsOnlyCurrentUsersOrdersWithTimelineSnapshots() throws Exception {
+        UserEntity owner = users.save(new UserEntity("order-list-owner", "order-list-owner@example.com", "secret-hash"));
+        UserEntity other = users.save(new UserEntity("order-list-other", "order-list-other@example.com", "secret-hash"));
+        MerchantEntity merchant = merchants.save(new MerchantEntity(
+                "列表餐厅", "粥汤", new BigDecimal("10.00"), new BigDecimal("2.00"), 25, true));
+        DishEntity dish = dishes.save(new DishEntity(
+                merchant, "粥", "南瓜小米粥", "", new BigDecimal("12.00"), 10, true, ""));
+        AddressEntity ownerAddress = addresses.create(owner.getId(), new AddressCommand("Owner", "13800000000", "列表路 1 号", true));
+        AddressEntity otherAddress = addresses.create(other.getId(), new AddressCommand("Other", "13800000001", "列表路 2 号", true));
+        CartDraft ownerCart = carts.createDraft(owner.getId(), merchant.getId());
+        CartDraft otherCart = carts.createDraft(other.getId(), merchant.getId());
+        carts.replaceItems(owner.getId(), ownerCart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(), null)));
+        carts.replaceItems(other.getId(), otherCart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(), null)));
+        OrderEntity ownerOrder = orders.create(owner.getId(), new CreateOrderCommand(ownerCart.getId(), ownerAddress.getId(), "owner-list-order"));
+        orders.create(other.getId(), new CreateOrderCommand(otherCart.getId(), otherAddress.getId(), "other-list-order"));
+        var ownerAuth = authentication(new UsernamePasswordAuthenticationToken(owner.getId(), null, List.of()));
+
+        mockMvc.perform(get("/api/orders").with(ownerAuth))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(ownerOrder.getId()))
+                .andExpect(jsonPath("$[0].status").value("PENDING_PAYMENT"))
+                .andExpect(jsonPath("$[0].timeline[0]").value("PENDING_PAYMENT"))
+                .andExpect(jsonPath("$[0].items[0].dishName").value("南瓜小米粥"))
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(content().string(not(containsString("other-list-order"))))
+                .andExpect(content().string(not(containsString("passwordHash"))));
+    }
+
+    @Test
     void orderCreateAndPaymentResponsesAreInitializedForFirstAndIdempotentRequests() throws Exception {
         UserEntity user = users.save(new UserEntity("http-idem-user", "http-idem-user@example.com", "secret-hash"));
         MerchantEntity merchant = merchants.save(new MerchantEntity(

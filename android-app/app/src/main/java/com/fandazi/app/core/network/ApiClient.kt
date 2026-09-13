@@ -56,6 +56,28 @@ class ApiClient(
         retryOnce = false
     )
 
+    suspend fun postJson(path: String, json: String, headers: Map<String, String>): ApiResult<String> = request(
+        Request.Builder()
+            .url(url(path))
+            .headers(headers.toHeaders())
+            .post(json.toRequestBody(JSON_MEDIA_TYPE))
+            .build(),
+        retryOnce = false
+    )
+
+    suspend fun putJson(path: String, json: String): ApiResult<String> = request(
+        Request.Builder()
+            .url(url(path))
+            .put(json.toRequestBody(JSON_MEDIA_TYPE))
+            .build(),
+        retryOnce = false
+    )
+
+    suspend fun delete(path: String): ApiResult<String> = request(
+        Request.Builder().url(url(path)).delete().build(),
+        retryOnce = false
+    )
+
     private suspend fun request(request: Request, retryOnce: Boolean): ApiResult<String> = withContext(Dispatchers.IO) {
         val firstResult = execute(request)
         if (retryOnce && firstResult is ApiResult.Failure && firstResult.error.isRetryableNetworkFailure()) {
@@ -85,6 +107,10 @@ class ApiClient(
     private fun url(path: String) = requireNotNull(baseUrl.toHttpUrl().resolve(path)) {
         "Unable to resolve API path: $path"
     }
+
+    private fun Map<String, String>.toHeaders() = okhttp3.Headers.Builder().also { builder ->
+        forEach { (name, value) -> builder.header(name, value) }
+    }.build()
 
     private fun messageFrom(body: String, fallback: String): String = runCatching {
         val json = JsonParser.parseString(body).asJsonObject

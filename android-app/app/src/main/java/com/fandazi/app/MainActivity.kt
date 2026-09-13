@@ -47,4 +47,5 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun applicationSession() = (application as FandaziApplication).sessionRepository
+    fun orderingRepository() = (application as FandaziApplication).orderingRepository
 }

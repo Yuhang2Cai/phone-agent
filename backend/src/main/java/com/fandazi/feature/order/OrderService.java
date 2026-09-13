@@ -74,6 +74,17 @@ public class OrderService {
                 .orElseThrow(() -> new DomainException("订单不存在")));
     }
 
+    @Transactional(readOnly = true)
+    public java.util.List<OrderResponse> listResponses(Long userId) {
+        return orders.findByUserIdOrderByIdDesc(userId).stream()
+                .peek(order -> {
+                    order.getTimeline();
+                    order.getItems().forEach(item -> item.getOptionIds());
+                })
+                .map(OrderResponse::from)
+                .toList();
+    }
+
     public OrderEntity locked(Long userId, Long id) {
         return orders.findByIdAndUserIdForUpdate(userId, id).orElseThrow(() -> new DomainException("订单不存在"));
     }
