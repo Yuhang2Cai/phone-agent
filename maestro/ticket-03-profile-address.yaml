@@ -5,4 +5,5 @@ appId: com.fandazi.app
 - tapOn: "先看看，不登录"
 - tapOn: "我的"
 - assertVisible: "我的"
-- assertVisible: "登录后保存地址、管理偏好并查看账户信息。"
+- assertVisible: "配送地址"
+- assertVisible: "自动化设置"
