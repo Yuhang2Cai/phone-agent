@@ -4,7 +4,7 @@
 
 **Blocked by:** 02: 首页视觉重建与搜索入口
 
-**Status:** ready-for-agent
+**Status:** in-review
 
 - [ ] 搜索页完全按 `ui-redesign.md` 搜索页 A 图片重建，不沿用旧 XML 布局或 HTML 原型。
 - [ ] 支持关键词、筛选、自动聚焦、搜索中、结果、空结果、网络错误和需要登录状态。
@@ -14,3 +14,5 @@
 - [ ] 菜品展示图片、名称、描述、价格和加购入口，图片失败显示设计稿规定的占位状态。
 - [ ] Repository 使用真实或 Fake API，覆盖成功、空结果、鉴权失败和网络失败测试。
 - [ ] 提供搜索到商家菜单的模拟器 Maestro 流程，并附设计图对照证据。
+
+**Maestro:** passed on emulator-5554 for the rebuilt search surface with the latest debug APK via `maestro/ticket-03-search-visual.yaml`; merchant data navigation remains dependent on backend seed data.
