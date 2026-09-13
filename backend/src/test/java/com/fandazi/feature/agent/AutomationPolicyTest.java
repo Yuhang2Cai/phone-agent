@@ -71,6 +71,7 @@ class AutomationPolicyTest {
     void rejectsThisTaskGrantAfterExpiryOrAmountOverrun() {
         AgentSession session = sessions.start(user.getId(), "short-grant", AgentMode.THIS_TASK_AUTO, "trace");
         policies.grantForTask(user.getId(), session.getSessionId(), address.getId(), new BigDecimal("21"), Instant.now().minusSeconds(1));
+        sessions.bindAuthorizedCart(user.getId(), session.getSessionId(), "trace", cart.getId(), address.getId(), carts.validate(user.getId(), cart.getId()).total());
 
         assertThatThrownBy(() -> authorizations.authorize(user.getId(), session, cart.getId(), address.getId()))
                 .hasMessageContaining("授权");

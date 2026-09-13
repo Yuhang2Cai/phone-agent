@@ -41,7 +41,8 @@ class SpringBootToolHttpContractTest {
         Path sourceRoot = projectRoot.resolve("agent-service").resolve("src");
         Path script = projectRoot.resolve("backend").resolve("src").resolve("test").resolve("resources")
                 .resolve("spring_tool_contract_probe.py");
-        String python = System.getenv().getOrDefault("PYTHON_EXECUTABLE", "python");
+        String configured = System.getenv("PYTHON_EXECUTABLE");
+        String python = configured != null ? configured : Path.of(projectRoot.toString(), "agent-service", ".venv", "Scripts", "python.exe").toString();
         ProcessBuilder process = new ProcessBuilder(python, script.toString(), "http://127.0.0.1:" + port,
                 sessionId, "test-agent-token");
         process.environment().put("PYTHONPATH", sourceRoot.toString());

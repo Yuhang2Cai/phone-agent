@@ -53,6 +53,9 @@ public class AgentSession {
             activeWorkflowId = workflowId;
             return;
         }
+        if (!confirmationConsumed && confirmationWorkflowId != null && !confirmationWorkflowId.equals(workflowId)) {
+            throw new com.fandazi.feature.DomainException("当前授权已绑定其他工作流");
+        }
         if (createdOrderId == null || confirmationConsumed || createdOrderSettled || mode == AgentMode.CONFIRM) {
             activeWorkflowId = workflowId;
             createdOrderId = null;

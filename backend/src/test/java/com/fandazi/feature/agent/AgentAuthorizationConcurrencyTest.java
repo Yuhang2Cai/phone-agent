@@ -61,7 +61,9 @@ class AgentAuthorizationConcurrencyTest {
         AgentSession session = sessions.start(user.getId(), "parallel-confirm", AgentMode.CONFIRM, "confirm-trace");
         sessions.confirm(user.getId(), session.getSessionId());
 
-        List<Outcome> results = concurrentlyCreate(session, cartWithDish(), cartWithDish(), "confirm-a", "confirm-b");
+        CartDraft authorized = cartWithDish();
+        sessions.bindAuthorizedCart(user.getId(), session.getSessionId(), "confirm-a", authorized.getId(), address.getId(), carts.validate(user.getId(), authorized.getId()).total());
+        List<Outcome> results = concurrentlyCreate(session, authorized, cartWithDish(), "confirm-a", "confirm-b");
 
         assertThat(results).filteredOn(Outcome::success).hasSize(1);
         assertThat(results).filteredOn(outcome -> outcome.failure() instanceof DomainException).hasSize(1);
@@ -73,7 +75,9 @@ class AgentAuthorizationConcurrencyTest {
         AgentSession session = sessions.start(user.getId(), "parallel-grant", AgentMode.THIS_TASK_AUTO, "grant-trace");
         policies.grantForTask(user.getId(), session.getSessionId(), address.getId(), new BigDecimal("30"), Instant.now().plusSeconds(300));
 
-        List<Outcome> results = concurrentlyCreate(session, cartWithDish(), cartWithDish(), "grant-a", "grant-b");
+        CartDraft authorized = cartWithDish();
+        sessions.bindAuthorizedCart(user.getId(), session.getSessionId(), "grant-a", authorized.getId(), address.getId(), carts.validate(user.getId(), authorized.getId()).total());
+        List<Outcome> results = concurrentlyCreate(session, authorized, cartWithDish(), "grant-a", "grant-b");
 
         assertThat(results).filteredOn(Outcome::success).hasSize(1);
         assertThat(results).filteredOn(outcome -> outcome.failure() instanceof DomainException).hasSize(1);
