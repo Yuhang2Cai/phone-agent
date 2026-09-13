@@ -47,7 +47,10 @@ public class SeedDataLoader implements ApplicationRunner {
     }
     private void load(ApplicationArguments args) throws IOException {
         scenarios = readScenarios();
-        if (users.findByUsername("seed_alice").isPresent()) return;
+        if (users.findByUsername("seed_alice").isPresent()) {
+            refreshExistingDishImages(read("dishes.json"));
+            return;
+        }
         JsonNode merchantData = read("merchants.json");
         for (JsonNode m : merchantData) merchants.save(new MerchantEntity(text(m,"name"), text(m,"category"), money(m,"minimumOrder"), money(m,"deliveryFee"), m.get("deliveryMinutes").asInt(), m.get("open").asBoolean(), money(m,"discountThreshold"), money(m,"discountAmount")));
         for (JsonNode template : read("dishes.json")) {
@@ -79,6 +82,18 @@ public class SeedDataLoader implements ApplicationRunner {
         }
     }
     public List<SeedScenario> getScenarios() { return scenarios; }
+
+    private void refreshExistingDishImages(JsonNode templates) {
+        List<DishEntity> existing = dishes.findAll();
+        for (JsonNode template : templates) {
+            String prefix = text(template, "name") + " ";
+            String imageUrl = text(template, "imageUrl");
+            existing.stream()
+                    .filter(dish -> dish.getName().startsWith(prefix))
+                    .forEach(dish -> dish.replaceImageUrl(imageUrl));
+        }
+        dishes.saveAll(existing);
+    }
     private List<SeedScenario> readScenarios() throws IOException {
         JsonNode fixture = read("agent-scenarios.json");
         if (!fixture.isArray()) throw new IllegalArgumentException("Agent scenario fixture must be an array");
