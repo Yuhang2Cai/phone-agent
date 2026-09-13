@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:padding="24dp">
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/profile_page" android:textAppearance="@style/TextAppearance.Material3.HeadlineMedium" android:textStyle="bold" />
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:text="@string/profile_guest_hint" />
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/surface_background" android:padding="24dp">
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/profile_page" android:textColor="@color/brand_ink" android:textSize="30sp" android:textStyle="bold" />
+    <com.google.android.material.card.MaterialCardView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" app:cardCornerRadius="20dp" app:cardBackgroundColor="#FFFFFF">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="18dp">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="配送地址" android:textColor="@color/brand_ink" android:textSize="18sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="下单前选择有效地址；自动下单没有默认地址时会被阻断" android:textColor="@color/brand_muted" android:textSize="13sp" />
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
     <LinearLayout android:id="@+id/profile_addresses" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="16dp" android:orientation="vertical" />
-    <com.google.android.material.button.MaterialButton android:id="@+id/profile_logout" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="@string/logout" />
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="自动化设置" android:textColor="@color/brand_ink" android:textSize="17sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:text="仅本次授权 · 仍受地址与金额上限约束" android:textColor="@color/brand_muted" />
+    <com.google.android.material.button.MaterialButton android:id="@+id/profile_logout" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:text="@string/logout" />
 </LinearLayout>

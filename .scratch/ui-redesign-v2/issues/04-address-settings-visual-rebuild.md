@@ -4,7 +4,7 @@
 
 **Blocked by:** 01: Android UI 基线与登录壳
 
-**Status:** ready-for-agent
+**Status:** in-review
 
 - [ ] 地址管理页完全按地址管理 C 图片重建，支持加载、空列表、新增、编辑、删除和设置默认地址。
 - [ ] 默认地址不能直接删除；删除、编辑和设置默认提交中禁止重复操作。
@@ -13,3 +13,5 @@
 - [ ] 区分本次自动下单和长期自动下单；长期模式必须绑定有效默认地址和最高金额。
 - [ ] 覆盖无地址、失效地址、无默认地址、金额超限和授权阻断状态。
 - [ ] 提供地址/设置 ViewModel 与 Repository 测试和模拟器 Maestro 流程。
+
+**Maestro:** pending — address/settings visual flow added; emulator run follows the next debug build.

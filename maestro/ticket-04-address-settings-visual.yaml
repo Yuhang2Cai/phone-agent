@@ -1,0 +1,8 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "先看看，不登录"
+- tapOn: "我的"
+- assertVisible: "配送地址"
+- assertVisible: "自动化设置"
