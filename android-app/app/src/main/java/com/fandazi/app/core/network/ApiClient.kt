@@ -78,6 +78,11 @@ class ApiClient(
         retryOnce = false
     )
 
+    suspend fun patch(path: String, json: String): ApiResult<String> = request(
+        Request.Builder().url(url(path)).patch(json.toRequestBody(JSON_MEDIA_TYPE)).build(),
+        retryOnce = false
+    )
+
     private suspend fun request(request: Request, retryOnce: Boolean): ApiResult<String> = withContext(Dispatchers.IO) {
         val firstResult = execute(request)
         if (retryOnce && firstResult is ApiResult.Failure && firstResult.error.isRetryableNetworkFailure()) {

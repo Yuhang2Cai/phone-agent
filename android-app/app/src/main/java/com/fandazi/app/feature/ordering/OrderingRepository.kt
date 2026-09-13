@@ -1,6 +1,7 @@
 package com.fandazi.app.feature.ordering
 
 import com.fandazi.app.core.network.ApiClient
+import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -21,6 +22,10 @@ interface OrderingRepository {
     suspend fun payOrder(orderId: Long, idempotencyKey: String): ApiResult<Order>
     suspend fun loadOrders(): ApiResult<List<Order>>
     suspend fun loadOrder(orderId: Long): ApiResult<Order>
+    suspend fun createAddress(address: Address): ApiResult<Address> = ApiResult.Failure(ApiError.Network("地址功能暂不可用"))
+    suspend fun updateAddress(address: Address): ApiResult<Address> = ApiResult.Failure(ApiError.Network("地址功能暂不可用"))
+    suspend fun deleteAddress(addressId: Long): ApiResult<Unit> = ApiResult.Failure(ApiError.Network("地址功能暂不可用"))
+    suspend fun setDefaultAddress(addressId: Long): ApiResult<Address> = ApiResult.Failure(ApiError.Network("地址功能暂不可用"))
 }
 
 class HttpOrderingRepository(
@@ -68,6 +73,21 @@ class HttpOrderingRepository(
     override suspend fun loadOrder(orderId: Long): ApiResult<Order> =
         apiClient.get("orders/$orderId").mapJson { it.toOrder() }
 
+    override suspend fun createAddress(address: Address): ApiResult<Address> =
+        apiClient.postJson("addresses", gson.toJson(address.toCommand())).mapJson { JsonParser.parseString(it).asJsonObject.toAddress() }
+
+    override suspend fun updateAddress(address: Address): ApiResult<Address> =
+        apiClient.putJson("addresses/${address.id}", gson.toJson(address.toCommand())).mapJson { JsonParser.parseString(it).asJsonObject.toAddress() }
+
+    override suspend fun deleteAddress(addressId: Long): ApiResult<Unit> =
+        when (val result = apiClient.delete("addresses/$addressId")) {
+            is ApiResult.Success -> ApiResult.Success(Unit)
+            is ApiResult.Failure -> result
+        }
+
+    override suspend fun setDefaultAddress(addressId: Long): ApiResult<Address> =
+        apiClient.patch("addresses/$addressId/default", "{}").mapJson { JsonParser.parseString(it).asJsonObject.toAddress() }
+
     private fun String.toCartDraft(): CartDraft = JsonParser.parseString(this).asJsonObject.let { root ->
         CartDraft(root.long("id"), root.long("merchantId"), root.array("items").map { it.asJsonObject.toCartLine() })
     }
@@ -92,6 +112,8 @@ class HttpOrderingRepository(
     private fun JsonObject.toAddress() = Address(
         long("id"), string("recipient"), string("phone"), string("detail"), bool("defaultAddress"), nullableBool("valid") ?: true
     )
+
+    private fun Address.toCommand() = mapOf("recipient" to recipient, "phone" to phone, "detail" to detail, "defaultAddress" to defaultAddress)
 
     private fun JsonObject.toCartQuote(fallbackCartId: Long) = CartQuote(
         nullableLong("cartDraftId") ?: fallbackCartId,
