@@ -4,7 +4,9 @@
 
 **Blocked by:** 05: 菜品规格与单商家购物车视觉重建
 
-**Status:** ready-for-agent
+**Status:** in-review
+
+**Maestro:** passed on emulator-5554 for the orders/payment entry surface with the latest debug APK via `maestro/ticket-06-payment-orders-visual.yaml`.
 
 - [ ] 结算页完全按购物车与结算 C 图片重建，清楚展示地址、商品、配送费、优惠和总金额。
 - [ ] 创建订单前重新校验有效地址、价格和库存；创建后状态必须为待支付。
