@@ -30,7 +30,7 @@
     <string name="home_nearby_title">附近好店</string>
     <string name="home_nearby_empty">先搜索一家店，附近的好味道会出现在这里</string>
     <string name="logout">退出登录</string>
-    <string name="agent_title">饭搭子 AI</string>
+    <string name="agent_title">AI助手</string>
     <string name="agent_open">打开 AI 助手</string>
     <string name="agent_close">关闭</string>
     <string name="agent_full_screen">全屏</string>

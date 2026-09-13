@@ -1,0 +1,8 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn: "先看看，不登录"
+- tapOn: "想吃什么，告诉我"
+- assertVisible: "AI助手"
+- assertVisible: "说说想吃什么"
