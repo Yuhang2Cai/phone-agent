@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 data class AuthFormState(
+    val username: String = "",
+    val email: String = "",
+    val password: String = "",
     val isRegisterMode: Boolean = false,
     val isSubmitting: Boolean = false,
     val usernameError: String? = null,
@@ -25,6 +28,12 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     fun setRegisterMode(isRegisterMode: Boolean) {
         mutableState.value = mutableState.value.copy(isRegisterMode = isRegisterMode)
     }
+
+    fun updateDraft(username: String, email: String, password: String) {
+        mutableState.value = mutableState.value.copy(username = username, email = email, password = password)
+    }
+
+    suspend fun continueAsGuest() = sessions.continueAsGuest()
 
     suspend fun submitLogin(username: String, password: String) {
         if (!submitting.compareAndSet(false, true)) return

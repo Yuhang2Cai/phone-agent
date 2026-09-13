@@ -17,6 +17,7 @@ data class PersistedSession(
 
 sealed interface SessionState {
     data object Unauthenticated : SessionState
+    data object Guest : SessionState
     data class Authenticated(val token: String, val user: User) : SessionState
 }
 
@@ -25,6 +26,9 @@ interface SessionStorage {
     fun read(): Result<PersistedSession?>
     suspend fun write(value: PersistedSession): Boolean
     suspend fun clear(): Boolean
+    fun readGuest(): Result<Boolean> = Result.success(false)
+    suspend fun writeGuest(): Boolean = true
+    suspend fun clearGuest(): Boolean = true
 }
 
 enum class SessionError {
@@ -43,4 +47,5 @@ interface SessionActions {
     suspend fun login(username: String, password: String): com.fandazi.app.core.network.ApiResult<AuthResponse>
     suspend fun register(username: String, email: String, password: String): com.fandazi.app.core.network.ApiResult<AuthResponse>
     suspend fun logout()
+    suspend fun continueAsGuest() = Unit
 }

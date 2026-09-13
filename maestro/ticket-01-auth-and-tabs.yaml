@@ -1,0 +1,15 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- assertVisible: "登录"
+- tapOn: "先看看，不登录"
+- assertVisible: "首页"
+- tapOn: "商家"
+- assertVisible: "商家"
+- tapOn: "订单"
+- assertVisible: "订单"
+- tapOn: "我的"
+- assertVisible: "我的"
+- tapOn: "首页"
+- assertVisible: "首页"

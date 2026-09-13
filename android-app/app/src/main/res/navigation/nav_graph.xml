@@ -17,5 +17,6 @@
     <fragment android:id="@+id/searchFragment" android:name="com.fandazi.app.feature.search.SearchFragment" android:label="@string/search_page" />
     <fragment android:id="@+id/merchantFragment" android:name="com.fandazi.app.feature.merchant.MerchantFragment" android:label="@string/merchant_page" />
     <fragment android:id="@+id/ordersFragment" android:name="com.fandazi.app.feature.order.OrdersFragment" android:label="@string/orders_page" />
+    <fragment android:id="@+id/profileFragment" android:name="com.fandazi.app.feature.profile.ProfileFragment" android:label="@string/profile_page" />
     <fragment android:id="@+id/paymentFragment" android:name="com.fandazi.app.feature.order.PaymentFragment" android:label="@string/payment_page" />
 </navigation>

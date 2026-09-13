@@ -57,8 +57,27 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
         }
     }
 
+    override fun readGuest(): Result<Boolean> {
+        val currentPreferences = preferences
+            ?: return Result.failure(initializationError ?: IllegalStateException("Encrypted session storage unavailable"))
+        return runCatching { currentPreferences.getBoolean(GUEST_KEY, false) }
+    }
+
+    override suspend fun writeGuest(): Boolean = withContext(Dispatchers.IO) {
+        try { preferences?.edit()?.putBoolean(GUEST_KEY, true)?.remove(SESSION_KEY)?.commit() == true }
+        catch (exception: CancellationException) { throw exception }
+        catch (exception: Exception) { false }
+    }
+
+    override suspend fun clearGuest(): Boolean = withContext(Dispatchers.IO) {
+        try { preferences?.edit()?.remove(GUEST_KEY)?.commit() == true }
+        catch (exception: CancellationException) { throw exception }
+        catch (exception: Exception) { false }
+    }
+
     private companion object {
         const val PREFERENCES_NAME = "fandazi_secure_session"
         const val SESSION_KEY = "session"
+        const val GUEST_KEY = "guest"
     }
 }

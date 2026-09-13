@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.isVisible
+import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
@@ -26,6 +27,13 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         binding = viewBinding
         viewBinding.loginModeButton.setOnClickListener { viewModel.showLogin() }
         viewBinding.registerModeButton.setOnClickListener { viewModel.showRegister() }
+        viewBinding.skipLoginButton.setOnClickListener { viewModel.continueAsGuest() }
+        viewBinding.usernameInput.setText(savedInstanceState?.getString(KEY_USERNAME) ?: viewModel.state.value.username)
+        viewBinding.emailInput.setText(savedInstanceState?.getString(KEY_EMAIL) ?: viewModel.state.value.email)
+        viewBinding.passwordInput.setText(savedInstanceState?.getString(KEY_PASSWORD) ?: viewModel.state.value.password)
+        viewBinding.usernameInput.doAfterTextChanged { viewModel.updateDraft(it?.toString().orEmpty(), viewBinding.emailInput.text?.toString().orEmpty(), viewBinding.passwordInput.text?.toString().orEmpty()) }
+        viewBinding.emailInput.doAfterTextChanged { viewModel.updateDraft(viewBinding.usernameInput.text?.toString().orEmpty(), it?.toString().orEmpty(), viewBinding.passwordInput.text?.toString().orEmpty()) }
+        viewBinding.passwordInput.doAfterTextChanged { viewModel.updateDraft(viewBinding.usernameInput.text?.toString().orEmpty(), viewBinding.emailInput.text?.toString().orEmpty(), it?.toString().orEmpty()) }
         viewBinding.submitButton.setOnClickListener {
             viewModel.submit(
                 viewBinding.usernameInput.text?.toString().orEmpty(),
@@ -56,6 +64,14 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        val viewBinding = binding
+        outState.putString(KEY_USERNAME, viewBinding?.usernameInput?.text?.toString().orEmpty())
+        outState.putString(KEY_EMAIL, viewBinding?.emailInput?.text?.toString().orEmpty())
+        outState.putString(KEY_PASSWORD, viewBinding?.passwordInput?.text?.toString().orEmpty())
+        super.onSaveInstanceState(outState)
+    }
+
     private fun render(state: AuthFormState) {
         val viewBinding = binding ?: return
         viewBinding.emailLayout.isVisible = state.isRegisterMode
@@ -72,5 +88,11 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
+    }
+
+    private companion object {
+        const val KEY_USERNAME = "auth.username"
+        const val KEY_EMAIL = "auth.email"
+        const val KEY_PASSWORD = "auth.password"
     }
 }

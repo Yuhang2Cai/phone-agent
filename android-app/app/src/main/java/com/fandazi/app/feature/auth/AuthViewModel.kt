@@ -11,6 +11,10 @@ class AuthViewModel(private val processor: AuthFormProcessor) : ViewModel() {
 
     fun showLogin() = processor.setRegisterMode(false)
     fun showRegister() = processor.setRegisterMode(true)
+    fun updateDraft(username: String, email: String, password: String) = processor.updateDraft(username, email, password)
+    fun continueAsGuest() {
+        viewModelScope.launch { processor.continueAsGuest() }
+    }
     fun submit(username: String, email: String, password: String) {
         viewModelScope.launch {
             if (state.value.isRegisterMode) processor.submitRegister(username, email, password)

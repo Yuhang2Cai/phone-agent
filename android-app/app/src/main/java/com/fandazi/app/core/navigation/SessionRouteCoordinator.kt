@@ -10,6 +10,7 @@ enum class SessionRoute {
 object SessionRouteCoordinator {
     fun routeFor(state: SessionState): SessionRoute = when (state) {
         SessionState.Unauthenticated -> SessionRoute.AUTH
+        SessionState.Guest -> SessionRoute.HOME
         is SessionState.Authenticated -> SessionRoute.HOME
     }
 

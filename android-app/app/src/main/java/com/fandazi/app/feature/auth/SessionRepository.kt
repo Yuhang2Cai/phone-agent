@@ -11,7 +11,8 @@ class SessionRepository(
     private val storage: SessionStorage
 ) : SessionActions {
     private val initialRead = storage.read()
-    private val mutableState = MutableStateFlow(initialRead.getOrNull().toSessionState())
+    private val initialGuestRead = storage.readGuest()
+    private val mutableState = MutableStateFlow(initialRead.getOrNull().toSessionState(initialGuestRead.getOrNull() == true))
     val state: StateFlow<SessionState> = mutableState.asStateFlow()
     private val mutableError = MutableStateFlow(
         when {
@@ -36,6 +37,7 @@ class SessionRepository(
             false
         }
         if (cleared) {
+            storage.clearGuest()
             mutableState.value = SessionState.Unauthenticated
             mutableError.value = null
         } else {
@@ -44,6 +46,15 @@ class SessionRepository(
             } else {
                 SessionError.StorageClearFailed
             }
+        }
+    }
+
+    override suspend fun continueAsGuest() {
+        if (storage.writeGuest()) {
+            mutableState.value = SessionState.Guest
+            mutableError.value = null
+        } else {
+            mutableError.value = SessionError.StorageWriteFailed
         }
     }
 
@@ -62,7 +73,8 @@ class SessionRepository(
             false
         }
         return if (written) {
-            mutableState.value = session.toSessionState()
+            storage.clearGuest()
+            mutableState.value = session.toSessionState(false)
             mutableError.value = null
             result
         } else {
@@ -76,8 +88,9 @@ class SessionRepository(
         }
     }
 
-    private fun PersistedSession?.toSessionState(): SessionState = when (this) {
-        null -> SessionState.Unauthenticated
-        else -> SessionState.Authenticated(token, user)
+    private fun PersistedSession?.toSessionState(guest: Boolean): SessionState = when {
+        this != null -> SessionState.Authenticated(token, user)
+        guest -> SessionState.Guest
+        else -> SessionState.Unauthenticated
     }
 }

@@ -37,6 +37,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 sessions.state.collect { state ->
                     when (state) {
                         is SessionState.Authenticated -> viewBinding.welcomeText.text = getString(R.string.welcome_user, state.user.username)
+                        SessionState.Guest -> viewBinding.welcomeText.setText(R.string.welcome_guest)
                         SessionState.Unauthenticated -> viewBinding.welcomeText.setText(R.string.welcome_signed_out)
                     }
                 }

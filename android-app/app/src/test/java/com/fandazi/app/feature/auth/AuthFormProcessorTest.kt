@@ -13,6 +13,17 @@ import org.junit.Test
 
 class AuthFormProcessorTest {
     @Test
+    fun draftFieldsAreRestoredByTheAuthViewModelSeam() {
+        val processor = AuthFormProcessor(FakeSessionRepository())
+
+        processor.updateDraft("alice", "alice@example.com", "password123")
+
+        assertEquals("alice", processor.state.value.username)
+        assertEquals("alice@example.com", processor.state.value.email)
+        assertEquals("password123", processor.state.value.password)
+    }
+
+    @Test
     fun invalidLoginShowsFieldErrorsWithoutSubmitting() = runBlocking {
         val processor = AuthFormProcessor(FakeSessionRepository())
 

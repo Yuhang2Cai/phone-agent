@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="brand_yellow">#FFC82E</color>
+    <color name="brand_orange">#FF6A2A</color>
     <color name="brand_ink">#202020</color>
     <color name="surface_background">#F7F7F4</color>
 </resources>

@@ -1,12 +1,14 @@
 package com.fandazi.app
 
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.navOptions
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.core.view.isVisible
 import com.fandazi.app.core.navigation.SessionRoute
 import com.fandazi.app.core.navigation.SessionRouteCoordinator
 import com.fandazi.app.feature.auth.SessionState
@@ -15,11 +17,22 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navHost: NavHostFragment
+    private lateinit var bottomNavigation: com.google.android.material.bottomnavigation.BottomNavigationView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        bottomNavigation = findViewById(R.id.bottom_navigation)
+        bottomNavigation.setOnItemSelectedListener { item: MenuItem ->
+            if (navHost.navController.currentDestination?.id == item.itemId) return@setOnItemSelectedListener true
+            navHost.navController.navigate(item.itemId)
+            true
+        }
+        navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
+            bottomNavigation.isVisible = destination.id in setOf(R.id.homeFragment, R.id.merchantFragment, R.id.ordersFragment, R.id.profileFragment)
+            if (bottomNavigation.isVisible) bottomNavigation.menu.findItem(destination.id)?.isChecked = true
+        }
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -32,7 +45,7 @@ class MainActivity : AppCompatActivity() {
         val desired = SessionRouteCoordinator.routeFor(state)
         val current = when (navHost.navController.currentDestination?.id) {
             R.id.authFragment -> SessionRoute.AUTH
-            R.id.homeFragment, R.id.searchFragment, R.id.merchantFragment, R.id.ordersFragment, R.id.paymentFragment -> SessionRoute.HOME
+            R.id.homeFragment, R.id.searchFragment, R.id.merchantFragment, R.id.ordersFragment, R.id.profileFragment, R.id.paymentFragment -> SessionRoute.HOME
             else -> null
         }
         if (!SessionRouteCoordinator.shouldNavigate(current, desired)) return
