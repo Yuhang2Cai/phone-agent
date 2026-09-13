@@ -299,6 +299,54 @@ AI 生成候选订单后，必须在对话中展示独立确认卡片：
 | 地址管理页 | C | `docs/ui-design-references/address-management-c.png` | 单选切换默认地址、地址信息卡片、编辑删除、添加新地址 |
 | 设置与自动化策略页 | A | `docs/ui-design-references/automation-settings-a.png` | AI 说明卡、本次/长期自动下单开关、最高金额、默认地址、模型配置、安全提示 |
 
+### 15.0 设计稿图片预览
+
+> 以下图片使用相对路径嵌入，直接打开本 Markdown 文件即可预览；图片原文件保存在 `docs/ui-design-references/`。
+
+#### 首页 · B
+
+![首页 B 版](ui-design-references/home-b.png)
+
+#### 首页搜索入口 · A
+
+![首页搜索入口 A 版](ui-design-references/home-search-entry-a.png)
+
+#### AI 助手底部面板 · A
+
+![AI 助手底部面板 A 版](ui-design-references/ai-panel-a.png)
+
+#### 搜索页 · A
+
+![搜索页 A 版](ui-design-references/search-a.png)
+
+#### 商家菜单页 · A
+
+![商家菜单页 A 版](ui-design-references/merchant-menu-a.png)
+
+#### 菜品规格选择弹层 · A
+
+![菜品规格选择弹层 A 版](ui-design-references/dish-options-a.png)
+
+#### 购物车与结算页 · C
+
+![购物车与结算页 C 版](ui-design-references/checkout-c.png)
+
+#### 模拟支付页 · C
+
+![模拟支付页 C 版](ui-design-references/mock-payment-c.png)
+
+#### 订单列表与配送时间线 · C
+
+![订单列表与配送时间线 C 版](ui-design-references/orders-timeline-c.png)
+
+#### 地址管理页 · C
+
+![地址管理页 C 版](ui-design-references/address-management-c.png)
+
+#### 设置与自动化策略页 · A
+
+![设置与自动化策略页 A 版](ui-design-references/automation-settings-a.png)
+
 ### 15.1 当前页面关系
 
 首页与搜索页是两个独立页面：首页负责推荐和入口，搜索页负责结果浏览。
