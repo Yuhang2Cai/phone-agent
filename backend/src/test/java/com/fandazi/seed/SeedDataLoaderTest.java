@@ -20,6 +20,7 @@ import com.fandazi.feature.order.OrderStatus;
 import com.fandazi.feature.order.OrderRepository;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.sql.DataSource;
@@ -84,15 +85,16 @@ class SeedDataLoaderTest {
     }
 
     @Test
-    void everySeedImagePathResolvesToALocalPngResource() throws IOException {
+    void everySeedImageReferenceUsesTheProjectOssAssetPrefix() throws IOException {
         JsonNode templates = mapper.readTree(Files.newInputStream(FIXTURE_DIRECTORY.resolve("dishes.json")));
 
         for (JsonNode template : templates) {
             String imageUrl = template.required("imageUrl").asText();
-            Path resource = Path.of("src/main/resources/static").resolve(imageUrl.substring(1));
-            assertThat(resource).as(imageUrl).isRegularFile();
-            byte[] contents = Files.readAllBytes(resource);
-            assertThat(contents).startsWith((byte) 0x89, (byte) 0x50, (byte) 0x4e, (byte) 0x47);
+            URI imageUri = URI.create(imageUrl);
+            assertThat(imageUri.getScheme()).as(imageUrl).isEqualTo("https");
+            assertThat(imageUri.getHost()).as(imageUrl).isEqualTo("redbook-hang.oss-cn-shanghai.aliyuncs.com");
+            assertThat(imageUri.getPath()).as(imageUrl).startsWith("/fandazi/seed-food/");
+            assertThat(imageUri.getPath()).as(imageUrl).matches(".*\\.(?:jpg|jpeg|png)$");
         }
     }
 

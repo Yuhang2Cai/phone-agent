@@ -56,6 +56,23 @@ class AgentViewModelTest {
     }
 
     @Test
+    fun savedStateRestoresSheetConversationAndConfirmationInANewViewModel() = runTest {
+        val savedState = SavedStateHandle()
+        val repository = FakeAgentRepository(result = confirmationResult())
+        val first = AgentViewModel(repository, savedState, StandardTestDispatcher(testScheduler))
+        first.openAssistant()
+        first.toggleFullScreen()
+        first.sendText("帮我点清淡午餐")
+        advanceUntilIdle()
+
+        val restored = AgentViewModel(repository, savedState, StandardTestDispatcher(testScheduler))
+
+        assertEquals(AgentSheetMode.FULL, restored.uiState.value.sheetMode)
+        assertEquals("帮我点清淡午餐", restored.uiState.value.messages.first().text)
+        assertEquals("清粥小菜", restored.uiState.value.confirmation?.merchantName)
+    }
+
+    @Test
     fun asrResultRefillsComposerWithoutSending() {
         val repository = FakeAgentRepository()
         val viewModel = AgentViewModel(repository, SavedStateHandle())
@@ -93,8 +110,25 @@ class AgentViewModelTest {
         assertEquals("确认下单", repository.lastText)
 
         viewModel.cancelOrder()
+        advanceUntilIdle()
+        assertEquals("取消下单", repository.lastText)
         assertEquals(null, viewModel.uiState.value.confirmation)
-        assertTrue(viewModel.uiState.value.messages.last().text.contains("取消"))
+        assertTrue(viewModel.uiState.value.messages.any { it.fromUser && it.text.contains("取消") })
+    }
+
+    @Test
+    fun modifyCancelsExistingGatewayCandidateBeforeStartingReplacementRequest() = runTest {
+        val repository = FakeAgentRepository(result = confirmationResult())
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.sendText("帮我点午餐")
+        advanceUntilIdle()
+
+        viewModel.modifyOrder()
+        advanceUntilIdle()
+
+        assertEquals("取消下单", repository.lastText)
+        assertEquals(null, viewModel.uiState.value.confirmation)
+        assertEquals("请修改订单：", viewModel.uiState.value.composerText)
     }
 
     @Test
@@ -205,9 +239,25 @@ class AgentViewModelTest {
         viewModel.sendText("重试")
         advanceUntilIdle()
 
-        assertEquals(AgentError.Server("服务暂不可用"), viewModel.uiState.value.error)
+        assertEquals(AgentError.Server("这次没有完成，请调整需求后重试"), viewModel.uiState.value.error)
         assertEquals(null, viewModel.uiState.value.confirmation)
         assertEquals(null, viewModel.uiState.value.candidateCart)
+    }
+
+    @Test
+    fun completedConfirmExposesCreatedOrderOnceForPaymentNavigation() = runTest {
+        val createdCart = (confirmationResult().value.candidateCart ?: error("cart")).copy(orderId = 42L)
+        val repository = FakeAgentRepository(result = ApiResult.Success(
+            AgentMessageResult(AgentStatus.COMPLETED, "订单已创建，请继续支付。", "payment_followup", createdCart, emptyList())
+        ))
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+
+        viewModel.sendText("确认下单")
+        advanceUntilIdle()
+        assertEquals(42L, viewModel.uiState.value.createdOrderId)
+
+        viewModel.consumeCreatedOrder()
+        assertEquals(null, viewModel.uiState.value.createdOrderId)
     }
 
     @Test
@@ -220,7 +270,7 @@ class AgentViewModelTest {
         val unavailable = AgentViewModel(FakeAgentRepository(result = ApiResult.Failure(ApiError.Http(503, "Agent unavailable"))), SavedStateHandle(), StandardTestDispatcher(testScheduler))
         unavailable.sendText("午餐")
         advanceUntilIdle()
-        assertEquals(AgentError.Server("Agent unavailable"), unavailable.uiState.value.error)
+        assertEquals(AgentError.Server("这次没有完成，请调整需求后重试"), unavailable.uiState.value.error)
     }
 
     private fun confirmationResult(): ApiResult.Success<AgentMessageResult> = ApiResult.Success(

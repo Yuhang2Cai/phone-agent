@@ -36,6 +36,14 @@ class AgentGatewayTest {
     @MockBean private AgentServiceClient agentService;
 
     @Test
+    void allowsGuestsToBrowseMerchantsButKeepsAgentEndpointsProtected() throws Exception {
+        mockMvc.perform(get("/api/merchants?keyword=清淡"))
+                .andExpect(status().isOk());
+        mockMvc.perform(get("/api/agent/sessions/guest/events"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
     void persistsAgentTraceAndDoesNotAllowAnotherUserToReuseItsSession() {
         UserEntity alice = users.save(new UserEntity("agent-alice", "agent-alice@example.com", "hash"));
         UserEntity bob = users.save(new UserEntity("agent-bob", "agent-bob@example.com", "hash"));

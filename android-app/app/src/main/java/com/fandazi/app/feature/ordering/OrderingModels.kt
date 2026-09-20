@@ -9,7 +9,8 @@ data class Merchant(
     val minimumOrder: BigDecimal,
     val deliveryFee: BigDecimal,
     val deliveryMinutes: Int,
-    val open: Boolean
+    val open: Boolean,
+    val imageUrl: String? = null
 )
 
 data class Dish(
@@ -85,5 +86,7 @@ data class Order(
     val discount: BigDecimal,
     val total: BigDecimal,
     val items: List<CartLine>,
-    val timeline: List<OrderStatus>
+    val timeline: List<OrderStatus>,
+    val merchantName: String? = null,
+    val createdAt: String? = null
 )

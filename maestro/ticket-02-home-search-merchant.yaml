@@ -2,13 +2,26 @@ appId: com.fandazi.app
 ---
 - launchApp:
     clearState: true
-- tapOn: "先看看，不登录"
-- assertVisible: "首页"
-- tapOn: "搜索商家或菜品"
-- assertVisible: "搜索"
-- tapOn: "搜索商家或口味"
-- inputText: "清淡"
-- tapOn: "搜索"
-- assertVisible: "清粥小菜"
-- tapOn: "清粥小菜"
-- assertVisible: "南瓜小米粥"
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- assertVisible:
+    id: "com.fandazi.app:id/homeFragment"
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- assertVisible:
+    id: "com.fandazi.app:id/search_button"
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "粥"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/merchant_card"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/merchant_card"
+- assertVisible:
+    id: "com.fandazi.app:id/dish_card"

@@ -9,6 +9,9 @@ import com.fandazi.app.feature.agent.AgentRepository
 import com.fandazi.app.feature.agent.HttpAgentRepository
 import com.fandazi.app.feature.ordering.HttpOrderingRepository
 import com.fandazi.app.feature.ordering.OrderingRepository
+import com.fandazi.app.feature.ordering.PreferencesCartStateStore
+import com.fandazi.app.feature.profile.AutomationSettingsRepository
+import com.fandazi.app.feature.profile.HttpAutomationSettingsRepository
 
 class FandaziApplication : Application() {
     lateinit var apiClient: ApiClient
@@ -19,6 +22,10 @@ class FandaziApplication : Application() {
         private set
     lateinit var orderingRepository: OrderingRepository
         private set
+    lateinit var cartStateStore: PreferencesCartStateStore
+        private set
+    lateinit var automationSettingsRepository: AutomationSettingsRepository
+        private set
 
     override fun onCreate() {
         super.onCreate()
@@ -28,6 +35,8 @@ class FandaziApplication : Application() {
         )
         sessionRepository = SessionRepository(ApiAuthGateway(apiClient), EncryptedSessionStorage(this))
         orderingRepository = HttpOrderingRepository(apiClient)
+        cartStateStore = PreferencesCartStateStore(this)
+        automationSettingsRepository = HttpAutomationSettingsRepository(apiClient)
         agentRepository = HttpAgentRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenProvider = { sessionRepository.tokenOrNull() }

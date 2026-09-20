@@ -2,37 +2,212 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/agent_sheet_background"
     android:orientation="vertical"
-    android:background="@color/surface_background"
-    android:padding="16dp">
+    android:paddingHorizontal="16dp">
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
-        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/agent_title" android:textAppearance="@style/TextAppearance.Material3.TitleLarge" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/expand_agent_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_full_screen" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/close_agent_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_close" />
+    <View
+        android:layout_width="46dp"
+        android:layout_height="5dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/agent_drag_handle" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:minHeight="72dp"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="饭搭子 AI"
+                android:textColor="@color/brand_ink"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="你的点餐搭子"
+                android:textColor="@color/brand_muted"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/expand_agent_button"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="切换全屏"
+            android:gravity="center"
+            android:text="⌃"
+            android:textColor="@color/ai_purple"
+            android:textSize="24sp" />
+
+        <TextView
+            android:id="@+id/close_agent_button"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="关闭 AI 助手"
+            android:gravity="center"
+            android:text="×"
+            android:textColor="@color/brand_ink"
+            android:textSize="30sp" />
     </LinearLayout>
 
-    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true" android:scrollbars="none">
-        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal">
-            <com.google.android.material.button.MaterialButton android:id="@+id/quick_light_meal" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/quick_light_meal" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/quick_repeat_order" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/quick_repeat_order" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/quick_track_order" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/quick_track_order" />
-        </LinearLayout>
-    </HorizontalScrollView>
+    <ScrollView
+        android:id="@+id/agent_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="12dp">
 
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-            <TextView android:id="@+id/agent_error_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@android:color/holo_red_dark" android:visibility="gone" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/agent_retry_button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_retry" android:visibility="gone" />
-            <LinearLayout android:id="@+id/agent_messages" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
-            <LinearLayout android:id="@+id/agent_events" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
-            <LinearLayout android:id="@+id/agent_confirmation_container" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/agent_intro"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="48dp"
+                android:background="@drawable/agent_bot_bubble"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="13dp"
+                android:text="✨  今天想吃点什么？我可以帮你选一份"
+                android:textColor="@color/brand_ink"
+                android:textSize="16sp" />
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/quick_light_meal"
+                        style="@style/AgentQuickChip"
+                        android:text="🌿  清淡午餐" />
+
+                    <TextView
+                        android:id="@+id/quick_repeat_order"
+                        style="@style/AgentQuickChip"
+                        android:text="¥  30 元以内" />
+
+                    <TextView
+                        android:id="@+id/quick_track_order"
+                        style="@style/AgentQuickChip"
+                        android:text="🌶  少油少辣" />
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <TextView
+                android:id="@+id/agent_error_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/agent_error_background"
+                android:padding="12dp"
+                android:textColor="@color/warning_red"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/agent_retry_button"
+                android:layout_width="wrap_content"
+                android:layout_height="44dp"
+                android:gravity="center"
+                android:paddingHorizontal="16dp"
+                android:text="重试"
+                android:textColor="@color/brand_orange"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/agent_messages"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <LinearLayout
+                android:id="@+id/agent_events"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+            <LinearLayout
+                android:id="@+id/agent_confirmation_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
         </LinearLayout>
     </ScrollView>
 
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
-        <com.google.android.material.button.MaterialButton android:id="@+id/agent_mic_button" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_mic" />
-        <com.google.android.material.textfield.TextInputEditText android:id="@+id/agent_composer" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:hint="@string/agent_input_hint" android:inputType="textMultiLine" android:maxLines="3" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/agent_send_button" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/agent_send" />
+    <TextView
+        android:id="@+id/agent_recording_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingVertical="6dp"
+        android:textColor="@color/ai_purple"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/agent_mic_button"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/agent_mic_background"
+            android:contentDescription="语音输入"
+            android:gravity="center"
+            android:text="🎙"
+            android:textSize="22sp" />
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/agent_composer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/agent_composer_background"
+            android:hint="有什么想吃的？尽管告诉我…"
+            android:inputType="textMultiLine"
+            android:maxLines="2"
+            android:minHeight="52dp"
+            android:paddingHorizontal="16dp"
+            android:paddingVertical="10dp"
+            android:textColor="@color/brand_ink"
+            android:textColorHint="@color/brand_weak" />
+
+        <TextView
+            android:id="@+id/agent_send_button"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/search_button_background"
+            android:contentDescription="发送消息"
+            android:gravity="center"
+            android:text="➤"
+            android:textColor="@color/surface_card"
+            android:textSize="23sp" />
     </LinearLayout>
 </LinearLayout>

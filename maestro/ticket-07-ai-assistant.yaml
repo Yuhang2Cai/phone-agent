@@ -2,7 +2,113 @@ appId: com.fandazi.app
 ---
 - launchApp:
     clearState: true
-- tapOn: "先看看，不登录"
-- tapOn: "想吃什么，告诉我"
-- assertVisible: "AI助手"
-- assertVisible: "说说想吃什么"
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "maestro_ui_04"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "password123"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_header_search"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/agent_fab"
+- assertVisible: "饭搭子 AI"
+- assertVisible: "你的点餐搭子"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_intro"
+- assertVisible:
+    id: "com.fandazi.app:id/quick_light_meal"
+- assertVisible:
+    id: "com.fandazi.app:id/quick_repeat_order"
+- assertVisible:
+    id: "com.fandazi.app:id/quick_track_order"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_composer"
+- takeScreenshot: "ticket-07-agent-half"
+- tapOn:
+    id: "com.fandazi.app:id/close_agent_button"
+- assertVisible:
+    id: "com.fandazi.app:id/home_merchant_one"
+- tapOn:
+    id: "com.fandazi.app:id/agent_fab"
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/home_merchant_one"
+- tapOn:
+    id: "com.fandazi.app:id/agent_fab"
+- tapOn:
+    id: "com.fandazi.app:id/expand_agent_button"
+- assertVisible: "收起为半屏"
+- waitForAnimationToEnd
+- takeScreenshot: "ticket-07-agent-full"
+- pressKey: BACK
+- assertVisible: "展开为全屏"
+- tapOn:
+    id: "com.fandazi.app:id/expand_agent_button"
+- tapOn:
+    id: "com.fandazi.app:id/agent_composer"
+- inputText: "帮我点饭搭子盖饭社的招牌辣椒鸡盖饭 1，30元以内"
+- tapOn:
+    id: "com.fandazi.app:id/agent_send_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/confirm_order_button"
+    timeout: 30000
+- assertVisible: "饭搭子盖饭社"
+- assertVisible:
+    id: "com.fandazi.app:id/confirm_items"
+- assertVisible:
+    id: "com.fandazi.app:id/confirm_address"
+- takeScreenshot: "ticket-07-agent-confirmation"
+- tapOn:
+    id: "com.fandazi.app:id/modify_order_button"
+- extendedWaitUntil:
+    notVisible:
+      id: "com.fandazi.app:id/confirm_order_button"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/agent_composer"
+- eraseText
+- inputText: "帮我点饭搭子盖饭社的招牌辣椒鸡盖饭 1，30元以内"
+- tapOn:
+    id: "com.fandazi.app:id/agent_send_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/cancel_order_button"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/cancel_order_button"
+- extendedWaitUntil:
+    notVisible:
+      id: "com.fandazi.app:id/confirm_order_button"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/agent_composer"
+- inputText: "帮我点饭搭子盖饭社的招牌辣椒鸡盖饭 1，30元以内"
+- tapOn:
+    id: "com.fandazi.app:id/agent_send_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/confirm_order_button"
+    timeout: 30000
+- setOrientation: LANDSCAPE_LEFT
+- assertVisible:
+    id: "com.fandazi.app:id/cancel_order_button"
+- setOrientation: PORTRAIT
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/confirm_order_button"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/confirm_order_button"
+- extendedWaitUntil:
+    visible: "订单支付"
+    timeout: 30000
+- assertVisible:
+    id: "com.fandazi.app:id/payment_notice"
+- takeScreenshot: "ticket-07-agent-payment-handoff"

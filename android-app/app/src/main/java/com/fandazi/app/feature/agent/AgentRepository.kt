@@ -203,7 +203,9 @@ class HttpAgentRepository(
             addressId = addressId,
             authorizationMode = string("authorizationMode")?.let { value ->
                 runCatching { AgentMode.valueOf(value) }.getOrNull()
-            }
+            },
+            orderId = string("orderId")?.toLongOrNull()
+                ?: get("orderId")?.takeUnless { it.isJsonNull }?.asLong
         )
     }
 

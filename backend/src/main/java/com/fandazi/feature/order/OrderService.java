@@ -39,8 +39,9 @@ public class OrderService {
         }
 
         var address = addresses.owned(userId, command.addressId());
+        var merchantName = carts.owned(userId, command.cartDraftId()).getMerchant().getName();
         var quote = carts.reserveAndQuote(userId, command.cartDraftId());
-        var order = new OrderEntity(user, command.idempotencyKey(), fingerprint,
+        var order = new OrderEntity(user, command.idempotencyKey(), fingerprint, merchantName,
                 address.getRecipient(), address.getPhone(), address.getDetail(),
                 quote.subtotal(), quote.deliveryFee(), quote.discount(), quote.total());
         for (var line : quote.lines()) {
@@ -86,7 +87,7 @@ public class OrderService {
     }
 
     public OrderEntity locked(Long userId, Long id) {
-        return orders.findByIdAndUserIdForUpdate(userId, id).orElseThrow(() -> new DomainException("订单不存在"));
+        return orders.findByIdAndUserIdForUpdate(id, userId).orElseThrow(() -> new DomainException("订单不存在"));
     }
 
     @Transactional

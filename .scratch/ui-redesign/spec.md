@@ -149,5 +149,5 @@ AI 助手作为第二条完整用户流程接入同一业务闭环：
 
 - 现有 HTML 原型是历史/实验产物，不参与 Android UI 的视觉还原和验收；Android 实现直接依据 `ui-redesign.md` 及其引用的设计稿。若原型与设计稿冲突，忽略原型。
 - 新实施计划应从 Android UI 重构开始，不沿用旧的全栈初始化顺序。
-- 当前执行任务已重新发布到 `.scratch/ui-redesign-v2/issues/`，共 8 个依赖顺序明确的垂直 tickets；旧 `.scratch/ui-redesign/issues/` 仅保留历史版本。所有 Android UI ticket 都必须以 `ui-redesign.md` 的确认图片为唯一视觉基准。
+- 当前执行任务已重新发布到 `.scratch/ui-redesign/issues/`，共 8 个按视觉重建范围与 blocking edges 划分的 Android Tickets；`.scratch/ui-redesign-v2/issues/` 为已废弃的过渡草案。所有 Android UI Ticket 都必须以 `ui-redesign.md` 的确认图片为唯一视觉基准。
 - 文档讨论记录 Q1–Q30 已保存于 `.scratch/ui-redesign/grilling/round-01.md`；达到 Q60 后继续保存下一轮记录。

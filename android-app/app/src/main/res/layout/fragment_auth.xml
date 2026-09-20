@@ -1,25 +1,298 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="@drawable/auth_screen_background">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
-        <com.google.android.material.button.MaterialButton android:id="@+id/skip_login_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="end" android:text="@string/skip_login" android:textColor="@color/brand_ink" />
-        <TextView android:id="@+id/brand_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:gravity="center" android:text="饭搭子 AI" android:textColor="@color/brand_ink" android:textSize="42sp" android:textStyle="bold" />
-        <TextView android:id="@+id/auth_tagline" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="好好吃饭，就是好生活" android:textColor="@color/brand_orange" android:textSize="20sp" />
-        <ImageView android:id="@+id/brand_mark" android:layout_width="128dp" android:layout_height="128dp" android:layout_gravity="center" android:layout_marginTop="18dp" android:contentDescription="@string/app_name" android:src="@drawable/brand_mark" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/auth_prompt_background" android:gravity="center" android:orientation="vertical" android:padding="20dp">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/auth_title" android:textColor="@color/brand_ink" android:textSize="25sp" android:textStyle="bold" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:text="美味不只是填饱肚子，还有更好的自己" android:textColor="@color/brand_muted" android:textSize="16sp" />
-        </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:background="@drawable/auth_card_background" android:orientation="vertical" android:padding="20dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:orientation="horizontal">
-                <com.google.android.material.button.MaterialButton android:id="@+id/login_mode_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/login" android:textColor="@color/brand_orange" android:textSize="22sp" android:textStyle="bold" />
-                <View android:layout_width="1dp" android:layout_height="24dp" android:background="@color/brand_divider" />
-                <com.google.android.material.button.MaterialButton android:id="@+id/register_mode_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/register" android:textColor="@color/brand_muted" android:textSize="22sp" />
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/auth_screen_background">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="190dp"
+        android:layout_gravity="bottom"
+        android:alpha="0.9"
+        android:contentDescription="@null"
+        android:scaleType="centerCrop"
+        android:src="@drawable/home_hero_food_v2" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="4dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="36dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/skip_login_button"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="42dp"
+                android:layout_gravity="end"
+                android:minWidth="0dp"
+                android:paddingStart="10dp"
+                android:paddingEnd="2dp"
+                android:text="跳过登录  ›"
+                android:textAllCaps="false"
+                android:textColor="@color/brand_muted"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/brand_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="饭搭子 AI"
+                android:textColor="@color/home_ink"
+                android:textSize="39sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/auth_tagline"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-3dp"
+                android:gravity="center"
+                android:text="好好吃饭  就是好生活"
+                android:textColor="@color/brand_orange"
+                android:textSize="17sp" />
+
+            <ImageView
+                android:id="@+id/brand_mark"
+                android:layout_width="116dp"
+                android:layout_height="116dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/auth_mascot_glow"
+                android:contentDescription="@string/app_name"
+                android:padding="16dp"
+                android:src="@drawable/brand_mascot_rounded" />
+
+            <LinearLayout
+                android:layout_width="320dp"
+                android:layout_height="76dp"
+                android:layout_marginTop="-7dp"
+                android:background="@drawable/auth_prompt_background"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:paddingStart="14dp"
+                android:paddingEnd="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auth_title"
+                    android:textColor="#171254"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:text="美味不只是填饱肚子，还有更好的自己"
+                    android:textColor="#68658A"
+                    android:textSize="13sp" />
             </LinearLayout>
-            <com.google.android.material.textfield.TextInputLayout android:id="@+id/username_layout" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="@string/username"><com.google.android.material.textfield.TextInputEditText android:id="@+id/username_input" android:layout_width="match_parent" android:layout_height="wrap_content" android:autofillHints="username" android:inputType="text" /></com.google.android.material.textfield.TextInputLayout>
-            <com.google.android.material.textfield.TextInputLayout android:id="@+id/email_layout" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="@string/email" android:visibility="gone"><com.google.android.material.textfield.TextInputEditText android:id="@+id/email_input" android:layout_width="match_parent" android:layout_height="wrap_content" android:autofillHints="emailAddress" android:inputType="textEmailAddress" /></com.google.android.material.textfield.TextInputLayout>
-            <com.google.android.material.textfield.TextInputLayout android:id="@+id/password_layout" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:hint="@string/password"><com.google.android.material.textfield.TextInputEditText android:id="@+id/password_input" android:layout_width="match_parent" android:layout_height="wrap_content" android:autofillHints="password" android:inputType="textPassword" /></com.google.android.material.textfield.TextInputLayout>
-            <com.google.android.material.button.MaterialButton android:id="@+id/submit_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:backgroundTint="@color/brand_orange" android:text="@string/login" android:textColor="@android:color/white" android:textSize="20sp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:gravity="center" android:text="@string/auth_login_hint" android:textColor="@color/brand_muted" android:textSize="15sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:background="@drawable/auth_card_background"
+                android:elevation="3dp"
+                android:orientation="vertical"
+                android:paddingStart="18dp"
+                android:paddingTop="10dp"
+                android:paddingEnd="18dp"
+                android:paddingBottom="18dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="54dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/login_mode_button"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:minHeight="0dp"
+                            android:text="@string/login"
+                            android:textAllCaps="false"
+                            android:textColor="@color/brand_orange"
+                            android:textSize="19sp"
+                            android:textStyle="bold" />
+
+                        <View
+                            android:id="@+id/login_indicator"
+                            android:layout_width="48dp"
+                            android:layout_height="3dp"
+                            android:background="@color/brand_orange" />
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="24dp"
+                        android:background="@color/brand_divider" />
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/register_mode_button"
+                            style="@style/Widget.Material3.Button.TextButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="44dp"
+                            android:minHeight="0dp"
+                            android:text="@string/register"
+                            android:textAllCaps="false"
+                            android:textColor="@color/brand_muted"
+                            android:textSize="19sp" />
+
+                        <View
+                            android:id="@+id/register_indicator"
+                            android:layout_width="48dp"
+                            android:layout_height="3dp"
+                            android:background="@color/brand_orange"
+                            android:visibility="invisible" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/username_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:hint="@string/username"
+                    app:boxBackgroundColor="#F7F7F8"
+                    app:boxBackgroundMode="filled"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp"
+                    app:startIconDrawable="@drawable/ic_tab_profile">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/username_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:autofillHints="username"
+                        android:inputType="text"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/email_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/email"
+                    android:visibility="gone"
+                    app:boxBackgroundColor="#F7F7F8"
+                    app:boxBackgroundMode="filled"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/email_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:autofillHints="emailAddress"
+                        android:inputType="textEmailAddress"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/password_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:hint="@string/password"
+                    app:boxBackgroundColor="#F7F7F8"
+                    app:boxBackgroundMode="filled"
+                    app:boxCornerRadiusBottomEnd="14dp"
+                    app:boxCornerRadiusBottomStart="14dp"
+                    app:boxCornerRadiusTopEnd="14dp"
+                    app:boxCornerRadiusTopStart="14dp"
+                    app:boxStrokeWidth="0dp"
+                    app:boxStrokeWidthFocused="0dp"
+                    app:endIconMode="password_toggle">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/password_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="54dp"
+                        android:autofillHints="password"
+                        android:inputType="textPassword"
+                        android:textSize="16sp" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:gravity="end"
+                    android:text="忘记密码？"
+                    android:textColor="@color/brand_muted"
+                    android:textSize="13sp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/submit_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="13dp"
+                    android:backgroundTint="@color/brand_orange"
+                    android:text="@string/login"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white"
+                    android:textSize="19sp"
+                    android:textStyle="bold"
+                    app:cornerRadius="28dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:gravity="center"
+                    android:text="注册新账号"
+                    android:textColor="@color/brand_orange"
+                    android:textSize="15sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:gravity="center"
+                    android:text="@string/auth_login_hint"
+                    android:textColor="@color/brand_muted"
+                    android:textSize="12sp" />
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
-</ScrollView>
+    </ScrollView>
+</FrameLayout>

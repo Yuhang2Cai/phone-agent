@@ -2,6 +2,11 @@ appId: com.fandazi.app
 ---
 - launchApp:
     clearState: true
-- tapOn: "先看看，不登录"
-- tapOn: "搜索商家或菜品"
-- assertVisible: "搜索"
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- assertVisible:
+    id: "com.fandazi.app:id/search_button"

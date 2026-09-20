@@ -1,17 +1,138 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/agent_confirmation_card" android:orientation="vertical" android:padding="16dp">
-    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/agent_confirmation_title" android:textAppearance="@style/TextAppearance.Material3.TitleMedium" />
-    <TextView android:id="@+id/confirm_merchant" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textAppearance="@style/TextAppearance.Material3.TitleSmall" />
-    <TextView android:id="@+id/confirm_items" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" />
-    <TextView android:id="@+id/confirm_address" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" />
-    <TextView android:id="@+id/confirm_fees" android:layout_width="match_parent" android:layout_height="wrap_content" />
-    <TextView android:id="@+id/confirm_mode" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" />
-    <TextView android:id="@+id/confirm_limit" android:layout_width="match_parent" android:layout_height="wrap_content" />
-    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/confirm_auto_authorization" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/agent_auto_choice" />
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-        <com.google.android.material.button.MaterialButton android:id="@+id/cancel_order_button" style="@style/Widget.Material3.Button.OutlinedButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/agent_cancel" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/modify_order_button" style="@style/Widget.Material3.Button.TextButton" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/agent_modify" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/confirm_order_button" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/agent_confirm" />
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="14dp"
+    android:background="@drawable/agent_confirmation_card"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/confirm_image"
+            android:layout_width="96dp"
+            android:layout_height="86dp"
+            android:contentDescription="候选菜品图片"
+            android:scaleType="centerCrop"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/confirm_merchant"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/brand_ink"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/confirm_items"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textColor="@color/brand_ink"
+                android:textSize="14sp" />
+
+            <TextView
+                android:id="@+id/confirm_tags"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/agent_tag_background"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="3dp"
+                android:textColor="@color/success_green"
+                android:textSize="11sp"
+                android:visibility="gone" />
+        </LinearLayout>
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/confirm_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/dish_option_unselected"
+        android:padding="11dp"
+        android:textColor="@color/brand_ink"
+        android:textSize="13sp" />
+
+    <TextView
+        android:id="@+id/confirm_fees"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/brand_muted"
+        android:textSize="12sp" />
+
+    <TextView android:id="@+id/confirm_mode" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" />
+    <TextView android:id="@+id/confirm_limit" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" />
+    <com.google.android.material.materialswitch.MaterialSwitch android:id="@+id/confirm_auto_authorization" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="54dp"
+        android:layout_marginTop="8dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="合计"
+            android:textColor="@color/brand_ink"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/confirm_total"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="14dp"
+            android:textColor="@color/brand_orange"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/modify_order_button"
+            android:layout_width="86dp"
+            android:layout_height="46dp"
+            android:background="@drawable/agent_modify_button"
+            android:gravity="center"
+            android:text="修改"
+            android:textColor="@color/brand_orange"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/confirm_order_button"
+            android:layout_width="112dp"
+            android:layout_height="46dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/search_button_background"
+            android:gravity="center"
+            android:text="确认下单"
+            android:textColor="@color/surface_card"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/cancel_order_button"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:paddingHorizontal="16dp"
+        android:text="取消本次推荐"
+        android:textColor="@color/brand_muted"
+        android:textSize="12sp" />
 </LinearLayout>

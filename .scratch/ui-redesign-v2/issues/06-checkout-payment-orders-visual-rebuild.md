@@ -4,15 +4,15 @@
 
 **Blocked by:** 05: 菜品规格与单商家购物车视觉重建
 
-**Status:** in-review
+**Status:** complete
 
-**Maestro:** passed on emulator-5554 for the orders/payment entry surface with the latest debug APK via `maestro/ticket-06-payment-orders-visual.yaml`.
+**Maestro:** passed on emulator-5554 with a fresh install of the latest debug APK via `maestro/ticket-06-payment-orders-visual.yaml`. Evidence: `C:\Users\caid0\.maestro\tests\2026-09-16_000848`.
 
-- [ ] 结算页完全按购物车与结算 C 图片重建，清楚展示地址、商品、配送费、优惠和总金额。
-- [ ] 创建订单前重新校验有效地址、价格和库存；创建后状态必须为待支付。
-- [ ] 模拟支付页完全按模拟支付 C 图片重建，并明确标注模拟支付。
-- [ ] 返回或取消支付回到结算页，购物车、地址和费用明细保留。
-- [ ] 支付失败展示中文原因，可重新支付原订单，不创建重复订单。
-- [ ] 订单列表与详情完全按订单列表与配送时间线 C 图片重建，展示中文状态和时间线。
-- [ ] 订单 Tab 支持全部、待支付、配送中和已完成筛选。
-- [ ] 覆盖订单幂等、支付重试、返回栈和时间线测试，并运行普通点餐完整 Maestro 流程。
+- [x] 结算页完全按购物车与结算 C 图片重建，清楚展示地址、商品、配送费、优惠和总金额。
+- [x] 创建订单前重新校验有效地址、价格和库存；创建后状态必须为待支付。
+- [x] 模拟支付页完全按模拟支付 C 图片重建，并明确标注模拟支付。
+- [x] 返回或取消支付回到结算页，购物车、地址和费用明细保留。
+- [x] 支付失败展示中文原因，可重新支付原订单，不创建重复订单。
+- [x] 订单列表与详情完全按订单列表与配送时间线 C 图片重建，展示中文状态和时间线。
+- [x] 订单 Tab 支持全部、待支付、配送中和已完成筛选。
+- [x] 覆盖订单幂等、支付重试、返回栈和时间线测试，并运行普通点餐完整 Maestro 流程。

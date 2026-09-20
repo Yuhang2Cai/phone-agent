@@ -2,10 +2,65 @@ appId: com.fandazi.app
 ---
 - launchApp:
     clearState: true
-- tapOn: "先看看，不登录"
-- assertVisible: "今天吃什么？"
-- tapOn: "想吃什么，告诉我"
-- assertVisible: "AI助手"
-- tapOn: "关闭"
-- tapOn: "订单"
-- assertVisible: "订单"
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "maestro_ui_04"
+- setOrientation: LANDSCAPE_LEFT
+- assertVisible: "maestro_ui_04"
+- setOrientation: PORTRAIT
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "password123"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_header_search"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "粥"
+- setOrientation: LANDSCAPE_LEFT
+- assertVisible: "粥"
+- setOrientation: PORTRAIT
+- pressKey: BACK
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/agent_fab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_composer"
+- inputText: "恢复测试：不要香菜"
+- setOrientation: LANDSCAPE_LEFT
+- assertVisible: "恢复测试：不要香菜"
+- setOrientation: PORTRAIT
+- tapOn:
+    id: "com.fandazi.app:id/close_agent_button"
+- tapOn:
+    id: "com.fandazi.app:id/merchantFragment"
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/homeFragment"
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- tapOn:
+    id: "com.fandazi.app:id/homeFragment"
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_header_search"
+    timeout: 10000
+- takeScreenshot: "ticket-08-recovery-smoke"

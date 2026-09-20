@@ -13,6 +13,7 @@ from fandazi_agent.config import Settings
 from fandazi_agent.main import create_app
 from fandazi_agent.models import AgentRunRequest, ToolResult
 from fandazi_agent.spring_client import SpringBootToolClient
+from fandazi_agent.state import AgentState
 from fandazi_agent.tools import langchain_tool_descriptions
 
 
@@ -32,6 +33,40 @@ def request(text: str, *, mode: str = "recommend", session_id: str = "s-1") -> A
     return AgentRunRequest(
         userId="u-1", sessionId=session_id, text=text, mode=mode, traceId="trace-1"
     )
+
+
+def test_cart_draft_payload_selects_only_one_explicitly_named_merchant():
+    state = AgentState(
+        user_id="u-1",
+        session_id="s-1",
+        workflow_id="w-1",
+        candidate_cart={
+            "merchants": [
+                {"id": "m-1", "name": "饭搭子盖饭社"},
+                {"id": "m-2", "name": "暖胃粥铺"},
+            ]
+        },
+    )
+
+    payload = FoodOrderingAgent._cart_draft_payload(state, request("帮我点饭搭子盖饭社的招牌盖饭", mode="order"))
+
+    assert payload["merchantId"] == "m-1"
+
+
+@pytest.mark.parametrize(
+    "merchants,text",
+    [
+        ([{"id": "m-1", "name": "饭搭子盖饭社"}, {"id": "m-2", "name": "暖胃粥铺"}], "帮我点一份午餐"),
+        ([{"id": "m-1", "name": "同名店"}, {"id": "m-2", "name": "同名店"}], "帮我点同名店"),
+        ([{"id": "m-1", "name": ""}], "帮我点一份午餐"),
+    ],
+)
+def test_cart_draft_payload_keeps_ambiguous_or_missing_merchant_unselected(merchants, text):
+    state = AgentState(user_id="u-1", session_id="s-1", workflow_id="w-1", candidate_cart={"merchants": merchants})
+
+    payload = FoodOrderingAgent._cart_draft_payload(state, request(text, mode="order"))
+
+    assert "merchantId" not in payload
 
 
 def test_recommendation_searches_candidates_and_returns_structured_result():

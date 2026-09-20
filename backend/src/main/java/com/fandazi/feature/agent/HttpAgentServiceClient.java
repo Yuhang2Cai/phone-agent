@@ -8,13 +8,21 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 class HttpAgentServiceClient implements AgentServiceClient {
+    private static final Logger log = LoggerFactory.getLogger(HttpAgentServiceClient.class);
     private final RestClient client;
+    private final String baseUrl;
+    private final String internalToken;
 
     HttpAgentServiceClient(@Value("${agent.service.base-url:http://127.0.0.1:8090}") String baseUrl,
+                           @Value("${agent.internal-token:}") String internalToken,
                            @Value("${agent.service.timeout-millis:5000}") long timeoutMillis) {
+        this.baseUrl = baseUrl;
+        this.internalToken = internalToken;
         this.client = RestClient.builder().baseUrl(baseUrl)
                 .requestFactory(new org.springframework.http.client.SimpleClientHttpRequestFactory() {{
                     setConnectTimeout(Duration.ofMillis(timeoutMillis)); setReadTimeout(Duration.ofMillis(timeoutMillis));
@@ -23,14 +31,20 @@ class HttpAgentServiceClient implements AgentServiceClient {
 
     @Override public AgentResult run(AgentRunRequest request) {
         try {
-            Map<?, ?> response = client.post().uri("/internal/agent/run").contentType(MediaType.APPLICATION_JSON)
+            log.info("agent request start: baseUrl={}, sessionId={}, mode={}", baseUrl, request.sessionId(), request.mode());
+            Map<?, ?> response = client.post().uri("/internal/agent/run")
+                    .header("X-Agent-Token", internalToken)
+                    .contentType(MediaType.APPLICATION_JSON)
                     .body(request).retrieve().body(Map.class);
             if (response == null) throw new AgentServiceUnavailableException("Agent 服务返回为空，请稍后重试");
+            log.info("agent request completed: sessionId={}, responseKeys={}", request.sessionId(), response.keySet());
             return result(response);
         } catch (AgentServiceUnavailableException exception) { throw exception;
         } catch (RestClientException exception) {
+            log.error("agent request transport failure: baseUrl={}, sessionId={}, type={}, message={}", baseUrl, request.sessionId(), exception.getClass().getSimpleName(), exception.getMessage());
             throw new AgentServiceUnavailableException("Agent 服务暂不可用，请稍后重试", exception);
         } catch (RuntimeException exception) {
+            log.error("agent response parse failure: sessionId={}, type={}, message={}", request.sessionId(), exception.getClass().getSimpleName(), exception.getMessage());
             throw new AgentServiceUnavailableException("Agent 服务返回格式无效，请稍后重试", exception);
         }
     }
@@ -44,7 +58,12 @@ class HttpAgentServiceClient implements AgentServiceClient {
         return new AgentResult(value, String.valueOf(orDefault(body, "message", "请求未完成。")), String.valueOf(orDefault(body, "next_action", "retry")), cart, events, error == null ? null : String.valueOf(error));
     }
     private AgentResult.Event event(Object value) { Map<String,Object> event=asMap(value); return new AgentResult.Event(String.valueOf(event.getOrDefault("kind", "info")),String.valueOf(event.getOrDefault("message", "Agent 事件")),string(event.get("tool_name")),string(event.getOrDefault("kind", "info")),asMap(event.get("data"))); }
-    @SuppressWarnings("unchecked") private Map<String,Object> asMap(Object value) { return value instanceof Map<?,?> raw ? raw.entrySet().stream().collect(java.util.stream.Collectors.toMap(e->String.valueOf(e.getKey()),Map.Entry::getValue,(a,b)->b,java.util.LinkedHashMap::new)) : Map.of(); }
+    private Map<String,Object> asMap(Object value) {
+        if (!(value instanceof Map<?,?> raw)) return Map.of();
+        Map<String,Object> result = new java.util.LinkedHashMap<>();
+        raw.forEach((key, item) -> result.put(String.valueOf(key), item));
+        return result;
+    }
     private List<?> asList(Object value) { return value instanceof List<?> list ? list : List.of(); }
     private String string(Object value) { return value == null ? null : String.valueOf(value); }
     private Object orDefault(Map<?, ?> value, String key, Object fallback) { Object found=value.get(key); return found == null ? fallback : found; }

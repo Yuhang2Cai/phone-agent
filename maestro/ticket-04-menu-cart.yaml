@@ -1,0 +1,39 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "粥"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/merchant_card"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/merchant_card"
+- assertVisible:
+    id: "com.fandazi.app:id/dish_card"
+- tapOn:
+    id: "com.fandazi.app:id/dish_add"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/add_to_cart"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/add_to_cart"
+- assertVisible:
+    id: "com.fandazi.app:id/cart_checkout"
+- tapOn:
+    id: "com.fandazi.app:id/cart_checkout"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/submit_button"
+    timeout: 10000

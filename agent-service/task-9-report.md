@@ -141,3 +141,10 @@ git diff --check
 ### 部署边界与剩余事项
 
 本轮要求均已实现并通过离线回归。文件存储需要保留的私有目录与稳定签名密钥；未配置存储时不会自动跨进程恢复。文件适配器支持同机进程重启，不提供多主机存储、分布式锁或断电保障；调用方须按 user/session 串行执行，多 worker 需配置相应串行化与存储适配器。真实 Spring Boot 的同键幂等结果、工具权限及库存等最终校验仍需服务联调验证，本轮未连接真实后端或 LLM，也未扩大 Spring Boot 任务范围。运行配置和行为说明已补入 `agent-service/README.md`。
+
+## 完整联调收尾（2026-09-20）
+
+- 修复 `SpringBootToolClient` 对仅含 `error`/`message` 字段的 4xx 响应解析。Agent 现在保留后端业务拒绝原因，不再只返回 `spring_tool_rejected: HTTP 400`。
+- 有效用户会话联调已验证：注册、创建默认地址、通过 Spring Boot Agent Gateway 发起订单、搜索商家、创建购物车、校验购物车并进入等待确认；随后发送“确认”成功创建 `PENDING_PAYMENT` 订单。
+- 无效 `sessionId` 联调已验证：Agent HTTP 入口返回结构化失败结果，并透传后端“会话不存在”。
+- Agent 全量回归：`147 passed, 2 warnings`；告警来自 LangGraph 序列化器和 Starlette/AnyIO 第三方依赖。`compileall` 与 `git diff --check` 均通过。

@@ -41,7 +41,7 @@ class HttpAgentRepositoryTest {
     fun sseReconnectsWithLastEventIdAfterDisconnectAndContinuesEvents() = runBlocking {
         server.enqueue(sse(1, "parsed", "已接收点餐请求"))
         server.enqueue(sse(2, "completed", "已生成购物车"))
-        val repository = HttpAgentRepository(server.url("/api/").toString(), { null }, reconnectDelayMillis = 1)
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { null }, reconnectDelayMillis = 50)
 
         val events = withTimeout(2_000) { repository.streamEvents("session-1", 0).take(2).toList() }
 
@@ -72,10 +72,26 @@ class HttpAgentRepositoryTest {
     }
 
     @Test
+    fun keepsCreatedOrderIdForPaymentHandoff() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody("""
+            {"status":"COMPLETED","message":"订单已创建，请继续支付。","nextAction":"payment_followup","candidateCart":{
+              "merchantName":"清粥小菜","items":[{"name":"南瓜小米粥","specification":"去香菜","price":12,"quantity":1}],
+              "address":"公司默认地址","addressId":9,"deliveryFee":3,"discount":0,"total":14,"maxAmount":30,
+              "authorizationMode":"CONFIRM","orderId":42
+            },"events":[]}
+        """.trimIndent()))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { null })
+
+        val result = repository.sendMessage("session-1", "确认下单", AgentMode.CONFIRM) as ApiResult.Success
+
+        assertEquals(42L, result.value.candidateCart?.orderId)
+    }
+
+    @Test
     fun retriesSseAfterInitialSessionNotFoundAndRetainsCursor() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(404).setBody("{\"error\":\"会话不存在\"}"))
         server.enqueue(sse(3, "parsed", "已接收点餐请求"))
-        val repository = HttpAgentRepository(server.url("/api/").toString(), { null }, reconnectDelayMillis = 1)
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { null }, reconnectDelayMillis = 50)
 
         val event = withTimeout(2_000) { repository.streamEvents("session-1", 2).take(1).toList().single() }
 

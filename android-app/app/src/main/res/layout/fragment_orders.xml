@@ -1,65 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/surface_background"
-    android:padding="24dp">
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/orders_page"
-        android:textColor="@color/brand_ink"
-        android:textSize="30sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/mock_payment_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/payment_page"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title" />
-
-    <TextView
-        android:id="@+id/order_status"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="@string/orders_empty"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/mock_payment_button" />
-
-    <ScrollView
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/order_status">
-
-        <LinearLayout
-            android:id="@+id/order_list"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical" />
-    </ScrollView>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/agent_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="24dp"
-        android:contentDescription="@string/agent_open"
-        android:src="@android:drawable/ic_dialog_info"
-        app:backgroundTint="#5D5CE2"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/home_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="68dp" android:gravity="center_vertical" android:paddingStart="18dp" android:paddingEnd="18dp">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="订单" android:textColor="@color/brand_ink" android:textSize="28sp" android:textStyle="bold" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="饭搭子AI" android:textColor="@color/brand_orange" android:textSize="16sp" android:textStyle="bold" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/order_filters" android:layout_width="match_parent" android:layout_height="54dp" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp">
+            <TextView android:id="@+id/filter_all" android:layout_width="0dp" android:layout_height="42dp" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/search_button_background" android:contentDescription="筛选全部订单" android:gravity="center" android:text="全部" android:textColor="#FFFFFF" android:textStyle="bold" />
+            <TextView android:id="@+id/filter_pending" android:layout_width="0dp" android:layout_height="42dp" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/dish_option_unselected" android:contentDescription="筛选待支付订单" android:gravity="center" android:text="待支付" android:textColor="@color/brand_ink" />
+            <TextView android:id="@+id/filter_delivering" android:layout_width="0dp" android:layout_height="42dp" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/dish_option_unselected" android:contentDescription="筛选配送中订单" android:gravity="center" android:text="配送中" android:textColor="@color/brand_ink" />
+            <TextView android:id="@+id/filter_completed" android:layout_width="0dp" android:layout_height="42dp" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/dish_option_unselected" android:contentDescription="筛选已完成订单" android:gravity="center" android:text="已完成" android:textColor="@color/brand_ink" />
+        </LinearLayout>
+        <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingBottom="88dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+                <TextView android:id="@+id/order_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:padding="16dp" android:textColor="@color/brand_muted" android:textSize="14sp" />
+                <LinearLayout android:id="@+id/order_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+    <FrameLayout android:id="@+id/agent_fab" android:layout_width="54dp" android:layout_height="54dp" android:layout_gravity="end|bottom" android:layout_marginEnd="16dp" android:layout_marginBottom="18dp" android:background="@drawable/home_floating_orb_background" android:clickable="true" android:contentDescription="打开 AI 助手" android:elevation="10dp" android:focusable="true">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="horizontal"><View android:layout_width="5dp" android:layout_height="14dp" android:layout_marginEnd="10dp" android:background="@drawable/home_floating_eye" /><View android:layout_width="5dp" android:layout_height="14dp" android:background="@drawable/home_floating_eye" /></LinearLayout>
+    </FrameLayout>
+</FrameLayout>

@@ -1,0 +1,61 @@
+{
+  "canonical_size": [412, 915],
+  "reference_frame": [0, 0, 941, 1672],
+  "actual_frame": [0, 0, 1080, 2400],
+  "masks": [
+    {"name": "status-bar", "x": 0, "y": 0, "w": 1, "h": 0.055},
+    {"name": "navigation-bar", "x": 0, "y": 0.955, "w": 1, "h": 0.045}
+  ],
+  "default_min_ssim": 0.85,
+  "default_max_diff_area": 0.08,
+  "regions": [
+    {
+      "name": "top-brand-address",
+      "reference_region": {"x": 0.03, "y": 0.025, "w": 0.94, "h": 0.095},
+      "actual_region": {"x": 0.03, "y": 0.025, "w": 0.94, "h": 0.095},
+      "min_ssim": 0.55,
+      "max_diff_area": 0.45
+    },
+    {
+      "name": "hero",
+      "reference_region": {"x": 0, "y": 0.105, "w": 1, "h": 0.205},
+      "actual_region": {"x": 0, "y": 0.095, "w": 1, "h": 0.205},
+      "min_ssim": 0.55,
+      "max_diff_area": 0.45
+    },
+    {
+      "name": "ai-card",
+      "reference_region": {"x": 0.03, "y": 0.306, "w": 0.94, "h": 0.148},
+      "actual_region": {"x": 0.03, "y": 0.337, "w": 0.94, "h": 0.148},
+      "min_ssim": 0.60,
+      "max_diff_area": 0.35
+    },
+    {
+      "name": "quick-suggestions",
+      "reference_region": {"x": 0.03, "y": 0.464, "w": 0.94, "h": 0.064},
+      "actual_region": {"x": 0.03, "y": 0.492, "w": 0.94, "h": 0.064},
+      "min_ssim": 0.55,
+      "max_diff_area": 0.40
+    },
+    {
+      "name": "nearby-merchants",
+      "reference_region": {"x": 0.03, "y": 0.542, "w": 0.94, "h": 0.35},
+      "actual_region": {"x": 0.03, "y": 0.572, "w": 0.94, "h": 0.35},
+      "min_ssim": 0.50,
+      "max_diff_area": 0.45
+    },
+    {
+      "name": "bottom-navigation",
+      "reference_region": {"x": 0, "y": 0.91, "w": 1, "h": 0.07},
+      "actual_region": {"x": 0, "y": 0.918, "w": 1, "h": 0.07},
+      "min_ssim": 0.55,
+      "max_diff_area": 0.35
+    }
+  ],
+  "required_controls": [
+    "com.fandazi.app:id/home_search_button",
+    "com.fandazi.app:id/home_notification",
+    "com.fandazi.app:id/agent_fab",
+    "com.fandazi.app:id/home_merchant_one"
+  ]
+}

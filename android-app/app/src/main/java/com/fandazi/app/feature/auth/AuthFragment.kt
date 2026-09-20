@@ -26,6 +26,7 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val viewBinding = FragmentAuthBinding.bind(view)
         binding = viewBinding
+        viewBinding.skipLoginButton.isVisible = arguments?.getBoolean("require_login") != true
         viewBinding.loginModeButton.setOnClickListener { viewModel.showLogin() }
         viewBinding.registerModeButton.setOnClickListener { viewModel.showRegister() }
         viewBinding.skipLoginButton.setOnClickListener {
@@ -81,6 +82,10 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         viewBinding.emailLayout.isVisible = state.isRegisterMode
         viewBinding.loginModeButton.isEnabled = state.isRegisterMode
         viewBinding.registerModeButton.isEnabled = !state.isRegisterMode
+        viewBinding.loginIndicator.isVisible = !state.isRegisterMode
+        viewBinding.registerIndicator.isVisible = state.isRegisterMode
+        viewBinding.loginModeButton.setTextColor(requireContext().getColor(if (state.isRegisterMode) R.color.brand_muted else R.color.brand_orange))
+        viewBinding.registerModeButton.setTextColor(requireContext().getColor(if (state.isRegisterMode) R.color.brand_orange else R.color.brand_muted))
         viewBinding.submitButton.isEnabled = !state.isSubmitting
         viewBinding.submitButton.text = getString(if (state.isRegisterMode) R.string.register else R.string.login)
         viewBinding.usernameLayout.error = state.usernameError

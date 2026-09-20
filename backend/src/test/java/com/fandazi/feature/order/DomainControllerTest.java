@@ -51,6 +51,18 @@ class DomainControllerTest {
     @Autowired OrderService orders;
 
     @Test
+    void guestCanSearchMerchantsByDishDescription() throws Exception {
+        MerchantEntity merchant = merchants.save(new MerchantEntity(
+                "清润测试店", "粥汤", new BigDecimal("10.00"), new BigDecimal("2.00"), 20, true));
+        dishes.save(new DishEntity(
+                merchant, "主食", "测试小米粥", "清淡、南瓜和小米", new BigDecimal("9.80"), 10, true, ""));
+
+        mockMvc.perform(get("/api/merchants?keyword=清淡"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].name").value("清润测试店"));
+    }
+
+    @Test
     void dishMenuResponseIncludesSelectableOptionsWithoutLeakingEntities() throws Exception {
         MerchantEntity merchant = merchants.save(new MerchantEntity(
                 "规格餐厅", "盖饭", new BigDecimal("10.00"), new BigDecimal("2.00"), 25, true));

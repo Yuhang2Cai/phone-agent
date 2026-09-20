@@ -96,7 +96,7 @@ class HttpOrderingRepository(
 
     private fun JsonObject.toMerchant() = Merchant(
         long("id"), string("name"), string("category"), decimal("minimumOrder"), decimal("deliveryFee"),
-        int("deliveryMinutes"), bool("open")
+        int("deliveryMinutes"), bool("open"), nullableString("imageUrl")
     )
 
     private fun JsonObject.toDish() = Dish(
@@ -125,7 +125,9 @@ class HttpOrderingRepository(
         long("id"), enumValue(string("status")), string("recipient"), string("phone"), string("detail"),
         decimal("subtotal"), decimal("deliveryFee"), decimal("discount"), decimal("total"),
         array("items").map { it.asJsonObject.toCartLine() },
-        array("timeline").map { enumValue(it.asString) }
+        array("timeline").map { enumValue(it.asString) },
+        nullableString("merchantName"),
+        nullableString("createdAt")
     )
 
     private fun JsonObject.toCartLine() = CartLine(

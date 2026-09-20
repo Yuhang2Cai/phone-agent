@@ -1,0 +1,41 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- assertVisible:
+    id: "com.fandazi.app:id/home_header_search"
+- assertVisible:
+    id: "com.fandazi.app:id/home_floating_assistant"
+- takeScreenshot: "ticket-08-large-font-home"
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- assertVisible:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/search_input"
+- assertVisible:
+    id: "com.fandazi.app:id/ai_suggestion"
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/agent_fab"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_intro"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_composer"
+- takeScreenshot: "ticket-08-large-font-agent"
+- tapOn:
+    id: "com.fandazi.app:id/close_agent_button"
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_address_entry"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_automation_entry"
+- takeScreenshot: "ticket-08-large-font-profile"

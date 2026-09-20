@@ -386,8 +386,14 @@ class FoodOrderingAgent:
             if key in state.candidate_cart:
                 payload[key] = state.candidate_cart[key]
         merchants = state.candidate_cart.get("merchants")
-        if "merchantId" not in payload and isinstance(merchants, list) and len(merchants) == 1 and isinstance(merchants[0], dict):
-            merchant_id = merchants[0].get("id")
+        if "merchantId" not in payload and isinstance(merchants, list):
+            available = [merchant for merchant in merchants if isinstance(merchant, dict) and merchant.get("id") is not None]
+            named = [
+                merchant for merchant in available
+                if (name := str(merchant.get("name", "")).strip()) and name in request.text
+            ]
+            selected = named[0] if len(named) == 1 else None
+            merchant_id = selected.get("id") if selected is not None else None
             if merchant_id is not None:
                 payload["merchantId"] = merchant_id
         return payload

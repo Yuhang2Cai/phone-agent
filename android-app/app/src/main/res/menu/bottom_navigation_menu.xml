@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/homeFragment" android:icon="@android:drawable/ic_menu_view" android:title="@string/home" />
-    <item android:id="@+id/merchantFragment" android:icon="@android:drawable/ic_menu_search" android:title="@string/merchant_page" />
-    <item android:id="@+id/ordersFragment" android:icon="@android:drawable/ic_menu_agenda" android:title="@string/orders_page" />
-    <item android:id="@+id/profileFragment" android:icon="@android:drawable/ic_menu_myplaces" android:title="@string/profile_page" />
+    <item android:id="@+id/homeFragment" android:icon="@drawable/ic_tab_home" android:title="@string/tab_home" />
+    <item android:id="@+id/merchantFragment" android:icon="@drawable/ic_tab_store" android:title="@string/tab_merchants" />
+    <item android:id="@+id/ordersFragment" android:icon="@drawable/ic_tab_orders" android:title="@string/tab_orders" />
+    <item android:id="@+id/profileFragment" android:icon="@drawable/ic_tab_profile" android:title="@string/tab_profile" />
 </menu>

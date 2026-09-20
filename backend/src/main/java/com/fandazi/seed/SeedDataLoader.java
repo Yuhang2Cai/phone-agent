@@ -77,7 +77,7 @@ public class SeedDataLoader implements ApplicationRunner {
             String addressDetail = requiredFixtureText(fixture, "address");
             AddressEntity address = addresses.findAll().stream().filter(item -> item.getUser().getId().equals(orderUser.getId()) && item.getDetail().equals(addressDetail)).findFirst().orElseThrow(() -> new IllegalArgumentException("Order fixture references unknown address: " + addressDetail));
             int quantity=fixture.path("quantity").asInt(); BigDecimal subtotal=dish.getPrice().multiply(BigDecimal.valueOf(quantity));
-            OrderEntity order=new OrderEntity(orderUser,text(fixture,"idempotencyKey"),"seed-history", address.getRecipient(),address.getPhone(),address.getDetail(),subtotal,merchant.getDeliveryFee(),BigDecimal.ZERO,subtotal.add(merchant.getDeliveryFee()));
+            OrderEntity order=new OrderEntity(orderUser,text(fixture,"idempotencyKey"),"seed-history",merchant.getName(), address.getRecipient(),address.getPhone(),address.getDetail(),subtotal,merchant.getDeliveryFee(),BigDecimal.ZERO,subtotal.add(merchant.getDeliveryFee()));
             order.addItem(new OrderItemEntity(order,dish.getId(),dish.getName(),quantity,List.of(),"",dish.getPrice())); order.advance(OrderStatus.valueOf(text(fixture,"status"))); orders.save(order);
         }
     }

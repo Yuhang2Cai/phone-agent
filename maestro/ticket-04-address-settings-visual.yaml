@@ -2,7 +2,76 @@ appId: com.fandazi.app
 ---
 - launchApp:
     clearState: true
-- tapOn: "先看看，不登录"
-- tapOn: "我的"
-- assertVisible: "配送地址"
-- assertVisible: "自动化设置"
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- tapOn:
+    id: "com.fandazi.app:id/profile_address_entry"
+- assertVisible:
+    id: "com.fandazi.app:id/submit_button"
+- assertNotVisible:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "maestro_ui_04"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "password123"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/address_banner"
+    timeout: 10000
+- assertVisible: "公司默认地址"
+- assertVisible:
+    id: "com.fandazi.app:id/address_contact"
+- takeScreenshot: "ticket-04-address"
+- tapOn:
+    id: "com.fandazi.app:id/address_add"
+- tapOn:
+    id: "com.fandazi.app:id/address_recipient"
+- inputText: "王女士"
+- tapOn:
+    id: "com.fandazi.app:id/address_phone"
+- inputText: "13700003456"
+- tapOn:
+    id: "com.fandazi.app:id/address_detail"
+- inputText: "上海市徐汇区测试路 66 号"
+- tapOn:
+    id: "com.fandazi.app:id/address_save"
+- extendedWaitUntil:
+    visible: "王女士的地址"
+    timeout: 10000
+- tapOn: "王女士的地址"
+- tapOn:
+    id: "com.fandazi.app:id/address_detail"
+- eraseText
+- inputText: "上海市徐汇区测试路 88 号"
+- tapOn:
+    id: "com.fandazi.app:id/address_save"
+- extendedWaitUntil:
+    visible: ".*测试路 88.*"
+    timeout: 10000
+- tapOn: "王女士的地址"
+- tapOn:
+    id: "com.fandazi.app:id/address_delete"
+- extendedWaitUntil:
+    notVisible: "王女士的地址"
+    timeout: 10000
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/profile_automation_entry"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/automation_banner"
+    timeout: 10000
+- assertVisible: "本次自动下单"
+- assertVisible: "长期自动下单"
+- assertVisible:
+    id: "com.fandazi.app:id/automation_address"
+- tapOn:
+    id: "com.fandazi.app:id/automation_long_term"
+- takeScreenshot: "ticket-04-automation"

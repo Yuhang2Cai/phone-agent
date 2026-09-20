@@ -2,6 +2,7 @@ package com.fandazi.app.feature.agent
 
 import java.math.BigDecimal
 import java.time.Instant
+import java.io.Serializable
 
 /** Only modes exposed by the public Agent Gateway.  CONFIRM is intentionally the default. */
 enum class AgentMode { CONFIRM, THIS_TASK_AUTO }
@@ -10,7 +11,9 @@ enum class AgentStatus { COMPLETED, NEEDS_INPUT, AWAITING_CONFIRMATION, FAILED }
 
 enum class AgentSheetMode { HIDDEN, HALF, FULL }
 
-data class ChatMessage(val text: String, val fromUser: Boolean)
+enum class AgentInputState { IDLE, RECORDING, RECOGNIZING }
+
+data class ChatMessage(val text: String, val fromUser: Boolean) : Serializable
 
 data class AgentEvent(
     val id: Long?,
@@ -18,14 +21,14 @@ data class AgentEvent(
     val summary: String,
     val toolName: String? = null,
     val status: String? = null
-)
+) : Serializable
 
 data class CandidateCartItem(
     val name: String,
     val specification: String = "",
     val price: String,
     val quantity: Int = 1
-)
+) : Serializable
 
 data class CandidateCart(
     val merchantName: String,
@@ -36,8 +39,9 @@ data class CandidateCart(
     val total: String,
     val maxAmount: String,
     val addressId: Long,
-    val authorizationMode: AgentMode? = null
-) {
+    val authorizationMode: AgentMode? = null,
+    val orderId: Long? = null
+) : Serializable {
     fun isCompleteForConfirmation() = merchantName.isNotBlank() && items.isNotEmpty() &&
         items.all { it.name.isNotBlank() && it.specification.isNotBlank() && it.price.isMoney() } &&
         address.isNotBlank() && deliveryFee.isMoney() && discount.isMoney() && total.isMoney() &&
@@ -66,13 +70,13 @@ data class OrderConfirmation(
     val authorizationMode: AgentMode,
     val amountLimitText: String,
     val addressId: Long
-)
+) : Serializable
 
 data class AgentAuthorization(
     val isTaskAuto: Boolean = false,
     val defaultAddress: String? = null,
     val maxAmount: String? = null
-)
+) : Serializable
 
 sealed interface AgentError {
     data object Authentication : AgentError
@@ -91,7 +95,9 @@ data class AgentUiState(
     val authorization: AgentAuthorization = AgentAuthorization(),
     val error: AgentError? = null,
     val lastEventId: Long? = 0L,
-    val isSending: Boolean = false
+    val isSending: Boolean = false,
+    val inputState: AgentInputState = AgentInputState.IDLE,
+    val createdOrderId: Long? = null
 )
 
 data class ThisTaskAutoRequest(

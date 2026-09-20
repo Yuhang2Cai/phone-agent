@@ -1,5 +1,7 @@
 # 饭搭子 AI 实施计划
 
+> **历史版本：** 本文档保留 2026-09-09 的原始全栈实施计划。当前 UI、交互、页面状态、导航和 UI 验收标准以 [`docs/ui-redesign.md`](../../ui-redesign.md) 为准。本文不再作为当前 UI 重构的执行计划；后续 Android UI 重构应根据最新设计生成新的 spec、tickets 和实施计划。
+
 > **给执行者：** 必须使用 `superpowers:subagent-driven-development`（推荐）或 `superpowers:executing-plans`，按任务逐项执行。本计划使用复选框跟踪进度。
 
 **目标：** 构建一个可安装的 Android 外卖 App，采用 XML + MVVM，配套 Spring Boot 业务后端、Python LangChain + LangGraph 受约束单 Agent 点餐服务、可编辑 HTML/CSS 原型和可重复的测试数据。

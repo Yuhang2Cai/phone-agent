@@ -24,10 +24,14 @@ data class OrderingUiState(
     val selectedOptions: Map<Long, List<DishOption>> = emptyMap(),
     val cartDraft: CartDraft? = null,
     val quote: CartQuote? = null,
+    val cartLines: List<CartLine> = emptyList(),
     val addresses: List<Address> = emptyList(),
     val selectedAddress: Address? = null,
     val orders: List<Order> = emptyList(),
     val currentOrder: Order? = null,
+    val pendingMerchantSwitch: Merchant? = null,
+    val checkoutReady: Boolean = false,
+    val isSubmittingOrder: Boolean = false,
     val isLoading: Boolean = false,
     val searchStatus: SearchStatus = SearchStatus.Idle,
     val onlyOpen: Boolean = false,
@@ -36,10 +40,61 @@ data class OrderingUiState(
 
 class OrderingViewModel(
     private val repository: OrderingRepository,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
+    private val cartStore: CartStateStore = NoOpCartStateStore,
+    private val cartOwner: String = "guest"
 ) : ViewModel() {
-    private val _uiState = MutableStateFlow(OrderingUiState())
+    private var orderRequestKey: String? = null
+    private var paymentRequestKey: String? = null
+    private var activeOrderUsesCurrentCart = false
+    private var activeCartOwner = cartOwner
+    private val restored = cartStore.read(activeCartOwner)
+    private val _uiState = MutableStateFlow(
+        OrderingUiState(
+            selectedMerchant = restored?.merchant,
+            cartDraft = restored?.draft,
+            quote = restored?.quote,
+            cartLines = restored?.lines ?: restored?.quote?.lines.orEmpty(),
+            currentOrder = restored?.currentOrder
+        )
+    )
+    init {
+        orderRequestKey = restored?.orderRequestKey
+        paymentRequestKey = restored?.paymentRequestKey
+        activeOrderUsesCurrentCart = restored?.activeOrderUsesCurrentCart ?: false
+    }
     val uiState = _uiState.asStateFlow()
+
+    fun updateSearchKeyword(keyword: String) {
+        if (_uiState.value.keyword != keyword) _uiState.update { it.copy(keyword = keyword) }
+    }
+
+    fun switchCartOwner(owner: String) {
+        if (owner == activeCartOwner) return
+        activeCartOwner = owner
+        val snapshot = cartStore.read(owner)
+        orderRequestKey = snapshot?.orderRequestKey
+        paymentRequestKey = snapshot?.paymentRequestKey
+        activeOrderUsesCurrentCart = snapshot?.activeOrderUsesCurrentCart ?: false
+        _uiState.update {
+            it.copy(
+                selectedMerchant = snapshot?.merchant,
+                menu = emptyList(),
+                selectedDish = null,
+                selectedOptions = emptyMap(),
+                cartDraft = snapshot?.draft,
+                quote = snapshot?.quote,
+                cartLines = snapshot?.lines ?: snapshot?.quote?.lines.orEmpty(),
+                selectedAddress = null,
+                currentOrder = snapshot?.currentOrder,
+                pendingMerchantSwitch = null,
+                checkoutReady = false,
+                isSubmittingOrder = false,
+                isLoading = false,
+                error = null
+            )
+        }
+    }
 
     fun search(keyword: String) {
         _uiState.update { it.copy(keyword = keyword, isLoading = true, searchStatus = SearchStatus.Searching, error = null) }
@@ -58,8 +113,26 @@ class OrderingViewModel(
     }
 
     fun openMerchant(merchantId: Long) {
+        if (_uiState.value.cartDraft?.merchantId?.let { it != merchantId } == true) {
+            val target = _uiState.value.merchants.firstOrNull { it.id == merchantId }
+            _uiState.update { it.copy(pendingMerchantSwitch = target, error = null) }
+            return
+        }
+        loadMerchant(merchantId)
+    }
+
+    fun confirmMerchantSwitch() {
+        val target = _uiState.value.pendingMerchantSwitch ?: return
+        clearCart()
+        _uiState.update { it.copy(pendingMerchantSwitch = null) }
+        loadMerchant(target.id)
+    }
+
+    fun cancelMerchantSwitch() = _uiState.update { it.copy(pendingMerchantSwitch = null) }
+
+    private fun loadMerchant(merchantId: Long) {
         val merchant = _uiState.value.merchants.firstOrNull { it.id == merchantId }
-        _uiState.update { it.copy(selectedMerchant = merchant, isLoading = true, error = null) }
+        _uiState.update { it.copy(selectedMerchant = merchant, menu = emptyList(), selectedDish = null, isLoading = true, error = null) }
         viewModelScope.launch(dispatcher) {
             when (val result = repository.loadMenu(merchantId)) {
                 is ApiResult.Success -> _uiState.update { it.copy(menu = result.value, selectedDish = result.value.firstOrNull(), isLoading = false) }
@@ -72,15 +145,21 @@ class OrderingViewModel(
 
     fun selectOption(dishId: Long, optionId: Long) = _uiState.update { state ->
         val option = state.menu.firstOrNull { it.id == dishId }?.options?.firstOrNull { it.id == optionId } ?: return@update state
-        state.copy(selectedOptions = state.selectedOptions + (dishId to listOf(option)))
+        if (!option.available) return@update state
+        val existing = state.selectedOptions[dishId].orEmpty().filterNot { it.groupName == option.groupName }
+        state.copy(selectedOptions = state.selectedOptions + (dishId to (existing + option)))
     }
 
     fun addSelectedDish(quantity: Int = 1) {
         val state = _uiState.value
+        if (state.isLoading) return
         val merchantId = state.selectedMerchant?.id ?: state.selectedDish?.merchantId ?: return
         val dish = state.selectedDish ?: return
         val selectedOptions = state.selectedOptions[dish.id].orEmpty()
-        _uiState.update { it.copy(isLoading = true, error = null) }
+        orderRequestKey = null
+        paymentRequestKey = null
+        activeOrderUsesCurrentCart = false
+        _uiState.update { it.copy(isLoading = true, currentOrder = null, error = null) }
         viewModelScope.launch(dispatcher) {
             val draft = state.cartDraft ?: when (val created = repository.createCartDraft(merchantId)) {
                 is ApiResult.Success -> created.value
@@ -89,22 +168,136 @@ class OrderingViewModel(
                     return@launch
                 }
             }
-            val inputs = draft.items.map { CartItemInput(it.dishId, it.quantity, it.optionIds) } +
-                CartItemInput(dish.id, quantity, selectedOptions.map { it.id })
+            val optionIds = selectedOptions.map { it.id }.sorted()
+            val inputs = draft.items.map { CartItemInput(it.dishId, it.quantity, it.optionIds) }.toMutableList()
+            val existingIndex = inputs.indexOfFirst { it.dishId == dish.id && it.optionIds.sorted() == optionIds }
+            if (existingIndex >= 0) inputs[existingIndex] = inputs[existingIndex].copy(quantity = inputs[existingIndex].quantity + quantity)
+            else inputs += CartItemInput(dish.id, quantity, optionIds)
             when (val updated = repository.updateCart(draft.id, inputs)) {
                 is ApiResult.Success -> {
-                    val quote = repository.validateCart(updated.value.id)
-                    _uiState.update {
-                        it.copy(
-                            cartDraft = updated.value,
-                            quote = (quote as? ApiResult.Success)?.value,
-                            isLoading = false
-                        )
+                    when (val quote = repository.validateCart(updated.value.id)) {
+                        is ApiResult.Success -> _uiState.update {
+                            it.copy(cartDraft = updated.value, quote = quote.value, cartLines = quote.value.lines, isLoading = false)
+                        }
+                        is ApiResult.Failure -> {
+                            _uiState.update { current -> current.copy(cartDraft = updated.value, quote = null, cartLines = displayLines(updated.value, current)) }
+                            showError(quote.error)
+                        }
                     }
+                    persistCart()
                 }
                 is ApiResult.Failure -> showError(updated.error)
             }
         }
+    }
+
+    fun updateCartLine(dishId: Long, optionIds: List<Long>, quantity: Int) {
+        if (_uiState.value.isLoading) return
+        val draft = _uiState.value.cartDraft ?: return
+        val inputs = draft.items.map { CartItemInput(it.dishId, it.quantity, it.optionIds) }.toMutableList()
+        val index = inputs.indexOfFirst { it.dishId == dishId && it.optionIds.sorted() == optionIds.sorted() }
+        if (index < 0) return
+        if (quantity <= 0) inputs.removeAt(index) else inputs[index] = inputs[index].copy(quantity = quantity.coerceAtMost(100))
+        if (inputs.isEmpty()) {
+            clearCart()
+            return
+        }
+        orderRequestKey = null
+        paymentRequestKey = null
+        activeOrderUsesCurrentCart = false
+        _uiState.update { it.copy(currentOrder = null) }
+        syncCart(draft.id, inputs)
+    }
+
+    fun clearCart() {
+        cartStore.clear(activeCartOwner)
+        _uiState.update { it.copy(cartDraft = null, quote = null, cartLines = emptyList(), checkoutReady = false, error = null) }
+        if (_uiState.value.currentOrder != null) persistCart()
+    }
+
+    fun prepareCheckout() {
+        if (_uiState.value.isLoading) return
+        val draftId = _uiState.value.cartDraft?.id ?: return
+        _uiState.update { it.copy(isLoading = true, checkoutReady = false, error = null) }
+        viewModelScope.launch(dispatcher) {
+            when (val quote = repository.validateCart(draftId)) {
+                is ApiResult.Failure -> showError(quote.error)
+                is ApiResult.Success -> when (val addresses = repository.loadAddresses()) {
+                    is ApiResult.Failure -> showError(addresses.error)
+                    is ApiResult.Success -> {
+                        val selected = addresses.value.firstOrNull { it.defaultAddress && it.valid }
+                            ?: addresses.value.firstOrNull { it.valid }
+                        _uiState.update {
+                            it.copy(
+                                quote = quote.value,
+                                cartLines = quote.value.lines,
+                                addresses = addresses.value,
+                                selectedAddress = selected,
+                                isLoading = false,
+                                checkoutReady = selected != null,
+                                error = if (selected == null) "请先添加可用的收货地址" else null
+                            )
+                        }
+                        persistCart()
+                    }
+                }
+            }
+        }
+    }
+
+    fun consumeCheckoutReady() = _uiState.update { it.copy(checkoutReady = false) }
+
+    private fun syncCart(draftId: Long, inputs: List<CartItemInput>) {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        viewModelScope.launch(dispatcher) {
+            when (val updated = repository.updateCart(draftId, inputs)) {
+                is ApiResult.Failure -> showError(updated.error)
+                is ApiResult.Success -> when (val quote = repository.validateCart(draftId)) {
+                    is ApiResult.Failure -> {
+                        _uiState.update { current -> current.copy(cartDraft = updated.value, quote = null, cartLines = displayLines(updated.value, current)) }
+                        showError(quote.error)
+                        persistCart()
+                    }
+                    is ApiResult.Success -> {
+                        _uiState.update { it.copy(cartDraft = updated.value, quote = quote.value, cartLines = quote.value.lines, isLoading = false) }
+                        persistCart()
+                    }
+                }
+            }
+        }
+    }
+
+    private fun persistCart() {
+        val state = _uiState.value
+        cartStore.write(
+            CartSnapshot(
+                activeCartOwner,
+                state.selectedMerchant,
+                state.cartDraft,
+                state.quote,
+                state.cartLines,
+                state.currentOrder,
+                orderRequestKey,
+                paymentRequestKey,
+                activeOrderUsesCurrentCart
+            )
+        )
+    }
+
+    private fun displayLines(draft: CartDraft, state: OrderingUiState): List<CartLine> = draft.items.map { raw ->
+        val previous = state.cartLines.firstOrNull { it.dishId == raw.dishId && it.optionIds.sorted() == raw.optionIds.sorted() }
+        val dish = state.menu.firstOrNull { it.id == raw.dishId }
+        val options = dish?.options.orEmpty().filter { it.id in raw.optionIds }
+        CartLine(
+            dishId = raw.dishId,
+            dishName = raw.dishName.ifBlank { previous?.dishName ?: dish?.name.orEmpty() },
+            quantity = raw.quantity,
+            optionIds = raw.optionIds,
+            optionSummary = raw.optionSummary.ifBlank { previous?.optionSummary ?: options.joinToString(",") { "${it.groupName}:${it.optionName}" } },
+            unitPrice = if (raw.unitPrice.signum() > 0) raw.unitPrice else previous?.unitPrice
+                ?: dish?.price?.add(options.fold(java.math.BigDecimal.ZERO) { total, option -> total + option.priceDelta })
+                ?: java.math.BigDecimal.ZERO
+        )
     }
 
     fun selectDefaultAddress() {
@@ -121,22 +314,50 @@ class OrderingViewModel(
     }
 
     fun createOrder() {
+        if (_uiState.value.isSubmittingOrder) return
         val cartId = _uiState.value.cartDraft?.id ?: return
         val addressId = _uiState.value.selectedAddress?.id ?: return
+        _uiState.update { it.copy(isSubmittingOrder = true, error = null) }
+        val requestKey = orderRequestKey ?: "android-order-${UUID.randomUUID()}".also { orderRequestKey = it }
+        persistCart()
         viewModelScope.launch(dispatcher) {
-            when (val result = repository.createOrder(cartId, addressId, "android-order-${UUID.randomUUID()}")) {
-                is ApiResult.Success -> _uiState.update { it.copy(currentOrder = result.value, error = null) }
-                is ApiResult.Failure -> showError(result.error)
+            when (val result = repository.createOrder(cartId, addressId, requestKey)) {
+                is ApiResult.Success -> {
+                    activeOrderUsesCurrentCart = true
+                    _uiState.update { it.copy(currentOrder = result.value, isSubmittingOrder = false, error = null) }
+                    persistCart()
+                }
+                is ApiResult.Failure -> {
+                    _uiState.update { it.copy(isSubmittingOrder = false) }
+                    showError(result.error)
+                }
             }
         }
     }
 
     fun payOrder() {
+        if (_uiState.value.isSubmittingOrder) return
         val orderId = _uiState.value.currentOrder?.id ?: return
+        _uiState.update { it.copy(isSubmittingOrder = true, error = null) }
+        val requestKey = paymentRequestKey ?: "android-pay-${UUID.randomUUID()}".also { paymentRequestKey = it }
+        persistCart()
         viewModelScope.launch(dispatcher) {
-            when (val result = repository.payOrder(orderId, "android-pay-${UUID.randomUUID()}")) {
-                is ApiResult.Success -> _uiState.update { it.copy(currentOrder = result.value, error = null) }
-                is ApiResult.Failure -> showError(result.error)
+            when (val result = repository.payOrder(orderId, requestKey)) {
+                is ApiResult.Success -> {
+                    if (activeOrderUsesCurrentCart) {
+                        _uiState.update { it.copy(currentOrder = result.value, cartDraft = null, quote = null, cartLines = emptyList(), isSubmittingOrder = false, error = null) }
+                    } else {
+                        _uiState.update { it.copy(currentOrder = result.value, isSubmittingOrder = false, error = null) }
+                    }
+                    activeOrderUsesCurrentCart = false
+                    orderRequestKey = null
+                    paymentRequestKey = null
+                    persistCart()
+                }
+                is ApiResult.Failure -> {
+                    _uiState.update { it.copy(isSubmittingOrder = false) }
+                    showError(result.error)
+                }
             }
         }
     }
@@ -144,19 +365,31 @@ class OrderingViewModel(
     fun refreshOrders() {
         viewModelScope.launch(dispatcher) {
             when (val result = repository.loadOrders()) {
-                is ApiResult.Success -> _uiState.update { it.copy(orders = result.value, currentOrder = result.value.firstOrNull() ?: it.currentOrder, error = null) }
+                is ApiResult.Success -> _uiState.update {
+                    val selected = it.currentOrder?.let { current -> result.value.firstOrNull { order -> order.id == current.id } }
+                        ?: result.value.firstOrNull()
+                    it.copy(orders = result.value, currentOrder = selected ?: it.currentOrder, error = null)
+                }
                 is ApiResult.Failure -> showError(result.error)
             }
         }
     }
 
     fun selectOrder(orderId: Long) {
+        _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch(dispatcher) {
             when (val result = repository.loadOrder(orderId)) {
-                is ApiResult.Success -> _uiState.update { it.copy(currentOrder = result.value, error = null) }
+                is ApiResult.Success -> _uiState.update { it.copy(currentOrder = result.value, isLoading = false, error = null) }
                 is ApiResult.Failure -> showError(result.error)
             }
         }
+    }
+
+    fun selectOrderSnapshot(order: Order) {
+        paymentRequestKey = null
+        activeOrderUsesCurrentCart = false
+        _uiState.update { it.copy(currentOrder = order, selectedAddress = Address(0, order.recipient, order.phone, order.detail, true, true), error = null) }
+        persistCart()
     }
 
     private fun showError(error: ApiError) = _uiState.update {
@@ -185,7 +418,11 @@ class OrderingViewModel(
     }
 }
 
-class OrderingViewModelFactory(private val repository: OrderingRepository) : ViewModelProvider.Factory {
+class OrderingViewModelFactory(
+    private val repository: OrderingRepository,
+    private val cartStore: CartStateStore = NoOpCartStateStore,
+    private val cartOwner: String = "guest"
+) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T = OrderingViewModel(repository) as T
+    override fun <T : ViewModel> create(modelClass: Class<T>): T = OrderingViewModel(repository, cartStore = cartStore, cartOwner = cartOwner) as T
 }

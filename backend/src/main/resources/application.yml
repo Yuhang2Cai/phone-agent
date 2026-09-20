@@ -15,6 +15,10 @@ security:
     secret: ${JWT_SECRET}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
 
+seed:
+  enabled: ${SEED_ENABLED:true}
+  path: ${SEED_PATH:../data/seed}
+
 agent:
   internal-token: ${AGENT_INTERNAL_TOKEN:}
   service:

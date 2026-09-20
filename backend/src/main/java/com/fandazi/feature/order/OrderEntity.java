@@ -1,3 +1,91 @@
 package com.fandazi.feature.order;
-import com.fandazi.feature.DomainException; import com.fandazi.feature.auth.UserEntity; import jakarta.persistence.*; import java.math.BigDecimal; import java.util.*;
-@Entity @Table(name="food_orders",uniqueConstraints=@UniqueConstraint(columnNames={"user_id","idempotency_key"})) public class OrderEntity { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @ManyToOne(optional=false) private UserEntity user; @Column(nullable=false) private String idempotencyKey; @Column(nullable=false) private String requestFingerprint; @Column private String paymentIdempotencyKey; @Column(nullable=false) private String addressRecipient; @Column(nullable=false) private String addressPhone; @Column(nullable=false) private String addressDetail; @Column(nullable=false,precision=12,scale=2) private BigDecimal subtotal; @Column(nullable=false,precision=12,scale=2) private BigDecimal deliveryFee; @Column(nullable=false,precision=12,scale=2) private BigDecimal discount; @Column(nullable=false,precision=12,scale=2) private BigDecimal total; @Enumerated(EnumType.STRING) @Column(nullable=false) private OrderStatus status; @OneToMany(mappedBy="order",cascade=CascadeType.ALL,orphanRemoval=true,fetch=FetchType.EAGER) private List<OrderItemEntity> items=new ArrayList<>(); @ElementCollection @CollectionTable(name="order_timeline",joinColumns=@JoinColumn(name="order_id")) @Column(name="status") @Enumerated(EnumType.STRING) private List<OrderStatus> timeline=new ArrayList<>(); protected OrderEntity(){} public OrderEntity(UserEntity user,String key,String fingerprint,String recipient,String phone,String detail,BigDecimal subtotal,BigDecimal fee,BigDecimal discount,BigDecimal total){this.user=user;this.idempotencyKey=key;this.requestFingerprint=fingerprint;this.addressRecipient=recipient;this.addressPhone=phone;this.addressDetail=detail;this.subtotal=subtotal;this.deliveryFee=fee;this.discount=discount;this.total=total;this.status=OrderStatus.PENDING_PAYMENT;timeline.add(status);} public Long getId(){return id;} public OrderStatus getStatus(){return status;} public BigDecimal getSubtotal(){return subtotal;} public BigDecimal getDeliveryFee(){return deliveryFee;} public BigDecimal getDiscount(){return discount;} public BigDecimal getTotal(){return total;} public String getAddressRecipient(){return addressRecipient;} public String getAddressPhone(){return addressPhone;} public String getAddressDetail(){return addressDetail;} public List<OrderItemEntity> getItems(){return items;} public List<OrderStatus> getTimeline(){return List.copyOf(timeline);} public UserEntity getUser(){return user;} public String getRequestFingerprint(){return requestFingerprint;} public String getPaymentIdempotencyKey(){return paymentIdempotencyKey;} public void setPaymentIdempotencyKey(String key){paymentIdempotencyKey=key;} public void addItem(OrderItemEntity item){items.add(item);} public void advance(OrderStatus next){if(!isAdjacent(status,next))throw new DomainException("订单状态不可逆或跳跃");status=next;timeline.add(next);} private boolean isAdjacent(OrderStatus current,OrderStatus next){return (current==OrderStatus.PENDING_PAYMENT&&next==OrderStatus.PAID)||(current==OrderStatus.PAID&&next==OrderStatus.MERCHANT_ACCEPTED)||(current==OrderStatus.MERCHANT_ACCEPTED&&next==OrderStatus.PREPARING)||(current==OrderStatus.PREPARING&&next==OrderStatus.RIDER_PICKED_UP)||(current==OrderStatus.RIDER_PICKED_UP&&next==OrderStatus.DELIVERING)||(current==OrderStatus.DELIVERING&&next==OrderStatus.DELIVERED);} }
+
+import com.fandazi.feature.DomainException;
+import com.fandazi.feature.auth.UserEntity;
+import jakarta.persistence.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "food_orders", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "idempotency_key"}))
+public class OrderEntity {
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
+    @ManyToOne(optional = false) private UserEntity user;
+    @Column(nullable = false) private String idempotencyKey;
+    @Column(nullable = false) private String requestFingerprint;
+    @Column private String paymentIdempotencyKey;
+    @Column(nullable = false) private String merchantName;
+    @Column(nullable = false, updatable = false) private LocalDateTime createdAt;
+    @Column(nullable = false) private String addressRecipient;
+    @Column(nullable = false) private String addressPhone;
+    @Column(nullable = false) private String addressDetail;
+    @Column(nullable = false, precision = 12, scale = 2) private BigDecimal subtotal;
+    @Column(nullable = false, precision = 12, scale = 2) private BigDecimal deliveryFee;
+    @Column(nullable = false, precision = 12, scale = 2) private BigDecimal discount;
+    @Column(nullable = false, precision = 12, scale = 2) private BigDecimal total;
+    @Enumerated(EnumType.STRING) @Column(nullable = false) private OrderStatus status;
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<OrderItemEntity> items = new ArrayList<>();
+    @ElementCollection
+    @CollectionTable(name = "order_timeline", joinColumns = @JoinColumn(name = "order_id"))
+    @Column(name = "status")
+    @Enumerated(EnumType.STRING)
+    private List<OrderStatus> timeline = new ArrayList<>();
+
+    protected OrderEntity() {}
+
+    public OrderEntity(UserEntity user, String key, String fingerprint, String merchantName,
+                       String recipient, String phone, String detail, BigDecimal subtotal,
+                       BigDecimal fee, BigDecimal discount, BigDecimal total) {
+        this.user = user;
+        this.idempotencyKey = key;
+        this.requestFingerprint = fingerprint;
+        this.merchantName = merchantName;
+        this.createdAt = LocalDateTime.now();
+        this.addressRecipient = recipient;
+        this.addressPhone = phone;
+        this.addressDetail = detail;
+        this.subtotal = subtotal;
+        this.deliveryFee = fee;
+        this.discount = discount;
+        this.total = total;
+        this.status = OrderStatus.PENDING_PAYMENT;
+        timeline.add(status);
+    }
+
+    public Long getId() { return id; }
+    public OrderStatus getStatus() { return status; }
+    public BigDecimal getSubtotal() { return subtotal; }
+    public BigDecimal getDeliveryFee() { return deliveryFee; }
+    public BigDecimal getDiscount() { return discount; }
+    public BigDecimal getTotal() { return total; }
+    public String getMerchantName() { return merchantName; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
+    public String getAddressRecipient() { return addressRecipient; }
+    public String getAddressPhone() { return addressPhone; }
+    public String getAddressDetail() { return addressDetail; }
+    public List<OrderItemEntity> getItems() { return items; }
+    public List<OrderStatus> getTimeline() { return List.copyOf(timeline); }
+    public UserEntity getUser() { return user; }
+    public String getRequestFingerprint() { return requestFingerprint; }
+    public String getPaymentIdempotencyKey() { return paymentIdempotencyKey; }
+    public void setPaymentIdempotencyKey(String key) { paymentIdempotencyKey = key; }
+    public void addItem(OrderItemEntity item) { items.add(item); }
+
+    public void advance(OrderStatus next) {
+        if (!isAdjacent(status, next)) throw new DomainException("订单状态不可逆或跳跃");
+        status = next;
+        timeline.add(next);
+    }
+
+    private boolean isAdjacent(OrderStatus current, OrderStatus next) {
+        return (current == OrderStatus.PENDING_PAYMENT && next == OrderStatus.PAID)
+                || (current == OrderStatus.PAID && next == OrderStatus.MERCHANT_ACCEPTED)
+                || (current == OrderStatus.MERCHANT_ACCEPTED && next == OrderStatus.PREPARING)
+                || (current == OrderStatus.PREPARING && next == OrderStatus.RIDER_PICKED_UP)
+                || (current == OrderStatus.RIDER_PICKED_UP && next == OrderStatus.DELIVERING)
+                || (current == OrderStatus.DELIVERING && next == OrderStatus.DELIVERED);
+    }
+}

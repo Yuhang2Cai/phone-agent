@@ -1,39 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent" android:layout_height="match_parent"
-    android:background="@color/surface_background" android:fillViewport="true">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:orientation="vertical" android:paddingStart="24dp" android:paddingTop="22dp"
-        android:paddingEnd="24dp" android:paddingBottom="28dp">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
-            <TextView android:id="@+id/home_address" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:contentDescription="@string/home_address" android:text="@string/home_address_empty" android:textColor="@color/brand_ink" android:textSize="15sp" android:textStyle="bold" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/home_notification" style="@style/Widget.Material3.Button.TextButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minWidth="0dp" android:text="@string/home_notification" android:textColor="@color/brand_ink" />
-        </LinearLayout>
-        <TextView android:id="@+id/welcome_text" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="@string/home_hero_title" android:textColor="@color/brand_ink" android:textSize="29sp" android:textStyle="bold" />
-        <TextView android:id="@+id/home_summary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:text="@string/home_hero_subtitle" android:textColor="@color/brand_muted" android:textSize="15sp" />
-        <com.google.android.material.card.MaterialCardView android:id="@+id/home_search_button" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="24dp" android:clickable="true" android:focusable="true" android:contentDescription="@string/home_search_hint" app:cardBackgroundColor="#FFFFFF" app:cardCornerRadius="18dp" app:strokeColor="@color/brand_divider" app:strokeWidth="1dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center_vertical" android:paddingStart="18dp" android:paddingEnd="18dp">
-                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/home_search_hint" android:textColor="@color/brand_muted" android:textSize="16sp" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="⌕" android:textColor="@color/brand_ink" android:textSize="26sp" />
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/home_background">
+<ScrollView
+    android:id="@+id/home_scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/home_background"
+    android:clipToPadding="false"
+    android:fillViewport="true"
+    android:paddingBottom="20dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+        <FrameLayout android:id="@+id/home_hero" android:layout_width="match_parent" android:layout_height="268dp">
+            <ImageView android:id="@+id/home_hero_image" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="首页照烧鸡肉饭主视觉" android:scaleType="centerCrop" android:src="@drawable/home_hero_food_v2" />
+            <View android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/home_hero_scrim" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="20dp" android:layout_marginTop="14dp" android:layout_marginEnd="16dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="饭搭子" android:textColor="@color/home_ink" android:textSize="27sp" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:fontFamily="sans-serif-black" android:text="AI" android:textColor="@color/home_orange" android:textSize="27sp" android:textStyle="italic" />
+                <Space android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
+                <ImageButton android:id="@+id/home_header_search" android:layout_width="44dp" android:layout_height="44dp" android:background="@android:color/transparent" android:contentDescription="搜索" android:padding="10dp" android:src="@drawable/ic_home_search" />
+                <ImageButton android:id="@+id/home_notification" android:layout_width="44dp" android:layout_height="44dp" android:background="@android:color/transparent" android:contentDescription="@string/home_notification" android:padding="10dp" android:src="@drawable/ic_home_bell" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-        <com.google.android.material.card.MaterialCardView android:id="@+id/agent_fab" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:clickable="true" android:focusable="true" android:contentDescription="@string/agent_open" app:cardBackgroundColor="@color/brand_orange" app:cardCornerRadius="22dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/home_ai_title" android:textColor="#FFFFFF" android:textSize="20sp" android:textStyle="bold" />
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="@string/home_ai_card" android:textColor="#FFFFFF" android:textSize="14sp" />
+            <LinearLayout android:id="@+id/home_address" android:layout_width="wrap_content" android:layout_height="44dp" android:layout_marginStart="20dp" android:layout_marginTop="54dp" android:clickable="true" android:contentDescription="当前配送地址，上海静安区" android:focusable="true" android:gravity="center_vertical" android:orientation="horizontal">
+                <ImageView android:layout_width="18dp" android:layout_height="18dp" android:importantForAccessibility="no" android:src="@drawable/ic_home_location" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="5dp" android:text="上海 · 静安区⌄" android:textColor="@color/home_ink" android:textSize="15sp" android:textStyle="bold" />
             </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:text="@string/home_quick_title" android:textColor="@color/brand_ink" android:textSize="18sp" android:textStyle="bold" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
-            <com.google.android.material.button.MaterialButton android:id="@+id/repeat_order_button" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:text="@string/quick_repeat_order" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/quick_light_meal_button" style="@style/Widget.Material3.Button.TonalButton" android:layout_width="0dp" android:layout_height="48dp" android:layout_marginStart="10dp" android:layout_weight="1" android:text="@string/quick_light_meal" />
+            <LinearLayout android:id="@+id/home_search_button" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginStart="16dp" android:layout_marginTop="82dp" android:layout_marginEnd="16dp" android:background="@drawable/home_search_background" android:clickable="true" android:contentDescription="@string/home_search_hint" android:elevation="3dp" android:focusable="true" android:gravity="center_vertical" android:paddingStart="16dp" android:paddingEnd="6dp" android:visibility="gone">
+                <ImageView android:layout_width="25dp" android:layout_height="25dp" android:importantForAccessibility="no" android:src="@drawable/ic_home_search" />
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:text="@string/home_search_hint" android:textColor="#8E8890" android:textSize="15sp" />
+                <ImageButton android:id="@+id/home_voice_button" android:layout_width="46dp" android:layout_height="46dp" android:background="@drawable/home_voice_background" android:contentDescription="@string/agent_mic" android:padding="11dp" android:src="@drawable/ic_home_mic" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="225dp" android:layout_height="wrap_content" android:layout_gravity="bottom|start" android:layout_marginStart="20dp" android:layout_marginBottom="20dp" android:orientation="vertical">
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-medium" android:lineSpacingExtra="1dp" android:text="@string/home_hero_title" android:textColor="#FFFFFF" android:textSize="25sp" android:textStyle="bold" />
+                <View android:layout_width="132dp" android:layout_height="4dp" android:layout_marginTop="7dp" android:background="@color/home_orange" />
+                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:lineSpacingExtra="1dp" android:text="@string/home_hero_subtitle" android:textColor="#FFF8F3" android:textSize="12sp" />
+            </LinearLayout>
+        </FrameLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="-27dp" android:orientation="vertical" android:paddingStart="16dp" android:paddingEnd="16dp">
+            <FrameLayout android:id="@+id/agent_fab" android:layout_width="match_parent" android:layout_height="132dp" android:layout_marginTop="10dp" android:background="@drawable/home_ai_card_background" android:clickable="true" android:contentDescription="@string/agent_open" android:elevation="1dp" android:focusable="true">
+                <ImageView android:layout_width="62dp" android:layout_height="62dp" android:layout_gravity="start|top" android:layout_marginStart="14dp" android:layout_marginTop="11dp" android:contentDescription="饭搭子 AI 星星形象" android:src="@drawable/brand_mascot_rounded" />
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="84dp" android:layout_marginTop="16dp" android:orientation="vertical">
+                    <TextView android:id="@+id/home_ai_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/home_ai_title" android:textColor="@color/home_ink" android:textSize="20sp" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:text="@string/home_ai_subtitle" android:textColor="#665E73" android:textSize="15sp" />
+                </LinearLayout>
+                <TextView android:id="@+id/home_ai_action" android:layout_width="42dp" android:layout_height="42dp" android:layout_gravity="top|end" android:layout_marginTop="15dp" android:layout_marginEnd="14dp" android:background="@drawable/home_ai_arrow_background" android:gravity="center" android:text="→" android:textColor="#FFFFFF" android:textSize="25sp" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:layout_gravity="bottom" android:layout_marginStart="14dp" android:layout_marginEnd="14dp" android:layout_marginBottom="7dp" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:id="@+id/quick_light_meal_button" style="@style/HomeQuickChip" android:layout_width="0dp" android:layout_weight="1" android:contentDescription="清淡午餐" android:text="🍃 清淡午餐" />
+                    <TextView android:id="@+id/quick_budget_button" style="@style/HomeQuickChip" android:layout_width="0dp" android:layout_marginStart="7dp" android:layout_weight="1" android:contentDescription="30 元以内" android:text="¥ 30 元以内" />
+                    <TextView android:id="@+id/repeat_order_button" style="@style/HomeQuickChip" android:layout_width="0dp" android:layout_marginStart="7dp" android:layout_weight="1" android:contentDescription="再来一单" android:text="⟳ 再来一单" />
+                </LinearLayout>
+            </FrameLayout>
+            <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="9dp" android:clipToPadding="false" android:scrollbars="none">
+                <LinearLayout android:layout_width="wrap_content" android:layout_height="62dp" android:orientation="horizontal">
+                    <include android:id="@+id/home_category_healthy" layout="@layout/item_home_quick_category" />
+                    <include android:id="@+id/home_category_spicy" layout="@layout/item_home_quick_category" />
+                    <include android:id="@+id/home_category_soup" layout="@layout/item_home_quick_category" />
+                    <include android:id="@+id/home_category_tea" layout="@layout/item_home_quick_category" />
+                </LinearLayout>
+            </HorizontalScrollView>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/home_nearby_title" android:textColor="@color/home_ink" android:textSize="24sp" android:textStyle="bold" />
+                <TextView android:id="@+id/merchant_page_button" android:layout_width="wrap_content" android:layout_height="44dp" android:clickable="true" android:contentDescription="@string/home_nearby_more" android:focusable="true" android:gravity="center_vertical" android:text="@string/home_nearby_more" android:textColor="#5F5758" android:textSize="14sp" />
+            </LinearLayout>
+            <TextView android:id="@+id/home_nearby_state" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="-4dp" android:text="@string/home_no_address_hint" android:textColor="@color/home_warm_muted" android:textSize="12sp" />
+            <include android:id="@+id/home_merchant_one" layout="@layout/item_home_merchant" />
+            <include android:id="@+id/home_merchant_two" layout="@layout/item_home_merchant" />
+            <include android:id="@+id/home_merchant_three" layout="@layout/item_home_merchant" />
         </LinearLayout>
-        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="30dp" android:text="@string/home_nearby_title" android:textColor="@color/brand_ink" android:textSize="18sp" android:textStyle="bold" />
-        <TextView android:id="@+id/home_nearby_state" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/home_nearby_empty" android:textColor="@color/brand_muted" android:textSize="15sp" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/logout_button" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" android:text="@string/logout" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/search_page_button" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" android:text="@string/search_page" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/merchant_page_button" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" android:text="@string/merchant_page" />
-        <com.google.android.material.button.MaterialButton android:id="@+id/orders_page_button" android:layout_width="1dp" android:layout_height="1dp" android:visibility="gone" android:text="@string/orders_page" />
     </LinearLayout>
 </ScrollView>
+    <LinearLayout
+        android:id="@+id/home_floating_assistant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="16dp"
+        android:clickable="true"
+        android:contentDescription="打开 AI 助手"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:gravity="end"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="34dp"
+            android:layout_marginEnd="2dp"
+            android:background="@drawable/home_floating_prompt_background"
+            android:gravity="center"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:text="我可以帮你选哦！"
+            android:textColor="#5636BB"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+        <FrameLayout
+            android:layout_width="68dp"
+            android:layout_height="68dp"
+            android:layout_marginTop="-2dp"
+            android:background="@drawable/home_floating_orb_background">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="horizontal">
+                <View android:layout_width="6dp" android:layout_height="17dp" android:layout_marginEnd="13dp" android:background="@drawable/home_floating_eye" />
+                <View android:layout_width="6dp" android:layout_height="17dp" android:background="@drawable/home_floating_eye" />
+            </LinearLayout>
+        </FrameLayout>
+    </LinearLayout>
+</FrameLayout>

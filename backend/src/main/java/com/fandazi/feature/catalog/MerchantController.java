@@ -51,7 +51,11 @@ public class MerchantController {
     }
 
     private boolean matches(MerchantEntity merchant, String keyword, String category, Integer minutes, BigDecimal maxPrice) {
-        return (keyword == null || merchant.getName().contains(keyword))
+        boolean merchantOrDishMatches = keyword == null
+                || merchant.getName().contains(keyword)
+                || dishes.findByMerchantId(merchant.getId()).stream().anyMatch(dish ->
+                dish.getName().contains(keyword) || dish.getDescription().contains(keyword));
+        return merchantOrDishMatches
                 && (category == null || merchant.getCategory().equals(category))
                 && (minutes == null || merchant.getDeliveryMinutes() <= minutes)
                 && (maxPrice == null || merchant.getMinimumOrder().compareTo(maxPrice) <= 0);

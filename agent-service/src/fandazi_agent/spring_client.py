@@ -4,10 +4,13 @@ from __future__ import annotations
 
 import httpx
 import os
+import logging
 
 from .config import Settings
 from .models import ToolRequest, ToolResult
 from .tools import is_allowed_tool
+
+log = logging.getLogger(__name__)
 
 
 class SpringBootToolClient:
@@ -29,23 +32,33 @@ class SpringBootToolClient:
         if not is_allowed_tool(request.tool_name):
             return ToolResult(ok=False, error="tool_not_allowed")
         try:
+            log.info("spring tool start: base_url=%s tool=%s session=%s", self.base_url, request.tool_name, request.session_id)
             response = httpx.post(
                 f"{self.base_url}/internal/tools/{request.tool_name}",
                 json=request.model_dump(by_alias=True, mode="json", exclude={"tool_name"}),
                 timeout=self.timeout_seconds,
                 headers={"X-Agent-Token": self.agent_internal_token} if self.agent_internal_token else {},
+                trust_env=False,
             )
         except httpx.RequestError as exc:
+            log.exception("spring tool transport failure: tool=%s session=%s", request.tool_name, request.session_id)
             # A lost response cannot establish whether Spring Boot committed the order.
             return ToolResult(ok=False, error=f"spring_tool_unavailable: {exc}", error_kind="uncertain")
 
+        raw_body: object | None = None
         try:
-            result = ToolResult.model_validate(response.json())
+            raw_body = response.json()
+            result = ToolResult.model_validate(raw_body)
         except ValueError:
             result = None
 
         status = response.status_code
+        log.info("spring tool response: tool=%s session=%s status=%s body_keys=%s", request.tool_name, request.session_id, status, list(result.model_fields_set) if result is not None else None)
         error = result.error if result is not None and not result.ok else None
+        if error is None and isinstance(raw_body, dict):
+            raw_error = raw_body.get("error") or raw_body.get("message")
+            if isinstance(raw_error, str) and raw_error.strip():
+                error = raw_error.strip()
         if 400 <= status < 500 and status not in {408, 429}:
             # HTTP permission/validation/state refusals remain terminal even if an
             # inconsistent body claims they are retryable. Preserve the backend error.

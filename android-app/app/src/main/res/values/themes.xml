@@ -3,8 +3,14 @@
     <style name="Theme.FandaziAi" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="colorPrimary">@color/brand_yellow</item>
         <item name="colorOnPrimary">@color/brand_ink</item>
+        <item name="android:colorAccent">@color/brand_orange</item>
+        <item name="android:navigationBarColor">@color/surface_background</item>
+        <item name="android:windowLightNavigationBar">true</item>
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:statusBarColor">@color/surface_background</item>
+    </style>
+    <style name="Widget.FandaziAi.BottomNavigation.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/brand_orange_soft</item>
     </style>
 </resources>

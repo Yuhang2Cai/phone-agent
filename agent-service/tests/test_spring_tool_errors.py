@@ -76,6 +76,22 @@ def test_malformed_response_uses_http_semantics_not_error_text(monkeypatch, stat
     assert result.error_kind == expected_kind
 
 
+def test_http_error_only_body_preserves_backend_business_message(monkeypatch):
+    """Break caught: a Spring business rejection is reduced to a generic HTTP status."""
+    response = httpx.Response(
+        400,
+        json={"error": "缺少明确菜品"},
+        request=httpx.Request("POST", "http://spring/internal/tools/create_cart_draft"),
+    )
+    monkeypatch.setattr(httpx, "post", lambda *args, **kwargs: response)
+
+    result = SpringBootToolClient("http://spring").call(order_request())
+
+    assert result.ok is False
+    assert result.error == "缺少明确菜品"
+    assert result.error_kind == "rejected"
+
+
 def test_spring_tool_client_sends_the_configured_internal_token(monkeypatch):
     """Break caught: Spring Boot rejects every tool call when the shared token is omitted."""
     captured = {}

@@ -1,0 +1,16 @@
+<resources>
+    <style name="HomeQuickChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">36dp</item>
+        <item name="android:background">@drawable/home_chip_background</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingStart">7dp</item>
+        <item name="android:paddingEnd">7dp</item>
+        <item name="android:textColor">#5B4350</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+    <style name="ShapeAppearance.FandaziAi.HomeFood" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">14dp</item>
+    </style>
+</resources>

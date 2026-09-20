@@ -2,7 +2,85 @@ appId: com.fandazi.app
 ---
 - launchApp:
     clearState: true
-- tapOn: "先看看，不登录"
-- tapOn: "订单"
-- assertVisible: "订单"
-- assertVisible: "模拟支付"
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "maestro_ui_04"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "password123"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_header_search"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "盖饭"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible: "饭搭子盖饭社"
+    timeout: 30000
+- tapOn: "饭搭子盖饭社"
+- extendedWaitUntil:
+    visible: "招牌辣椒鸡盖饭 1"
+    timeout: 30000
+- tapOn: "加入招牌辣椒鸡盖饭 1"
+- tapOn:
+    id: "com.fandazi.app:id/add_to_cart"
+- extendedWaitUntil:
+    visible: "去购物车"
+    timeout: 10000
+- tapOn: "去购物车"
+- tapOn:
+    id: "com.fandazi.app:id/cart_checkout"
+- extendedWaitUntil:
+    visible: "确认订单"
+    timeout: 10000
+- assertVisible: "创建待支付订单"
+- tapOn:
+    id: "com.fandazi.app:id/payment_primary"
+- extendedWaitUntil:
+    visible: "订单支付"
+    timeout: 10000
+- pressKey: BACK
+- assertVisible: "购物车"
+- assertVisible: "¥23.80"
+- tapOn:
+    id: "com.fandazi.app:id/cart_checkout"
+- extendedWaitUntil:
+    visible: "订单支付"
+    timeout: 10000
+- assertVisible:
+    id: "com.fandazi.app:id/payment_notice"
+- assertVisible:
+    id: "com.fandazi.app:id/payment_balance"
+- assertVisible:
+    id: "com.fandazi.app:id/payment_bank"
+- assertVisible:
+    id: "com.fandazi.app:id/payment_quick"
+- tapOn:
+    id: "com.fandazi.app:id/payment_bank"
+- takeScreenshot: "ticket-06-mock-payment"
+- tapOn:
+    id: "com.fandazi.app:id/payment_primary"
+- extendedWaitUntil:
+    visible: "商家已接单"
+    timeout: 10000
+- assertVisible: "全部"
+- assertVisible: "待支付"
+- assertVisible: "配送中"
+- assertVisible: "已完成"
+- assertVisible: "配送进度：制作中，待进行"
+- assertVisible: "配送进度：骑手已取餐，待进行"
+- assertVisible: "配送进度：已送达，待进行"
+- takeScreenshot: "ticket-06-orders-timeline"
+- tapOn:
+    id: "com.fandazi.app:id/filter_delivering"
+- assertVisible: "商家已接单"

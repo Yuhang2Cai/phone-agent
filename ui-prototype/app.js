@@ -1,178 +1,58 @@
-/* 饭搭子 AI：纯本地、可编辑的原型状态 */
-const dishes = [
-  { id: 'beef-noodle', name: '招牌牛肉面', desc: '现熬牛骨汤 · 牛腱肉 · 可选辣度', price: 25, emoji: '🍜' },
-  { id: 'fried-rice', name: '扬州炒饭', desc: '虾仁火腿 · 粒粒分明', price: 22, emoji: '🍛' },
-  { id: 'tea', name: '桂花乌龙奶茶', desc: '低糖推荐 · 清香不腻', price: 14, emoji: '🧋' }
-];
-const statusSteps = ['订单已提交', '商家接单', '骑手取餐', '正在配送', '已送达'];
-let currentPage = 'login';
-let cart = [];
-let agentMode = 'half';
-let orderStatus = 0;
-let agentEvents = [];
-let automationEnabled = true;
-let orderCreated = false;
-let selectedAddress = '家 · 湖滨路 88 号 2 栋 1602';
-let memberName = '张同学';
-let addresses = [
-  { id: 'home', label: '家', full: '家 · 湖滨路 88 号 2 栋 1602', detail: '杭州市西湖区 湖滨路 88 号 2 栋 1602', isDefault: true },
-  { id: 'office', label: '公司', full: '公司 · 文三路 90 号 A 座', detail: '杭州市西湖区 文三路 90 号 A 座', isDefault: false }
-];
-let agentOrderConfirmed = false;
-let agentOrderCancelled = false;
-const app = document.querySelector('#app');
-const modalRoot = document.querySelector('#modal-root');
-
-function money(value) { return `¥${value.toFixed(2)}`; }
-function escapeHtml(value) {
-  return String(value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-function cartCount() { return cart.reduce((sum, item) => sum + item.quantity, 0); }
-function cartTotal() { return cart.reduce((sum, item) => sum + item.price * item.quantity, 0); }
-function nav(active) { return `<nav class="bottom-nav"><button class="nav-btn ${active === 'home' ? 'active' : ''}" onclick="navigate('home')"><span>⌂</span>首页</button><button class="nav-btn ${active === 'orders' ? 'active' : ''}" onclick="navigate('orders')"><span>▤</span>订单</button><button class="nav-btn ${active === 'profile' ? 'active' : ''}" onclick="navigate('profile')"><span>☺</span>我的</button></nav>`; }
-function aiFab() { return currentPage !== 'login' ? '<button class="ai-fab" aria-label="打开 AI 助手" onclick="openAgent()">✦</button>' : ''; }
-function top(title, back = 'home') { return `<div class="topline"><button class="back" aria-label="返回" onclick="navigate('${back}')">‹</button><h2>${title}</h2><span style="width:36px"></span></div>`; }
-function cartBar() { return cartCount() ? `<div class="cart-bar"><span>🛍 ${cartCount()} 件 · ${money(cartTotal())}</span><button onclick="navigate('checkout')">去结算</button></div>` : ''; }
-
-function renderLogin() {
-  return `<section id="login" class="page login">
-    <div class="brand-mark">🍚</div><h1>饭搭子 AI</h1>
-    <p class="subtitle">懂你每一口的外卖搭子</p>
-    <input class="field" placeholder="手机号" inputmode="tel" value="138 0000 0000">
-    <input class="field" placeholder="验证码" value="123456">
-    <button class="primary" onclick="navigate('home')">登录并开始点餐</button>
-    <button class="link" onclick="navigate('register')">还没有账号？注册</button>
-    <div class="card" style="margin-top:30px"><b>✦ AI 点餐更省心</b><p class="muted" style="margin-top:8px">说出“想吃不辣的热汤面”，搭子会帮你搭好订单。</p></div>
-  </section>`;
-}
-function renderRegister() {
-  return `<section id="register" class="page login">
-    <button class="back" onclick="navigate('login')">‹</button>
-    <div class="brand-mark" style="margin-top:20px">✦</div><h1>创建饭搭子账号</h1>
-    <p class="subtitle">注册后保存你的口味和地址</p>
-    <input id="register-name" class="field" placeholder="昵称" value="新搭子">
-    <input class="field" placeholder="手机号" inputmode="tel" value="138 0000 0000">
-    <input class="field" placeholder="验证码" value="123456">
-    <button class="primary" onclick="completeRegistration()">注册并开始点餐</button>
-    <button class="link" onclick="navigate('login')">已有账号？去登录</button>
-  </section>`;
-}
-function renderHome() { return `<section id="home" class="page"><div class="topline"><div><span class="pill">📍 西湖区</span><h1 style="margin-top:8px">中午好，吃点好的</h1></div><button class="icon-btn" onclick="navigate('addresses')">⌖</button></div><button class="search" onclick="navigate('search')">⌕ 搜索商家、菜品或“想吃点热的”</button><div class="hero"><span class="pill">饭搭子推荐</span><h2 style="margin-top:12px">今天吃什么？<br>交给 AI 吧</h2><p>根据你的口味、预算和时间，给你一份刚刚好的午餐。</p></div><div class="chips"><button class="chip active">附近优选</button><button class="chip">一人食</button><button class="chip">20 分钟达</button><button class="chip">低脂轻食</button></div><h2 class="section-title">为你精选</h2>${merchantCard('阿牛牛肉面馆', '月售 2000+ · 22 分钟', '4.9', '🍜')}${merchantCard('小灶川味家常菜', '月售 1000+ · 30 分钟', '4.8', '🍲')}${aiFab()}${nav('home')}</section>`; }
-function merchantCard(name, meta, rating, emoji) { return `<button class="card merchant-card" onclick="navigate('merchant')"><div class="cover">${emoji}</div><div><h3>${name}</h3><p class="muted">${meta}</p><div class="rating">★ ${rating} · 满 25 减 3</div></div></button>`; }
-function renderSearch() { return `<section id="search" class="page">${top('搜索','home')}<input id="search-input" class="field" value="牛肉面" autofocus><div class="chips"><button class="chip active">综合</button><button class="chip">销量</button><button class="chip">距离</button></div><h2 class="section-title">搜索结果</h2>${merchantCard('阿牛牛肉面馆','距你 1.2km · 22 分钟','4.9','🍜')}<div class="card food-item"><div class="cover">🍜</div><div class="food-copy"><h3>招牌牛肉面</h3><p class="muted">来自阿牛牛肉面馆</p><p class="price">¥25</p></div><button class="add" onclick="openDish('beef-noodle')">+</button></div>${aiFab()}${nav('home')}</section>`; }
-function renderMerchant() { return `<section id="merchant" class="page"><div class="menu-head"><button class="back" onclick="navigate('home')">‹</button><span class="pill">品牌优选</span><h2 style="margin-top:10px">阿牛牛肉面馆</h2><p style="font-size:13px;margin-top:7px">★ 4.9 · 月售 2000+ · 22 分钟送达</p></div><div class="chips"><button class="chip active">招牌</button><button class="chip">热销</button><button class="chip">小食饮品</button></div><h2 class="section-title">招牌推荐</h2>${dishes.map(d => `<div class="food-item"><div class="cover">${d.emoji}</div><div class="food-copy"><h3>${d.name}</h3><p class="muted">${d.desc}</p><p class="price">¥${d.price}</p></div><button class="add" aria-label="添加 ${d.name}" onclick="openDish('${d.id}')">+</button></div>`).join('')}${cartBar()}${aiFab()}${nav('home')}</section>`; }
-function renderCheckout() { const items = cart.length ? cart.map(itemRow).join('') : '<div class="empty">购物车还是空的，去挑些好吃的吧。</div>'; return `<section id="checkout" class="page">${top('确认订单','merchant')}<button class="card address" style="width:100%;text-align:left" onclick="navigate('addresses')"><b>📍 ${escapeHtml(selectedAddress)}</b><p class="muted" style="margin-top:6px">张同学 138****0000 · 点击切换地址</p></button><div class="card" style="margin-top:12px"><h3>阿牛牛肉面馆</h3>${items}<div class="total"><span>合计</span><span>${money(cartTotal())}</span></div></div><div class="card" style="margin-top:12px"><div class="between"><span>餐具</span><span class="muted">按需提供 ›</span></div><div class="between" style="margin-top:16px"><span>配送方式</span><span class="muted">尽快送达</span></div></div><button class="primary" ${cart.length ? '' : 'disabled'} onclick="confirmOrder()">提交订单 · ${money(cartTotal())}</button>${aiFab()}${nav('home')}</section>`; }
-function itemRow(item) { return `<div class="list-row"><div class="cover">${item.emoji}</div><div class="grow"><b>${item.name}</b><p class="muted">${item.options}</p><p class="price">¥${item.price}</p></div><div class="qty"><button onclick="changeQuantity('${item.id}',-1)">−</button><b>${item.quantity}</b><button onclick="changeQuantity('${item.id}',1)">+</button></div></div>`; }
-function renderPayment() { return `<section id="payment" class="page">${top('模拟支付','checkout')}<div class="card confirm-card" style="margin-top:44px"><div style="font-size:48px">🧾</div><p class="muted" style="margin-top:12px">饭搭子 AI · 阿牛牛肉面馆</p><h1 style="margin:13px 0">${money(cartTotal())}</h1><p class="muted">本页仅模拟支付，不会扣款</p></div><div class="card" style="margin-top:16px"><div class="list-row"><span style="font-size:25px">💳</span><div class="grow"><b>饭搭子模拟支付</b><p class="muted">安全快捷的原型流程</p></div><span>✓</span></div></div><button class="primary" onclick="submitMockPayment()">支付 ${money(cartTotal())}</button></section>`; }
-function renderOrders() { return `<section id="orders" class="page">${top('我的订单','home')}<div class="chips"><button class="chip active">全部</button><button class="chip">进行中</button><button class="chip">已完成</button></div>${orderCreated ? `<button class="card merchant-card" style="margin-top:18px" onclick="navigate('order-detail')"><div class="cover">🍜</div><div class="grow"><div class="between"><h3>阿牛牛肉面馆</h3><span style="color:var(--ai)">${statusSteps[orderStatus]}</span></div><p class="muted">${cartCount()} 件商品 · ${money(cartTotal())}</p><p class="muted" style="margin-top:9px">查看订单详情 ›</p></div></button>` : '<div class="empty">还没有订单，去首页逛逛吧。</div>'}${aiFab()}${nav('orders')}</section>`; }
-function renderOrderDetail() { return `<section id="order-detail" class="page">${top('订单详情','orders')}<div class="card" style="background:linear-gradient(135deg,var(--ai),#8584ff);color:white"><span class="pill" style="color:var(--ink)">配送服务中</span><h2 style="margin-top:12px">${statusSteps[orderStatus]}</h2><p style="font-size:13px;margin-top:7px">订单号 FA${String(Date.now()).slice(-6)}</p></div><div class="card" style="margin-top:13px"><h3>订单状态</h3><div class="timeline">${statusSteps.map((step, index) => `<div class="event ${index > orderStatus ? 'pending' : ''}"><b>${step}</b><p class="muted">${index <= orderStatus ? '已更新 · 饭搭子为你持续关注' : '等待下一步'}</p></div>`).join('')}</div>${orderStatus < 4 ? '<button class="secondary" style="width:100%" onclick="advanceOrderStatus()">推进订单状态（演示）</button>' : ''}</div><div class="card" style="margin-top:13px"><h3>配送地址</h3><p class="muted" style="margin-top:8px">${escapeHtml(selectedAddress)}</p></div>${aiFab()}${nav('orders')}</section>`; }
-function renderAddresses() {
-  const addressCards = addresses.map(address => `<button class="card address" style="width:100%;text-align:left" onclick="selectAddressById('${address.id}')">
-    <h3>${escapeHtml(address.label)} ${address.isDefault ? '<span class="pill">默认</span>' : ''}</h3>
-    <p class="muted" style="margin-top:8px">${escapeHtml(memberName)} 138****0000<br>${escapeHtml(address.detail)}</p>
-  </button>`).join('');
-  return `<section id="addresses" class="page">${top('地址管理','profile')}${addressCards}
-    <button class="primary" onclick="openAddressForm()">＋ 新增收货地址</button>${aiFab()}${nav('profile')}
-  </section>`;
-}
-function renderProfile() { return `<section id="profile" class="page"><div class="topline"><h1>我的</h1><button class="icon-btn" onclick="toast('消息中心暂无新消息')">♧</button></div><div class="card" style="display:flex;gap:13px;align-items:center"><div class="cover" style="border-radius:50%">🧑🏻</div><div><h2>${escapeHtml(memberName)}</h2><p class="muted">饭搭子 AI 已陪伴 12 天</p></div></div><div class="card settings" style="margin-top:15px"><button class="list-row" style="width:100%;background:transparent;text-align:left" onclick="navigate('addresses')"><span>📍</span><b class="grow">地址管理</b><span>›</span></button><button class="list-row" style="width:100%;background:transparent;text-align:left" onclick="navigate('agent')"><span>✦</span><b class="grow">AI 搭子</b><span>›</span></button><button class="list-row" style="width:100%;background:transparent;text-align:left" onclick="navigate('automation')"><span>⚙</span><b class="grow">自动化设置</b><span>›</span></button></div>${aiFab()}${nav('profile')}</section>`; }
-function renderAutomation() { return `<section id="automation" class="page">${top('自动化设置','profile')}<div class="hero" style="background:linear-gradient(135deg,var(--ai-soft),#f7f2ff)"><span class="pill">AI 搭子</span><h2 style="margin-top:12px">让点餐更省一步</h2><p>自动化只会在你的设置范围内运行，每次下单仍由你确认。</p></div><div class="card settings"><div class="list-row"><div class="grow"><b>自动确认偏好</b><p class="muted">符合预算和口味时先为你准备</p></div><button aria-label="切换自动确认" class="switch ${automationEnabled ? 'on' : ''}" onclick="toggleAutomation()"></button></div><div class="list-row"><div class="grow"><b>午餐提醒</b><p class="muted">工作日 11:35</p></div><span>›</span></div><div class="list-row"><div class="grow"><b>每餐预算</b><p class="muted">¥ 15 - 35</p></div><span>›</span></div></div>${aiFab()}${nav('profile')}</section>`; }
-function render() {
-  const pages = {
-    login: renderLogin, register: renderRegister, home: renderHome, search: renderSearch,
-    merchant: renderMerchant, checkout: renderCheckout, payment: renderPayment,
-    orders: renderOrders, 'order-detail': renderOrderDetail, addresses: renderAddresses,
-    profile: renderProfile, automation: renderAutomation, agent: renderProfile
-  };
-  app.innerHTML = pages[currentPage]();
-}
-function navigate(page) { currentPage = page === 'agent' ? 'profile' : page; render(); window.scrollTo(0,0); if (page === 'agent') openAgent(); }
-function openDish(dishId) { const dish = dishes.find(d => d.id === dishId); modalRoot.innerHTML = `<div class="modal-backdrop"><section class="sheet"><div class="handle"></div><div class="food-item"><div class="cover">${dish.emoji}</div><div><h2>${dish.name}</h2><p class="price">¥${dish.price}</p></div></div><h3 style="margin-top:16px">选择规格</h3><button class="option selected" data-size="标准份" onclick="pickOption(this,'size')">标准份 <b>¥${dish.price}</b></button><button class="option" data-size="大份" onclick="pickOption(this,'size')">大份 <b>+ ¥4</b></button><h3 style="margin-top:16px">口味</h3><button class="option selected" data-spice="不辣" onclick="pickOption(this,'spice')">不辣</button><button class="option" data-spice="微辣" onclick="pickOption(this,'spice')">微辣</button><button class="option" data-extra="加卤蛋" onclick="this.classList.toggle('selected')">加卤蛋 <b>+ ¥2</b></button><button class="primary" onclick="addSelectedDish('${dish.id}')">加入购物车</button><button class="link" style="width:100%" onclick="closeModal()">取消</button></section></div>`; }
-function pickOption(button, group) { modalRoot.querySelectorAll(`[data-${group}]`).forEach(el => el.classList.remove('selected')); button.classList.add('selected'); }
-function addSelectedDish(dishId) { const size = modalRoot.querySelector('[data-size].selected')?.dataset.size || '标准份'; const spice = modalRoot.querySelector('[data-spice].selected')?.dataset.spice || '不辣'; const extra = modalRoot.querySelector('[data-extra].selected') ? '加卤蛋' : ''; addToCart(dishId, { size, spice, extra }); closeModal(); }
-function addToCart(dishId, options = {}) { const dish = dishes.find(d => d.id === dishId); const optionsText = [options.size || '标准份', options.spice || '不辣', options.extra].filter(Boolean).join(' · '); const price = dish.price + (options.size === '大份' ? 4 : 0) + (options.extra ? 2 : 0); const itemId = `${dishId}-${optionsText}`; const existing = cart.find(item => item.id === itemId); if (existing) existing.quantity += 1; else cart.push({ id:itemId, name:dish.name, emoji:dish.emoji, price, quantity:1, options:optionsText }); render(); toast(`${dish.name} 已加入购物车`); }
-function changeQuantity(itemId, delta) { const item = cart.find(entry => entry.id === itemId); if (!item) return; item.quantity += delta; if (item.quantity <= 0) cart = cart.filter(entry => entry.id !== itemId); render(); }
-function confirmOrder() { if (!cart.length) return toast('请先添加菜品'); modalRoot.innerHTML = `<div class="modal-backdrop"><section class="sheet confirm-card"><div class="handle"></div><div style="font-size:44px">🤖</div><h2 style="margin:10px 0">确认这份订单吗？</h2><p class="muted">饭搭子已核对口味、地址和预算，共 ${money(cartTotal())}。</p><div class="confirm-actions"><button class="secondary" onclick="closeModal()">取消</button><button class="primary" style="margin:0" onclick="closeModal();navigate('payment')">确认支付</button></div></section></div>`; }
-function submitMockPayment() { orderCreated = true; orderStatus = 0; navigate('order-detail'); toast('支付成功，商家正在处理订单'); }
-function advanceOrderStatus() { orderStatus = Math.min(orderStatus + 1, statusSteps.length - 1); render(); toast(`订单状态：${statusSteps[orderStatus]}`); }
-function toggleAutomation() { automationEnabled = !automationEnabled; render(); toast(automationEnabled ? '已开启自动确认偏好' : '已关闭自动确认偏好'); }
-function selectAddress(address) { selectedAddress = address; toast('已切换收货地址'); setTimeout(() => navigate('checkout'), 300); }
-function selectAddressById(addressId) {
-  const address = addresses.find(item => item.id === addressId);
-  if (address) selectAddress(address.full);
-}
-function completeRegistration() {
-  memberName = document.querySelector('#register-name').value.trim() || '新搭子';
-  navigate('home');
-  toast(`欢迎你，${memberName}`);
-}
-function openAddressForm() {
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section class="sheet">
-    <div class="handle"></div><h2>新增收货地址</h2>
-    <input id="address-label" class="field" value="新地址" placeholder="地址标签，如：学校">
-    <input id="address-detail" class="field" value="杭州市西湖区 灵隐路 1 号" placeholder="详细地址">
-    <button class="primary" onclick="saveAddress()">保存并设为当前地址</button>
-    <button class="link" style="width:100%" onclick="closeModal()">取消</button>
-  </section></div>`;
-}
-function addAddress(label, detail) {
-  const safeLabel = label.trim() || '新地址';
-  const safeDetail = detail.trim() || '杭州市西湖区 灵隐路 1 号';
-  const full = `${safeLabel} · ${safeDetail.replace(/^杭州市西湖区\s*/, '')}`;
-  addresses.push({ id: `address-${addresses.length + 1}`, label: safeLabel, full, detail: safeDetail, isDefault: false });
-  selectedAddress = full;
-  return full;
-}
-function saveAddress() {
-  const label = document.querySelector('#address-label').value;
-  const detail = document.querySelector('#address-detail').value;
-  addAddress(label, detail);
-  closeModal();
-  navigate('addresses');
-  toast('已新增并设为当前收货地址');
-}
-function agentConfirmationCard() {
-  if (!agentEvents.length) return '';
-  if (agentOrderConfirmed) return `<div class="agent-confirm confirmed"><b>✓ 订单已确认</b><p>招牌牛肉面 · 不辣 · ¥25</p></div>`;
-  if (agentOrderCancelled) return `<div class="agent-confirm cancelled"><b>已取消本次推荐</b><p>你可以继续告诉我想吃什么。</p></div>`;
-  return `<div class="agent-confirm"><span class="pill">待你确认</span><h3>阿牛牛肉面馆 · 招牌牛肉面</h3><p class="muted">标准份 · 不辣 · 送至 ${escapeHtml(selectedAddress)}</p><div class="confirm-actions"><button class="secondary" onclick="cancelAgentOrder()">取消</button><button class="primary" style="margin:0" onclick="confirmAgentOrder()">确认订单 ¥25</button></div></div>`;
-}
-function openAgent() {
-  const eventHtml = agentEvents.length ? `<div class="agent-log">${agentEvents.map(e => `<div>${e}</div>`).join('')}</div>` : '';
-  modalRoot.innerHTML = `<div class="modal-backdrop"><section id="agent" class="sheet ${agentMode === 'full' ? 'full' : ''}">
-    <div class="handle"></div><div class="assistant-head"><div class="between"><div><span class="pill">饭搭子 AI</span><h2 style="margin-top:9px">你的点餐搭子</h2></div><div><button class="icon-btn" onclick="toggleAgentFullscreen()">⛶</button><button class="icon-btn" onclick="closeModal()">×</button></div></div></div>
-    <div class="messages"><div class="bubble">你好！告诉我想吃什么、预算和口味，我来帮你搭配。</div>${agentEvents.length ? '<div class="bubble user">帮我点一份不辣的面</div><div class="bubble">我找到了阿牛牛肉面馆，已为你准备不辣的招牌牛肉面。</div>' : ''}</div>
-    ${eventHtml}${agentConfirmationCard()}<div class="assistant-input"><input id="agent-prompt" placeholder="例如：想吃不辣的热汤面" value=""><button class="round" title="模拟录音识别" onclick="mockRecord()">🎙</button><button class="round" title="发送" onclick="sendAgent()">↑</button></div>
-  </section></div>`;
-}
-function toggleAgentFullscreen() { agentMode = agentMode === 'full' ? 'half' : 'full'; openAgent(); }
-function mockRecord() { const input = document.querySelector('#agent-prompt'); input.value = '帮我点一份不辣的热汤面'; input.focus(); toast('已识别本地模拟语音'); }
-function sendAgent() { const prompt = document.querySelector('#agent-prompt').value.trim(); if (!prompt) return toast('先告诉搭子你想吃什么'); runAgentDemo(prompt); }
-function confirmAgentOrder() {
-  agentOrderConfirmed = true;
-  agentOrderCancelled = false;
-  openAgent();
-  toast('订单已确认');
-}
-function cancelAgentOrder() {
-  agentOrderCancelled = true;
-  agentOrderConfirmed = false;
-  openAgent();
-  toast('已取消本次 AI 推荐');
-}
-function runAgentDemo(prompt) {
-  agentEvents = ['解析意图', '搜索商家', '查询菜品', '构建购物车', '校验订单', '等待确认'];
-  agentOrderConfirmed = false;
-  agentOrderCancelled = false;
-  openAgent();
-  toast(`已收到：“${prompt}”`);
-}
-function closeModal() { modalRoot.innerHTML = ''; }
-function toast(message) { const old = document.querySelector('.toast'); if (old) old.remove(); const el = document.createElement('div'); el.className = 'toast'; el.textContent = message; document.querySelector('.phone-shell').append(el); setTimeout(() => el.remove(), 1800); }
-Object.assign(window, { navigate, addToCart, changeQuantity, submitMockPayment, advanceOrderStatus, toggleAutomation, runAgentDemo, openDish, pickOption, addSelectedDish, closeModal, confirmOrder, openAgent, toggleAgentFullscreen, mockRecord, sendAgent, selectAddress, selectAddressById, completeRegistration, openAddressForm, addAddress, saveAddress, confirmAgentOrder, cancelAgentOrder, escapeHtml, toast });
-render();
+/* 饭搭子 AI UI 原型：依据 docs/ui-redesign.md 与 .scratch/ui-redesign/spec.md。 */
+(function () {
+  var merchants = [
+    {id:'porridge',name:'南城粥铺',meta:'4.9 · 月售 2000+ · 25 分钟 · 1.2km',tags:'清淡 · 早餐 · 低脂',emoji:'🥣'},
+    {id:'noodle',name:'阿牛牛肉面馆',meta:'4.8 · 月售 1800+ · 22 分钟 · 1.6km',tags:'热汤 · 可选辣度',emoji:'🍜'},
+    {id:'light',name:'轻食研究所',meta:'4.7 · 月售 900+ · 30 分钟 · 2.1km',tags:'低卡 · 沙拉',emoji:'🥗'}
+  ];
+  var dishes = [
+    {id:'porridge-1',merchant:'porridge',name:'南瓜小米粥',desc:'现熬小米 · 南瓜泥 · 温和少油',price:16,emoji:'🥣'},
+    {id:'porridge-2',merchant:'porridge',name:'清蒸鸡胸饭',desc:'鸡胸肉 · 西兰花 · 玉米',price:24,emoji:'🍱'},
+    {id:'noodle-1',merchant:'noodle',name:'招牌牛肉面',desc:'牛骨汤 · 牛腱肉 · 可选辣度',price:25,emoji:'🍜'},
+    {id:'noodle-2',merchant:'noodle',name:'卤蛋小菜',desc:'今日卤制，售罄后不可加购',price:6,emoji:'🥚',soldOut:true}
+  ];
+  var orderSteps = ['待支付','已支付','商家已接单','制作中','配送准备中','配送中','已送达'];
+  var saved = null;
+  try { saved = JSON.parse(localStorage.getItem('fandazi-ui-prototype') || 'null'); } catch (e) {}
+  var state = Object.assign({
+    page:'login',session:'guest',member:'体验用户',address:null,search:'',filter:'综合',
+    merchantId:'noodle',cart:[],orders:[],selectedOrderId:null,
+    ai:{open:false,mode:'half',phase:'idle',events:[],prompt:''},
+    automation:{task:false,long:false,limit:30},notifications:2
+  }, saved || {});
+  var app = document.querySelector('#app');
+  function esc(v){return String(v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+  function money(n){return '¥'+Number(n).toFixed(2);}
+  function persist(){localStorage.setItem('fandazi-ui-prototype',JSON.stringify(state));}
+  function currentMerchant(){return merchants.find(function(x){return x.id===state.merchantId;}) || merchants[0];}
+  function total(){return state.cart.reduce(function(s,x){return s+x.price*x.qty;},0);}
+  function count(){return state.cart.reduce(function(s,x){return s+x.qty;},0);}
+  function go(page){state.page=page;state.ai.open=false;persist();render();window.scrollTo(0,0);}
+  function nav(active){return '<nav class="bottom-nav" aria-label="主导航">'+[['home','⌂','首页'],['merchants','▦','商家'],['orders','▤','订单'],['profile','☺','我的']].map(function(x){return '<button class="nav-item '+(active===x[0]?'active':'')+'" data-page="'+x[0]+'"><b>'+x[1]+'</b><span>'+x[2]+'</span></button>';}).join('')+'</nav>';}
+  function top(title,back){return '<div class="top"><button class="back" aria-label="返回" data-page="'+(back||'home')+'">‹</button><h2>'+title+'</h2><span class="grow"></span></div>';}
+  function fab(){return ['login','register','payment'].includes(state.page)?'':'<button class="fab" aria-label="打开 AI 助手" data-action="open-ai">✦</button>';}
+  function merchantCard(m){return '<button class="card merchant" data-merchant="'+m.id+'"><div class="food-img">'+m.emoji+'</div><div class="grow"><div class="between"><h3>'+m.name+'</h3><span class="pill">'+(m.id==='porridge'?'AI 推荐':'附近')+'</span></div><p class="meta">'+m.meta+'</p><p class="meta">'+m.tags+'</p></div></button>';}
+  function login(){return '<section class="page login"><div class="brand">🍚</div><h1>今天吃什么，让我来帮你</h1><p style="margin-top:10px">饭搭子 AI · 温暖、可信的点餐助手</p><div class="tab-switch"><button class="active">登录</button><button data-page="register">注册</button></div><input class="form-field" placeholder="用户名" value="demo-user" aria-label="用户名"><input class="form-field" type="password" placeholder="密码" value="123456" aria-label="密码"><button class="btn primary" data-action="login">登录</button><button class="btn ghost" data-action="skip-login">跳过登录，先看看</button><div class="card" style="margin-top:24px"><b>登录后保存地址和点餐偏好</b><p style="margin-top:6px">也可以先浏览附近好店，准备下单时再登录。</p></div></section>';}
+  function register(){return '<section class="page login">'+top('注册','login')+'<div class="brand">✦</div><h1>创建你的饭搭子</h1><p style="margin-top:10px">登录后保存地址和点餐偏好</p><input id="register-name" class="form-field" placeholder="用户名" value="新搭子"><input class="form-field" type="password" placeholder="密码" value="123456"><button class="btn primary" data-action="register">注册并开始点餐</button></section>';}
+  function home(){return '<section class="page"><div class="between"><div><span class="pill">'+(state.address?esc(state.address):'添加收货地址')+'</span><h1 style="margin-top:9px">今天吃点好的</h1></div><button class="icon" aria-label="通知" data-page="notifications">'+(state.notifications?'🔔':'♧')+'</button></div><button class="search-box" data-page="search" aria-label="搜索商家、菜品或直接说需求">⌕ <span>搜索商家、菜品或直接说需求</span><span style="color:var(--orange)">🎙</span></button><div class="hero"><span class="pill">饭搭子推荐</span><h2 style="margin-top:12px">把今天吃什么<br>交给 AI 助手</h2><p>根据你的口味、预算和时间，给你一份刚刚好的午餐。</p></div><div class="ai-card card" data-action="open-ai"><div class="between"><div><span class="pill" style="color:var(--purple);background:#fff">AI 助手</span><h2 style="margin-top:9px">今天想吃点什么？</h2><p style="margin-top:5px">让 AI 帮你选一份</p></div><div class="ai-mark">✦</div></div></div><div class="chips"><button class="chip active">清淡午餐</button><button class="chip">30 元以内</button><button class="chip" data-action="repeat">再来一单</button></div><h2 class="section">附近好店</h2>'+merchants.map(merchantCard).join('')+(state.address?'':'<div class="card notice"><b>还没有收货地址</b><p style="margin-top:5px">现在仍可搜索和让 AI 推荐，下单确认前再添加地址。</p></div>')+fab()+nav('home')+'</section>';}
+  function search(){var q=state.search.trim().toLowerCase();var rs=merchants.filter(function(m){return !q||(m.name+m.tags).toLowerCase().includes(q);});return '<section class="page">'+top('搜索','home')+'<div class="search-box">⌕<input id="search-input" autofocus value="'+esc(state.search)+'" placeholder="搜索商家、菜品或直接说需求"><button data-action="voice">🎙</button></div><div class="card ai-card"><b>AI 建议：试试南瓜小米粥</b><p style="margin-top:5px">适合清淡午餐，预计 25 分钟送达</p></div><div class="chips">'+['综合','距离近','评分高','配送快'].map(function(x){return '<button class="chip '+(state.filter===x?'active':'')+'" data-filter="'+x+'">'+x+'</button>';}).join('')+'</div><h2 class="section">'+(q?'“'+esc(state.search)+'”的结果':'附近商家')+'</h2>'+(rs.length?rs.map(merchantCard).join(''):'<div class="empty">没有找到相关商家<br><button class="btn ghost" data-action="clear-search">换个关键词</button></div>')+fab()+nav('home')+'</section>';}
+  function merchantPage(){var m=currentMerchant();var ms=dishes.filter(function(d){return d.merchant===m.id;});return '<section class="page"><div class="menu-cover"><button class="back" data-page="search" aria-label="返回">‹</button><div><span class="pill">附近好店</span><h1 style="margin-top:9px">'+m.name+'</h1><p style="color:#fff;margin-top:5px">'+m.meta+'</p></div></div><div class="chips"><button class="chip active">招牌</button><button class="chip">热销</button><button class="chip">小食饮品</button></div><h2 class="section">今日菜单</h2>'+ms.map(function(d){return '<div class="food-row"><div class="food-img">'+d.emoji+'</div><div class="grow"><h3>'+d.name+'</h3><p class="meta">'+d.desc+'</p><p class="price">'+money(d.price)+'</p></div><button class="add" '+(d.soldOut?'disabled':'')+' data-dish="'+d.id+'" aria-label="'+(d.soldOut?'已售罄，':'添加 ')+d.name+'">'+(d.soldOut?'售罄':'+')+'</button></div>';}).join('')+(state.cart.length?'<div class="cart-bar"><span>🛍 '+count()+' 件 · '+money(total())+'</span><button class="btn" data-page="checkout">去结算</button></div>':'')+fab()+nav('merchants')+'</section>';}
+  function checkout(){var ok=Boolean(state.address)&&state.cart.length;return '<section class="page">'+top('确认订单','merchant')+'<button class="card" style="width:100%;text-align:left" data-page="addresses"><b>📍 '+(state.address?esc(state.address):'添加收货地址')+'</b><p style="margin-top:6px">'+(state.address?'点击切换当前订单地址':'下单前必须选择有效地址')+'</p></button><div class="card" style="margin-top:12px"><h3>'+currentMerchant().name+'</h3>'+state.cart.map(function(i){return '<div class="list-row"><div class="grow"><b>'+esc(i.name)+'</b><p class="meta">'+esc(i.options)+'</p></div><div class="qty"><button data-qty="'+i.id+'" data-delta="-1">−</button><b>'+i.qty+'</b><button data-qty="'+i.id+'" data-delta="1">+</button></div><strong class="price">'+money(i.price*i.qty)+'</strong></div>';}).join('')+'<div class="total"><span>合计</span><span class="price">'+money(total())+'</span></div></div><div class="card" style="margin-top:12px"><div class="between"><span>配送费</span><span>'+money(state.cart.length?3:0)+'</span></div><div class="between" style="margin-top:10px"><span>优惠</span><span class="price">-'+money(state.cart.length?2:0)+'</span></div></div><button class="btn primary" style="width:100%;margin-top:16px" '+(ok?'':'disabled')+' data-action="create-order">'+(state.address?'创建待支付订单':'请先添加收货地址')+'</button>'+fab()+nav('home')+'</section>';}
+  function payment(){var o=state.orders.find(function(x){return x.id===state.selectedOrderId;});return '<section class="page">'+top('模拟支付','checkout')+'<div class="card" style="margin-top:36px;text-align:center"><span class="pill">模拟支付</span><h1 style="margin:18px 0">'+money(o?o.total:total())+'</h1><p>本页仅模拟支付，不会扣款</p></div><button class="btn primary" style="width:100%;margin-top:18px" data-action="pay-order">支付 '+money(o?o.total:total())+'</button><button class="btn ghost" style="width:100%" data-page="checkout">返回修改</button></section>';}
+  function orders(){return '<section class="page"><div class="between"><h1>订单</h1><button class="icon" data-page="notifications" aria-label="通知">🔔</button></div><div class="chips"><button class="chip active">全部</button><button class="chip">待支付</button><button class="chip">配送中</button><button class="chip">已完成</button></div>'+(state.orders.length?state.orders.map(function(o){return '<button class="card merchant" style="margin-top:12px" data-order="'+o.id+'"><div class="food-img">🍜</div><div class="grow"><div class="between"><h3>'+o.merchant+'</h3><span class="pill">'+o.status+'</span></div><p class="meta">'+o.items+' · '+money(o.total)+'</p><p class="meta">'+esc(o.address||'待选择地址')+'</p></div></button>';}).join(''):'<div class="empty">还没有订单<br>先去首页挑一份喜欢的吧。</div>')+fab()+nav('orders')+'</section>';}
+  function orderDetail(){var o=state.orders.find(function(x){return x.id===state.selectedOrderId;})||state.orders[0];if(!o)return orders();return '<section class="page">'+top('订单详情','orders')+'<div class="card" style="background:linear-gradient(135deg,var(--purple),#8a86ff);color:#fff"><span class="pill">'+o.status+'</span><h2 style="margin-top:12px">'+(o.status==='已送达'?'已送达，祝你用餐愉快':'订单正在为你配送')+'</h2><p style="color:#fff;margin-top:5px">订单号 '+o.id+'</p></div><div class="card" style="margin-top:12px"><h3>配送时间线</h3><div class="timeline">'+orderSteps.map(function(s,i){return '<div class="timeline-item '+(i>o.step?'pending':'')+'"><b>'+s+'</b><p>'+(i<=o.step?'已更新':'等待下一步')+'</p></div>';}).join('')+'</div>'+(o.step<orderSteps.length-1?'<button class="btn secondary" style="width:100%" data-action="advance-order">推进配送状态（演示）</button>':'')+'</div><div class="card" style="margin-top:12px"><h3>收货地址</h3><p style="margin-top:7px">'+esc(o.address||'未选择')+'</p></div>'+fab()+nav('orders')+'</section>';}
+  function profile(){return '<section class="page"><div class="between"><h1>我的</h1><button class="icon" data-page="notifications">🔔</button></div><div class="card" style="margin-top:16px"><div class="row"><div class="food-img" style="width:56px;height:56px;border-radius:50%;font-size:28px">🧑</div><div><h2>'+(state.session==='guest'?'访客':esc(state.member))+'</h2><p>'+(state.session==='guest'?'登录后保存地址和偏好':'欢迎回来，今天也吃点好的')+'</p></div></div></div><div class="card" style="margin-top:14px"><button class="list-row" style="width:100%;background:transparent;text-align:left" data-page="addresses"><span>📍</span><b class="grow">地址管理</b><span>›</span></button><button class="list-row" style="width:100%;background:transparent;text-align:left" data-page="automation"><span>✦</span><b class="grow">AI 助手与自动化</b><span>›</span></button><button class="list-row" style="width:100%;background:transparent;text-align:left" data-page="about"><span>ⓘ</span><b class="grow">关于项目</b><span>›</span></button></div>'+(state.session==='guest'?'<button class="btn primary" style="width:100%;margin-top:16px" data-page="login">登录/注册</button>':'')+fab()+nav('profile')+'</section>';}
+  function addresses(){return '<section class="page">'+top('地址管理','profile')+(state.address?'<button class="card notice" style="width:100%;text-align:left"><b>家 · '+esc(state.address)+'</b><p style="margin-top:6px">当前地址 · 默认</p></button>':'<div class="empty">还没有收货地址<br>下单前需要添加一个有效地址。</div>')+'<button class="btn primary" style="width:100%;margin-top:14px" data-action="add-address">＋ 添加新地址</button>'+(state.address?'<button class="btn ghost" style="width:100%" data-action="remove-address">删除当前地址</button>':'')+'</section>';}
+  function automation(){return '<section class="page">'+top('自动化设置','profile')+'<div class="ai-card card"><span class="pill">AI 助手</span><h2 style="margin-top:10px">让点餐更省一步</h2><p style="margin-top:6px">自动化仍受地址、金额和库存规则保护。</p></div><div class="card"><div class="list-row"><div class="grow"><b>本次自动下单</b><p>仅对当前 AI 会话有效</p></div><button class="btn '+(state.automation.task?'primary':'secondary')+'" data-toggle="task">'+(state.automation.task?'已开启':'开启')+'</button></div><div class="list-row"><div class="grow"><b>长期自动下单</b><p>必须配置默认地址和最高金额</p></div><button class="btn '+(state.automation.long?'primary':'secondary')+'" data-toggle="long">'+(state.automation.long?'已开启':'开启')+'</button></div><div class="list-row"><div class="grow"><b>最高金额</b><p>'+money(state.automation.limit)+'</p></div><span>›</span></div></div></section>';}
+  function notifications(){return '<section class="page">'+top('通知','home')+'<div class="card notice"><b>订单状态更新</b><p style="margin-top:5px">你的订单已进入制作中。</p></div><div class="card notice" style="margin-top:12px"><b>AI 助手</b><p style="margin-top:5px">有一份候选订单等待你确认。</p></div></section>';}
+  function about(){return '<section class="page">'+top('关于项目','profile')+'<div class="card"><h2>饭搭子 AI</h2><p style="margin-top:10px">一个温暖、可信的 Android 外卖与 AI 点餐原型。</p></div></section>';}
+  function ai(){if(!state.ai.open)return '';var card=state.ai.phase==='awaiting'?'<div class="card confirm"><span class="pill">待你确认</span><h3 style="margin-top:9px">南城粥铺 · 南瓜小米粥</h3><p style="margin-top:6px">标准份 · '+(state.address||'需要选择地址')+' · 合计 ¥28.00</p><div class="row" style="margin-top:14px"><button class="btn secondary grow" data-action="ai-modify">修改</button><button class="btn primary grow" data-action="ai-confirm">确认下单</button></div></div>':'';var log=state.ai.events.length?'<div class="event-log">'+state.ai.events.map(function(x){return '<div>'+x+'</div>';}).join('')+'</div>':'';return '<div class="overlay"><section class="sheet '+(state.ai.mode==='full'?'full':'')+'"><div class="handle"></div><div class="assistant-head"><div class="between"><div><span class="pill">AI 助手</span><h2 style="margin-top:8px">想吃什么，告诉我</h2></div><div class="row"><button class="icon" data-action="toggle-ai">⛶</button><button class="icon" data-action="close-ai">×</button></div></div></div><div class="bubble">你好！告诉我口味、预算和时间，我来帮你选一份。</div>'+(state.ai.events.length?'<div class="bubble user">'+esc(state.ai.prompt)+'</div>':'')+log+card+'<div class="composer"><input id="ai-input" class="form-field" value="'+esc(state.ai.prompt)+'" placeholder="例如：30 元以内的清淡午餐"><button class="circle" data-action="voice">🎙</button><button class="circle" data-action="send-ai">↑</button></div></section></div>';}
+  function render(){var views={login:login,register:register,home:home,search:search,merchant:merchantPage,checkout:checkout,payment:payment,orders:orders,'order-detail':orderDetail,profile:profile,addresses:addresses,automation:automation,notifications:notifications,about:about};app.innerHTML=(views[state.page]||home)()+ai();}
+  function addDish(id){var d=dishes.find(function(x){return x.id===id;});if(!d||d.soldOut)return;if(state.cart.length&&state.cart[0].merchant!==d.merchant){if(!window.confirm('当前购物车包含其他商家的商品，切换商家会清空购物车。继续吗？'))return;state.cart=[];}var key=id+'-standard';var item=state.cart.find(function(x){return x.id===key;});if(item)item.qty++;else state.cart.push({id:key,merchant:d.merchant,name:d.name,price:d.price,qty:1,options:'标准份 · 不辣'});persist();render();}
+  function createOrder(){if(!state.address){go('addresses');return;}var o={id:'FA'+Date.now().toString().slice(-6),merchant:currentMerchant().name,items:state.cart.map(function(x){return x.name+' ×'+x.qty;}).join('、'),total:total()+1,address:state.address,status:'待支付',step:0};state.orders.unshift(o);state.selectedOrderId=o.id;persist();go('payment');}
+  function openAi(){state.ai.open=true;state.ai.phase='idle';persist();render();}
+  function sendAi(){var input=document.querySelector('#ai-input');var prompt=(input&&input.value||'').trim();if(!prompt)return;state.ai.prompt=prompt;state.ai.phase='executing';state.ai.events=['正在理解你的需求','正在寻找附近好店','正在查看菜品','正在准备订单'];persist();render();setTimeout(function(){state.ai.phase='awaiting';state.ai.events.push('需要你确认订单');persist();render();},350);}
+  document.addEventListener('click',function(e){var el=e.target.closest('[data-page],[data-action],[data-dish],[data-merchant],[data-order],[data-qty],[data-toggle],[data-filter]');if(!el)return;if(el.dataset.page){go(el.dataset.page);return;}if(el.dataset.dish){addDish(el.dataset.dish);return;}if(el.dataset.merchant){state.merchantId=el.dataset.merchant;go('merchant');return;}if(el.dataset.order){state.selectedOrderId=el.dataset.order;go('order-detail');return;}if(el.dataset.qty){var item=state.cart.find(function(x){return x.id===el.dataset.qty;});if(item){item.qty+=Number(el.dataset.delta);if(item.qty<=0)state.cart=state.cart.filter(function(x){return x!==item;});persist();render();}return;}if(el.dataset.filter){state.filter=el.dataset.filter;persist();render();return;}if(el.dataset.toggle){if(el.dataset.toggle==='long'&&!state.address){go('addresses');return;}state.automation[el.dataset.toggle]=!state.automation[el.dataset.toggle];persist();render();return;}var a=el.dataset.action;if(a==='login'){state.session='member';go('home');}if(a==='register'){state.session='member';state.member=document.querySelector('#register-name')?.value||'新搭子';go('home');}if(a==='skip-login'){state.session='guest';go('home');}if(a==='open-ai')openAi();if(a==='close-ai'){state.ai.open=false;persist();render();}if(a==='toggle-ai'){state.ai.mode=state.ai.mode==='full'?'half':'full';persist();render();}if(a==='send-ai')sendAi();if(a==='voice'){var input=document.querySelector('#ai-input')||document.querySelector('#search-input');if(input){input.value='清淡午餐，30 元以内';input.dispatchEvent(new Event('input'));input.focus();}}if(a==='create-order')createOrder();if(a==='pay-order'){var o=state.orders.find(function(x){return x.id===state.selectedOrderId;});if(o){o.status='已支付';o.step=1;persist();go('order-detail');}}if(a==='advance-order'){var o2=state.orders.find(function(x){return x.id===state.selectedOrderId;});if(o2){o2.step=Math.min(o2.step+1,orderSteps.length-1);o2.status=orderSteps[o2.step];persist();render();}}if(a==='add-address'){state.address='上海 · 静安区 · 南京西路 88 号';persist();go('addresses');}if(a==='remove-address'){state.address=null;persist();render();}if(a==='repeat'){openAi();state.ai.prompt='再来一单';render();}if(a==='ai-modify'){state.ai.phase='executing';state.ai.prompt='请修改订单';state.ai.events=['正在重新整理你的需求'];persist();render();setTimeout(function(){state.ai.phase='awaiting';persist();render();},350);}if(a==='ai-confirm'){if(!state.address){go('addresses');return;}state.cart=[{id:'porridge-1-standard',merchant:'porridge',name:'南瓜小米粥',price:16,qty:1,options:'标准份 · 少油'}];state.merchantId='porridge';state.ai.open=false;createOrder();}if(a==='clear-search'){state.search='';persist();render();}});
+  document.addEventListener('input',function(e){if(e.target.id==='search-input'){state.search=e.target.value;persist();}});
+  render();
+})();

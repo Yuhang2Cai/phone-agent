@@ -2,8 +2,13 @@ appId: com.fandazi.app
 ---
 - launchApp:
     clearState: true
-- tapOn: "先看看，不登录"
-- tapOn: "我的"
-- assertVisible: "我的"
-- assertVisible: "配送地址"
-- assertVisible: "自动化设置"
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_title"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_address_entry"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_automation_entry"
