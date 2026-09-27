@@ -2,6 +2,8 @@ package com.fandazi.app.feature.ordering
 
 import java.math.BigDecimal
 
+data class PagedResult<T>(val content: List<T>, val number: Int, val last: Boolean, val totalElements: Long)
+
 data class Merchant(
     val id: Long,
     val name: String,
@@ -11,6 +13,15 @@ data class Merchant(
     val deliveryMinutes: Int,
     val open: Boolean,
     val imageUrl: String? = null
+)
+
+data class MerchantReview(
+    val id: Long,
+    val merchantId: Long,
+    val reviewerName: String,
+    val rating: BigDecimal,
+    val content: String,
+    val createdAt: String
 )
 
 data class Dish(

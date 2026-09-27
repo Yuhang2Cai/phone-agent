@@ -13,6 +13,12 @@ import java.nio.charset.StandardCharsets
 
 interface OrderingRepository {
     suspend fun searchMerchants(keyword: String): ApiResult<List<Merchant>>
+    suspend fun loadMerchants(page: Int, size: Int = 4, openOnly: Boolean = true): ApiResult<PagedResult<Merchant>> =
+        ApiResult.Failure(ApiError.Network("商家列表暂不可用"))
+    suspend fun loadMerchant(merchantId: Long): ApiResult<Merchant> =
+        ApiResult.Failure(ApiError.Network("商家详情暂不可用"))
+    suspend fun loadReviews(merchantId: Long, page: Int, size: Int = 10): ApiResult<PagedResult<MerchantReview>> =
+        ApiResult.Failure(ApiError.Network("商家评价暂不可用"))
     suspend fun loadMenu(merchantId: Long): ApiResult<List<Dish>>
     suspend fun createCartDraft(merchantId: Long): ApiResult<CartDraft>
     suspend fun updateCart(cartDraftId: Long, items: List<CartItemInput>): ApiResult<CartDraft>
@@ -34,9 +40,20 @@ class HttpOrderingRepository(
 ) : OrderingRepository {
     override suspend fun searchMerchants(keyword: String): ApiResult<List<Merchant>> =
         apiClient.get("merchants?keyword=${keyword.urlEncoded()}").mapJson { body ->
-            val root = JsonParser.parseString(body).asJsonObject
-            root.array("content").map { it.asJsonObject.toMerchant() }
+            JsonParser.parseString(body).asJsonObject.toPage { it.toMerchant() }.content
         }
+
+    override suspend fun loadMerchants(page: Int, size: Int, openOnly: Boolean): ApiResult<PagedResult<Merchant>> =
+        apiClient.get("merchants?page=$page&size=$size&openOnly=$openOnly")
+            .mapJson { JsonParser.parseString(it).asJsonObject.toPage { item -> item.toMerchant() } }
+
+    override suspend fun loadMerchant(merchantId: Long): ApiResult<Merchant> =
+        apiClient.get("merchants/$merchantId")
+            .mapJson { JsonParser.parseString(it).asJsonObject.toMerchant() }
+
+    override suspend fun loadReviews(merchantId: Long, page: Int, size: Int): ApiResult<PagedResult<MerchantReview>> =
+        apiClient.get("merchants/$merchantId/reviews?page=$page&size=$size")
+            .mapJson { JsonParser.parseString(it).asJsonObject.toPage { item -> item.toMerchantReview() } }
 
     override suspend fun loadMenu(merchantId: Long): ApiResult<List<Dish>> =
         apiClient.get("merchants/$merchantId/dishes").mapJson { body ->
@@ -94,9 +111,21 @@ class HttpOrderingRepository(
 
     private fun String.toOrder(): Order = JsonParser.parseString(this).asJsonObject.toOrder()
 
+    private fun <T> JsonObject.toPage(parser: (JsonObject) -> T) = PagedResult(
+        content = array("content").map { parser(it.asJsonObject) },
+        number = int("number"),
+        last = bool("last"),
+        totalElements = long("totalElements")
+    )
+
     private fun JsonObject.toMerchant() = Merchant(
         long("id"), string("name"), string("category"), decimal("minimumOrder"), decimal("deliveryFee"),
         int("deliveryMinutes"), bool("open"), nullableString("imageUrl")
+    )
+
+    private fun JsonObject.toMerchantReview() = MerchantReview(
+        long("id"), long("merchantId"), string("reviewerName"), decimal("rating"),
+        string("content"), string("createdAt")
     )
 
     private fun JsonObject.toDish() = Dish(
