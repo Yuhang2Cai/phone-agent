@@ -147,6 +147,27 @@ class MerchantFeedViewModelTest {
         assertNull(viewModel.state.value.appendError)
     }
 
+    @Test fun loadNextDoesNothingUntilAppendErrorIsExplicitlyRetried() = runTest(dispatcher) {
+        val repository = FeedRepository()
+        repository.respond(page(0, false, 1))
+        repository.respond(ApiResult.Failure(ApiError.Network("offline")))
+        repository.respond(page(1, true, 2))
+        val viewModel = MerchantFeedViewModel(repository, dispatcher)
+
+        viewModel.loadInitial()
+        advanceUntilIdle()
+        viewModel.loadNext()
+        advanceUntilIdle()
+        val failedState = viewModel.state.value
+
+        viewModel.loadNext()
+        viewModel.loadNext()
+        advanceUntilIdle()
+
+        assertEquals(listOf(0, 1), repository.calls.map { it.first })
+        assertEquals(failedState, viewModel.state.value)
+    }
+
     @Test fun lastPagePreventsFurtherCalls() = runTest(dispatcher) {
         val repository = FeedRepository()
         repository.respond(page(0, true, 1))

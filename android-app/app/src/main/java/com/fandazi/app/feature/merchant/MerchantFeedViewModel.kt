@@ -45,7 +45,7 @@ class MerchantFeedViewModel(
 
     fun loadNext() {
         val current = state.value
-        if (requestJob?.isActive == true || current.endReached || current.items.isEmpty()) return
+        if (requestJob?.isActive == true || current.endReached || current.items.isEmpty() || current.appendError != null) return
         requestPage(page = current.nextPage, append = true, requestGeneration = generation)
     }
 
