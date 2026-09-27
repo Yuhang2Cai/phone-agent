@@ -15,6 +15,7 @@ import com.fandazi.feature.catalog.DishOptionRepository;
 import com.fandazi.feature.catalog.DishRepository;
 import com.fandazi.feature.catalog.DishResponse;
 import com.fandazi.feature.catalog.MerchantRepository;
+import com.fandazi.feature.catalog.MerchantReviewRepository;
 import com.fandazi.feature.order.OrderEntity;
 import com.fandazi.feature.order.OrderStatus;
 import com.fandazi.feature.order.OrderRepository;
@@ -26,6 +27,10 @@ import java.nio.file.Path;
 import javax.sql.DataSource;
 import java.util.stream.Stream;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +48,7 @@ class SeedDataLoaderTest {
     private static final Path FIXTURE_DIRECTORY = copyFixtures();
 
     @Autowired private MerchantRepository merchants;
+    @Autowired private MerchantReviewRepository reviews;
     @Autowired private DishRepository dishes;
     @Autowired private DishOptionRepository options;
     @Autowired private AddressRepository addresses;
@@ -69,6 +75,80 @@ class SeedDataLoaderTest {
     @AfterEach
     void restoreFixtureFiles() throws IOException {
         restoreFixtures();
+    }
+
+    @Test
+    void reviewFixtureCoversEveryMerchantWithThreeToFiveReviews() throws IOException {
+        JsonNode merchantFixture = mapper.readTree(Files.newInputStream(FIXTURE_SOURCE.resolve("merchants.json")));
+        JsonNode reviewFixture = mapper.readTree(Files.newInputStream(FIXTURE_DIRECTORY.resolve("reviews.json")));
+
+        Set<String> merchantNames = StreamSupport.stream(merchantFixture.spliterator(), false)
+                .map(merchant -> merchant.path("name").asText()).collect(Collectors.toSet());
+        Map<String, Long> reviewsByMerchant = StreamSupport.stream(reviewFixture.spliterator(), false)
+                .collect(Collectors.groupingBy(review -> review.path("merchant").asText(), Collectors.counting()));
+
+        assertThat(merchantNames).hasSize(12);
+        assertThat(reviewsByMerchant.keySet()).containsExactlyInAnyOrderElementsOf(merchantNames);
+        assertThat(reviewsByMerchant.values()).allSatisfy(count -> assertThat(count).isBetween(3L, 5L));
+    }
+
+    @Test
+    void firstSeedPersistsThreeReviewsForEveryMerchant() {
+        assertThat(reviews.count()).isEqualTo(36);
+        assertThat(jdbc.queryForList("select m.name, count(r.id) as review_count from merchants m left join merchant_reviews r on r.merchant_id = m.id group by m.name"))
+                .hasSize(12)
+                .allSatisfy(row -> assertThat(((Number) row.get("REVIEW_COUNT")).longValue()).isEqualTo(3));
+    }
+
+    @Test
+    void existingSeedUserWithoutReviewsIsRepaired() throws Exception {
+        reviews.deleteAll();
+        assertThat(users.findByUsername("seed_alice")).isPresent();
+
+        loader.run(new org.springframework.boot.DefaultApplicationArguments());
+
+        assertThat(reviews.count()).isEqualTo(36);
+        assertThat(merchants.count()).isEqualTo(12);
+        assertThat(dishes.count()).isEqualTo(120);
+    }
+
+    @Test
+    void outOfRangeReviewRatingIsRejected() throws Exception {
+        ArrayNode reviewFixture = (ArrayNode) mapper.readTree(Files.newInputStream(FIXTURE_DIRECTORY.resolve("reviews.json")));
+        ((ObjectNode) reviewFixture.get(0)).put("rating", 5.5);
+        Files.writeString(FIXTURE_DIRECTORY.resolve("reviews.json"), mapper.writeValueAsString(reviewFixture));
+
+        assertThatThrownBy(() -> loader.run(new org.springframework.boot.DefaultApplicationArguments()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("Review rating must be between 1.0 and 5.0");
+        assertThat(reviews.count()).isEqualTo(36);
+    }
+
+    @Test
+    void reviewFixtureWithUnknownMerchantIsRejected() throws Exception {
+        ArrayNode reviewFixture = (ArrayNode) mapper.readTree(Files.newInputStream(FIXTURE_DIRECTORY.resolve("reviews.json")));
+        ((ObjectNode) reviewFixture.get(0)).put("merchant", "unknown_merchant");
+        Files.writeString(FIXTURE_DIRECTORY.resolve("reviews.json"), mapper.writeValueAsString(reviewFixture));
+
+        assertThatThrownBy(() -> loader.run(new org.springframework.boot.DefaultApplicationArguments()))
+                .isInstanceOf(IllegalStateException.class)
+                .hasRootCauseMessage("Review fixture references unknown merchant: unknown_merchant");
+        assertThat(reviews.count()).isEqualTo(36);
+    }
+
+    @Test
+    void existingSeedUserReplacesOnlyMissingReviews() throws Exception {
+        var existingReviews = reviews.findAll();
+        var missingReview = existingReviews.get(0);
+        long retainedId = existingReviews.get(1).getId();
+        reviews.delete(missingReview);
+
+        loader.run(new org.springframework.boot.DefaultApplicationArguments());
+
+        assertThat(reviews.count()).isEqualTo(36);
+        assertThat(reviews.existsById(retainedId)).isTrue();
+        assertThat(reviews.existsByMerchantIdAndReviewerNameAndCreatedAt(
+                missingReview.getMerchant().getId(), missingReview.getReviewerName(), missingReview.getCreatedAt())).isTrue();
     }
 
     @Test
@@ -146,9 +226,11 @@ class SeedDataLoaderTest {
     void repeatedExecutionDoesNotDuplicateRows() throws Exception {
         long merchantsBefore = merchants.count();
         long dishesBefore = dishes.count();
+        long reviewsBefore = reviews.count();
         loader.run(new org.springframework.boot.DefaultApplicationArguments());
         assertThat(merchants.count()).isEqualTo(merchantsBefore);
         assertThat(dishes.count()).isEqualTo(dishesBefore);
+        assertThat(reviews.count()).isEqualTo(reviewsBefore);
     }
 
     @Test
@@ -252,6 +334,7 @@ class SeedDataLoaderTest {
 
     private void deleteSeedRows() {
         orders.deleteAll();
+        reviews.deleteAll();
         addressMetadata.deleteAll();
         addresses.deleteAll();
         dishMetadata.deleteAll();

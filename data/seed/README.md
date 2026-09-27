@@ -4,6 +4,8 @@
 
 当前目录包含 12 家商家、120 条菜品种子数据。菜品图片使用 redbook 项目同一 OSS Bucket 中的 `fandazi/seed-food/` 前缀；启动时会幂等回填已有种子菜品的图片地址，不会重复插入数据。
 
+`reviews.json` 为每家商家提供 3 条虚构的只读演示评价，共 36 条。评价使用固定的昵称、评分、内容和 ISO-8601 时间；启动时按商家、昵称和创建时间识别已存在的评价，只补齐缺失行。因此已有 `seed_alice` 的数据库也会补齐评价，重复启动不会增加评价数。这些评价仅用于浏览展示，不代表真实用户反馈。
+
 ## 元数据 schema
 
 后端通过 Flyway migration `backend/src/main/resources/db/migration/V1__create_seed_metadata.sql` 创建 `seed_dish_metadata` 和 `seed_address_metadata`。该 migration 在 Hibernate 启动前执行；生产配置继续使用 `spring.jpa.hibernate.ddl-auto=validate`，用于校验实体与已迁移 schema 的一致性，而不是由 Hibernate 创建表。

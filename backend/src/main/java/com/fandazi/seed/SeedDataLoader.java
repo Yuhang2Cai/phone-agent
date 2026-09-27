@@ -10,6 +10,8 @@ import com.fandazi.feature.catalog.DishOptionRepository;
 import com.fandazi.feature.catalog.DishRepository;
 import com.fandazi.feature.catalog.MerchantEntity;
 import com.fandazi.feature.catalog.MerchantRepository;
+import com.fandazi.feature.catalog.MerchantReviewEntity;
+import com.fandazi.feature.catalog.MerchantReviewRepository;
 import com.fandazi.feature.order.OrderEntity;
 import com.fandazi.feature.order.OrderItemEntity;
 import com.fandazi.feature.order.OrderRepository;
@@ -20,9 +22,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -34,13 +39,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @ConditionalOnProperty(name = "seed.enabled", havingValue = "true")
 public class SeedDataLoader implements ApplicationRunner {
-    private final ObjectMapper mapper; private final MerchantRepository merchants; private final DishRepository dishes;
+    private final ObjectMapper mapper; private final MerchantRepository merchants; private final MerchantReviewRepository reviews; private final DishRepository dishes;
     private final DishOptionRepository options; private final UserRepository users; private final AddressRepository addresses; private final OrderRepository orders; private final SeedDishMetadataRepository dishMetadata; private final SeedAddressMetadataRepository addressMetadata;
     private final Path path;
     private List<SeedScenario> scenarios = List.of();
-    public SeedDataLoader(ObjectMapper mapper, MerchantRepository merchants, DishRepository dishes, DishOptionRepository options,
+    public SeedDataLoader(ObjectMapper mapper, MerchantRepository merchants, MerchantReviewRepository reviews, DishRepository dishes, DishOptionRepository options,
                           UserRepository users, AddressRepository addresses, OrderRepository orders, SeedDishMetadataRepository dishMetadata, SeedAddressMetadataRepository addressMetadata, @Value("${seed.path:../data/seed}") String path) {
-        this.mapper=mapper; this.merchants=merchants; this.dishes=dishes; this.options=options; this.users=users; this.addresses=addresses; this.orders=orders; this.dishMetadata=dishMetadata; this.addressMetadata=addressMetadata; this.path=Path.of(path);
+        this.mapper=mapper; this.merchants=merchants; this.reviews=reviews; this.dishes=dishes; this.options=options; this.users=users; this.addresses=addresses; this.orders=orders; this.dishMetadata=dishMetadata; this.addressMetadata=addressMetadata; this.path=Path.of(path);
     }
     @Override @Transactional(rollbackFor = Exception.class) public void run(ApplicationArguments args) {
         try { load(args); } catch (IOException | RuntimeException ex) { throw new IllegalStateException("Seed fixture load failed", ex); }
@@ -49,10 +54,18 @@ public class SeedDataLoader implements ApplicationRunner {
         scenarios = readScenarios();
         if (users.findByUsername("seed_alice").isPresent()) {
             refreshExistingDishImages(read("dishes.json"));
+            Map<String, MerchantEntity> merchantsByName = new HashMap<>();
+            for (MerchantEntity merchant : merchants.findAll()) merchantsByName.put(merchant.getName(), merchant);
+            syncReviews(read("reviews.json"), merchantsByName);
             return;
         }
         JsonNode merchantData = read("merchants.json");
-        for (JsonNode m : merchantData) merchants.save(new MerchantEntity(text(m,"name"), text(m,"category"), money(m,"minimumOrder"), money(m,"deliveryFee"), m.get("deliveryMinutes").asInt(), m.get("open").asBoolean(), money(m,"discountThreshold"), money(m,"discountAmount")));
+        Map<String, MerchantEntity> merchantsByName = new HashMap<>();
+        for (JsonNode m : merchantData) {
+            MerchantEntity merchant = merchants.save(new MerchantEntity(text(m,"name"), text(m,"category"), money(m,"minimumOrder"), money(m,"deliveryFee"), m.get("deliveryMinutes").asInt(), m.get("open").asBoolean(), money(m,"discountThreshold"), money(m,"discountAmount")));
+            merchantsByName.put(merchant.getName(), merchant);
+        }
+        syncReviews(read("reviews.json"), merchantsByName);
         for (JsonNode template : read("dishes.json")) {
             MerchantEntity merchant = merchants.findAll().stream().filter(m -> m.getName().equals(text(template,"merchant"))).findFirst().orElseThrow();
             for (int i=1;i<=template.get("count").asInt();i++) {
@@ -82,6 +95,26 @@ public class SeedDataLoader implements ApplicationRunner {
         }
     }
     public List<SeedScenario> getScenarios() { return scenarios; }
+
+    private void syncReviews(JsonNode fixtures, Map<String, MerchantEntity> merchantsByName) {
+        for (JsonNode fixture : fixtures) {
+            String merchantName = requiredFixtureText(fixture, "merchant");
+            MerchantEntity merchant = merchantsByName.get(merchantName);
+            if (merchant == null) throw new IllegalArgumentException("Review fixture references unknown merchant: " + merchantName);
+            JsonNode ratingNode = fixture.get("rating");
+            if (ratingNode == null || !ratingNode.isNumber()
+                    || ratingNode.decimalValue().compareTo(BigDecimal.ONE) < 0
+                    || ratingNode.decimalValue().compareTo(new BigDecimal("5.0")) > 0) {
+                throw new IllegalArgumentException("Review rating must be between 1.0 and 5.0");
+            }
+            String reviewer = requiredFixtureText(fixture, "reviewerName");
+            Instant createdAt = Instant.parse(requiredFixtureText(fixture, "createdAt"));
+            if (!reviews.existsByMerchantIdAndReviewerNameAndCreatedAt(merchant.getId(), reviewer, createdAt)) {
+                reviews.save(new MerchantReviewEntity(merchant, reviewer,
+                        ratingNode.decimalValue(), requiredFixtureText(fixture, "content"), createdAt));
+            }
+        }
+    }
 
     private void refreshExistingDishImages(JsonNode templates) {
         List<DishEntity> existing = dishes.findAll();
