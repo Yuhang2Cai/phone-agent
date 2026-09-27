@@ -1,3 +1,4 @@
+// 自动下单授权模块：集中定义判定规则。
 package com.fandazi.feature.automation;
 
 import com.fandazi.feature.auth.UserEntity;

@@ -1,3 +1,4 @@
+// 会话路由协调器：按登录状态决定页面入口。
 package com.fandazi.app.core.navigation
 
 import com.fandazi.app.feature.auth.SessionState

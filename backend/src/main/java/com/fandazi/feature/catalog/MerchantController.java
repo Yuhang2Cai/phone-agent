@@ -1,3 +1,4 @@
+// 商家与菜品目录模块：提供接口并将请求交给业务层。
 package com.fandazi.feature.catalog;
 
 import com.fandazi.seed.SeedDishMetadataRepository;

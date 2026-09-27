@@ -39,7 +39,7 @@ def resize_array(image: np.ndarray, size: tuple[int, int]) -> np.ndarray:
 
 
 def ssim_score(a: np.ndarray, b: np.ndarray) -> float:
-    # Global SSIM 是报告级指标；区域判定另用差异面积，避免大图局部误差被平均掉。
+    # 全局结构相似度用于报告；区域判定使用差异面积，避免局部误差被平均掉。
     x, y = a.mean(axis=2), b.mean(axis=2)
     ux, uy, vx, vy = x.mean(), y.mean(), x.var(), y.var()
     c1, c2 = 0.01**2, 0.03**2

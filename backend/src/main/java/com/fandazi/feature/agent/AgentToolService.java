@@ -1,3 +1,4 @@
+// 工具执行边界：按用户身份校验权限后才触发业务操作。
 package com.fandazi.feature.agent;
 
 import com.fandazi.feature.DomainException;

@@ -1,3 +1,4 @@
+// 首页模块：管理页面交互和状态展示。
 package com.fandazi.app.feature.home
 
 import android.os.Bundle

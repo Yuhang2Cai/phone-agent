@@ -1,3 +1,4 @@
+// 身份认证模块：协调界面状态与业务请求。
 package com.fandazi.app.feature.auth
 
 import android.util.Log

@@ -1,4 +1,4 @@
-"""Public API and backend-tool contract models."""
+"""公开接口与后端工具的数据契约。"""
 
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ class ToolResult(BaseModel):
     ok: bool
     data: dict[str, Any] = Field(default_factory=dict)
     error: str | None = None
-    # An ordinary negative business result is terminal unless explicitly classified.
+    # 普通业务拒绝默认是终态，只有明确分类后才可重试。
     error_kind: Literal["rejected", "retryable", "uncertain"] | None = None
 
 
@@ -57,7 +57,7 @@ class AgentResult(BaseModel):
 
 
 class IntentOutput(BaseModel):
-    """The narrow structured output expected from the LangChain model adapter."""
+    """定义模型适配器必须返回的最小结构化结果。"""
 
     intent: Literal["recommend", "order", "reorder", "strategy"]
     needs_confirmation: bool = False
@@ -65,7 +65,7 @@ class IntentOutput(BaseModel):
 
 
 class LangChainModelAdapter:
-    """Optional LangChain structured-output adapter with a safe deterministic fallback."""
+    """可选的结构化输出适配器；缺少依赖时使用确定性回退。"""
 
     def __init__(self, settings: Settings):
         self._settings = settings
@@ -81,7 +81,7 @@ class LangChainModelAdapter:
                     temperature=0,
                 ).with_structured_output(IntentOutput)
             except ImportError:
-                # The service remains testable without optional installed packages.
+                # 未安装可选依赖时仍允许测试核心服务。
                 self._chain = None
 
     def fallback_classify(self, text: str, requested_mode: str) -> IntentOutput:
@@ -117,4 +117,4 @@ class LangChainModelAdapter:
 
 
 class ModelClassificationError(RuntimeError):
-    """A configured LLM failed to produce valid structured intent output."""
+    """已配置的模型未能生成有效的结构化意图。"""

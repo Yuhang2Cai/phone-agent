@@ -1,3 +1,5 @@
+"""验证该模块的正常流程和错误边界。"""
+
 import json
 from pathlib import Path
 

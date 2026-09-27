@@ -1,3 +1,4 @@
+// 订单服务：在事务内处理库存预留、幂等和订单创建。
 package com.fandazi.feature.order;
 
 import com.fandazi.feature.DomainException;
@@ -27,7 +28,7 @@ public class OrderService {
             throw new DomainException("缺少幂等键");
         }
 
-        // A user-row lock serializes duplicate creates before inventory is reserved.
+        // 在预留库存前锁定用户记录，使重复创建请求串行执行。
         var user = users.findByIdForUpdate(userId).orElseThrow(() -> new DomainException("用户不存在"));
         String fingerprint = command.cartDraftId() + ":" + command.addressId();
         var existing = orders.findByUserIdAndIdempotencyKey(userId, command.idempotencyKey());

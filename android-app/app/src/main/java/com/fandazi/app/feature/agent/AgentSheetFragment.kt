@@ -1,3 +1,4 @@
+// 智能助手模块：管理页面交互和状态展示。
 package com.fandazi.app.feature.agent
 
 import android.Manifest

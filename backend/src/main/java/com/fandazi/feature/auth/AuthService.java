@@ -1,3 +1,4 @@
+// 身份认证模块：集中处理业务规则与状态变更。
 package com.fandazi.feature.auth;
 
 import com.fandazi.core.security.JwtService;

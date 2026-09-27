@@ -1,3 +1,4 @@
+// 身份认证模块：封装持久化查询与写入。
 package com.fandazi.app.feature.auth
 
 import android.util.Log

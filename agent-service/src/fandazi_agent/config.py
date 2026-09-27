@@ -1,4 +1,4 @@
-"""Environment-only configuration; application secrets are never committed."""
+"""只从环境读取配置，避免将应用密钥提交到仓库。"""
 
 from __future__ import annotations
 

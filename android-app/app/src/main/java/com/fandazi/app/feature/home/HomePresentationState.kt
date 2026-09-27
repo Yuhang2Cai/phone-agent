@@ -1,3 +1,4 @@
+// 首页模块：定义该模块的数据与行为。
 package com.fandazi.app.feature.home
 
 import com.fandazi.app.feature.ordering.Merchant

@@ -1,3 +1,4 @@
+// 下单流程模块：保存和恢复流程状态。
 package com.fandazi.app.feature.ordering
 
 import android.content.Context

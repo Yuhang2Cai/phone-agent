@@ -1,3 +1,5 @@
+"""验证该模块的正常流程和错误边界。"""
+
 from __future__ import annotations
 
 import copy
@@ -18,7 +20,7 @@ from fandazi_agent.spring_client import SpringBootToolClient
 
 
 class FakeWorkflowStore:
-    """External-store contract fake: only serialized bytes outlive an agent."""
+    """外部存储测试替身：代理实例销毁后只保留序列化数据。"""
 
     def __init__(self, storage=None):
         self.storage = storage if storage is not None else {}
@@ -73,7 +75,7 @@ def uncertain_failure():
 
 
 def test_public_snapshot_roundtrip_recovers_order_with_exact_workflow_key():
-    """Break caught: public export/restore cannot carry uncertainty across instances."""
+    """防止回归：跨实例导入导出必须保留不确定结果。"""
     client = RecoveryToolClient([uncertain_failure()])
     agent = make_agent(client)
     first = agent.run(request())
@@ -83,7 +85,7 @@ def test_public_snapshot_roundtrip_recovers_order_with_exact_workflow_key():
 
     restarted = make_agent(client)
     restarted.restore_session("u-1", "recovery", snapshot)
-    # Export must also work before the restored agent has a LangGraph checkpoint.
+    # 恢复后的代理尚无图检查点时也必须支持导出。
     assert restarted.export_session("u-1", "recovery") == snapshot
     assert restarted.workflow_config("u-1", "recovery")["configurable"]["thread_id"] == snapshot["workflow_id"]
     result = restarted.run(request("继续", trace_id="trace-restart"))
@@ -99,7 +101,7 @@ def test_public_snapshot_roundtrip_recovers_order_with_exact_workflow_key():
 
 
 def test_durable_store_reloads_workflow_automatically_and_clears_after_success():
-    """Break caught: a fresh agent allocates a new workflow despite a saved recovery."""
+    """防止回归：新实例必须恢复已保存的工作流。"""
     backing = {}
     client = RecoveryToolClient([uncertain_failure()])
     first_agent = make_agent(client, workflow_store=FakeWorkflowStore(backing))
@@ -120,7 +122,7 @@ def test_durable_store_reloads_workflow_automatically_and_clears_after_success()
 
 
 def test_durable_snapshot_exists_before_create_order_can_lose_its_response():
-    """Break caught: process exit between backend commit and run return loses the key."""
+    """防止回归：后端提交与返回之间崩溃时必须保留操作键。"""
     store = FakeWorkflowStore()
     client = RecoveryToolClient([SimulatedProcessExit()])
     agent = make_agent(client, workflow_store=store)
@@ -142,7 +144,7 @@ def test_durable_snapshot_exists_before_create_order_can_lose_its_response():
 
 
 def test_store_save_failure_prevents_create_order_dispatch():
-    """Break caught: an unavailable durable store still allows an untracked side effect."""
+    """防止回归：持久化存储不可用时不得执行无法追踪的副作用。"""
     class BrokenStore(FakeWorkflowStore):
         def save(self, *args):
             raise OSError("store unavailable")
@@ -155,7 +157,7 @@ def test_store_save_failure_prevents_create_order_dispatch():
 
 
 def test_store_load_failure_does_not_start_a_new_workflow():
-    """Break caught: storage read errors are treated as absent state and duplicate an order."""
+    """防止回归：存储读取失败不得视为空状态并重复下单。"""
     class BrokenStore(FakeWorkflowStore):
         def load(self, *args):
             raise OSError("store unavailable")
@@ -168,7 +170,7 @@ def test_store_load_failure_does_not_start_a_new_workflow():
 
 
 def test_recovery_can_still_be_cancelled_after_a_store_write_failure():
-    """Break caught: failed persistence discards the resume record and replays create on cancel."""
+    """防止回归：保存失败不能丢失恢复记录或在取消时重放创建操作。"""
     class TemporarilyUnavailableStore(FakeWorkflowStore):
         unavailable = False
 
@@ -193,7 +195,7 @@ def test_recovery_can_still_be_cancelled_after_a_store_write_failure():
 
 
 def test_known_create_success_survives_a_store_write_failure_in_the_same_agent():
-    """Break caught: a failed success snapshot write replays an order already acknowledged."""
+    """防止回归：成功快照写入失败不能重放已确认的订单。"""
     class TemporarilyUnavailableStore(FakeWorkflowStore):
         unavailable = True
 
@@ -219,7 +221,7 @@ def test_known_create_success_survives_a_store_write_failure_in_the_same_agent()
 
 
 def test_direct_tool_entry_cannot_bypass_graph_or_overwrite_active_recovery():
-    """Break caught: public tool dispatch creates an unauthorized order and replaces recovery."""
+    """防止回归：公开工具调用不得创建未授权订单或覆盖恢复状态。"""
     store = FakeWorkflowStore()
     client = RecoveryToolClient([uncertain_failure()])
     agent = make_agent(client, workflow_store=store)
@@ -237,7 +239,7 @@ def test_direct_tool_entry_cannot_bypass_graph_or_overwrite_active_recovery():
 @pytest.mark.parametrize("error", ["authorization_denied", "insufficient_stock", "amount_exceeded", "invalid_order_state", "unknown_failure"])
 @pytest.mark.parametrize("error_kind", [None, "rejected"])
 def test_unclassified_or_business_rejection_ends_and_clears_workflow(error, error_kind):
-    """Break caught: a definitive refusal traps the session in a repeat-order loop."""
+    """防止回归：明确拒绝后会话不能陷入重复下单循环。"""
     store = FakeWorkflowStore()
     client = RecoveryToolClient([ToolResult(ok=False, error=error, error_kind=error_kind)])
     agent = make_agent(client, workflow_store=store)
@@ -257,7 +259,7 @@ def test_unclassified_or_business_rejection_ends_and_clears_workflow(error, erro
 
 @pytest.mark.parametrize("error_kind", ["retryable", "uncertain"])
 def test_only_explicit_retryable_or_uncertain_failures_keep_recovery(error_kind):
-    """Break caught: recovery depends on error-message substrings instead of typed outcomes."""
+    """防止回归：恢复逻辑应按结果类型判断，避免依赖错误文本。"""
     client = RecoveryToolClient([ToolResult(ok=False, error="opaque_backend_error", error_kind=error_kind)])
     agent = make_agent(client)
     assert agent.run(request()).next_action == "order_recovery"
@@ -268,7 +270,7 @@ def test_only_explicit_retryable_or_uncertain_failures_keep_recovery(error_kind)
 
 
 def test_rejection_on_recovery_removes_memory_checkpoint_and_durable_snapshot():
-    """Break caught: a retry's definitive refusal leaves the earlier uncertainty active."""
+    """防止回归：重试被明确拒绝后必须清除先前的不确定状态。"""
     store = FakeWorkflowStore()
     client = RecoveryToolClient([uncertain_failure(), ToolResult(ok=False, error="authorization_denied", error_kind="rejected")])
     agent = make_agent(client, workflow_store=store)
@@ -285,7 +287,7 @@ def test_rejection_on_recovery_removes_memory_checkpoint_and_durable_snapshot():
 
 
 def test_in_memory_recovery_cancel_does_not_reissue_create_order():
-    """Break caught: existing same-instance recovery ignores explicit cancellation."""
+    """防止回归：同一实例的恢复必须响应明确取消。"""
     client = RecoveryToolClient([uncertain_failure()])
     agent = make_agent(client)
     agent.run(request())
@@ -298,7 +300,7 @@ def test_in_memory_recovery_cancel_does_not_reissue_create_order():
 @pytest.mark.parametrize("restart", [False, True])
 @pytest.mark.parametrize("text", ["取消", "不要下单", "取消本次重试"])
 def test_recovery_cancellation_never_calls_create_order_and_clears_state(restart, text):
-    """Break caught: cancel text is routed directly into another create_order attempt."""
+    """防止回归：取消请求不得被路由为再次创建订单。"""
     store = FakeWorkflowStore()
     client = RecoveryToolClient([uncertain_failure()])
     agent = make_agent(client, workflow_store=store)
@@ -323,7 +325,7 @@ def test_recovery_cancellation_never_calls_create_order_and_clears_state(restart
 @pytest.mark.parametrize("restart", [False, True])
 @pytest.mark.parametrize("outcome", ["cancelled", "rejected"])
 def test_terminal_cleanup_failure_never_replays_create_order(restart, outcome):
-    """Break caught: failed snapshot deletion revives a cancelled or rejected order attempt."""
+    """防止回归：快照删除失败不能复活已取消或拒绝的操作。"""
     class TemporarilyUnavailableStore(FakeWorkflowStore):
         unavailable = True
 
@@ -373,7 +375,7 @@ def test_terminal_cleanup_failure_never_replays_create_order(restart, outcome):
     ],
 )
 def test_order_recovery_snapshot_authenticates_all_restored_state(field, value):
-    """Break caught: expanding recovery bypasses the existing full-state signature check."""
+    """防止回归：扩展恢复逻辑仍须校验完整状态签名。"""
     client = RecoveryToolClient([uncertain_failure()])
     agent = make_agent(client)
     agent.run(request())
@@ -385,7 +387,7 @@ def test_order_recovery_snapshot_authenticates_all_restored_state(field, value):
 
 @pytest.mark.parametrize(("other_user", "other_session"), [("u-2", "recovery"), ("u-1", "other-session")])
 def test_durable_recovery_is_isolated_by_both_user_and_session(other_user, other_session):
-    """Break caught: a different user with the same session can retry another user's cart."""
+    """防止回归：同会话编号的另一用户不得重试他人的购物车。"""
     store = FakeWorkflowStore()
     client = RecoveryToolClient([uncertain_failure()])
     agent = make_agent(client, workflow_store=store)
@@ -406,14 +408,14 @@ def test_durable_recovery_is_isolated_by_both_user_and_session(other_user, other
 
 
 def test_persistent_store_requires_a_configured_signing_key(monkeypatch):
-    """Break caught: durable snapshots are written with a key lost at process restart."""
+    """防止回归：进程重启后仍须能读取持久快照。"""
     monkeypatch.delenv("AGENT_WORKFLOW_SIGNING_KEY", raising=False)
     with pytest.raises(ValueError, match="AGENT_WORKFLOW_SIGNING_KEY"):
         FoodOrderingAgent(RecoveryToolClient(), workflow_store=FakeWorkflowStore())
 
 
 def test_http_app_uses_configured_file_store_after_app_restart(tmp_path, monkeypatch):
-    """Break caught: the deployed HTTP entry point ignores durable-store configuration."""
+    """防止回归：部署的接口入口必须使用持久化存储配置。"""
     from fastapi.testclient import TestClient
     from fandazi_agent.main import create_app
 
@@ -436,7 +438,7 @@ def test_http_app_uses_configured_file_store_after_app_restart(tmp_path, monkeyp
 
 
 def test_restart_after_create_success_retries_only_payment():
-    """Break caught: a crash at payment replays an already completed create_order."""
+    """防止回归：支付阶段崩溃后不得重复创建订单。"""
     class CrashAtPaymentClient(RecoveryToolClient):
         def call(self, tool_request):
             if tool_request.tool_name == "pay_mock_order":
@@ -458,7 +460,7 @@ def test_restart_after_create_success_retries_only_payment():
 
 
 def test_recovery_tool_budget_failure_preserves_original_uncertainty():
-    """Break caught: a local retry limit erases an unresolved backend operation key."""
+    """防止回归：本地重试上限不能抹除未解决的后端操作键。"""
     store = FakeWorkflowStore()
     client = RecoveryToolClient([uncertain_failure()])
     make_agent(client, workflow_store=store).run(request())
@@ -475,7 +477,7 @@ def test_recovery_tool_budget_failure_preserves_original_uncertainty():
 
 
 def test_confirmation_budget_failure_clears_terminal_state_from_durable_store():
-    """Break caught: broadening snapshot persistence keeps a failed confirmation locked forever."""
+    """防止回归：扩大快照持久化范围后失败确认不得永久锁定会话。"""
     store = FakeWorkflowStore()
     client = RecoveryToolClient()
     assert make_agent(client, workflow_store=store).run(request(mode="order")).status == "awaiting_confirmation"
@@ -492,7 +494,7 @@ def test_confirmation_budget_failure_clears_terminal_state_from_durable_store():
 
 @pytest.mark.parametrize("contents", ["null", "[]", "not-json", "{}"])
 def test_corrupt_snapshot_file_fails_closed_without_starting_a_new_order(tmp_path, contents):
-    """Break caught: a corrupt JSON null record is mistaken for an absent workflow."""
+    """防止回归：损坏的空快照不能视为不存在的流程。"""
     from fandazi_agent.workflow_store import FileWorkflowStore
 
     store = FileWorkflowStore(tmp_path)
@@ -506,7 +508,7 @@ def test_corrupt_snapshot_file_fails_closed_without_starting_a_new_order(tmp_pat
 
 
 def test_file_store_recovers_in_a_separate_python_process(tmp_path):
-    """Break caught: recovery passes only because two agents share process memory or a key."""
+    """防止回归：跨实例恢复必须依赖持久数据而非共享内存。"""
     from fandazi_agent.workflow_store import FileWorkflowStore
 
     store = FileWorkflowStore(tmp_path)
@@ -536,7 +538,7 @@ print(json.dumps({'result': result.model_dump(mode='json'), 'requests': [item.mo
 
 @pytest.mark.parametrize("text", ["继续", "取消"])
 def test_file_store_recovers_after_abrupt_process_exit(tmp_path, text):
-    """Break caught: abrupt exit loses the write-ahead key or cancellation dispatches an order."""
+    """防止回归：突然退出后必须保留预写键，取消不得触发订单。"""
     from fandazi_agent.workflow_store import FileWorkflowStore
 
     child_code = """
@@ -579,7 +581,7 @@ print(json.dumps({'result': result.model_dump(mode='json'), 'requests': [item.mo
 
 
 def test_file_store_failed_replace_preserves_previous_recovery(tmp_path, monkeypatch):
-    """Break caught: a failed snapshot update truncates the only recoverable operation key."""
+    """防止回归：快照更新失败不能截断唯一可恢复的操作键。"""
     from fandazi_agent.workflow_store import FileWorkflowStore
 
     store = FileWorkflowStore(tmp_path)
@@ -597,7 +599,7 @@ def test_file_store_failed_replace_preserves_previous_recovery(tmp_path, monkeyp
 
 
 def test_file_store_owner_key_has_no_delimiter_collision_or_path_traversal(tmp_path):
-    """Break caught: owner key concatenation overwrites another session or escapes the store."""
+    """防止回归：归属键拼接不能覆盖其他会话或逃逸存储目录。"""
     from fandazi_agent.workflow_store import FileWorkflowStore
 
     store = FileWorkflowStore(tmp_path)

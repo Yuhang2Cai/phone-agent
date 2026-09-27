@@ -1,3 +1,4 @@
+// 智能助手模块：封装持久化查询与写入。
 package com.fandazi.feature.agent;
 
 import jakarta.persistence.LockModeType;

@@ -1,2 +1,3 @@
+-- 补充订单展示所需的元数据。
 ALTER TABLE food_orders ADD COLUMN merchant_name VARCHAR(255) NOT NULL DEFAULT '饭搭子订单';
 ALTER TABLE food_orders ADD COLUMN created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;

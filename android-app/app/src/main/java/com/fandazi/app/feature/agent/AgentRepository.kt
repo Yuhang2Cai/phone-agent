@@ -1,3 +1,4 @@
+// 助手仓库：只通过公开网关访问助手能力。
 package com.fandazi.app.feature.agent
 
 import com.fandazi.app.core.network.ApiError
@@ -36,8 +37,7 @@ interface AgentRepository {
 }
 
 /**
- * Talks only to the public Spring Boot /api surface. The app authentication token is attached by
- * the normal bearer interceptor; no Agent Service credential or internal token exists in this APK.
+ * 仅调用后端公开接口；认证令牌由统一拦截器附加，安装包不包含代理服务内部凭据。
  */
 class HttpAgentRepository(
     private val baseUrl: String,

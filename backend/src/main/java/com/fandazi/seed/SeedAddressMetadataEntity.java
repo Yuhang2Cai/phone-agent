@@ -1,3 +1,4 @@
+// 演示数据模块：定义持久化数据结构。
 package com.fandazi.seed;
 
 import jakarta.persistence.*;

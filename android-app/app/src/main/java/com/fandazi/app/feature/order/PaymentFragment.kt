@@ -1,3 +1,4 @@
+// 支付页面：独立处理支付交互与结果展示。
 package com.fandazi.app.feature.order
 
 import android.os.Bundle
@@ -19,7 +20,7 @@ import com.fandazi.app.feature.ordering.OrderingViewModelFactory
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-/** Payment is intentionally a no-agent screen: payment authority must never be offered by a floating entry point. */
+/** 支付页面不展示助手入口，避免悬浮入口取得支付操作权限。 */
 class PaymentFragment : Fragment(R.layout.fragment_payment) {
     private val viewModel: OrderingViewModel by activityViewModels {
         val activity = requireActivity() as MainActivity

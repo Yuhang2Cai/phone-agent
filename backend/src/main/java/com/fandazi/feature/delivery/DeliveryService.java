@@ -1,3 +1,4 @@
+// 配送模块：集中处理业务规则与状态变更。
 package com.fandazi.feature.delivery;
 
 import com.fandazi.feature.order.OrderEntity;

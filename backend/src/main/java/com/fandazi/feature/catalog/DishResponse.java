@@ -1,3 +1,4 @@
+// 商家与菜品目录模块：定义对外返回的数据结构。
 package com.fandazi.feature.catalog;
 
 import java.math.BigDecimal;

@@ -1,3 +1,4 @@
+// 购物车服务：校验菜品与选项并计算价格。
 package com.fandazi.feature.cart;
 
 import com.fandazi.feature.DomainException;

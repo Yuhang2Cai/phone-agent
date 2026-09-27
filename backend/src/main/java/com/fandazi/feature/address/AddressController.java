@@ -1,3 +1,4 @@
+// 收货地址模块：提供接口并将请求交给业务层。
 package com.fandazi.feature.address;
 import com.fandazi.seed.SeedAddressMetadataRepository;
 import java.util.*; import org.springframework.http.*; import org.springframework.security.core.annotation.AuthenticationPrincipal; import org.springframework.validation.annotation.Validated; import org.springframework.web.bind.annotation.*; import jakarta.validation.Valid;

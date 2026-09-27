@@ -1,4 +1,4 @@
-"""Calls the real Spring internal-tool endpoint through the production Python client."""
+"""通过生产客户端调用真实的后端内部工具接口。"""
 
 from __future__ import annotations
 

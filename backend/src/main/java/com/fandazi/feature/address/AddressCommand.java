@@ -1,3 +1,4 @@
+// 收货地址模块：定义输入参数及其约束。
 package com.fandazi.feature.address;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

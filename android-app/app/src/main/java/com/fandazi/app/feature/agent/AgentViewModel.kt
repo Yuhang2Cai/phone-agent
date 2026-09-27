@@ -1,3 +1,4 @@
+// 智能助手模块：协调界面状态与业务请求。
 package com.fandazi.app.feature.agent
 
 import androidx.lifecycle.SavedStateHandle
@@ -123,7 +124,7 @@ class AgentViewModel(
         composerAfter = "请修改订单："
     )
 
-    /** Called only by a visible, user-tapped choice in the confirmation card. */
+    /** 仅在用户点击确认卡片中的可见选项后调用。 */
     fun selectThisTaskAuto() {
         val card = _uiState.value.confirmation ?: return
         if (_uiState.value.authorization.isTaskAuto) return

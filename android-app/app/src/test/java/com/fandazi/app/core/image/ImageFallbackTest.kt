@@ -1,3 +1,4 @@
+// 图片加载模块：验证关键行为与边界条件。
 package com.fandazi.app.core.image
 
 import org.junit.Assert.assertEquals

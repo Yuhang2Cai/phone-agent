@@ -1,3 +1,4 @@
+// 订单模块：定义持久化数据结构。
 package com.fandazi.feature.order;
 
 import com.fandazi.feature.DomainException;

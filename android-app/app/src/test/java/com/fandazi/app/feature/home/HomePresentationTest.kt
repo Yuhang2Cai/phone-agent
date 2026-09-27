@@ -1,3 +1,4 @@
+// 首页模块：验证关键行为与边界条件。
 package com.fandazi.app.feature.home
 
 import org.junit.Assert.assertEquals

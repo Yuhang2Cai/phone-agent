@@ -1,3 +1,4 @@
+// 搜索模块：验证关键行为与边界条件。
 package com.fandazi.app.feature.search
 
 import com.fandazi.app.feature.ordering.SearchStatus

@@ -1,3 +1,5 @@
+"""验证该模块的正常流程和错误边界。"""
+
 from __future__ import annotations
 
 import sys
@@ -48,7 +50,7 @@ def request(
 
 
 def test_negative_confirmation_cancels_paused_workflow_without_create_order():
-    """Break caught: a negated confirmation creates an order."""
+    """防止回归：否定确认不得创建订单。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
 
@@ -61,7 +63,7 @@ def test_negative_confirmation_cancels_paused_workflow_without_create_order():
 
 
 def test_llm_classification_cannot_authorize_initial_order():
-    """Break caught: a probabilistic model boolean can skip explicit confirmation."""
+    """防止回归：模型概率值不能替代用户明确确认。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.model.classify = lambda *_: IntentOutput(intent="order", needs_confirmation=True)
@@ -73,7 +75,7 @@ def test_llm_classification_cannot_authorize_initial_order():
 
 
 def test_same_session_from_another_user_cannot_resume_first_users_cart():
-    """Break caught: session-only lookup lets another user submit a foreign cart."""
+    """防止回归：仅凭会话编号不得提交其他用户的购物车。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", user_id="u-1", session_id="shared"))
@@ -85,7 +87,7 @@ def test_same_session_from_another_user_cannot_resume_first_users_cart():
 
 
 def test_terminal_workflow_is_removed_so_same_session_starts_a_fresh_cart():
-    """Break caught: a later request reuses completed operations from the old order."""
+    """防止回归：后续请求不得复用旧订单已完成的操作。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", session_id="reuse"))
@@ -98,7 +100,7 @@ def test_terminal_workflow_is_removed_so_same_session_starts_a_fresh_cart():
 
 
 def test_paused_request_executes_real_langgraph_checkpoint_and_interrupt():
-    """Break caught: run bypasses LangGraph, leaving no checkpoint for the paused workflow."""
+    """防止回归：运行过程必须经过工作流并保存暂停检查点。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
 
@@ -111,7 +113,7 @@ def test_paused_request_executes_real_langgraph_checkpoint_and_interrupt():
 
 
 def test_strategy_step_limit_is_a_hard_failure_in_every_branch():
-    """Break caught: strategy reports success after the graph step budget is exceeded."""
+    """防止回归：超出图执行步数上限后不得报告成功。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(
         client,
@@ -125,7 +127,7 @@ def test_strategy_step_limit_is_a_hard_failure_in_every_branch():
 
 
 def test_effectful_operation_reuses_workflow_scoped_idempotency_key_after_restore():
-    """Break caught: resumed create-order operation derives idempotency from a new trace ID."""
+    """防止回归：恢复创建订单时必须沿用原幂等键。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", session_id="stable-key", trace_id="trace-a"))
@@ -141,7 +143,7 @@ def test_effectful_operation_reuses_workflow_scoped_idempotency_key_after_restor
 
 
 def test_explicit_zero_order_limit_is_not_replaced_with_default_limit():
-    """Break caught: explicit zero limit is treated as absent and permits an order."""
+    """防止回归：明确设置的零预算不得视为缺省值。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client, max_order_amount=0)
 
@@ -152,7 +154,7 @@ def test_explicit_zero_order_limit_is_not_replaced_with_default_limit():
 
 
 def test_restoring_snapshot_for_a_different_user_is_rejected():
-    """Break caught: a serialized pause can be attached to another user's session."""
+    """防止回归：序列化的暂停状态不能被另一个用户会话接管。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", user_id="u-1", session_id="owned"))
@@ -163,7 +165,7 @@ def test_restoring_snapshot_for_a_different_user_is_rejected():
 
 
 def test_order_mode_fails_closed_and_records_event_when_configured_model_fails():
-    """Break caught: an LLM outage silently guesses an order intent and reaches tools."""
+    """防止回归：模型不可用时不得猜测下单意图并调用工具。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
 
@@ -180,7 +182,7 @@ def test_order_mode_fails_closed_and_records_event_when_configured_model_fails()
 
 
 def test_restore_rejects_unsupported_version_and_tampered_workflow_id():
-    """Break caught: arbitrary snapshot version or thread ID becomes a trusted graph workflow."""
+    """防止回归：任意快照版本或线程编号不能成为受信任的工作流。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", session_id="trusted"))
@@ -196,7 +198,7 @@ def test_restore_rejects_unsupported_version_and_tampered_workflow_id():
 
 
 def test_non_confirmation_reply_can_pause_again_then_confirm_without_graph_update_error():
-    """Break caught: a second interrupt makes later confirmation crash LangGraph."""
+    """防止回归：二次中断后仍须能够继续确认流程。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", session_id="multi-reply"))
@@ -210,7 +212,7 @@ def test_non_confirmation_reply_can_pause_again_then_confirm_without_graph_updat
 
 
 def test_order_creation_survives_payment_failure_and_retry_only_retries_payment():
-    """Break caught: payment failure clears the workflow and repeats create_order on retry."""
+    """防止回归：支付失败后重试不得重复创建订单。"""
 
     class PaymentFailsOnceClient(FakeSpringBootToolClient):
         def __init__(self):
@@ -240,7 +242,7 @@ def test_order_creation_survives_payment_failure_and_retry_only_retries_payment(
 
 
 def test_snapshot_signature_rejects_user_session_delimiter_collision():
-    """Break caught: delimiter-containing owner fields produce the same signed identity bytes."""
+    """防止回归：含分隔符的归属字段必须具有唯一签名表示。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", user_id="a|b", session_id="c"))
@@ -261,7 +263,7 @@ def test_snapshot_signature_rejects_user_session_delimiter_collision():
     ],
 )
 def test_snapshot_signature_rejects_tampered_recoverable_business_state(path, replacement):
-    """Break caught: signed workflow identity accepts a modified recovery decision or cart."""
+    """防止回归：签名身份必须覆盖恢复决策和购物车内容。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", session_id="tamper-state"))
@@ -276,7 +278,7 @@ def test_snapshot_signature_rejects_tampered_recoverable_business_state(path, re
 
 
 def test_uncertain_create_order_keeps_workflow_and_reuses_same_operation_key():
-    """Break caught: create-order timeout clears state and retries with a new logical operation."""
+    """防止回归：创建订单超时后重试必须沿用同一逻辑操作。"""
 
     class CreateUncertainOnceClient(FakeSpringBootToolClient):
         def __init__(self):
@@ -306,7 +308,7 @@ def test_uncertain_create_order_keeps_workflow_and_reuses_same_operation_key():
 
 
 def test_confirmation_uses_current_request_trace_id_without_multi_channel_update():
-    """Break caught: resumed create_order retains the initial request trace instead of the confirmation trace."""
+    """防止回归：恢复创建订单时应使用本次确认请求的追踪编号。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", session_id="trace-resume", trace_id="trace-a"))
@@ -317,7 +319,7 @@ def test_confirmation_uses_current_request_trace_id_without_multi_channel_update
 
 
 def test_confirmation_budget_is_reset_for_each_http_run():
-    """Break caught: a valid confirmation inherits graph steps from the paused HTTP request."""
+    """防止回归：有效确认应重新计算本次请求的图执行步数。"""
     client = FakeSpringBootToolClient()
     settings = Settings(None, None, None, "http://localhost:8080", 6, 8, 100)
     agent = FoodOrderingAgent(client, settings=settings)
@@ -329,7 +331,7 @@ def test_confirmation_budget_is_reset_for_each_http_run():
 
 
 def test_restored_confirmation_rejects_candidate_cart_replacement_after_authorization():
-    """Break caught: a signed recovery can swap the cart after the user saw another one."""
+    """防止回归：签名恢复状态不得悄悄替换用户已看到的购物车。"""
     client = FakeSpringBootToolClient()
     agent = FoodOrderingAgent(client)
     agent.run(request("宫保鸡丁", session_id="authorized-cart"))

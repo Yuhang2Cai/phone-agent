@@ -1,3 +1,4 @@
+// 身份认证模块：验证关键行为与边界条件。
 package com.fandazi.feature.auth;
 
 import com.fasterxml.jackson.databind.JsonNode;

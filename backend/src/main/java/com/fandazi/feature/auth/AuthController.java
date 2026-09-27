@@ -1,3 +1,4 @@
+// 身份认证模块：提供接口并将请求交给业务层。
 package com.fandazi.feature.auth;
 
 import jakarta.validation.Valid;

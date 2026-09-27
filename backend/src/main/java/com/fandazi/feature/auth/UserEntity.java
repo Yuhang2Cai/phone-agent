@@ -1,3 +1,4 @@
+// 身份认证模块：定义持久化数据结构。
 package com.fandazi.feature.auth;
 
 import jakarta.persistence.Column;

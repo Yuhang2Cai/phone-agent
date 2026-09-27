@@ -1,3 +1,4 @@
+// 订单模块：定义对外返回的数据结构。
 package com.fandazi.feature.order;
 
 import java.math.BigDecimal;

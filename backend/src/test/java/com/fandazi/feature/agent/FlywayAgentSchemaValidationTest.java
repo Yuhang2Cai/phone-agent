@@ -1,3 +1,4 @@
+// 智能助手模块：验证关键行为与边界条件。
 package com.fandazi.feature.agent;
 
 import org.junit.jupiter.api.Test;
@@ -13,6 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 class FlywayAgentSchemaValidationTest {
     @Test
     void productionFlywaySchemaSatisfiesHibernateValidation() {
-        // Context startup is the assertion: Flyway creates the schema before Hibernate validates it.
+        // 启动上下文即验证迁移先建表，随后再由持久化层校验。
     }
 }

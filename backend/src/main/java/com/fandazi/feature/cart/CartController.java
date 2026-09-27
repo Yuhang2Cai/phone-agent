@@ -1,3 +1,4 @@
+// 购物车模块：提供接口并将请求交给业务层。
 package com.fandazi.feature.cart;
 
 import jakarta.validation.Valid;

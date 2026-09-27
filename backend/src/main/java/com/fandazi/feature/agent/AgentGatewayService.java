@@ -1,3 +1,4 @@
+// 智能助手网关：绑定用户会话、授权和后端代理调用。
 package com.fandazi.feature.agent;
 
 import com.fandazi.feature.address.AddressService;

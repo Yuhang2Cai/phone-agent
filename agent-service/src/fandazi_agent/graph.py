@@ -1,4 +1,4 @@
-"""Single checkpointed LangGraph workflow; LLM intent never authorizes orders."""
+"""使用检查点管理单一工作流；模型意图不能直接授权订单。"""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -31,7 +31,7 @@ class WorkflowInput(TypedDict, total=False):
 
 _PROCESS_WORKFLOW_SIGNING_KEY = secrets.token_bytes(32)
 _RESUMABLE_ACTIONS = frozenset({"wait_confirmation", "order_recovery", "payment_retry"})
-# Retained only until deletion succeeds; never eligible for another order attempt.
+# 仅在删除成功前保留；该状态不能再次用于下单。
 _TERMINAL_ACTIONS = frozenset({"cancelled", "error"})
 
 
@@ -68,7 +68,7 @@ class FoodOrderingAgent:
         return {"configurable": {"thread_id": record.workflow_id}}
 
     def export_session(self, user_id: str, session_id: str) -> dict[str, Any]:
-        """Export authenticated recovery state or a terminal outcome awaiting cleanup."""
+        """导出已认证的恢复状态，或等待清理的终态结果。"""
         state = self._checkpoint_state(user_id, session_id)
         self._assert_trusted_owner(state, user_id, session_id)
         if state.next_action not in _RESUMABLE_ACTIONS | _TERMINAL_ACTIONS:
@@ -120,11 +120,11 @@ class FoodOrderingAgent:
             self._checkpointer.delete_thread(record.workflow_id)
         return result
 
-    # Real nodes. Each goes through _enter, the common hard budget guard.
+    # 所有实际节点都经过统一的步数预算校验。
     def parse_intent(self, values: WorkflowInput) -> dict[str, Any]:
         state, request = self._unpack(values)
         if state.next_action in _TERMINAL_ACTIONS:
-            # A previous run already stopped; only durable cleanup may be retried.
+            # 上次运行已经停止，此处只允许重试持久状态清理。
             return self._pack(state)
         if state.next_action == "order_recovery":
             if self._enter(state, "parse_intent") and self._is_cancel(request.text):
@@ -200,7 +200,7 @@ class FoodOrderingAgent:
                 state.error = result.error or "购物车校验未通过"
                 return self._pack(state)
             state.candidate_cart.update(result.data)
-        # The public Gateway must be able to show the authoritative ceiling before any confirmation.
+        # 公开网关必须在用户确认前展示最终生效的金额上限。
         max_amount = self._effective_order_limit(state)
         state.candidate_cart["maxAmount"] = max_amount
         state.candidate_cart["workflowId"] = state.workflow_id
@@ -262,13 +262,13 @@ class FoodOrderingAgent:
             result = self._call_tool(state, request, "create_order", payload)
             if result.ok:
                 self._merge_order_result(state, result.data)
-                # Persist the completed order before payment can fail or the process exits.
+                # 先持久化已创建订单，再进入可能失败的支付步骤。
                 state.next_action = "payment_retry"
                 self._persist_state(state)
             else:
                 state.error = result.error or "创建订单失败"
                 unresolved = result.error_kind in {"retryable", "uncertain"}
-                # A local budget guard cannot resolve an earlier uncertain backend call.
+                # 本地预算检查无法判定先前后端调用是否已提交。
                 unresolved = unresolved or (recovering and state.tool_calls == calls_before)
                 state.next_action = "order_recovery" if unresolved else "error"
         if state.next_action == "error":
@@ -345,8 +345,7 @@ class FoodOrderingAgent:
             return ToolResult(ok=False, error=state.error)
         key = state.operation_keys.setdefault(tool_name, f"{state.workflow_id}:{tool_name}")
         if tool_name == "create_order":
-            # Write ahead of the HTTP side effect: a crash must leave the same key,
-            # cart and authorization available for reconciliation through LangGraph.
+            # 在 HTTP 副作用前预写操作键、购物车和授权，以便崩溃后核对。
             state.next_action = "order_recovery"
             self._persist_state(state)
         result = self.tool_client.call(ToolRequest(tool_name=tool_name, userId=request.user_id, sessionId=request.session_id, traceId=request.trace_id, idempotencyKey=key, workflowId=state.workflow_id, payload=payload))
@@ -505,9 +504,7 @@ class FoodOrderingAgent:
             record is not None and record.workflow_id == state.workflow_id
             and state.next_action in {"order_recovery", "payment_retry"} | _TERMINAL_ACTIONS
         ):
-            # Retain the latest known outcome even when persistence raises. The next
-            # request must re-enter the graph's cancellation/recovery routing, not
-            # resume a failed side-effect node with an obsolete request.
+            # 即使持久化失败也保留最新结果；后续请求必须重新进入取消或恢复路径。
             record.restored_state = state.model_copy(deep=True)
         if self.workflow_store is not None:
             self.workflow_store.save(state.user_id, state.session_id, snapshot)

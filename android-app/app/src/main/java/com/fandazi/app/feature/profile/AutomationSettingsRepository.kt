@@ -1,3 +1,4 @@
+// 个人资料模块：封装持久化查询与写入。
 package com.fandazi.app.feature.profile
 
 import com.fandazi.app.core.network.ApiClient

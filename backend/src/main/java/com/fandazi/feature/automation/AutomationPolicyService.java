@@ -1,3 +1,4 @@
+// 自动下单授权模块：集中处理业务规则与状态变更。
 package com.fandazi.feature.automation;
 
 import com.fandazi.feature.DomainException;

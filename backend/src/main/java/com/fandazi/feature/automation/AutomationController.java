@@ -1,3 +1,4 @@
+// 自动下单授权模块：提供接口并将请求交给业务层。
 package com.fandazi.feature.automation;
 
 import com.fandazi.feature.agent.AgentMode;

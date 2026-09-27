@@ -1,3 +1,4 @@
+// 演示数据加载器：以可重复执行的方式导入初始数据。
 package com.fandazi.seed;
 
 import com.fandazi.feature.address.AddressEntity;
