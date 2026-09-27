@@ -8,13 +8,19 @@ import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 enum class SearchStatus { Idle, Searching, Results, Empty, NetworkError, AuthRequired }
+
+sealed interface MerchantNavigationEvent {
+    data class OpenDetail(val merchantId: Long) : MerchantNavigationEvent
+}
 
 data class OrderingUiState(
     val keyword: String = "",
@@ -45,6 +51,9 @@ class OrderingViewModel(
     private val cartStore: CartStateStore = NoOpCartStateStore,
     private val cartOwner: String = "guest"
 ) : ViewModel() {
+    private var merchantGeneration = 0L
+    private val _navigationEvents = MutableSharedFlow<MerchantNavigationEvent>()
+    val navigationEvents = _navigationEvents.asSharedFlow()
     private var orderRequestKey: String? = null
     private var paymentRequestKey: String? = null
     private var activeOrderUsesCurrentCart = false
@@ -74,6 +83,7 @@ class OrderingViewModel(
 // 处理 `switchCartOwner` 相关逻辑。
     fun switchCartOwner(owner: String) {
         if (owner == activeCartOwner) return
+        ++merchantGeneration
         activeCartOwner = owner
         val snapshot = cartStore.read(owner)
         orderRequestKey = snapshot?.orderRequestKey
@@ -119,34 +129,59 @@ class OrderingViewModel(
 
 // 打开商家。
     fun openMerchant(merchantId: Long) {
-        if (_uiState.value.cartDraft?.merchantId?.let { it != merchantId } == true) {
-            val target = _uiState.value.merchants.firstOrNull { it.id == merchantId }
-            _uiState.update { it.copy(pendingMerchantSwitch = target, error = null) }
-            return
+        val request = ++merchantGeneration
+        _uiState.update {
+            it.copy(menu = emptyList(), selectedDish = null, pendingMerchantSwitch = null, isLoading = true, error = null)
         }
-        loadMerchant(merchantId)
+        viewModelScope.launch(dispatcher) {
+            if (request != merchantGeneration) return@launch
+            when (val result = repository.loadMerchant(merchantId)) {
+                is ApiResult.Success -> prepareMerchant(result.value, request)
+                is ApiResult.Failure -> if (request == merchantGeneration) {
+                    _uiState.update { it.copy(selectedMerchant = null) }
+                    showError(result.error)
+                }
+            }
+        }
     }
 
 // 确认商家、switch。
     fun confirmMerchantSwitch() {
-        val target = _uiState.value.pendingMerchantSwitch ?: return
+        val request = ++merchantGeneration
+        val target = _uiState.value.pendingMerchantSwitch ?: run {
+            _uiState.update { it.copy(isLoading = false) }
+            return
+        }
         clearCart()
-        _uiState.update { it.copy(pendingMerchantSwitch = null) }
-        loadMerchant(target.id)
+        _uiState.update { it.copy(pendingMerchantSwitch = null, isLoading = true, error = null) }
+        viewModelScope.launch(dispatcher) { prepareMerchant(target, request) }
     }
 
 // 取消商家、switch。
-    fun cancelMerchantSwitch() = _uiState.update { it.copy(pendingMerchantSwitch = null) }
+    fun cancelMerchantSwitch() {
+        ++merchantGeneration
+        _uiState.update { it.copy(pendingMerchantSwitch = null, isLoading = false) }
+    }
 
 // 加载商家。
-    private fun loadMerchant(merchantId: Long) {
-        val merchant = _uiState.value.merchants.firstOrNull { it.id == merchantId }
-        _uiState.update { it.copy(selectedMerchant = merchant, menu = emptyList(), selectedDish = null, isLoading = true, error = null) }
-        viewModelScope.launch(dispatcher) {
-            when (val result = repository.loadMenu(merchantId)) {
-                is ApiResult.Success -> _uiState.update { it.copy(menu = result.value, selectedDish = result.value.firstOrNull(), isLoading = false) }
-                is ApiResult.Failure -> showError(result.error)
+    private suspend fun prepareMerchant(merchant: Merchant, request: Long) {
+        if (request != merchantGeneration) return
+        if (_uiState.value.cartDraft?.merchantId?.let { it != merchant.id } == true) {
+            _uiState.update { it.copy(pendingMerchantSwitch = merchant, isLoading = false) }
+            return
+        }
+        _uiState.update { it.copy(selectedMerchant = merchant, pendingMerchantSwitch = null) }
+        _navigationEvents.emit(MerchantNavigationEvent.OpenDetail(merchant.id))
+        loadMenuFor(merchant.id, request)
+    }
+
+    private suspend fun loadMenuFor(merchantId: Long, request: Long) {
+        if (request != merchantGeneration) return
+        when (val result = repository.loadMenu(merchantId)) {
+            is ApiResult.Success -> if (request == merchantGeneration) {
+                _uiState.update { it.copy(menu = result.value, selectedDish = result.value.firstOrNull(), isLoading = false) }
             }
+            is ApiResult.Failure -> if (request == merchantGeneration) showError(result.error)
         }
     }
 
