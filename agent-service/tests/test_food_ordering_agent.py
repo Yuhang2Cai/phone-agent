@@ -1,3 +1,5 @@
+"""验证该模块的正常流程和错误边界。"""
+
 from __future__ import annotations
 
 import sys
@@ -18,7 +20,7 @@ from fandazi_agent.tools import langchain_tool_descriptions
 
 
 class FakeSpringBootToolClient(SpringBootToolClient):
-    """Contract-level fake: the agent never owns backend ordering logic."""
+    """契约测试替身：代理不负责后端下单业务逻辑。"""
 
     def __init__(self, responses: dict[str, ToolResult] | None = None):
         self.responses = responses or {}
@@ -70,7 +72,7 @@ def test_cart_draft_payload_keeps_ambiguous_or_missing_merchant_unselected(merch
 
 
 def test_recommendation_searches_candidates_and_returns_structured_result():
-    """Break caught: recommendation path no longer uses the approved search tool."""
+    """防止回归：推荐路径必须使用已批准的搜索工具。"""
     client = FakeSpringBootToolClient(
         {"search_merchants": ToolResult(ok=True, data={"merchants": [{"id": "m-1"}]})}
     )
@@ -84,7 +86,7 @@ def test_recommendation_searches_candidates_and_returns_structured_result():
 
 
 def test_missing_information_returns_question_without_order_tool():
-    """Break caught: vague ordering request creates an order before collecting required data."""
+    """防止回归：模糊的下单请求必须先收集必要信息。"""
     client = FakeSpringBootToolClient()
 
     result = FoodOrderingAgent(client).run(request("帮我点个外卖", mode="order"))
@@ -95,7 +97,7 @@ def test_missing_information_returns_question_without_order_tool():
 
 
 def test_confirmation_creates_order_once_then_waits_for_payment():
-    """Break caught: confirmed order skips validation or omits the create-order boundary call."""
+    """防止回归：确认后的订单必须通过校验并调用创建订单接口。"""
     client = FakeSpringBootToolClient(
         {
             "create_cart_draft": ToolResult(ok=True, data={"cartId": "c-1", "total": 28}),
@@ -120,7 +122,7 @@ def test_confirmation_creates_order_once_then_waits_for_payment():
 
 
 def test_auto_order_pays_once_after_order_creation():
-    """Break caught: auto mode makes payment without a backend-created order."""
+    """防止回归：自动模式必须先创建订单再支付。"""
     client = FakeSpringBootToolClient(
         {
             "create_cart_draft": ToolResult(ok=True, data={"cartId": "c-1", "total": 28}),
@@ -138,7 +140,7 @@ def test_auto_order_pays_once_after_order_creation():
 
 
 def test_auto_order_pays_java_nested_order_response_with_top_level_order_id():
-    """Break caught: Java returns data.order.id but Python pays only if data.orderId exists."""
+    """防止回归：支付流程必须识别后端返回的订单编号结构。"""
 
     class RequiresOrderIdClient(FakeSpringBootToolClient):
         def call(self, tool_request):
@@ -166,7 +168,7 @@ def test_auto_order_pays_java_nested_order_response_with_top_level_order_id():
 
 
 def test_long_term_strategy_never_calls_ordering_tools():
-    """Break caught: strategy advice mutates a cart or creates an order."""
+    """防止回归：策略建议不能修改购物车或创建订单。"""
     client = FakeSpringBootToolClient()
 
     result = FoodOrderingAgent(client).run(request("帮我制定一周工作日午餐策略", mode="strategy"))
@@ -177,7 +179,7 @@ def test_long_term_strategy_never_calls_ordering_tools():
 
 
 def test_exact_reorder_calls_last_order_then_creates_new_order():
-    """Break caught: exact reorder does not fetch its source order through the backend boundary."""
+    """防止回归：再次下单必须通过后端查询原订单。"""
     client = FakeSpringBootToolClient(
         {
             "get_last_order": ToolResult(ok=True, data={"items": [{"dishId": "d-1"}]}),
@@ -202,7 +204,7 @@ def test_exact_reorder_calls_last_order_then_creates_new_order():
 
 
 def test_reorder_cart_draft_uses_history_mapping_without_guessing_items():
-    """Break caught: reorder ignores the backend's historical dish mapping and drafts a guessed cart."""
+    """防止回归：再次下单必须沿用后端保存的历史菜品映射。"""
 
     class RequiresHistoryItemsClient(FakeSpringBootToolClient):
         def call(self, tool_request):
@@ -223,7 +225,7 @@ def test_reorder_cart_draft_uses_history_mapping_without_guessing_items():
 
 
 def test_reorder_stops_when_last_order_is_unavailable():
-    """Break caught: unavailable reorder still reaches cart/order tools."""
+    """防止回归：不可再次下单时不得调用购物车或订单工具。"""
     client = FakeSpringBootToolClient(
         {"get_last_order": ToolResult(ok=False, error="上次菜品已下架")}
     )
@@ -236,7 +238,7 @@ def test_reorder_stops_when_last_order_is_unavailable():
 
 
 def test_amount_limit_stops_before_create_order():
-    """Break caught: cart above the configured limit is submitted as an order."""
+    """防止回归：超出预算的购物车不得提交订单。"""
     client = FakeSpringBootToolClient(
         {
             "create_cart_draft": ToolResult(ok=True, data={"cartId": "c-1", "total": 88}),
@@ -253,7 +255,7 @@ def test_amount_limit_stops_before_create_order():
 
 
 def test_user_budget_becomes_confirmation_limit_when_stricter_than_global_default():
-    """Break caught: default global limit widens a user-requested budget in the confirmation card."""
+    """防止回归：全局默认上限不得扩大用户在确认卡片中的预算。"""
     client = FakeSpringBootToolClient(
         {
             "create_cart_draft": ToolResult(ok=True, data={"cartDraftId": "c-1", "total": 45}),
@@ -268,7 +270,7 @@ def test_user_budget_becomes_confirmation_limit_when_stricter_than_global_defaul
 
 
 def test_user_budget_below_cart_total_stops_at_user_limit_not_global_default():
-    """Break caught: a user budget is treated as display text while authorization uses the global cap."""
+    """防止回归：授权必须使用用户预算而非仅用于展示。"""
     client = FakeSpringBootToolClient(
         {
             "create_cart_draft": ToolResult(ok=True, data={"cartDraftId": "c-1", "total": 45}),
@@ -283,7 +285,7 @@ def test_user_budget_below_cart_total_stops_at_user_limit_not_global_default():
 
 
 def test_illegal_tool_is_rejected_without_network_call():
-    """Break caught: caller can invoke a tool that is not in the fixed allowlist."""
+    """防止回归：调用方只能使用固定白名单内的工具。"""
     client = FakeSpringBootToolClient()
 
     result = FoodOrderingAgent(client).invoke_tool("drop_database", request("x"), {})
@@ -294,7 +296,7 @@ def test_illegal_tool_is_rejected_without_network_call():
 
 
 def test_wait_confirmation_state_resumes_without_repeating_cart_creation():
-    """Break caught: restoring a paused graph repeats completed tool side effects."""
+    """防止回归：恢复暂停的流程不得重复已完成的副作用。"""
     client = FakeSpringBootToolClient(
         {
             "create_cart_draft": ToolResult(ok=True, data={"cartId": "c-1", "total": 28}),
@@ -318,7 +320,7 @@ def test_wait_confirmation_state_resumes_without_repeating_cart_creation():
 
 
 def test_serialized_confirmation_state_can_be_restored_without_replaying_tools():
-    """Break caught: a persisted pause loses completed-tool markers after process restart."""
+    """防止回归：进程重启后仍须保留已完成工具的标记。"""
     client = FakeSpringBootToolClient(
         {
             "create_cart_draft": ToolResult(ok=True, data={"cartId": "c-1", "total": 28}),
@@ -344,7 +346,7 @@ def test_serialized_confirmation_state_can_be_restored_without_replaying_tools()
 
 
 def test_health_related_text_is_general_food_filter_not_medical_advice():
-    """Break caught: illness wording causes a diagnosis, prescription, or treatment claim."""
+    """防止回归：疾病相关请求不得生成诊断、处方或治疗建议。"""
     client = FakeSpringBootToolClient(
         {"search_merchants": ToolResult(ok=True, data={"merchants": []})}
     )
@@ -358,7 +360,7 @@ def test_health_related_text_is_general_food_filter_not_medical_advice():
 
 
 def test_tool_request_always_contains_identity_trace_and_idempotency_key():
-    """Break caught: backend tool request omits a required audit/idempotency field."""
+    """防止回归：后端工具请求必须包含审计与幂等字段。"""
     client = FakeSpringBootToolClient(
         {"search_merchants": ToolResult(ok=True, data={"merchants": []})}
     )
@@ -373,7 +375,7 @@ def test_tool_request_always_contains_identity_trace_and_idempotency_key():
 
 
 def test_graph_step_limit_returns_explainable_error_before_a_tool_call():
-    """Break caught: a graph over its step budget continues into a backend tool call."""
+    """防止回归：超出图执行步数上限后不得继续调用后端工具。"""
     client = FakeSpringBootToolClient()
     settings = Settings(
         llm_base_url=None,
@@ -394,7 +396,7 @@ def test_graph_step_limit_returns_explainable_error_before_a_tool_call():
 
 
 def test_tool_loop_limit_returns_an_event_before_second_backend_call():
-    """Break caught: a tool loop past its configured budget still calls Spring Boot."""
+    """防止回归：工具调用超出预算后不得继续访问后端。"""
     client = FakeSpringBootToolClient(
         {"create_cart_draft": ToolResult(ok=True, data={"cartId": "c-1", "total": 18})}
     )
@@ -417,7 +419,7 @@ def test_tool_loop_limit_returns_an_event_before_second_backend_call():
 
 
 def test_internal_fastapi_route_returns_agent_result_contract():
-    """Break caught: the declared internal route does not parse or return the public contract."""
+    """防止回归：内部路由必须正确解析并返回公开契约。"""
     from fastapi.testclient import TestClient
 
     client = FakeSpringBootToolClient(
@@ -446,7 +448,7 @@ def test_internal_fastapi_route_returns_agent_result_contract():
 
 
 def test_internal_fastapi_route_requires_configured_agent_token():
-    """Break caught: any local process can call the internal agent run endpoint."""
+    """防止回归：内部代理接口必须拒绝未授权的本地进程。"""
     from fastapi.testclient import TestClient
 
     client = FakeSpringBootToolClient(
@@ -471,7 +473,7 @@ def test_internal_fastapi_route_requires_configured_agent_token():
 
 
 def test_langchain_tool_descriptions_use_a_real_payload_schema_without_runtime_warning():
-    """Break caught: tool schema generation uses an invalid variadic parameter."""
+    """防止回归：工具参数模式不能包含无效的可变参数。"""
     with warnings.catch_warnings(record=True) as recorded:
         warnings.simplefilter("always")
         descriptions = langchain_tool_descriptions()

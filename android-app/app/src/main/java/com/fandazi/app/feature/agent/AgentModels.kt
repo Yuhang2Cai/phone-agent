@@ -1,10 +1,11 @@
+// 助手数据模型：限定公开网关的模式和界面状态。
 package com.fandazi.app.feature.agent
 
 import java.math.BigDecimal
 import java.time.Instant
 import java.io.Serializable
 
-/** Only modes exposed by the public Agent Gateway.  CONFIRM is intentionally the default. */
+/** 只包含公开网关支持的模式，并默认要求用户确认。 */
 enum class AgentMode { CONFIRM, THIS_TASK_AUTO }
 
 enum class AgentStatus { COMPLETED, NEEDS_INPUT, AWAITING_CONFIRMATION, FAILED }

@@ -1,3 +1,4 @@
+// 构建配置模块：验证关键行为与边界条件。
 package com.fandazi.app.core.config
 
 import org.junit.Assert.assertFalse

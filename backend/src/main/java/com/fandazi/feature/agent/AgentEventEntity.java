@@ -1,3 +1,4 @@
+// 智能助手模块：定义持久化数据结构。
 package com.fandazi.feature.agent;
 
 import jakarta.persistence.*;

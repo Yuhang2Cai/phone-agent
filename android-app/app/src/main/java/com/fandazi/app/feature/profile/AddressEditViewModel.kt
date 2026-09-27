@@ -1,3 +1,4 @@
+// 个人资料模块：协调界面状态与业务请求。
 package com.fandazi.app.feature.profile
 
 import androidx.lifecycle.ViewModel

@@ -1,3 +1,4 @@
+// 智能助手模块：验证关键行为与边界条件。
 package com.fandazi.feature.agent;
 
 import com.fandazi.feature.address.AddressCommand;

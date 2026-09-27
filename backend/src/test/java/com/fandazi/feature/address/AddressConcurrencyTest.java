@@ -1,3 +1,4 @@
+// 收货地址模块：验证关键行为与边界条件。
 package com.fandazi.feature.address;
 
 import com.fandazi.feature.auth.UserEntity;

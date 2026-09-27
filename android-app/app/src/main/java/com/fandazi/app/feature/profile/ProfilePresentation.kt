@@ -1,3 +1,4 @@
+// 个人资料模块：将业务状态映射为界面可展示内容。
 package com.fandazi.app.feature.profile
 
 import com.fandazi.app.feature.ordering.Address

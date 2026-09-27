@@ -1,3 +1,4 @@
+// 订单模块：验证关键行为与边界条件。
 package com.fandazi.app.feature.order
 
 import com.fandazi.app.feature.ordering.CartLine

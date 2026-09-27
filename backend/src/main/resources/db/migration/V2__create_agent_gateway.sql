@@ -1,3 +1,4 @@
+-- 建立助手网关的会话、事件和授权表。
 CREATE TABLE IF NOT EXISTS agent_sessions (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT NOT NULL,

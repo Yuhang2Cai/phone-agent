@@ -1,3 +1,4 @@
+// 商家菜单模块：管理页面交互和状态展示。
 package com.fandazi.app.feature.merchant
 
 import android.os.Bundle

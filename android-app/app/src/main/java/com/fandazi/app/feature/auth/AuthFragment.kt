@@ -1,3 +1,4 @@
+// 身份认证模块：管理页面交互和状态展示。
 package com.fandazi.app.feature.auth
 
 import android.os.Bundle

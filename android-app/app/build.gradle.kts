@@ -1,3 +1,4 @@
+// 构建配置：声明模块、插件和依赖的装配方式。
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")

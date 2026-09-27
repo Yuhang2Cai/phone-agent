@@ -1,3 +1,4 @@
+// 收货地址模块：定义持久化数据结构。
 package com.fandazi.feature.address;
 import com.fandazi.feature.auth.UserEntity;
 import jakarta.persistence.*;

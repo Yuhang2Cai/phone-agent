@@ -1,4 +1,4 @@
-"""Serializable state used by the LangGraph workflow and confirmation resume store."""
+"""工作流和确认恢复存储共用的可序列化状态。"""
 
 from __future__ import annotations
 

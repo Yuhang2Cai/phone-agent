@@ -1,3 +1,4 @@
+// 商家菜单模块：验证关键行为与边界条件。
 package com.fandazi.app.feature.merchant
 
 import com.fandazi.app.feature.ordering.Dish

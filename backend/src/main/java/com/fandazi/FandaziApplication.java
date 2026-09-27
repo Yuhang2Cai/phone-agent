@@ -1,3 +1,4 @@
+// 应用入口：初始化运行所需的组件与配置。
 package com.fandazi;
 
 import org.springframework.boot.SpringApplication;

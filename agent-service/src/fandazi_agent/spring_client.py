@@ -1,4 +1,4 @@
-"""The sole HTTP boundary to the Spring Boot tool API."""
+"""访问后端工具接口的唯一 HTTP 边界。"""
 
 from __future__ import annotations
 
@@ -42,7 +42,7 @@ class SpringBootToolClient:
             )
         except httpx.RequestError as exc:
             log.exception("spring tool transport failure: tool=%s session=%s", request.tool_name, request.session_id)
-            # A lost response cannot establish whether Spring Boot committed the order.
+            # 响应丢失时无法确定后端是否已提交订单。
             return ToolResult(ok=False, error=f"spring_tool_unavailable: {exc}", error_kind="uncertain")
 
         raw_body: object | None = None
@@ -60,8 +60,7 @@ class SpringBootToolClient:
             if isinstance(raw_error, str) and raw_error.strip():
                 error = raw_error.strip()
         if 400 <= status < 500 and status not in {408, 429}:
-            # HTTP permission/validation/state refusals remain terminal even if an
-            # inconsistent body claims they are retryable. Preserve the backend error.
+            # 权限、校验和状态拒绝均为终态；即使响应体声称可重试也保留后端错误。
             return ToolResult(ok=False, error=error or f"spring_tool_rejected: HTTP {status}", error_kind="rejected")
         if result is not None and not result.ok and result.error_kind is not None:
             return result

@@ -1,3 +1,4 @@
+// 下单流程模块：协调界面状态与业务请求。
 package com.fandazi.app.feature.ordering
 
 import androidx.lifecycle.ViewModel

@@ -1,3 +1,4 @@
+// 安全认证模块：集中处理业务规则与状态变更。
 package com.fandazi.core.security;
 
 import io.jsonwebtoken.Claims;

@@ -1,3 +1,4 @@
+// 助手事件服务：记录可追溯的交互事件。
 package com.fandazi.feature.agent;
 
 import java.io.IOException;

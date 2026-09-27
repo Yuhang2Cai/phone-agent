@@ -1,3 +1,4 @@
+-- 创建商家评价表及其约束。
 CREATE TABLE merchant_reviews (
     id BIGINT NOT NULL AUTO_INCREMENT,
     merchant_id BIGINT NOT NULL,

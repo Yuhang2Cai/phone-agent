@@ -1,3 +1,4 @@
+// 商家菜单模块：将业务状态映射为界面可展示内容。
 package com.fandazi.app.feature.merchant
 
 import com.fandazi.app.feature.ordering.Dish

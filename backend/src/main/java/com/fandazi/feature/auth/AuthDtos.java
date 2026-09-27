@@ -1,3 +1,4 @@
+// 身份认证模块：定义该模块的数据与行为。
 package com.fandazi.feature.auth;
 
 import jakarta.validation.constraints.Email;

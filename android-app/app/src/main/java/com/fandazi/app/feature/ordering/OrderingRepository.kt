@@ -1,3 +1,4 @@
+// 下单流程模块：封装持久化查询与写入。
 package com.fandazi.app.feature.ordering
 
 import com.fandazi.app.core.network.ApiClient

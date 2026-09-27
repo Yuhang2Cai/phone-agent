@@ -1,4 +1,4 @@
-"""Internal HTTP entry point. Android must call Spring Boot, never this service."""
+"""内部 HTTP 入口；安卓客户端只能通过后端访问代理能力。"""
 
 from __future__ import annotations
 
@@ -36,5 +36,5 @@ def create_app(agent: FoodOrderingAgent | None = None, *, settings: Settings | N
 try:
     app = create_app()
 except RuntimeError:
-    # Importing core code remains possible in minimal test environments.
+    # 最小测试环境也应能够导入核心代码。
     app = None

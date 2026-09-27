@@ -1,3 +1,4 @@
+// 助手会话服务：保存会话归属和上下文状态。
 package com.fandazi.feature.agent;
 
 import com.fandazi.feature.DomainException;

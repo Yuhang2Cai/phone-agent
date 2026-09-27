@@ -1,1 +1,1 @@
-# Project-specific rules are added as needed.
+# 按需在此添加应用专用的代码压缩与混淆规则。

@@ -1,3 +1,4 @@
+// 身份认证模块：验证关键行为与边界条件。
 package com.fandazi.app.feature.auth
 
 import com.fandazi.app.core.network.ApiError

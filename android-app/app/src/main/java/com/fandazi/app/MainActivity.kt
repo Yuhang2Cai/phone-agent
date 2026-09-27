@@ -1,3 +1,4 @@
+// 主界面入口：根据会话状态切换导航目标。
 package com.fandazi.app
 
 import android.os.Bundle

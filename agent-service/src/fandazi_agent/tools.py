@@ -1,4 +1,4 @@
-"""Fixed backend-tool allowlist and LangChain tool descriptions."""
+"""定义固定的后端工具白名单及工具说明。"""
 
 from __future__ import annotations
 
@@ -45,10 +45,9 @@ def is_allowed_tool(name: str) -> bool:
 
 
 def langchain_tool_descriptions() -> list[Any]:
-    """Expose LangChain StructuredTool objects when LangChain is installed.
+    """安装工具库后提供结构化工具对象。
 
-    Calls are intentionally not implemented here: only SpringBootToolClient may
-    cross the Python-to-backend boundary.
+    此处不执行实际调用；只有后端工具客户端可以跨越代理与后端的边界。
     """
     try:
         from langchain_core.tools import StructuredTool

@@ -1,3 +1,4 @@
+// 个人资料模块：管理页面交互和状态展示。
 package com.fandazi.app.feature.profile
 
 import android.os.Bundle

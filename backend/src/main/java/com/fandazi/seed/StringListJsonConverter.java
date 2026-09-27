@@ -1,3 +1,4 @@
+// 演示数据模块：转换持久化字段与领域数据。
 package com.fandazi.seed;
 
 import com.fasterxml.jackson.core.JsonProcessingException;

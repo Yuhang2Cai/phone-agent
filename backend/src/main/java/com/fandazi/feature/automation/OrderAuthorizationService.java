@@ -1,3 +1,4 @@
+// 订单授权服务：在创建订单前核验授权范围。
 package com.fandazi.feature.automation;
 
 import com.fandazi.feature.DomainException;

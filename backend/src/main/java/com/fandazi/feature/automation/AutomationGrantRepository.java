@@ -1,3 +1,4 @@
+// 自动下单授权模块：封装持久化查询与写入。
 package com.fandazi.feature.automation;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;

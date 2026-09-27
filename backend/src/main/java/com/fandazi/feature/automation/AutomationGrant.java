@@ -1,3 +1,4 @@
+// 自动下单授权模块：定义该模块的数据与行为。
 package com.fandazi.feature.automation;
 
 import com.fandazi.feature.auth.UserEntity;

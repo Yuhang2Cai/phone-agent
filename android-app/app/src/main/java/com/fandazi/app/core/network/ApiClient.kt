@@ -1,3 +1,4 @@
+// 网络客户端：统一管理服务地址、认证与请求配置。
 package com.fandazi.app.core.network
 
 import com.google.gson.JsonParser

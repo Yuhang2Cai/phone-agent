@@ -1,3 +1,4 @@
+// 智能助手模块：转换持久化字段与领域数据。
 package com.fandazi.feature.agent;
 
 import com.fasterxml.jackson.core.type.TypeReference;

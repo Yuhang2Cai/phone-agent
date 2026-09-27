@@ -1,4 +1,4 @@
-"""Replaceable snapshot storage; order and permission authority stays in Spring Boot."""
+"""可替换的快照存储；订单与权限仍由后端负责。"""
 
 from __future__ import annotations
 
@@ -11,13 +11,12 @@ from typing import Any, Protocol
 
 
 class WorkflowStore(Protocol):
-    """Store complete signed snapshots under an exact (user_id, session_id) pair.
+    """按精确的用户与会话组合保存完整签名快照。
 
-    save must atomically replace and durably acknowledge a snapshot before returning.
-    load returns None only for an absent record; storage failures must raise.
-    delete removes the record or raises; signed terminal outcomes prevent replay
-    when cancellation/rejection cleanup has to be retried.
-    Callers must serialize runs/restores for a given owner, including across workers.
+    保存操作必须原子替换并持久确认后才能返回。
+    仅记录不存在时读取操作才返回空值；存储故障必须抛出。
+    删除操作必须成功或抛出；签名终态可阻止取消或拒绝后清理重试时重放。
+    调用方必须对同一归属者的运行与恢复操作串行化，包括跨工作进程的操作。
     """
 
     def load(self, user_id: str, session_id: str) -> dict[str, Any] | None: ...
@@ -28,10 +27,10 @@ class WorkflowStore(Protocol):
 
 
 class FileWorkflowStore:
-    """Local process-restart storage using fsync and same-directory atomic replace.
+    """本地重启恢复存储：使用同步落盘和同目录原子替换。
 
-    The directory must be private to the service and retained across restarts.
-    This adapter does not implement distributed locking or multi-host storage.
+    存储目录必须仅供本服务使用，并在重启后保留。
+    此适配器不提供分布式锁或多主机存储能力。
     """
 
     def __init__(self, directory: str | Path):

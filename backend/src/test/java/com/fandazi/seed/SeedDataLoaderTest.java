@@ -1,3 +1,4 @@
+// 演示数据模块：验证关键行为与边界条件。
 package com.fandazi.seed;
 
 import static org.assertj.core.api.Assertions.assertThat;

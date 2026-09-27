@@ -1,3 +1,4 @@
+// 订单模块：管理页面交互和状态展示。
 package com.fandazi.app.feature.order
 
 import android.os.Bundle

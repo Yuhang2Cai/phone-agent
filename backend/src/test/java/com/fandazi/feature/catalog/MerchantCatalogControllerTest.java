@@ -1,3 +1,4 @@
+// 商家与菜品目录模块：验证关键行为与边界条件。
 package com.fandazi.feature.catalog;
 
 import com.fandazi.FandaziApplication;

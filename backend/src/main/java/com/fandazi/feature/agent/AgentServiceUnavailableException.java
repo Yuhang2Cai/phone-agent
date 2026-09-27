@@ -1,3 +1,4 @@
+// 智能助手模块：标识业务异常边界。
 package com.fandazi.feature.agent;
 
 public class AgentServiceUnavailableException extends RuntimeException {

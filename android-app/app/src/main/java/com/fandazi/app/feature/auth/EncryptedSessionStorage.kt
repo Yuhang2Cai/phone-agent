@@ -1,3 +1,4 @@
+// 加密存储会话凭据，避免明文落盘。
 package com.fandazi.app.feature.auth
 
 import android.content.Context
