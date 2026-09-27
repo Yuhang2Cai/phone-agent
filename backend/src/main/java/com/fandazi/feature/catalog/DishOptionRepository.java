@@ -5,5 +5,6 @@ import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DishOptionRepository extends JpaRepository<DishOptionEntity, Long> {
+// 查询by、菜品、id。
     List<DishOptionEntity> findByDishId(Long dishId);
 }

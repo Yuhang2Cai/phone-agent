@@ -7,6 +7,7 @@ import java.math.BigDecimal
 class TaskAutomationPreference(context: Context, username: String) {
     private val preferences = context.getSharedPreferences("automation_ui_$username", 0)
 
+// 保存当前数据。
     fun save(enabled: Boolean, maxAmount: BigDecimal) {
         preferences.edit()
             .putBoolean(KEY_ENABLED, enabled)
@@ -14,8 +15,10 @@ class TaskAutomationPreference(context: Context, username: String) {
             .apply()
     }
 
+// 判断enabled。
     fun isEnabled(): Boolean = preferences.getBoolean(KEY_ENABLED, false)
 
+// 处理 `consumeLimit` 相关逻辑。
     fun consumeLimit(): BigDecimal? {
         if (!isEnabled()) return null
         val limit = preferences.getString(KEY_LIMIT, null)?.toBigDecimalOrNull()?.takeIf { it > BigDecimal.ZERO }

@@ -11,12 +11,16 @@ from fandazi_agent.spring_client import SpringBootToolClient
 
 
 class ScenarioToolClient(SpringBootToolClient):
+    """验证 `__init__` 覆盖场景的预期行为与边界。"""
+    """验证 `__init__` 覆盖场景的预期行为与边界。"""
     def __init__(self, *, total=18, address_missing=False, last_order_available=True):
         self.requests = []
         self.total = total
         self.address_missing = address_missing
         self.last_order_available = last_order_available
 
+    """验证 `call` 覆盖场景的预期行为与边界。"""
+    """验证 `call` 覆盖场景的预期行为与边界。"""
     def call(self, tool_request):
         self.requests.append(tool_request)
         if tool_request.tool_name == "search_merchants":
@@ -43,6 +47,8 @@ SCENARIOS = json.loads(
 )
 
 
+"""验证 `test_seed_agent_scenarios_have_expected_tool_sequence_confirmation_and_result` 覆盖场景的预期行为与边界。"""
+"""验证 `test_seed_agent_scenarios_have_expected_tool_sequence_confirmation_and_result` 覆盖场景的预期行为与边界。"""
 @pytest.mark.parametrize("scenario", SCENARIOS, ids=[item["id"] for item in SCENARIOS])
 def test_seed_agent_scenarios_have_expected_tool_sequence_confirmation_and_result(scenario):
     client = ScenarioToolClient(
@@ -74,6 +80,8 @@ def test_seed_agent_scenarios_have_expected_tool_sequence_confirmation_and_resul
     assert "medical" not in result.message.lower()
 
 
+"""验证 `test_seed_order_scenario_confirm_resume_creates_order_with_backend_authorization_context` 覆盖场景的预期行为与边界。"""
+"""验证 `test_seed_order_scenario_confirm_resume_creates_order_with_backend_authorization_context` 覆盖场景的预期行为与边界。"""
 def test_seed_order_scenario_confirm_resume_creates_order_with_backend_authorization_context():
     client = ScenarioToolClient()
     agent = FoodOrderingAgent(client, max_order_amount=50)
@@ -106,6 +114,8 @@ def test_seed_order_scenario_confirm_resume_creates_order_with_backend_authoriza
     assert create_order.payload["addressId"] == "addr-default"
 
 
+"""验证 `test_seed_auto_order_scenario_creates_order_then_pays_with_backend_tools_and_stable_idempotency` 覆盖场景的预期行为与边界。"""
+"""验证 `test_seed_auto_order_scenario_creates_order_then_pays_with_backend_tools_and_stable_idempotency` 覆盖场景的预期行为与边界。"""
 def test_seed_auto_order_scenario_creates_order_then_pays_with_backend_tools_and_stable_idempotency():
     client = ScenarioToolClient()
     agent = FoodOrderingAgent(client, max_order_amount=50)
@@ -135,6 +145,8 @@ def test_seed_auto_order_scenario_creates_order_then_pays_with_backend_tools_and
     assert pay_mock_order.payload["orderId"] == "order-1"
 
 
+"""验证 `request_for` 覆盖场景的预期行为与边界。"""
+"""验证 `request_for` 覆盖场景的预期行为与边界。"""
 def request_for(scenario):
     mode = "recommend" if scenario["id"] in {"spicy-under-30", "mild-cold"} else "order"
     text = "帮我点个外卖" if scenario["id"] == "illegal-parameters" else scenario["prompt"]

@@ -34,6 +34,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     }
     private var selectedFilter = SearchFilter.COMPREHENSIVE
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentSearchBinding.bind(view)
         binding.searchBack.setOnClickListener { view.findNavController().navigateUp() }
@@ -67,10 +68,12 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         }
     }
 
+// 处理 `submitSearch` 相关逻辑。
     private fun submitSearch(binding: FragmentSearchBinding) {
         viewModel.search(binding.searchInput.text?.toString().orEmpty().ifBlank { "清淡午餐" })
     }
 
+// 渲染filters。
     private fun renderFilters(binding: FragmentSearchBinding) {
         binding.filterRow.removeAllViews()
         SearchFilter.entries.forEach { filter ->
@@ -92,11 +95,13 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
         }
     }
 
+// 渲染current。
     private fun renderCurrent(binding: FragmentSearchBinding) {
         val state = viewModel.uiState.value
         render(binding, state.merchants, state.searchStatus, state.error, state.keyword)
     }
 
+// 渲染当前数据。
     private fun render(binding: FragmentSearchBinding, merchants: List<Merchant>, status: SearchStatus, error: String?, keyword: String) {
         if (binding.searchInput.text.toString() != keyword) binding.searchInput.setText(keyword)
         val visible = merchants.filter { it.open || selectedFilter != SearchFilter.COMPREHENSIVE }.let { list ->

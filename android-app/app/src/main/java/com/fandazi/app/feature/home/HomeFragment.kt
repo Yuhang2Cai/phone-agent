@@ -22,6 +22,7 @@ import kotlinx.coroutines.launch
 class HomeFragment : Fragment(R.layout.fragment_home) {
     private var binding: FragmentHomeBinding? = null
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val viewBinding = FragmentHomeBinding.bind(view)
         binding = viewBinding
@@ -66,6 +67,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+// 处理 `bindQuickCategories` 相关逻辑。
     private fun bindQuickCategories(viewBinding: FragmentHomeBinding) {
         val categories = listOf(
             Triple(viewBinding.homeCategoryHealthy, "健康轻食", "轻盈无负担"),
@@ -88,6 +90,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+// 处理 `bindNearbyCards` 相关逻辑。
     private fun bindNearbyCards(viewBinding: FragmentHomeBinding) {
         val cards = listOf(
             Triple(R.string.nearby_merchant_1, R.string.nearby_merchant_1_meta, R.string.nearby_merchant_1_tags),
@@ -108,6 +111,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         }
     }
 
+// 在视图销毁时释放视图相关资源。
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()

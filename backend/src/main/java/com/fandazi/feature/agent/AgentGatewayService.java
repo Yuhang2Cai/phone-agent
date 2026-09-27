@@ -13,7 +13,9 @@ import org.springframework.stereotype.Service;
 
 @Service public class AgentGatewayService {
     private final AgentSessionService sessions; private final AgentServiceClient client; private final AgentEventService events; private final CartService carts; private final AddressService addresses;
+// 初始化对象依赖与默认状态。
     public AgentGatewayService(AgentSessionService sessions, AgentServiceClient client, AgentEventService events, CartService carts, AddressService addresses) { this.sessions=sessions; this.client=client; this.events=events; this.carts=carts; this.addresses=addresses; }
+// 处理当前数据。
     public AgentResult handle(Long userId,String sessionId,String text,AgentMode mode) {
         String traceId=UUID.randomUUID().toString(); AgentSession session=sessions.start(userId,sessionId,mode,traceId);
         if (mode == AgentMode.CONFIRM && isConfirmation(text)) sessions.confirm(userId, sessionId);
@@ -29,6 +31,7 @@ import org.springframework.stereotype.Service;
             events.record(userId,sessionId,"failed",exception.getMessage(),null,"retryable",java.util.Map.of()); return AgentResult.failed(exception.getMessage());
         }
     }
+// 处理 `completeConfirmation` 相关逻辑。
     private AgentResult completeConfirmation(Long userId, AgentMode mode, AgentResult result) {
         if (result.status()!=AgentResult.Status.AWAITING_CONFIRMATION) return result;
         Long cartId=number(result.candidateCart().get("cartDraftId")); Long addressId=number(result.candidateCart().get("addressId")); Object maximum=result.candidateCart().get("maxAmount");
@@ -38,13 +41,17 @@ import org.springframework.stereotype.Service;
         Map<String,Object> cart=new LinkedHashMap<>(); cart.put("merchantName",draft.getMerchant().getName()); cart.put("items",items); cart.put("cartDraftId",cartId); cart.put("workflowId",result.candidateCart().get("workflowId")); cart.put("address",address.getRecipient()+" "+address.getPhone()+" "+address.getDetail()); cart.put("addressId",addressId); cart.put("deliveryFee",quote.deliveryFee()); cart.put("discount",quote.discount()); cart.put("total",quote.total()); cart.put("maxAmount",maximum); cart.put("authorizationMode",mode.name());
         return new AgentResult(result.status(),result.message(),result.nextAction(),cart,result.events(),result.error());
     }
+// 处理 `bindAuthorizedCandidate` 相关逻辑。
     private void bindAuthorizedCandidate(Long userId, String sessionId, AgentResult result) {
         if (result.status()!=AgentResult.Status.AWAITING_CONFIRMATION) return;
         Long cartId=number(result.candidateCart().get("cartDraftId")); Long addressId=number(result.candidateCart().get("addressId")); BigDecimal total=decimal(result.candidateCart().get("total"));
         Object workflow=result.candidateCart().get("workflowId");
         if(cartId!=null&&addressId!=null&&total!=null&&workflow!=null) sessions.bindAuthorizedCart(userId,sessionId,String.valueOf(workflow),cartId,addressId,total);
     }
+// 处理 `number` 相关逻辑。
     private Long number(Object value){if(value instanceof Number n)return n.longValue();try{return value==null?null:Long.valueOf(String.valueOf(value));}catch(NumberFormatException ignored){return null;}}
+// 处理 `decimal` 相关逻辑。
     private BigDecimal decimal(Object value){if(value instanceof BigDecimal b)return b;if(value instanceof Number n)return new BigDecimal(n.toString());try{return value==null?null:new BigDecimal(String.valueOf(value));}catch(NumberFormatException ignored){return null;}}
+// 判断confirmation。
     private boolean isConfirmation(String text) { String normal=text == null ? "" : text.replace(" ", ""); return normal.equals("确认") || normal.equals("确认下单") || normal.equals("确定") || normal.equals("确定下单"); }
 }

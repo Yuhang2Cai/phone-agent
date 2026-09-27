@@ -11,6 +11,7 @@ class ApiBaseUrlBuildTypeTest {
     private val buildScript = findBuildScript().readText()
 
     @Test
+// 验证 `debugAndReleaseHaveExplicitBuildTypeDefaults` 覆盖场景的预期行为与边界。
     fun debugAndReleaseHaveExplicitBuildTypeDefaults() {
         val debugDefault = Regex(
             """val debugApiBaseUrl = providers\.gradleProperty\("debugApiBaseUrl"\)\s*\.orElse\("([^"]+)"\)"""
@@ -28,6 +29,7 @@ class ApiBaseUrlBuildTypeTest {
         assertTrue(buildTypes.contains("releaseApiBaseUrl"))
     }
 
+// 验证 `findBuildScript` 覆盖场景的预期行为与边界。
     private fun findBuildScript(): File {
         var directory = File(
             ApiBaseUrlBuildTypeTest::class.java.protectionDomain.codeSource.location.toURI()

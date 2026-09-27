@@ -8,8 +8,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface DishRepository extends JpaRepository<DishEntity, Long> {
+// 查询by、商家、id。
     List<DishEntity> findByMerchantId(Long merchantId);
 
+// 处理 `decrementStockIfAvailable` 相关逻辑。
     @Modifying(flushAutomatically = true)
     @Query("update DishEntity dish set dish.stock = dish.stock - :quantity "
             + "where dish.id = :dishId and dish.stock >= :quantity")

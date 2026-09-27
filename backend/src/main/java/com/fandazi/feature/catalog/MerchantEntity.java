@@ -15,14 +15,26 @@ public class MerchantEntity {
     @Column(nullable = false) private boolean open;
     @Column(nullable = false, precision = 12, scale = 2) private BigDecimal discountThreshold;
     @Column(nullable = false, precision = 12, scale = 2) private BigDecimal discountAmount;
+// 初始化对象依赖与默认状态。
     protected MerchantEntity() {}
+// 初始化对象依赖与默认状态。
     public MerchantEntity(String name, String category, BigDecimal minimumOrder, BigDecimal deliveryFee, int deliveryMinutes, boolean open) {
         this(name, category, minimumOrder, deliveryFee, deliveryMinutes, open, BigDecimal.ZERO, BigDecimal.ZERO);
     }
+// 初始化对象依赖与默认状态。
     public MerchantEntity(String name, String category, BigDecimal minimumOrder, BigDecimal deliveryFee, int deliveryMinutes,
                           boolean open, BigDecimal discountThreshold, BigDecimal discountAmount) {
         this.name=name; this.category=category; this.minimumOrder=minimumOrder; this.deliveryFee=deliveryFee;
         this.deliveryMinutes=deliveryMinutes; this.open=open; this.discountThreshold=discountThreshold; this.discountAmount=discountAmount;
     }
+// 获取id。
+    // 获取name。
+    // 获取category。
+    // 获取minimum、订单。
+    // 获取delivery、fee。
+    // 获取delivery、minutes。
+    // 判断open。
+    // 获取discount、threshold。
+    // 获取discount、amount。
     public Long getId(){return id;} public String getName(){return name;} public String getCategory(){return category;} public BigDecimal getMinimumOrder(){return minimumOrder;} public BigDecimal getDeliveryFee(){return deliveryFee;} public int getDeliveryMinutes(){return deliveryMinutes;} public boolean isOpen(){return open;} public BigDecimal getDiscountThreshold(){return discountThreshold;} public BigDecimal getDiscountAmount(){return discountAmount;}
 }

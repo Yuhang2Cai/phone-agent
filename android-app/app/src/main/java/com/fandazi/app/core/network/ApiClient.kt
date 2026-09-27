@@ -44,11 +44,13 @@ class ApiClient(
         }
         .build()
 
+// 获取当前数据。
     suspend fun get(path: String): ApiResult<String> = request(
         Request.Builder().url(url(path)).get().build(),
         retryOnce = true
     )
 
+// 处理 `postJson` 相关逻辑。
     suspend fun postJson(path: String, json: String): ApiResult<String> = request(
         Request.Builder()
             .url(url(path))
@@ -57,6 +59,7 @@ class ApiClient(
         retryOnce = false
     )
 
+// 处理 `postJson` 相关逻辑。
     suspend fun postJson(path: String, json: String, headers: Map<String, String>): ApiResult<String> = request(
         Request.Builder()
             .url(url(path))
@@ -66,6 +69,7 @@ class ApiClient(
         retryOnce = false
     )
 
+// 处理 `putJson` 相关逻辑。
     suspend fun putJson(path: String, json: String): ApiResult<String> = request(
         Request.Builder()
             .url(url(path))
@@ -74,16 +78,19 @@ class ApiClient(
         retryOnce = false
     )
 
+// 删除当前数据。
     suspend fun delete(path: String): ApiResult<String> = request(
         Request.Builder().url(url(path)).delete().build(),
         retryOnce = false
     )
 
+// 处理 `patch` 相关逻辑。
     suspend fun patch(path: String, json: String): ApiResult<String> = request(
         Request.Builder().url(url(path)).patch(json.toRequestBody(JSON_MEDIA_TYPE)).build(),
         retryOnce = false
     )
 
+// 处理 `request` 相关逻辑。
     private suspend fun request(request: Request, retryOnce: Boolean): ApiResult<String> = withContext(Dispatchers.IO) {
         val firstResult = execute(request)
         if (retryOnce && firstResult is ApiResult.Failure && firstResult.error.isRetryableNetworkFailure()) {
@@ -93,6 +100,7 @@ class ApiClient(
         }
     }
 
+// 处理 `execute` 相关逻辑。
     private fun execute(request: Request): ApiResult<String> = try {
         client.newCall(request).execute().use(::toResult)
     } catch (_: SocketTimeoutException) {
@@ -101,6 +109,7 @@ class ApiClient(
         ApiResult.Failure(ApiError.Network(exception.message ?: "Network request failed"))
     }
 
+// 处理 `toResult` 相关逻辑。
     private fun toResult(response: Response): ApiResult<String> {
         val body = response.body?.string().orEmpty()
         return if (response.isSuccessful) {
@@ -110,6 +119,7 @@ class ApiClient(
         }
     }
 
+// 处理 `url` 相关逻辑。
     private fun url(path: String) = requireNotNull(baseUrl.toHttpUrl().resolve(path)) {
         "Unable to resolve API path: $path"
     }
@@ -118,6 +128,7 @@ class ApiClient(
         forEach { (name, value) -> builder.set(name, value) }
     }.build()
 
+// 处理 `messageFrom` 相关逻辑。
     private fun messageFrom(body: String, fallback: String): String = runCatching {
         val json = JsonParser.parseString(body).asJsonObject
         json.get("error")?.asString ?: json.get("message")?.asString

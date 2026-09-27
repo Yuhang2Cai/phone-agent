@@ -11,6 +11,7 @@ import kotlinx.coroutines.launch
 import androidx.navigation.findNavController
 
 class ProfileFragment : Fragment(R.layout.fragment_profile) {
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         view.findViewById<View>(R.id.profile_logout).setOnClickListener {
             viewLifecycleOwner.lifecycleScope.launch { (requireActivity() as MainActivity).applicationSession().logout() }

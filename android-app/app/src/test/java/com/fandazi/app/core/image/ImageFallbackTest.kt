@@ -7,6 +7,7 @@ import org.junit.Test
 
 class ImageFallbackTest {
     @Test
+// 验证 `failedImageLoadKeepsTextContentAvailable` 覆盖场景的预期行为与边界。
     fun failedImageLoadKeepsTextContentAvailable() {
         val content = ImageContentFallback.render("招牌牛肉饭", "https://example.invalid/dish.png") { false }
 

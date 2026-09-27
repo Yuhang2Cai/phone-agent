@@ -11,6 +11,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 data class ImageContent(val title: String, val loadedImageUrl: String?)
 
 object ImageContentFallback {
+// 渲染当前数据。
     fun render(title: String, imageUrl: String?, load: (String) -> Boolean): ImageContent {
         val loadedUrl = imageUrl?.takeIf(String::isNotBlank)?.takeIf(load)
         return ImageContent(title = title, loadedImageUrl = loadedUrl)
@@ -18,6 +19,7 @@ object ImageContentFallback {
 }
 
 object ImageLoader {
+// 加载当前数据。
     fun load(
         imageView: ImageView,
         url: String?,

@@ -18,10 +18,13 @@ import org.junit.Test
 class HttpAgentRepositoryTest {
     private lateinit var server: MockWebServer
 
+// 为测试准备依赖、替身和初始状态。
     @Before fun setUp() { server = MockWebServer().also { it.start() } }
+// 清理测试创建的资源与状态。
     @After fun tearDown() { server.shutdown() }
 
     @Test
+// 验证 `sendsOnlyBearerTokenToPublicAgentMessageApi` 覆盖场景的预期行为与边界。
     fun sendsOnlyBearerTokenToPublicAgentMessageApi() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("""
             {"status":"COMPLETED","message":"已完成","nextAction":"none","candidateCart":{},"events":[]}
@@ -39,6 +42,7 @@ class HttpAgentRepositoryTest {
     }
 
     @Test
+// 验证 `sseReconnectsWithLastEventIdAfterDisconnectAndContinuesEvents` 覆盖场景的预期行为与边界。
     fun sseReconnectsWithLastEventIdAfterDisconnectAndContinuesEvents() = runBlocking {
         server.enqueue(sse(1, "parsed", "已接收点餐请求"))
         server.enqueue(sse(2, "completed", "已生成购物车"))
@@ -52,6 +56,7 @@ class HttpAgentRepositoryTest {
     }
 
     @Test
+// 验证 `acceptsOnlyCompleteGatewayConfirmationCart` 覆盖场景的预期行为与边界。
     fun acceptsOnlyCompleteGatewayConfirmationCart() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("""
             {"status":"AWAITING_CONFIRMATION","message":"请确认","candidateCart":{
@@ -73,6 +78,7 @@ class HttpAgentRepositoryTest {
     }
 
     @Test
+// 验证 `keepsCreatedOrderIdForPaymentHandoff` 覆盖场景的预期行为与边界。
     fun keepsCreatedOrderIdForPaymentHandoff() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("""
             {"status":"COMPLETED","message":"订单已创建，请继续支付。","nextAction":"payment_followup","candidateCart":{
@@ -89,6 +95,7 @@ class HttpAgentRepositoryTest {
     }
 
     @Test
+// 验证 `retriesSseAfterInitialSessionNotFoundAndRetainsCursor` 覆盖场景的预期行为与边界。
     fun retriesSseAfterInitialSessionNotFoundAndRetainsCursor() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(404).setBody("{\"error\":\"会话不存在\"}"))
         server.enqueue(sse(3, "parsed", "已接收点餐请求"))
@@ -102,6 +109,7 @@ class HttpAgentRepositoryTest {
     }
 
     @Test
+// 验证 `revokesTaskGrantThroughPublicApi` 覆盖场景的预期行为与边界。
     fun revokesTaskGrantThroughPublicApi() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(204))
         val repository = HttpAgentRepository(server.url("/api/").toString(), { "session-jwt" })
@@ -115,6 +123,7 @@ class HttpAgentRepositoryTest {
         assertEquals("Bearer session-jwt", request.getHeader("Authorization"))
     }
 
+// 验证 `sse` 覆盖场景的预期行为与边界。
     private fun sse(id: Long, type: String, summary: String) = MockResponse()
         .setHeader("Content-Type", "text/event-stream")
         .setBody("id: $id\nevent: agent-event\ndata: {\"id\":$id,\"type\":\"$type\",\"summary\":\"$summary\",\"status\":\"completed\"}\n\n")

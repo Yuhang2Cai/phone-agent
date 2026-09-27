@@ -22,21 +22,29 @@ from fandazi_agent.tools import langchain_tool_descriptions
 class FakeSpringBootToolClient(SpringBootToolClient):
     """契约测试替身：代理不负责后端下单业务逻辑。"""
 
+    """验证 `__init__` 覆盖场景的预期行为与边界。"""
+    """验证 `__init__` 覆盖场景的预期行为与边界。"""
     def __init__(self, responses: dict[str, ToolResult] | None = None):
         self.responses = responses or {}
         self.requests = []
 
+    """验证 `call` 覆盖场景的预期行为与边界。"""
+    """验证 `call` 覆盖场景的预期行为与边界。"""
     def call(self, request):
         self.requests.append(request)
         return self.responses.get(request.tool_name, ToolResult(ok=True, data={}))
 
 
+"""验证 `request` 覆盖场景的预期行为与边界。"""
+"""验证 `request` 覆盖场景的预期行为与边界。"""
 def request(text: str, *, mode: str = "recommend", session_id: str = "s-1") -> AgentRunRequest:
     return AgentRunRequest(
         userId="u-1", sessionId=session_id, text=text, mode=mode, traceId="trace-1"
     )
 
 
+"""验证 `test_cart_draft_payload_selects_only_one_explicitly_named_merchant` 覆盖场景的预期行为与边界。"""
+"""验证 `test_cart_draft_payload_selects_only_one_explicitly_named_merchant` 覆盖场景的预期行为与边界。"""
 def test_cart_draft_payload_selects_only_one_explicitly_named_merchant():
     state = AgentState(
         user_id="u-1",
@@ -55,6 +63,8 @@ def test_cart_draft_payload_selects_only_one_explicitly_named_merchant():
     assert payload["merchantId"] == "m-1"
 
 
+"""验证 `test_cart_draft_payload_keeps_ambiguous_or_missing_merchant_unselected` 覆盖场景的预期行为与边界。"""
+"""验证 `test_cart_draft_payload_keeps_ambiguous_or_missing_merchant_unselected` 覆盖场景的预期行为与边界。"""
 @pytest.mark.parametrize(
     "merchants,text",
     [
@@ -143,6 +153,8 @@ def test_auto_order_pays_java_nested_order_response_with_top_level_order_id():
     """防止回归：支付流程必须识别后端返回的订单编号结构。"""
 
     class RequiresOrderIdClient(FakeSpringBootToolClient):
+        """验证 `call` 覆盖场景的预期行为与边界。"""
+        """验证 `call` 覆盖场景的预期行为与边界。"""
         def call(self, tool_request):
             self.requests.append(tool_request)
             if tool_request.tool_name == "create_cart_draft":
@@ -207,6 +219,8 @@ def test_reorder_cart_draft_uses_history_mapping_without_guessing_items():
     """防止回归：再次下单必须沿用后端保存的历史菜品映射。"""
 
     class RequiresHistoryItemsClient(FakeSpringBootToolClient):
+        """验证 `call` 覆盖场景的预期行为与边界。"""
+        """验证 `call` 覆盖场景的预期行为与边界。"""
         def call(self, tool_request):
             self.requests.append(tool_request)
             if tool_request.tool_name == "get_last_order":

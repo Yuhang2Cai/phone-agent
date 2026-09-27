@@ -5,6 +5,7 @@ enum class AgentSurface { HOME, SEARCH, MERCHANT, ORDERS, AUTH, PAYMENT }
 
 /** 通过统一策略排除支付与认证页面的助手入口。 */
 object AgentFloatingButtonPolicy {
+// 判断visible、on。
     fun isVisibleOn(surface: AgentSurface): Boolean = surface in setOf(
         AgentSurface.HOME,
         AgentSurface.SEARCH,

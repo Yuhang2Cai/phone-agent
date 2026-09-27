@@ -7,6 +7,7 @@ import org.junit.Test
 
 class SearchUiPresentationTest {
     @Test
+// 验证 `statusCopyKeepsStatesDistinctAndActionable` 覆盖场景的预期行为与边界。
     fun statusCopyKeepsStatesDistinctAndActionable() {
         assertEquals("输入关键词，搜索附近好店", SearchUiCopy.status(SearchStatus.Idle))
         assertEquals("正在为你寻找附近好店…", SearchUiCopy.status(SearchStatus.Searching))
@@ -16,6 +17,7 @@ class SearchUiPresentationTest {
     }
 
     @Test
+// 验证 `filterCopyUsesDesignLabels` 覆盖场景的预期行为与边界。
     fun filterCopyUsesDesignLabels() {
         assertEquals("综合", SearchUiCopy.filterLabel(SearchFilter.COMPREHENSIVE))
         assertEquals("距离近", SearchUiCopy.filterLabel(SearchFilter.NEARBY))

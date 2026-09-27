@@ -17,11 +17,13 @@ public class JwtService {
     private final SecretKey secretKey;
     private final long expirationMinutes;
 
+// 初始化对象依赖与默认状态。
     public JwtService(@Value("${security.jwt.secret}") String secret, @Value("${security.jwt.expiration-minutes:60}") long expirationMinutes) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.expirationMinutes = expirationMinutes;
     }
 
+// 创建令牌。
     public String createToken(Long userId) {
         Instant now = Instant.now();
         return Jwts.builder()
@@ -32,6 +34,7 @@ public class JwtService {
                 .compact();
     }
 
+// 解析用户、id。
     public Long parseUserId(String token) {
         Claims claims = Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload();
         return Long.parseLong(claims.getSubject());

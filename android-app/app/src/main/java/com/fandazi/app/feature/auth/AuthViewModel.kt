@@ -11,13 +11,18 @@ import kotlinx.coroutines.launch
 class AuthViewModel(private val processor: AuthFormProcessor) : ViewModel() {
     val state: StateFlow<AuthFormState> = processor.state
 
+// 处理 `showLogin` 相关逻辑。
     fun showLogin() = processor.setRegisterMode(false)
+// 处理 `showRegister` 相关逻辑。
     fun showRegister() = processor.setRegisterMode(true)
+// 更新draft。
     fun updateDraft(username: String, email: String, password: String) = processor.updateDraft(username, email, password)
+// 处理 `continueAsGuest` 相关逻辑。
     fun continueAsGuest() {
         Log.d(TAG, "AuthViewModel continueAsGuest started")
         viewModelScope.launch { processor.continueAsGuest() }
     }
+// 处理 `submit` 相关逻辑。
     fun submit(username: String, email: String, password: String) {
         viewModelScope.launch {
             if (state.value.isRegisterMode) processor.submitRegister(username, email, password)

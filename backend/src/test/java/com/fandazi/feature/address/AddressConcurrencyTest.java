@@ -20,6 +20,7 @@ class AddressConcurrencyTest {
     @Autowired UserRepository users;
     @Autowired TransactionTemplate transactions;
 
+// 验证 `concurrentDefaultAddressWritesLeaveExactlyOneDefault` 覆盖场景的预期行为与边界。
     @Test
     void concurrentDefaultAddressWritesLeaveExactlyOneDefault() throws Exception {
         UserEntity user = users.save(new UserEntity("address-race", "address-race@example.com", "hash"));

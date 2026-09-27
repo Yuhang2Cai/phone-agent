@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MerchantReviewRepository extends JpaRepository<MerchantReviewEntity, Long> {
+// 查询by、商家、id。
     Page<MerchantReviewEntity> findByMerchantId(Long merchantId, Pageable pageable);
+// 处理 `existsByMerchantIdAndReviewerNameAndCreatedAt` 相关逻辑。
     boolean existsByMerchantIdAndReviewerNameAndCreatedAt(Long merchantId, String reviewerName, Instant createdAt);
 }

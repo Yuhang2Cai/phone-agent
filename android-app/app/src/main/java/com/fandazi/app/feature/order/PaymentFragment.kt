@@ -27,6 +27,7 @@ class PaymentFragment : Fragment(R.layout.fragment_payment) {
         OrderingViewModelFactory(activity.orderingRepository(), activity.cartStateStore(), activity.cartOwner())
     }
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentPaymentBinding.bind(view)
         if (viewModel.uiState.value.cartDraft != null && viewModel.uiState.value.selectedAddress == null) {
@@ -34,6 +35,7 @@ class PaymentFragment : Fragment(R.layout.fragment_payment) {
         }
         binding.paymentBack.setOnClickListener { view.findNavController().navigateUp() }
         var method = 0
+// 渲染methods。
         fun renderMethods() {
             listOf(binding.paymentBalance, binding.paymentBank, binding.paymentQuick).forEachIndexed { index, item ->
                 item.setBackgroundResource(if (index == method) R.drawable.dish_option_selected else R.drawable.dish_option_unselected)

@@ -7,6 +7,7 @@ import com.fandazi.app.feature.ordering.OrderStatus
 enum class OrderFilter { ALL, PENDING_PAYMENT, DELIVERING, COMPLETED }
 
 object OrderPresentation {
+// 处理 `statusLabel` 相关逻辑。
     fun statusLabel(status: OrderStatus): String = when (status) {
         OrderStatus.PENDING_PAYMENT -> "待支付"
         OrderStatus.PAID -> "已支付"
@@ -17,6 +18,7 @@ object OrderPresentation {
         OrderStatus.DELIVERED -> "已送达"
     }
 
+// 处理 `filter` 相关逻辑。
     fun filter(orders: List<Order>, filter: OrderFilter): List<Order> = orders.filter { order ->
         when (filter) {
             OrderFilter.ALL -> true
@@ -32,6 +34,7 @@ object OrderPresentation {
         }
     }
 
+// 处理 `filterLabel` 相关逻辑。
     fun filterLabel(filter: OrderFilter): String = when (filter) {
         OrderFilter.ALL -> "全部"
         OrderFilter.PENDING_PAYMENT -> "待支付"
@@ -39,6 +42,7 @@ object OrderPresentation {
         OrderFilter.COMPLETED -> "已完成"
     }
 
+// 处理 `timeline` 相关逻辑。
     fun timeline(order: Order): List<Pair<OrderStatus, Boolean>> = listOf(
         OrderStatus.MERCHANT_ACCEPTED,
         OrderStatus.PREPARING,

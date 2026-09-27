@@ -8,9 +8,11 @@ public record AgentResult(Status status, String message, String nextAction, Map<
                           List<Event> events, String error) {
     public enum Status { COMPLETED, NEEDS_INPUT, AWAITING_CONFIRMATION, FAILED }
     public record Event(String type, String summary, String toolName, String status, Map<String, Object> payload) {}
+// 处理 `completed` 相关逻辑。
     public static AgentResult completed(String message, String nextAction, List<Event> events) {
         return new AgentResult(Status.COMPLETED, message, nextAction, Map.of(), events, null);
     }
+// 处理 `failed` 相关逻辑。
     public static AgentResult failed(String message) {
         return new AgentResult(Status.FAILED, "请求未完成。", "retry", Map.of(), List.of(), message);
     }

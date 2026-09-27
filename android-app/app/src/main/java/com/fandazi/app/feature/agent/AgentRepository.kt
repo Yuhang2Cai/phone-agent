@@ -30,9 +30,13 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 interface AgentRepository {
+// 发送消息。
     suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult>
+// 处理 `streamEvents` 相关逻辑。
     fun streamEvents(sessionId: String, afterEventId: Long?): Flow<AgentEvent>
+// 处理 `grantThisTaskAuto` 相关逻辑。
     suspend fun grantThisTaskAuto(request: ThisTaskAutoRequest): ApiResult<Unit>
+// 处理 `revokeThisTaskAuto` 相关逻辑。
     suspend fun revokeThisTaskAuto(sessionId: String): ApiResult<Unit>
 }
 
@@ -59,6 +63,7 @@ class HttpAgentRepository(
         }
         .build()
 
+// 发送消息。
     override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult> =
         executeJson(
             Request.Builder()
@@ -67,6 +72,7 @@ class HttpAgentRepository(
                 .build()
         ) { body -> parseMessage(body) }
 
+// 处理 `streamEvents` 相关逻辑。
     override fun streamEvents(sessionId: String, afterEventId: Long?): Flow<AgentEvent> = callbackFlow {
         val streamJob = launch(Dispatchers.IO) {
             var cursor = afterEventId
@@ -118,6 +124,7 @@ class HttpAgentRepository(
         awaitClose { streamJob.cancel() }
     }
 
+// 处理 `grantThisTaskAuto` 相关逻辑。
     override suspend fun grantThisTaskAuto(request: ThisTaskAutoRequest): ApiResult<Unit> = executeJson(
         Request.Builder().url(url("automation/task-grants"))
             .post(
@@ -132,6 +139,7 @@ class HttpAgentRepository(
             ).build()
     ) { Unit }
 
+// 处理 `revokeThisTaskAuto` 相关逻辑。
     override suspend fun revokeThisTaskAuto(sessionId: String): ApiResult<Unit> = executeJson(
         Request.Builder().url(url("automation/task-grants?sessionId=$sessionId")).delete().build()
     ) { Unit }
@@ -152,6 +160,7 @@ class HttpAgentRepository(
         }
     }
 
+// 解析消息。
     private fun parseMessage(body: String): AgentMessageResult {
         val value = JsonParser.parseString(body).asJsonObject
         return AgentMessageResult(
@@ -164,6 +173,7 @@ class HttpAgentRepository(
         )
     }
 
+// 解析事件。
     private fun parseEvent(id: Long?, raw: String): AgentEvent? = runCatching {
         val value = JsonParser.parseString(raw).asJsonObject
         value.toEvent(id)
@@ -219,9 +229,11 @@ class HttpAgentRepository(
     private fun JsonObject.objectOrNull(name: String): JsonObject? = get(name)?.asJsonObjectOrNull()
     private fun JsonObject.array(name: String): JsonArray = getAsJsonArray(name) ?: JsonArray()
     private fun JsonElement.asJsonObjectOrNull(): JsonObject? = if (isJsonObject) asJsonObject else null
+// 处理 `errorMessage` 相关逻辑。
     private fun errorMessage(body: String, fallback: String): String = runCatching {
         JsonParser.parseString(body).asJsonObject.string("error") ?: JsonParser.parseString(body).asJsonObject.string("message")
     }.getOrNull().orEmpty().ifBlank { fallback.ifBlank { "Request failed" } }
+// 处理 `url` 相关逻辑。
     private fun url(path: String) = requireNotNull(baseUrl.toHttpUrl().resolve(path)) { "Invalid API base URL" }
 
     private class AgentStreamException(val code: Int, message: String) : IOException(message)

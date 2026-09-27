@@ -36,6 +36,7 @@ class MerchantFeedViewModel(
     private var requestJob: Job? = null
     private var generation = 0L
 
+// 加载initial。
     fun loadInitial() {
         generation++
         requestJob?.cancel()
@@ -43,23 +44,27 @@ class MerchantFeedViewModel(
         requestPage(page = 0, append = false, requestGeneration = generation)
     }
 
+// 加载next。
     fun loadNext() {
         val current = state.value
         if (requestJob?.isActive == true || current.endReached || current.items.isEmpty() || current.appendError != null) return
         requestPage(page = current.nextPage, append = true, requestGeneration = generation)
     }
 
+// 重试initial。
     fun retryInitial() {
         if (requestJob?.isActive == true || state.value.initialError == null) return
         requestPage(page = 0, append = false, requestGeneration = generation)
     }
 
+// 重试append。
     fun retryAppend() {
         val current = state.value
         if (requestJob?.isActive == true || current.appendError == null || current.endReached) return
         requestPage(page = current.nextPage, append = true, requestGeneration = generation)
     }
 
+// 处理 `requestPage` 相关逻辑。
     private fun requestPage(page: Int, append: Boolean, requestGeneration: Long) {
         _state.update { old ->
             if (append) old.copy(isAppending = true, appendError = null)
@@ -73,6 +78,7 @@ class MerchantFeedViewModel(
         }
     }
 
+// 处理 `accept` 相关逻辑。
     private fun accept(page: PagedResult<Merchant>, append: Boolean) {
         _state.update { old ->
             old.copy(
@@ -87,6 +93,7 @@ class MerchantFeedViewModel(
         }
     }
 
+// 处理 `fail` 相关逻辑。
     private fun fail(error: ApiError, append: Boolean) {
         val message = when (error) {
             is ApiError.Http -> error.message

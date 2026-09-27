@@ -28,6 +28,7 @@ class DishOptionsBottomSheet : BottomSheetDialogFragment(R.layout.fragment_dish_
     private lateinit var binding: FragmentDishOptionsBinding
     private lateinit var dish: Dish
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentDishOptionsBinding.bind(view)
         dish = viewModel.uiState.value.menu.firstOrNull { it.id == requireArguments().getLong(ARG_DISH_ID) }
@@ -51,6 +52,7 @@ class DishOptionsBottomSheet : BottomSheetDialogFragment(R.layout.fragment_dish_
         renderTotal()
     }
 
+// 渲染groups。
     private fun renderGroups() {
         binding.optionGroups.removeAllViews()
         DishOptionsPresentation.groups(dish).forEach { group ->
@@ -81,6 +83,7 @@ class DishOptionsBottomSheet : BottomSheetDialogFragment(R.layout.fragment_dish_
         }
     }
 
+// 渲染total。
     private fun renderTotal() {
         binding.quantityValue.text = quantity.toString()
         val optionDelta = viewModel.uiState.value.selectedOptions[dish.id].orEmpty().fold(BigDecimal.ZERO) { total, option -> total + option.priceDelta }
@@ -93,6 +96,7 @@ class DishOptionsBottomSheet : BottomSheetDialogFragment(R.layout.fragment_dish_
 
     companion object {
         private const val ARG_DISH_ID = "dish_id"
+// 处理 `newInstance` 相关逻辑。
         fun newInstance(dishId: Long) = DishOptionsBottomSheet().apply { arguments = Bundle().apply { putLong(ARG_DISH_ID, dishId) } }
     }
 }

@@ -43,30 +43,40 @@ class AgentViewModel(
     private var requestedAmountLimit: String? = null
     private var preferTaskAutoForNextConfirmation = false
 
+// 打开assistant。
     fun openAssistant() {
         updateState { it.copy(sheetMode = AgentSheetMode.HALF, error = null) }
         if (savedState.get<Boolean>(SESSION_ESTABLISHED) == true && eventsJob?.isActive != true) subscribeEvents()
     }
 
+// 关闭assistant。
     fun closeAssistant() {
         eventsJob?.cancel()
         eventsJob = null
         updateState { it.copy(sheetMode = AgentSheetMode.HIDDEN) }
     }
 
+// 处理 `toggleFullScreen` 相关逻辑。
     fun toggleFullScreen() = updateState {
         it.copy(sheetMode = if (it.sheetMode == AgentSheetMode.FULL) AgentSheetMode.HALF else AgentSheetMode.FULL)
     }
 
+// 更新composer。
     fun updateComposer(value: String) = updateState { it.copy(composerText = value) }
 
+// 处理 `onRecordingStarted` 相关逻辑。
     fun onRecordingStarted() = updateState { it.copy(inputState = AgentInputState.RECORDING, error = null) }
+// 处理 `onRecognizing` 相关逻辑。
     fun onRecognizing() = updateState { it.copy(inputState = AgentInputState.RECOGNIZING) }
+// 处理 `onAsrResult` 相关逻辑。
     fun onAsrResult(text: String) = updateState { it.copy(composerText = text, inputState = AgentInputState.IDLE) }
+// 处理 `onAsrError` 相关逻辑。
     fun onAsrError(message: String) = updateState { it.copy(inputState = AgentInputState.IDLE, error = AgentError.Asr(message)) }
 
+// 发送composer。
     fun sendComposer() = sendText(_uiState.value.composerText)
 
+// 发送文本。
     fun sendText(text: String) {
         val request = text.trim()
         if (request.isEmpty()) return
@@ -85,10 +95,13 @@ class AgentViewModel(
         }
     }
 
+// 重试当前数据。
     fun retry() { retryText?.let(::sendText) }
 
+// 处理 `consumeCreatedOrder` 相关逻辑。
     fun consumeCreatedOrder() = updateState { it.copy(createdOrderId = null) }
 
+// 确认订单。
     fun confirmOrder() {
         if (preferTaskAutoForNextConfirmation && !_uiState.value.authorization.isTaskAuto) {
             preferTaskAutoForNextConfirmation = false
@@ -98,11 +111,13 @@ class AgentViewModel(
         }
     }
 
+// 处理 `preferThisTaskAuto` 相关逻辑。
     fun preferThisTaskAuto(maxAmount: BigDecimal) {
         preferTaskAutoForNextConfirmation = true
         requestedAmountLimit = "¥${maxAmount.stripTrailingZeros().toPlainString()}"
     }
 
+// 取消订单。
     fun cancelOrder() {
         if (!_uiState.value.authorization.isTaskAuto) {
             cancelGatewayOrder(displayText = "取消本次下单")
@@ -119,6 +134,7 @@ class AgentViewModel(
         }
     }
 
+// 处理 `modifyOrder` 相关逻辑。
     fun modifyOrder() = cancelGatewayOrder(
         displayText = "修改当前订单",
         composerAfter = "请修改订单："
@@ -147,6 +163,7 @@ class AgentViewModel(
         }
     }
 
+// 处理 `subscribeEvents` 相关逻辑。
     private fun subscribeEvents() {
         eventsJob = viewModelScope.launch(dispatcher) {
             repository.streamEvents(sessionId, _uiState.value.lastEventId)
@@ -155,6 +172,7 @@ class AgentViewModel(
         }
     }
 
+// 应用结果。
     private fun applyResult(result: AgentMessageResult) {
         updateState { state ->
             val allEvents = result.events.fold(state.events) { current, event -> current.addIfNew(event) }
@@ -191,6 +209,7 @@ class AgentViewModel(
         }
     }
 
+// 处理 `appendEvent` 相关逻辑。
     private fun appendEvent(event: AgentEvent) = updateState { state ->
         val updated = state.events.addIfNew(event)
         state.copy(events = updated, lastEventId = event.id ?: state.lastEventId).also {
@@ -198,6 +217,7 @@ class AgentViewModel(
         }
     }
 
+// 处理 `showError` 相关逻辑。
     private fun showError(error: ApiError) = updateState {
         it.copy(isSending = false, error = when (error) {
             is ApiError.Http -> if (error.code == 401) AgentError.Authentication else AgentError.Server(userFacingFailure(error.message))
@@ -207,6 +227,7 @@ class AgentViewModel(
         })
     }
 
+// 处理 `mode` 相关逻辑。
     private fun mode() = if (_uiState.value.authorization.isTaskAuto) AgentMode.THIS_TASK_AUTO else AgentMode.CONFIRM
     private fun List<AgentEvent>.addIfNew(event: AgentEvent) = if (event.id != null && any { it.id == event.id }) this else this + event
     private fun CandidateCart.toConfirmation() = OrderConfirmation(
@@ -218,6 +239,7 @@ class AgentViewModel(
         val serverAmount = maxAmount.toAmountOrNull()
         return if (serverAmount == null || requestedAmount < serverAmount) copy(maxAmount = requested) else this
     }
+// 取消gateway、订单。
     private fun cancelGatewayOrder(displayText: String, composerAfter: String = "") {
         retryText = "取消下单"
         requestedAmountLimit = null
@@ -248,6 +270,7 @@ class AgentViewModel(
         }
     }
 
+// 处理 `userFacingFailure` 相关逻辑。
     private fun userFacingFailure(raw: String): String = when {
         raw.contains("地址") -> "收货地址不可用，请检查后重试"
         raw.contains("库存") || raw.contains("下架") -> "菜品库存有变化，请重新选择"
@@ -257,6 +280,7 @@ class AgentViewModel(
     private fun String.toAmountOrNull(): BigDecimal? = replace(Regex("[^0-9.]"), "").toBigDecimalOrNull()?.takeIf { it > BigDecimal.ZERO }
     private fun String.requestedAmountLimit(): String? = Regex("(\\d+(?:\\.\\d+)?)\\s*元\\s*以内").find(this)?.groupValues?.get(1)?.let { "¥$it" }
 
+// 处理 `persistState` 相关逻辑。
     private fun persistState(state: AgentUiState) {
         savedState[SHEET_MODE] = state.sheetMode.name
         savedState[COMPOSER] = state.composerText
@@ -268,11 +292,13 @@ class AgentViewModel(
         savedState[CREATED_ORDER_ID] = state.createdOrderId
     }
 
+// 更新状态。
     private inline fun updateState(transform: (AgentUiState) -> AgentUiState) {
         _uiState.update(transform)
         persistState(_uiState.value)
     }
 
+// 清理视图模型持有的任务与订阅。
     override fun onCleared() { eventsJob?.cancel(); super.onCleared() }
 
     private companion object {

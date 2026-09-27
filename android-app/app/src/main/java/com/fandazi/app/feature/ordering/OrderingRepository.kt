@@ -13,25 +13,42 @@ import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 interface OrderingRepository {
+// 搜索merchants。
     suspend fun searchMerchants(keyword: String): ApiResult<List<Merchant>>
+// 加载merchants。
     suspend fun loadMerchants(page: Int, size: Int = 4, openOnly: Boolean = true): ApiResult<PagedResult<Merchant>> =
         ApiResult.Failure(ApiError.Network("商家列表暂不可用"))
+// 加载商家。
     suspend fun loadMerchant(merchantId: Long): ApiResult<Merchant> =
         ApiResult.Failure(ApiError.Network("商家详情暂不可用"))
+// 加载reviews。
     suspend fun loadReviews(merchantId: Long, page: Int, size: Int = 10): ApiResult<PagedResult<MerchantReview>> =
         ApiResult.Failure(ApiError.Network("商家评价暂不可用"))
+// 加载菜单。
     suspend fun loadMenu(merchantId: Long): ApiResult<List<Dish>>
+// 创建购物车、draft。
     suspend fun createCartDraft(merchantId: Long): ApiResult<CartDraft>
+// 更新购物车。
     suspend fun updateCart(cartDraftId: Long, items: List<CartItemInput>): ApiResult<CartDraft>
+// 校验购物车。
     suspend fun validateCart(cartDraftId: Long): ApiResult<CartQuote>
+// 加载addresses。
     suspend fun loadAddresses(): ApiResult<List<Address>>
+// 创建订单。
     suspend fun createOrder(cartDraftId: Long, addressId: Long, idempotencyKey: String): ApiResult<Order>
+// 支付订单。
     suspend fun payOrder(orderId: Long, idempotencyKey: String): ApiResult<Order>
+// 加载orders。
     suspend fun loadOrders(): ApiResult<List<Order>>
+// 加载订单。
     suspend fun loadOrder(orderId: Long): ApiResult<Order>
+// 创建地址。
     suspend fun createAddress(address: Address): ApiResult<Address> = ApiResult.Failure(ApiError.Network("地址功能暂不可用"))
+// 更新地址。
     suspend fun updateAddress(address: Address): ApiResult<Address> = ApiResult.Failure(ApiError.Network("地址功能暂不可用"))
+// 删除地址。
     suspend fun deleteAddress(addressId: Long): ApiResult<Unit> = ApiResult.Failure(ApiError.Network("地址功能暂不可用"))
+// 处理 `setDefaultAddress` 相关逻辑。
     suspend fun setDefaultAddress(addressId: Long): ApiResult<Address> = ApiResult.Failure(ApiError.Network("地址功能暂不可用"))
 }
 
@@ -39,42 +56,52 @@ class HttpOrderingRepository(
     private val apiClient: ApiClient,
     private val gson: Gson = Gson()
 ) : OrderingRepository {
+// 搜索merchants。
     override suspend fun searchMerchants(keyword: String): ApiResult<List<Merchant>> =
         apiClient.get("merchants?keyword=${keyword.urlEncoded()}").mapJson { body ->
             JsonParser.parseString(body).asJsonObject.toPage { it.toMerchant() }.content
         }
 
+// 加载merchants。
     override suspend fun loadMerchants(page: Int, size: Int, openOnly: Boolean): ApiResult<PagedResult<Merchant>> =
         apiClient.get("merchants?page=$page&size=$size&openOnly=$openOnly")
             .mapJson { JsonParser.parseString(it).asJsonObject.toPage { item -> item.toMerchant() } }
 
+// 加载商家。
     override suspend fun loadMerchant(merchantId: Long): ApiResult<Merchant> =
         apiClient.get("merchants/$merchantId")
             .mapJson { JsonParser.parseString(it).asJsonObject.toMerchant() }
 
+// 加载reviews。
     override suspend fun loadReviews(merchantId: Long, page: Int, size: Int): ApiResult<PagedResult<MerchantReview>> =
         apiClient.get("merchants/$merchantId/reviews?page=$page&size=$size")
             .mapJson { JsonParser.parseString(it).asJsonObject.toPage { item -> item.toMerchantReview() } }
 
+// 加载菜单。
     override suspend fun loadMenu(merchantId: Long): ApiResult<List<Dish>> =
         apiClient.get("merchants/$merchantId/dishes").mapJson { body ->
             JsonParser.parseString(body).asJsonArray.map { it.asJsonObject.toDish() }
         }
 
+// 创建购物车、draft。
     override suspend fun createCartDraft(merchantId: Long): ApiResult<CartDraft> =
         apiClient.postJson("cart/drafts", gson.toJson(mapOf("merchantId" to merchantId))).mapJson { it.toCartDraft() }
 
+// 更新购物车。
     override suspend fun updateCart(cartDraftId: Long, items: List<CartItemInput>): ApiResult<CartDraft> =
         apiClient.putJson("cart/drafts/$cartDraftId/items", gson.toJson(items)).mapJson { it.toCartDraft() }
 
+// 校验购物车。
     override suspend fun validateCart(cartDraftId: Long): ApiResult<CartQuote> =
         apiClient.postJson("cart/drafts/$cartDraftId/validate", "{}").mapJson { body ->
             JsonParser.parseString(body).asJsonObject.toCartQuote(cartDraftId)
         }
 
+// 加载addresses。
     override suspend fun loadAddresses(): ApiResult<List<Address>> =
         apiClient.get("addresses").mapJson { body -> JsonParser.parseString(body).asJsonArray.map { it.asJsonObject.toAddress() } }
 
+// 创建订单。
     override suspend fun createOrder(cartDraftId: Long, addressId: Long, idempotencyKey: String): ApiResult<Order> =
         apiClient.postJson(
             "orders",
@@ -82,27 +109,34 @@ class HttpOrderingRepository(
             mapOf("Idempotency-Key" to idempotencyKey)
         ).mapJson { it.toOrder() }
 
+// 支付订单。
     override suspend fun payOrder(orderId: Long, idempotencyKey: String): ApiResult<Order> =
         apiClient.postJson("orders/$orderId/pay", "{}", mapOf("Idempotency-Key" to idempotencyKey)).mapJson { it.toOrder() }
 
+// 加载orders。
     override suspend fun loadOrders(): ApiResult<List<Order>> =
         apiClient.get("orders").mapJson { body -> JsonParser.parseString(body).asJsonArray.map { it.asJsonObject.toOrder() } }
 
+// 加载订单。
     override suspend fun loadOrder(orderId: Long): ApiResult<Order> =
         apiClient.get("orders/$orderId").mapJson { it.toOrder() }
 
+// 创建地址。
     override suspend fun createAddress(address: Address): ApiResult<Address> =
         apiClient.postJson("addresses", gson.toJson(address.toCommand())).mapJson { JsonParser.parseString(it).asJsonObject.toAddress() }
 
+// 更新地址。
     override suspend fun updateAddress(address: Address): ApiResult<Address> =
         apiClient.putJson("addresses/${address.id}", gson.toJson(address.toCommand())).mapJson { JsonParser.parseString(it).asJsonObject.toAddress() }
 
+// 删除地址。
     override suspend fun deleteAddress(addressId: Long): ApiResult<Unit> =
         when (val result = apiClient.delete("addresses/$addressId")) {
             is ApiResult.Success -> ApiResult.Success(Unit)
             is ApiResult.Failure -> result
         }
 
+// 处理 `setDefaultAddress` 相关逻辑。
     override suspend fun setDefaultAddress(addressId: Long): ApiResult<Address> =
         apiClient.patch("addresses/$addressId/default", "{}").mapJson { JsonParser.parseString(it).asJsonObject.toAddress() }
 
@@ -165,6 +199,7 @@ class HttpOrderingRepository(
         array("optionIds").map { it.asLong }, nullableString("optionSummary").orEmpty(), decimal("unitPrice")
     )
 
+// 处理 `enumValue` 相关逻辑。
     private fun enumValue(value: String) = OrderStatus.valueOf(value)
     private fun String.urlEncoded() = URLEncoder.encode(this, StandardCharsets.UTF_8.name())
     private fun <T> ApiResult<String>.mapJson(parser: (String) -> T): ApiResult<T> = when (this) {

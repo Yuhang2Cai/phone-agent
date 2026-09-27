@@ -59,6 +59,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         else viewModel.onAsrError(getString(R.string.agent_asr_unavailable))
     }
 
+// 处理 `onCreateDialog` 相关逻辑。
     override fun onCreateDialog(savedInstanceState: Bundle?): android.app.Dialog =
         BottomSheetDialog(requireContext(), theme).also { dialog ->
             dialog.setOnKeyListener { _, keyCode, event ->
@@ -82,6 +83,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
             }
         }
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val views = FragmentAgentSheetBinding.bind(view)
         binding = views
@@ -125,6 +127,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         }
     }
 
+// 渲染当前数据。
     private fun render(state: AgentUiState) {
         val views = binding ?: return
         if (state.sheetMode == AgentSheetMode.HIDDEN) {
@@ -213,6 +216,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         }
     }
 
+// 渲染confirmation。
     private fun renderConfirmation(card: OrderConfirmation?) {
         val views = binding ?: return
         views.agentConfirmationContainer.removeAllViews()
@@ -237,11 +241,13 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         views.agentConfirmationContainer.addView(cardViews.root)
     }
 
+// 处理 `requestRecognition` 相关逻辑。
     private fun requestRecognition() {
         if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED) beginRecognition()
         else microphonePermission.launch(Manifest.permission.RECORD_AUDIO)
     }
 
+// 处理 `beginRecognition` 相关逻辑。
     private fun beginRecognition() {
         if (!SpeechRecognizer.isRecognitionAvailable(requireContext())) {
             viewModel.onAsrError(getString(R.string.agent_asr_unavailable))
@@ -251,16 +257,25 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         viewModel.onRecordingStarted()
         recognizer = SpeechRecognizer.createSpeechRecognizer(requireContext()).also { speech ->
             speech.setRecognitionListener(object : RecognitionListener {
+// 处理 `onResults` 相关逻辑。
                 override fun onResults(results: Bundle) {
                     results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)?.firstOrNull()?.let(viewModel::onAsrResult)
                 }
+// 处理 `onReadyForSpeech` 相关逻辑。
                 override fun onReadyForSpeech(params: Bundle?) = viewModel.onRecordingStarted()
+// 处理 `onBeginningOfSpeech` 相关逻辑。
                 override fun onBeginningOfSpeech() = Unit
+// 处理 `onRmsChanged` 相关逻辑。
                 override fun onRmsChanged(rmsdB: Float) = Unit
+// 处理 `onBufferReceived` 相关逻辑。
                 override fun onBufferReceived(buffer: ByteArray?) = Unit
+// 处理 `onEndOfSpeech` 相关逻辑。
                 override fun onEndOfSpeech() = viewModel.onRecognizing()
+// 处理 `onError` 相关逻辑。
                 override fun onError(error: Int) = viewModel.onAsrError(getString(R.string.agent_asr_unavailable))
+// 处理 `onPartialResults` 相关逻辑。
                 override fun onPartialResults(partialResults: Bundle?) = Unit
+// 处理 `onEvent` 相关逻辑。
                 override fun onEvent(eventType: Int, params: Bundle?) = Unit
             })
             speech.startListening(Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -270,7 +285,9 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         }
     }
 
+// 处理 `onCancel` 相关逻辑。
     override fun onCancel(dialog: android.content.DialogInterface) { viewModel.closeAssistant(); super.onCancel(dialog) }
+// 处理 `onResume` 相关逻辑。
     override fun onResume() {
         super.onResume()
         pendingPaymentOrderId?.let { orderId ->
@@ -281,10 +298,14 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
             }
         }
     }
+// 在视图销毁时释放视图相关资源。
     override fun onDestroyView() { recognizer?.destroy(); recognizer = null; binding = null; super.onDestroyView() }
+// 处理 `dp` 相关逻辑。
     private fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+// 处理 `halfSheetHeight` 相关逻辑。
     private fun halfSheetHeight() = (resources.displayMetrics.heightPixels * 0.58f).toInt()
 
+// 打开支付。
     private fun openPayment(orderId: Long) {
         if (pendingPaymentOrderId != orderId || !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
         val controller = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment)
@@ -295,6 +316,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         dismissAllowingStateLoss()
     }
 
+// 处理 `requestPaymentOrder` 相关逻辑。
     private fun requestPaymentOrder(orderId: Long) {
         if (pendingPaymentOrderId != orderId || paymentLoadInFlight || paymentLoadAttempts >= MAX_PAYMENT_LOAD_ATTEMPTS) return
         paymentLoadAttempts += 1
@@ -302,6 +324,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
         orderingViewModel.selectOrder(orderId)
     }
 
+// 处理 `userProgress` 相关逻辑。
     private fun userProgress(event: AgentEvent): String {
         val source = "${event.type} ${event.toolName.orEmpty()} ${event.summary}".lowercase()
         return when {
@@ -315,6 +338,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
     companion object {
         private const val TAG = "agent_sheet"
         private const val MAX_PAYMENT_LOAD_ATTEMPTS = 3
+// 处理 `show` 相关逻辑。
         fun show(manager: androidx.fragment.app.FragmentManager) {
             if (manager.findFragmentByTag(TAG) == null) AgentSheetFragment().show(manager, TAG)
         }

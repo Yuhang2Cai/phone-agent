@@ -14,6 +14,8 @@ log = logging.getLogger(__name__)
 
 
 class SpringBootToolClient:
+    """处理 `__init__` 相关逻辑。"""
+    """处理 `__init__` 相关逻辑。"""
     def __init__(
         self,
         base_url: str = "http://localhost:8080",
@@ -28,6 +30,8 @@ class SpringBootToolClient:
             settings.agent_internal_token if settings is not None else os.getenv("AGENT_INTERNAL_TOKEN")
         )
 
+    """处理 `call` 相关逻辑。"""
+    """处理 `call` 相关逻辑。"""
     def call(self, request: ToolRequest) -> ToolResult:
         if not is_allowed_tool(request.tool_name):
             return ToolResult(ok=False, error="tool_not_allowed")

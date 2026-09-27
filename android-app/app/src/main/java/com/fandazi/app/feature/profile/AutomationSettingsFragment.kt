@@ -21,6 +21,7 @@ class AutomationSettingsFragment : Fragment(R.layout.fragment_automation_setting
     private var saving = false
     private var policyAddressChanged = false
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentAutomationSettingsBinding.bind(view)
         val username = ((requireActivity() as MainActivity).applicationSession().state.value as? com.fandazi.app.feature.auth.SessionState.Authenticated)?.user?.username.orEmpty()
@@ -41,11 +42,13 @@ class AutomationSettingsFragment : Fragment(R.layout.fragment_automation_setting
         }
     }
 
+// 处理 `onResume` 相关逻辑。
     override fun onResume() {
         super.onResume()
         view?.let { loadSettings(FragmentAutomationSettingsBinding.bind(it)) }
     }
 
+// 加载settings。
     private fun loadSettings(binding: FragmentAutomationSettingsBinding) {
         val activity = requireActivity() as MainActivity
         viewLifecycleOwner.lifecycleScope.launch {
@@ -67,6 +70,7 @@ class AutomationSettingsFragment : Fragment(R.layout.fragment_automation_setting
         }
     }
 
+// 更新long、term。
     private fun updateLongTerm(binding: FragmentAutomationSettingsBinding, enabled: Boolean) {
         val address = defaultAddress
         val limit = binding.automationLimit.text.toString().replace("¥", "").trim().toBigDecimalOrNull() ?: BigDecimal.ZERO
@@ -100,6 +104,7 @@ class AutomationSettingsFragment : Fragment(R.layout.fragment_automation_setting
         }
     }
 
+// 渲染block、reason。
     private fun renderBlockReason(binding: FragmentAutomationSettingsBinding) {
         val limit = binding.automationLimit.text.toString().replace("¥", "").trim().toBigDecimalOrNull() ?: BigDecimal.ZERO
         val state = AutomationSettingsState(defaultAddress, limit, longTermEnabled = binding.automationLongTerm.isChecked)
@@ -112,6 +117,7 @@ class AutomationSettingsFragment : Fragment(R.layout.fragment_automation_setting
         }
     }
 
+// 处理 `setControlsEnabled` 相关逻辑。
     private fun setControlsEnabled(binding: FragmentAutomationSettingsBinding, enabled: Boolean) {
         binding.automationThisTask.isEnabled = enabled
         binding.automationLongTerm.isEnabled = enabled

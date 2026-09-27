@@ -7,6 +7,7 @@ import org.junit.Test
 
 class HomePresentationTest {
     @Test
+// 验证 `loadingDoesNotExposeEmptyState` 覆盖场景的预期行为与边界。
     fun loadingDoesNotExposeEmptyState() {
         val state = HomePresentationState.loading()
 
@@ -16,6 +17,7 @@ class HomePresentationTest {
     }
 
     @Test
+// 验证 `noAddressKeepsSearchAndAssistantAvailable` 覆盖场景的预期行为与边界。
     fun noAddressKeepsSearchAndAssistantAvailable() {
         val state = HomePresentationState.content(address = null, merchants = emptyList())
 
@@ -26,6 +28,7 @@ class HomePresentationTest {
     }
 
     @Test
+// 验证 `emptyNearbyMerchantsUsesEmptyState` 覆盖场景的预期行为与边界。
     fun emptyNearbyMerchantsUsesEmptyState() {
         val state = HomePresentationState.content(address = "上海·静安区", merchants = emptyList())
 

@@ -24,6 +24,7 @@ public class CartService {
     private final DishOptionRepository options;
     private final UserRepository users;
 
+// 初始化对象依赖与默认状态。
     public CartService(CartDraftRepository drafts, MerchantRepository merchants, DishRepository dishes,
                        DishOptionRepository options, UserRepository users) {
         this.drafts = drafts;
@@ -33,6 +34,7 @@ public class CartService {
         this.users = users;
     }
 
+// 创建draft。
     @Transactional
     public CartDraft createDraft(Long userId, Long merchantId) {
         var user = users.findById(userId).orElseThrow(() -> new DomainException("用户不存在"));
@@ -40,6 +42,7 @@ public class CartService {
         return drafts.save(new CartDraft(user, merchant));
     }
 
+// 处理 `replaceItems` 相关逻辑。
     @Transactional
     public CartDraft replaceItems(Long userId, Long draftId, List<CartItemCommand> commands) {
         var draft = owned(userId, draftId);
@@ -61,16 +64,19 @@ public class CartService {
         return draft;
     }
 
+// 校验当前数据。
     @Transactional(readOnly = true)
     public CartQuote validate(Long userId, Long draftId) {
         return quote(userId, draftId, false);
     }
 
+// 处理 `reserveAndQuote` 相关逻辑。
     @Transactional
     public CartQuote reserveAndQuote(Long userId, Long draftId) {
         return quote(userId, draftId, true);
     }
 
+// 处理 `quote` 相关逻辑。
     private CartQuote quote(Long userId, Long draftId, boolean reserve) {
         var draft = owned(userId, draftId);
         if (!draft.getMerchant().isOpen()) {
@@ -137,6 +143,7 @@ public class CartService {
                 discount, subtotal.add(fee).subtract(discount));
     }
 
+// 处理 `owned` 相关逻辑。
     public CartDraft owned(Long userId, Long id) {
         return drafts.findByIdAndUserId(id, userId).orElseThrow(() -> new DomainException("购物车不存在"));
     }

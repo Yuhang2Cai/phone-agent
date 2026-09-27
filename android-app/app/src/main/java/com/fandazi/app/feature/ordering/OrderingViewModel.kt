@@ -66,10 +66,12 @@ class OrderingViewModel(
     }
     val uiState = _uiState.asStateFlow()
 
+// 更新search、keyword。
     fun updateSearchKeyword(keyword: String) {
         if (_uiState.value.keyword != keyword) _uiState.update { it.copy(keyword = keyword) }
     }
 
+// 处理 `switchCartOwner` 相关逻辑。
     fun switchCartOwner(owner: String) {
         if (owner == activeCartOwner) return
         activeCartOwner = owner
@@ -97,6 +99,7 @@ class OrderingViewModel(
         }
     }
 
+// 搜索当前数据。
     fun search(keyword: String) {
         _uiState.update { it.copy(keyword = keyword, isLoading = true, searchStatus = SearchStatus.Searching, error = null) }
         viewModelScope.launch(dispatcher) {
@@ -109,10 +112,12 @@ class OrderingViewModel(
         }
     }
 
+// 处理 `toggleOnlyOpen` 相关逻辑。
     fun toggleOnlyOpen() {
         _uiState.update { it.copy(onlyOpen = !it.onlyOpen) }
     }
 
+// 打开商家。
     fun openMerchant(merchantId: Long) {
         if (_uiState.value.cartDraft?.merchantId?.let { it != merchantId } == true) {
             val target = _uiState.value.merchants.firstOrNull { it.id == merchantId }
@@ -122,6 +127,7 @@ class OrderingViewModel(
         loadMerchant(merchantId)
     }
 
+// 确认商家、switch。
     fun confirmMerchantSwitch() {
         val target = _uiState.value.pendingMerchantSwitch ?: return
         clearCart()
@@ -129,8 +135,10 @@ class OrderingViewModel(
         loadMerchant(target.id)
     }
 
+// 取消商家、switch。
     fun cancelMerchantSwitch() = _uiState.update { it.copy(pendingMerchantSwitch = null) }
 
+// 加载商家。
     private fun loadMerchant(merchantId: Long) {
         val merchant = _uiState.value.merchants.firstOrNull { it.id == merchantId }
         _uiState.update { it.copy(selectedMerchant = merchant, menu = emptyList(), selectedDish = null, isLoading = true, error = null) }
@@ -142,8 +150,10 @@ class OrderingViewModel(
         }
     }
 
+// 处理 `selectDish` 相关逻辑。
     fun selectDish(dishId: Long) = _uiState.update { state -> state.copy(selectedDish = state.menu.firstOrNull { it.id == dishId }) }
 
+// 处理 `selectOption` 相关逻辑。
     fun selectOption(dishId: Long, optionId: Long) = _uiState.update { state ->
         val option = state.menu.firstOrNull { it.id == dishId }?.options?.firstOrNull { it.id == optionId } ?: return@update state
         if (!option.available) return@update state
@@ -151,6 +161,7 @@ class OrderingViewModel(
         state.copy(selectedOptions = state.selectedOptions + (dishId to (existing + option)))
     }
 
+// 处理 `addSelectedDish` 相关逻辑。
     fun addSelectedDish(quantity: Int = 1) {
         val state = _uiState.value
         if (state.isLoading) return
@@ -192,6 +203,7 @@ class OrderingViewModel(
         }
     }
 
+// 更新购物车、line。
     fun updateCartLine(dishId: Long, optionIds: List<Long>, quantity: Int) {
         if (_uiState.value.isLoading) return
         val draft = _uiState.value.cartDraft ?: return
@@ -210,12 +222,14 @@ class OrderingViewModel(
         syncCart(draft.id, inputs)
     }
 
+// 清除购物车。
     fun clearCart() {
         cartStore.clear(activeCartOwner)
         _uiState.update { it.copy(cartDraft = null, quote = null, cartLines = emptyList(), checkoutReady = false, error = null) }
         if (_uiState.value.currentOrder != null) persistCart()
     }
 
+// 准备checkout。
     fun prepareCheckout() {
         if (_uiState.value.isLoading) return
         val draftId = _uiState.value.cartDraft?.id ?: return
@@ -246,8 +260,10 @@ class OrderingViewModel(
         }
     }
 
+// 处理 `consumeCheckoutReady` 相关逻辑。
     fun consumeCheckoutReady() = _uiState.update { it.copy(checkoutReady = false) }
 
+// 处理 `syncCart` 相关逻辑。
     private fun syncCart(draftId: Long, inputs: List<CartItemInput>) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch(dispatcher) {
@@ -268,6 +284,7 @@ class OrderingViewModel(
         }
     }
 
+// 处理 `persistCart` 相关逻辑。
     private fun persistCart() {
         val state = _uiState.value
         cartStore.write(
@@ -285,6 +302,7 @@ class OrderingViewModel(
         )
     }
 
+// 处理 `displayLines` 相关逻辑。
     private fun displayLines(draft: CartDraft, state: OrderingUiState): List<CartLine> = draft.items.map { raw ->
         val previous = state.cartLines.firstOrNull { it.dishId == raw.dishId && it.optionIds.sorted() == raw.optionIds.sorted() }
         val dish = state.menu.firstOrNull { it.id == raw.dishId }
@@ -301,6 +319,7 @@ class OrderingViewModel(
         )
     }
 
+// 处理 `selectDefaultAddress` 相关逻辑。
     fun selectDefaultAddress() {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch(dispatcher) {
@@ -314,6 +333,7 @@ class OrderingViewModel(
         }
     }
 
+// 创建订单。
     fun createOrder() {
         if (_uiState.value.isSubmittingOrder) return
         val cartId = _uiState.value.cartDraft?.id ?: return
@@ -336,6 +356,7 @@ class OrderingViewModel(
         }
     }
 
+// 支付订单。
     fun payOrder() {
         if (_uiState.value.isSubmittingOrder) return
         val orderId = _uiState.value.currentOrder?.id ?: return
@@ -363,6 +384,7 @@ class OrderingViewModel(
         }
     }
 
+// 处理 `refreshOrders` 相关逻辑。
     fun refreshOrders() {
         viewModelScope.launch(dispatcher) {
             when (val result = repository.loadOrders()) {
@@ -376,6 +398,7 @@ class OrderingViewModel(
         }
     }
 
+// 处理 `selectOrder` 相关逻辑。
     fun selectOrder(orderId: Long) {
         _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch(dispatcher) {
@@ -386,6 +409,7 @@ class OrderingViewModel(
         }
     }
 
+// 处理 `selectOrderSnapshot` 相关逻辑。
     fun selectOrderSnapshot(order: Order) {
         paymentRequestKey = null
         activeOrderUsesCurrentCart = false
@@ -393,6 +417,7 @@ class OrderingViewModel(
         persistCart()
     }
 
+// 处理 `showError` 相关逻辑。
     private fun showError(error: ApiError) = _uiState.update {
         it.copy(isLoading = false, error = when (error) {
             is ApiError.Http -> error.message
@@ -402,6 +427,7 @@ class OrderingViewModel(
         })
     }
 
+// 处理 `showSearchError` 相关逻辑。
     private fun showSearchError(error: ApiError) = _uiState.update {
         it.copy(
             isLoading = false,

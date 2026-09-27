@@ -30,6 +30,7 @@ class MerchantFragment : Fragment(R.layout.fragment_merchant) {
         OrderingViewModelFactory(activity.orderingRepository(), activity.cartStateStore(), activity.cartOwner())
     }
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentMerchantBinding.bind(view)
         binding.merchantBack.setOnClickListener { view.findNavController().navigateUp() }

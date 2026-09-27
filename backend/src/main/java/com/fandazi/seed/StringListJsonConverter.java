@@ -13,6 +13,7 @@ public class StringListJsonConverter implements AttributeConverter<List<String>,
     private static final ObjectMapper MAPPER = new ObjectMapper();
     private static final TypeReference<List<String>> LIST_TYPE = new TypeReference<>() {};
 
+// 处理 `convertToDatabaseColumn` 相关逻辑。
     @Override
     public String convertToDatabaseColumn(List<String> value) {
         if (value == null) return null;
@@ -23,6 +24,7 @@ public class StringListJsonConverter implements AttributeConverter<List<String>,
         }
     }
 
+// 处理 `convertToEntityAttribute` 相关逻辑。
     @Override
     public List<String> convertToEntityAttribute(String value) {
         if (value == null) return null;

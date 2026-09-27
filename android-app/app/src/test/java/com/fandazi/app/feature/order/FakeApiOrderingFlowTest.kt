@@ -16,6 +16,7 @@ import org.junit.Test
 
 class FakeApiOrderingFlowTest {
     @Test
+// 验证 `fakeApiCoversOrderingAndAgentConfirmationFlowWithoutNetwork` 覆盖场景的预期行为与边界。
     fun fakeApiCoversOrderingAndAgentConfirmationFlowWithoutNetwork() {
         val api = FakeFandaziApi()
 
@@ -56,21 +57,29 @@ class FakeApiOrderingFlowTest {
         private val carts = linkedMapOf<Long, Cart>()
         private val orders = linkedMapOf<Long, Order>()
 
+// 验证 `login` 覆盖场景的预期行为与边界。
         fun login(username: String, password: String) = success(AuthResponse("$username-token", User(username, "$username@example.com")))
+// 验证 `search` 覆盖场景的预期行为与边界。
         fun search(keyword: String) = success(listOf(merchant))
+// 验证 `menu` 覆盖场景的预期行为与边界。
         fun menu(merchantId: Long) = success(listOf(dish))
+// 验证 `createAddress` 覆盖场景的预期行为与边界。
         fun createAddress(label: String) = success(Address(nextAddressId++, label))
+// 验证 `createCart` 覆盖场景的预期行为与边界。
         fun createCart(merchantId: Long): ApiResult.Success<Cart> {
             val cart = Cart(nextCartId++, merchantId, emptyList())
             carts[cart.id] = cart
             return success(cart)
         }
+// 验证 `setCartItems` 覆盖场景的预期行为与边界。
         fun setCartItems(cartId: Long, lines: List<CartLine>): ApiResult.Success<Cart> {
             val cart = carts.getValue(cartId).copy(lines = lines)
             carts[cartId] = cart
             return success(cart)
         }
+// 验证 `checkout` 覆盖场景的预期行为与边界。
         fun checkout(cartId: Long, addressId: Long) = success(Quote(cartId, addressId, "¥15.00"))
+// 验证 `createOrder` 覆盖场景的预期行为与边界。
         fun createOrder(cartId: Long, addressId: Long, idempotencyKey: String): ApiResult.Success<Order> {
             val existing = orders.values.firstOrNull { it.idempotencyKey == idempotencyKey }
             if (existing != null) return success(existing)
@@ -78,6 +87,7 @@ class FakeApiOrderingFlowTest {
             orders[order.id] = order
             return success(order)
         }
+// 验证 `pay` 覆盖场景的预期行为与边界。
         fun pay(orderId: Long, idempotencyKey: String): ApiResult.Success<Order> {
             val paid = orders.getValue(orderId).copy(
                 status = OrderStatus.MERCHANT_ACCEPTED,
@@ -86,7 +96,9 @@ class FakeApiOrderingFlowTest {
             orders[orderId] = paid
             return success(paid)
         }
+// 验证 `order` 覆盖场景的预期行为与边界。
         fun order(orderId: Long) = success(orders.getValue(orderId))
+// 验证 `sendAgentMessage` 覆盖场景的预期行为与边界。
         fun sendAgentMessage(text: String) = success(
             AgentMessageResult(
                 status = AgentStatus.AWAITING_CONFIRMATION,

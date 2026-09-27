@@ -9,6 +9,7 @@ import org.junit.Test
 
 class SessionRouteCoordinatorTest {
     @Test
+// 验证 `authenticatedRestorationTargetsHomeAndDoesNotRepeatHomeNavigation` 覆盖场景的预期行为与边界。
     fun authenticatedRestorationTargetsHomeAndDoesNotRepeatHomeNavigation() {
         val desired = SessionRouteCoordinator.routeFor(
             SessionState.Authenticated("token-1", User("alice", "alice@example.com"))
@@ -19,6 +20,7 @@ class SessionRouteCoordinatorTest {
     }
 
     @Test
+// 验证 `unauthenticatedStateTargetsAuthWhenHomeIsVisible` 覆盖场景的预期行为与边界。
     fun unauthenticatedStateTargetsAuthWhenHomeIsVisible() {
         val desired = SessionRouteCoordinator.routeFor(SessionState.Unauthenticated)
 
@@ -27,6 +29,7 @@ class SessionRouteCoordinatorTest {
     }
 
     @Test
+// 验证 `guestStateTargetsHomeWithoutRepeatingNavigation` 覆盖场景的预期行为与边界。
     fun guestStateTargetsHomeWithoutRepeatingNavigation() {
         val desired = SessionRouteCoordinator.routeFor(SessionState.Guest)
 
@@ -35,6 +38,7 @@ class SessionRouteCoordinatorTest {
     }
 
     @Test
+// 验证 `sameSessionRouteIsIdempotentForRepeatedStateEmissions` 覆盖场景的预期行为与边界。
     fun sameSessionRouteIsIdempotentForRepeatedStateEmissions() {
         val first = SessionRouteCoordinator.routeFor(SessionState.Authenticated("token", User("alice", "a@example.com")))
         val second = SessionRouteCoordinator.routeFor(SessionState.Authenticated("token", User("alice", "a@example.com")))

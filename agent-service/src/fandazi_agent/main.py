@@ -11,6 +11,8 @@ from .spring_client import SpringBootToolClient
 from .workflow_store import FileWorkflowStore
 
 
+"""创建app。"""
+"""创建app。"""
 def create_app(agent: FoodOrderingAgent | None = None, *, settings: Settings | None = None):
     try:
         from fastapi import FastAPI, Header, HTTPException
@@ -24,6 +26,8 @@ def create_app(agent: FoodOrderingAgent | None = None, *, settings: Settings | N
     )
     app = FastAPI(title="饭搭子 AI Agent Service", docs_url=None, redoc_url=None)
 
+    """运行助手。"""
+    """运行助手。"""
     @app.post("/internal/agent/run", response_model=AgentResult)
     def run_agent(request: AgentRunRequest, x_agent_token: str | None = Header(default=None)) -> AgentResult:
         if not settings.agent_internal_token or not hmac.compare_digest(settings.agent_internal_token, x_agent_token or ""):

@@ -17,10 +17,12 @@ public class DeliveryService {
 
     private final OrderService orders;
 
+// 初始化对象依赖与默认状态。
     public DeliveryService(OrderService orders) {
         this.orders = orders;
     }
 
+// 处理 `advance` 相关逻辑。
     @Transactional
     public OrderEntity advance(Long userId, Long orderId, OrderStatus next) {
         if (!DELIVERY_STATES.contains(next)) {

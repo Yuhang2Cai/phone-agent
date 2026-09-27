@@ -15,6 +15,7 @@ public class OrderService {
     private final AddressService addresses;
     private final CartService carts;
 
+// 初始化对象依赖与默认状态。
     public OrderService(OrderRepository orders, UserRepository users, AddressService addresses, CartService carts) {
         this.orders = orders;
         this.users = users;
@@ -22,6 +23,7 @@ public class OrderService {
         this.carts = carts;
     }
 
+// 创建当前数据。
     @Transactional
     public OrderEntity create(Long userId, CreateOrderCommand command) {
         if (command.idempotencyKey() == null || command.idempotencyKey().isBlank()) {
@@ -52,16 +54,19 @@ public class OrderService {
         return orders.save(order);
     }
 
+// 创建响应。
     @Transactional
     public OrderResponse createResponse(Long userId, CreateOrderCommand command) {
         return OrderResponse.from(create(userId, command));
     }
 
+// 查询by、幂等、键。
     @Transactional(readOnly = true)
     public java.util.Optional<OrderEntity> findByIdempotencyKey(Long userId, String key) {
         return orders.findByUserIdAndIdempotencyKey(userId, key);
     }
 
+// 获取当前数据。
     @Transactional(readOnly = true)
     public OrderEntity get(Long userId, Long id) {
         var order = orders.findByIdAndUserId(id, userId).orElseThrow(() -> new DomainException("订单不存在"));
@@ -70,12 +75,14 @@ public class OrderService {
         return order;
     }
 
+// 获取响应。
     @Transactional(readOnly = true)
     public OrderResponse getResponse(Long userId, Long id) {
         return OrderResponse.from(orders.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new DomainException("订单不存在")));
     }
 
+// 列出responses。
     @Transactional(readOnly = true)
     public java.util.List<OrderResponse> listResponses(Long userId) {
         return orders.findByUserIdOrderByIdDesc(userId).stream()
@@ -87,10 +94,12 @@ public class OrderService {
                 .toList();
     }
 
+// 处理 `locked` 相关逻辑。
     public OrderEntity locked(Long userId, Long id) {
         return orders.findByIdAndUserIdForUpdate(id, userId).orElseThrow(() -> new DomainException("订单不存在"));
     }
 
+// 处理 `transition` 相关逻辑。
     @Transactional
     public OrderEntity transition(Long userId, Long id, OrderStatus expected, OrderStatus next) {
         var order = locked(userId, id);

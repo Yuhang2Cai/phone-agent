@@ -14,12 +14,14 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
 
+// 初始化对象依赖与默认状态。
     public AuthService(UserRepository users, PasswordEncoder passwordEncoder, JwtService jwtService) {
         this.users = users;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
     }
 
+// 注册当前数据。
     @Transactional
     public AuthDtos.AuthResponse register(AuthDtos.RegisterRequest request) {
         if (users.existsByUsername(request.username())) {
@@ -40,6 +42,7 @@ public class AuthService {
         }
     }
 
+// 登录当前数据。
     @Transactional(readOnly = true)
     public AuthDtos.AuthResponse login(AuthDtos.LoginRequest request) {
         UserEntity user = users.findByUsername(request.username())
@@ -50,6 +53,7 @@ public class AuthService {
         return responseFor(user);
     }
 
+// 处理 `currentUser` 相关逻辑。
     @Transactional(readOnly = true)
     public AuthDtos.UserResponse currentUser(Long userId) {
         return users.findById(userId)
@@ -57,10 +61,12 @@ public class AuthService {
                 .orElseThrow(() -> new InvalidCredentialsException("User no longer exists"));
     }
 
+// 处理 `responseFor` 相关逻辑。
     private AuthDtos.AuthResponse responseFor(UserEntity user) {
         return new AuthDtos.AuthResponse(jwtService.createToken(user.getId()), AuthDtos.UserResponse.from(user));
     }
 
+// 判断username、email、unique、constraint。
     private boolean isUsernameOrEmailUniqueConstraint(Throwable exception) {
         for (Throwable current = exception; current != null; current = current.getCause()) {
             String message = current.getMessage();

@@ -50,6 +50,7 @@ class AgentAuthorizationConcurrencyTest {
     private UserEntity user;
     private AddressEntity address;
 
+// 为测试准备依赖、替身和初始状态。
     @BeforeEach
     void setUp() {
         user = users.save(new UserEntity("parallel-owner", "parallel-owner@example.com", "hash"));
@@ -57,6 +58,7 @@ class AgentAuthorizationConcurrencyTest {
         merchants.save(new MerchantEntity("并发餐厅", "盖饭", new BigDecimal("10"), new BigDecimal("2"), 20, true));
     }
 
+// 验证 `aConfirmationCanAuthorizeOnlyOneConcurrentWorkflowOrder` 覆盖场景的预期行为与边界。
     @Test
     void aConfirmationCanAuthorizeOnlyOneConcurrentWorkflowOrder() throws Exception {
         AgentSession session = sessions.start(user.getId(), "parallel-confirm", AgentMode.CONFIRM, "confirm-trace");
@@ -71,6 +73,7 @@ class AgentAuthorizationConcurrencyTest {
         assertThat(orders.findAll()).hasSize(1);
     }
 
+// 验证 `aSingleTaskGrantCanAuthorizeOnlyOneConcurrentWorkflowOrder` 覆盖场景的预期行为与边界。
     @Test
     void aSingleTaskGrantCanAuthorizeOnlyOneConcurrentWorkflowOrder() throws Exception {
         AgentSession session = sessions.start(user.getId(), "parallel-grant", AgentMode.THIS_TASK_AUTO, "grant-trace");
@@ -85,6 +88,7 @@ class AgentAuthorizationConcurrencyTest {
         assertThat(orders.findAll()).hasSize(1);
     }
 
+// 验证 `cartWithDish` 覆盖场景的预期行为与边界。
     private CartDraft cartWithDish() {
         MerchantEntity merchant = merchants.findAll().get(0);
         DishEntity dish = dishes.save(new DishEntity(merchant, "主食", "并发套餐", "", new BigDecimal("20"), 10, true, ""));
@@ -92,6 +96,7 @@ class AgentAuthorizationConcurrencyTest {
         return carts.replaceItems(user.getId(), cart.getId(), List.of(new CartItemCommand(dish.getId(), 1, List.of(), null)));
     }
 
+// 验证 `concurrentlyCreate` 覆盖场景的预期行为与边界。
     private List<Outcome> concurrentlyCreate(AgentSession session, CartDraft first, CartDraft second, String firstWorkflow, String secondWorkflow) throws Exception {
         CountDownLatch ready = new CountDownLatch(2);
         CountDownLatch start = new CountDownLatch(1);
@@ -109,6 +114,7 @@ class AgentAuthorizationConcurrencyTest {
         }
     }
 
+// 验证 `createCall` 覆盖场景的预期行为与边界。
     private Callable<Outcome> createCall(AgentSession session, Long cartId, String workflowId, CountDownLatch ready, CountDownLatch start) {
         return () -> {
             ready.countDown();

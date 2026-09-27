@@ -17,17 +17,20 @@ class OrderingRepositoryTest {
     private lateinit var server: MockWebServer
 
     @Before
+// 为测试准备依赖、替身和初始状态。
     fun setUp() {
         server = MockWebServer()
         server.start()
     }
 
     @After
+// 清理测试创建的资源与状态。
     fun tearDown() {
         server.shutdown()
     }
 
     @Test
+// 验证 `searchMenuCartAddressOrderAndPayUsePublicAuthenticatedApi` 覆盖场景的预期行为与边界。
     fun searchMenuCartAddressOrderAndPayUsePublicAuthenticatedApi() = runBlocking {
         server.enqueue(MockResponse().setBody("""{"content":[{"id":1,"name":"清粥小菜","category":"粥汤","minimumOrder":10,"deliveryFee":3,"deliveryMinutes":25,"open":true}],"number":0,"last":true,"totalElements":1}"""))
         server.enqueue(MockResponse().setBody("""[{"id":10,"merchantId":1,"category":"粥","name":"南瓜小米粥","description":"温热清淡","price":12,"stock":8,"listed":true,"imageUrl":"/images/congee.png","options":[{"id":99,"groupName":"忌口","optionName":"不要香菜","priceDelta":0,"available":true}]}]"""))
@@ -72,6 +75,7 @@ class OrderingRepositoryTest {
     }
 
     @Test
+// 验证 `merchantPagesDetailAndReviewsUsePublicApiContracts` 覆盖场景的预期行为与边界。
     fun merchantPagesDetailAndReviewsUsePublicApiContracts() = runBlocking {
         server.enqueue(MockResponse().setBody("""{"content":[{"id":7,"name":"小饭馆","category":"中餐","minimumOrder":18.50,"deliveryFee":2.00,"deliveryMinutes":30,"open":true,"imageUrl":"/images/7.png"}],"number":0,"last":false,"totalElements":5}"""))
         server.enqueue(MockResponse().setBody("""{"id":7,"name":"小饭馆","category":"中餐","minimumOrder":18.50,"deliveryFee":2.00,"deliveryMinutes":30,"open":true,"imageUrl":"/images/7.png"}"""))
@@ -109,5 +113,6 @@ class OrderingRepositoryTest {
         return (this as ApiResult.Success<T>).value
     }
 
+// 验证 `orderJson` 覆盖场景的预期行为与边界。
     private fun orderJson(id: Long, status: String) = """{"id":$id,"status":"$status","recipient":"Cai","phone":"13800000000","detail":"公司默认地址","subtotal":12,"deliveryFee":3,"discount":0,"total":15,"items":[{"dishId":10,"dishName":"南瓜小米粥","quantity":1,"optionIds":[99],"optionSummary":"不要香菜","unitPrice":12}],"timeline":["PENDING_PAYMENT","PAID","MERCHANT_ACCEPTED"]}"""
 }

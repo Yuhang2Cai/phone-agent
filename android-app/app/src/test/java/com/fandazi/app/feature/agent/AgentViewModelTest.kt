@@ -19,6 +19,7 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class AgentViewModelTest {
     @Test
+// 验证 `floatingAssistantIsLimitedToOrderingSurfaces` 覆盖场景的预期行为与边界。
     fun floatingAssistantIsLimitedToOrderingSurfaces() {
         assertTrue(AgentFloatingButtonPolicy.isVisibleOn(AgentSurface.HOME))
         assertTrue(AgentFloatingButtonPolicy.isVisibleOn(AgentSurface.SEARCH))
@@ -29,6 +30,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `assistantOpensHalfScreenTogglesFullScreenAndCloses` 覆盖场景的预期行为与边界。
     fun assistantOpensHalfScreenTogglesFullScreenAndCloses() = runTest {
         val viewModel = AgentViewModel(FakeAgentRepository(), SavedStateHandle(), StandardTestDispatcher(testScheduler))
 
@@ -43,6 +45,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `sendsTypedFoodRequestAndShowsConfirmationCardInConfirmMode` 覆盖场景的预期行为与边界。
     fun sendsTypedFoodRequestAndShowsConfirmationCardInConfirmMode() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -57,6 +60,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `savedStateRestoresSheetConversationAndConfirmationInANewViewModel` 覆盖场景的预期行为与边界。
     fun savedStateRestoresSheetConversationAndConfirmationInANewViewModel() = runTest {
         val savedState = SavedStateHandle()
         val repository = FakeAgentRepository(result = confirmationResult())
@@ -74,6 +78,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `asrResultRefillsComposerWithoutSending` 覆盖场景的预期行为与边界。
     fun asrResultRefillsComposerWithoutSending() {
         val repository = FakeAgentRepository()
         val viewModel = AgentViewModel(repository, SavedStateHandle())
@@ -85,6 +90,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `streamedEventsAreShownAndReconnectCursorIsRetained` 覆盖场景的预期行为与边界。
     fun streamedEventsAreShownAndReconnectCursorIsRetained() = runTest {
         val event = AgentEvent(7L, "tool", "已筛选清淡菜品", "search_dishes", "completed")
         val repository = FakeAgentRepository(events = listOf(event))
@@ -100,6 +106,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `confirmSendsExplicitConfirmationButCancelDoesNotCreateOrder` 覆盖场景的预期行为与边界。
     fun confirmSendsExplicitConfirmationButCancelDoesNotCreateOrder() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -118,6 +125,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `modifyCancelsExistingGatewayCandidateBeforeStartingReplacementRequest` 覆盖场景的预期行为与边界。
     fun modifyCancelsExistingGatewayCandidateBeforeStartingReplacementRequest() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -133,6 +141,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `taskAutoRequiresExplicitChoiceAndKeepsAddressAndAmountVisible` 覆盖场景的预期行为与边界。
     fun taskAutoRequiresExplicitChoiceAndKeepsAddressAndAmountVisible() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -150,6 +159,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `choosingTaskAutoGrantsThenResumesWorkflowInAutoMode` 覆盖场景的预期行为与边界。
     fun choosingTaskAutoGrantsThenResumesWorkflowInAutoMode() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -169,6 +179,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `cancellingTaskAutoWaitsForServerRevocationBeforeClearingAuthorization` 覆盖场景的预期行为与边界。
     fun cancellingTaskAutoWaitsForServerRevocationBeforeClearingAuthorization() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -186,6 +197,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `amountLimitInRequestIsShownWhenGatewayCartOmitsIt` 覆盖场景的预期行为与边界。
     fun amountLimitInRequestIsShownWhenGatewayCartOmitsIt() = runTest {
         val original = confirmationResult().value
         val resultWithoutLimit = original.copy(candidateCart = original.candidateCart!!.copy(maxAmount = ""))
@@ -198,6 +210,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `taskAutoGrantUsesNaturalLanguageBudgetWhenItIsStricterThanGatewayLimit` 覆盖场景的预期行为与边界。
     fun taskAutoGrantUsesNaturalLanguageBudgetWhenItIsStricterThanGatewayLimit() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -214,6 +227,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `firstMessageEstablishesSseAfterTheSessionExists` 覆盖场景的预期行为与边界。
     fun firstMessageEstablishesSseAfterTheSessionExists() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -228,6 +242,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `failedGatewayResultShowsRetryableErrorAndClearsConfirmation` 覆盖场景的预期行为与边界。
     fun failedGatewayResultShowsRetryableErrorAndClearsConfirmation() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
@@ -246,6 +261,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `completedConfirmExposesCreatedOrderOnceForPaymentNavigation` 覆盖场景的预期行为与边界。
     fun completedConfirmExposesCreatedOrderOnceForPaymentNavigation() = runTest {
         val createdCart = (confirmationResult().value.candidateCart ?: error("cart")).copy(orderId = 42L)
         val repository = FakeAgentRepository(result = ApiResult.Success(
@@ -262,6 +278,7 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `authenticationAndServerErrorsAreExposedWithRetryAction` 覆盖场景的预期行为与边界。
     fun authenticationAndServerErrorsAreExposedWithRetryAction() = runTest {
         val unauthorized = AgentViewModel(FakeAgentRepository(result = ApiResult.Failure(ApiError.Http(401, "Authentication is required"))), SavedStateHandle(), StandardTestDispatcher(testScheduler))
         unauthorized.sendText("午餐")
@@ -274,6 +291,7 @@ class AgentViewModelTest {
         assertEquals(AgentError.Server("这次没有完成，请调整需求后重试"), unavailable.uiState.value.error)
     }
 
+// 验证 `confirmationResult` 覆盖场景的预期行为与边界。
     private fun confirmationResult(): ApiResult.Success<AgentMessageResult> = ApiResult.Success(
         AgentMessageResult(
             status = AgentStatus.AWAITING_CONFIRMATION,
@@ -307,23 +325,27 @@ class AgentViewModelTest {
         var revokeRequests = 0
         var lastGrantAmount: java.math.BigDecimal? = null
 
+// 验证 `sendMessage` 覆盖场景的预期行为与边界。
         override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult> {
             lastText = text
             lastMode = mode
             return result
         }
 
+// 验证 `streamEvents` 覆盖场景的预期行为与边界。
         override fun streamEvents(sessionId: String, afterEventId: Long?): Flow<AgentEvent> {
             streamStartCursor = afterEventId
             return kotlinx.coroutines.flow.flow { events.forEach { event -> emit(event) } }
         }
 
+// 验证 `grantThisTaskAuto` 覆盖场景的预期行为与边界。
         override suspend fun grantThisTaskAuto(request: ThisTaskAutoRequest): ApiResult<Unit> {
             grantRequests += 1
             lastGrantAmount = request.maxAmount
             return ApiResult.Success(Unit)
         }
 
+// 验证 `revokeThisTaskAuto` 覆盖场景的预期行为与边界。
         override suspend fun revokeThisTaskAuto(sessionId: String): ApiResult<Unit> {
             revokeRequests += 1
             return ApiResult.Success(Unit)

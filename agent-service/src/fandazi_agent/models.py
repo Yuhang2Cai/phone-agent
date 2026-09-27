@@ -67,6 +67,8 @@ class IntentOutput(BaseModel):
 class LangChainModelAdapter:
     """可选的结构化输出适配器；缺少依赖时使用确定性回退。"""
 
+    """处理 `__init__` 相关逻辑。"""
+    """处理 `__init__` 相关逻辑。"""
     def __init__(self, settings: Settings):
         self._settings = settings
         self._chain: Any | None = None
@@ -84,6 +86,8 @@ class LangChainModelAdapter:
                 # 未安装可选依赖时仍允许测试核心服务。
                 self._chain = None
 
+    """处理 `fallback_classify` 相关逻辑。"""
+    """处理 `fallback_classify` 相关逻辑。"""
     def fallback_classify(self, text: str, requested_mode: str) -> IntentOutput:
         lowered = text.lower()
         fallback = IntentOutput(
@@ -101,6 +105,8 @@ class LangChainModelAdapter:
         )
         return fallback
 
+    """处理 `classify` 相关逻辑。"""
+    """处理 `classify` 相关逻辑。"""
     def classify(self, text: str, requested_mode: str) -> IntentOutput:
         fallback = self.fallback_classify(text, requested_mode)
         if self._chain is None:

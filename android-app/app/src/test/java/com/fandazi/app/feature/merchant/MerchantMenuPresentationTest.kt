@@ -9,6 +9,7 @@ import org.junit.Test
 
 class MerchantMenuPresentationTest {
     @Test
+// 验证 `groupsDishesByCategoryAndMarksUnavailableItems` 覆盖场景的预期行为与边界。
     fun groupsDishesByCategoryAndMarksUnavailableItems() {
         val dishes = listOf(
             dish(id = 1, category = "招牌粥品", name = "南瓜小米粥", stock = 3, listed = true),
@@ -25,6 +26,7 @@ class MerchantMenuPresentationTest {
     }
 
     @Test
+// 验证 `cartSummaryUsesQuantityAndTotal` 覆盖场景的预期行为与边界。
     fun cartSummaryUsesQuantityAndTotal() {
         assertEquals(
             "已选 2 份\n合计 ¥30",
@@ -32,6 +34,7 @@ class MerchantMenuPresentationTest {
         )
     }
 
+// 验证 `dish` 覆盖场景的预期行为与边界。
     private fun dish(id: Long, category: String, name: String, stock: Int, listed: Boolean) = Dish(
         id = id,
         merchantId = 1,

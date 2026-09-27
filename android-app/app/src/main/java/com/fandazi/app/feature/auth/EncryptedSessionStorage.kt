@@ -33,6 +33,7 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
         }
     }
 
+// 读取当前数据。
     override fun read(): Result<PersistedSession?> {
         val currentPreferences = preferences
             ?: run {
@@ -53,6 +54,7 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
         }
     }
 
+// 处理 `write` 相关逻辑。
     override suspend fun write(value: PersistedSession): Boolean = withContext(Dispatchers.IO) {
         try {
             preferences?.edit()?.putString(SESSION_KEY, gson.toJson(value))?.commit() == true
@@ -63,6 +65,7 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
         }
     }
 
+// 清除当前数据。
     override suspend fun clear(): Boolean = withContext(Dispatchers.IO) {
         try {
             preferences?.edit()?.remove(SESSION_KEY)?.commit() == true
@@ -73,12 +76,14 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
         }
     }
 
+// 读取guest。
     override fun readGuest(): Result<Boolean> {
         val currentPreferences = preferences
             ?: return Result.failure(initializationError ?: IllegalStateException("Encrypted session storage unavailable"))
         return runCatching { currentPreferences.getBoolean(GUEST_KEY, false) }
     }
 
+// 处理 `writeGuest` 相关逻辑。
     override suspend fun writeGuest(): Boolean = withContext(Dispatchers.IO) {
         if (preferences == null) {
             Log.e(TAG, "write guest skipped: preferences unavailable")
@@ -96,6 +101,7 @@ class EncryptedSessionStorage(context: Context) : SessionStorage {
         }
     }
 
+// 清除guest。
     override suspend fun clearGuest(): Boolean = withContext(Dispatchers.IO) {
         try { preferences?.edit()?.remove(GUEST_KEY)?.commit() == true }
         catch (exception: CancellationException) { throw exception }

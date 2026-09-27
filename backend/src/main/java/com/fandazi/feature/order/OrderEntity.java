@@ -35,8 +35,10 @@ public class OrderEntity {
     @Enumerated(EnumType.STRING)
     private List<OrderStatus> timeline = new ArrayList<>();
 
+// 初始化对象依赖与默认状态。
     protected OrderEntity() {}
 
+// 初始化对象依赖与默认状态。
     public OrderEntity(UserEntity user, String key, String fingerprint, String merchantName,
                        String recipient, String phone, String detail, BigDecimal subtotal,
                        BigDecimal fee, BigDecimal discount, BigDecimal total) {
@@ -56,31 +58,51 @@ public class OrderEntity {
         timeline.add(status);
     }
 
+// 获取id。
     public Long getId() { return id; }
+// 获取status。
     public OrderStatus getStatus() { return status; }
+// 获取subtotal。
     public BigDecimal getSubtotal() { return subtotal; }
+// 获取delivery、fee。
     public BigDecimal getDeliveryFee() { return deliveryFee; }
+// 获取discount。
     public BigDecimal getDiscount() { return discount; }
+// 获取total。
     public BigDecimal getTotal() { return total; }
+// 获取商家、name。
     public String getMerchantName() { return merchantName; }
+// 获取created、at。
     public LocalDateTime getCreatedAt() { return createdAt; }
+// 获取地址、recipient。
     public String getAddressRecipient() { return addressRecipient; }
+// 获取地址、phone。
     public String getAddressPhone() { return addressPhone; }
+// 获取地址、detail。
     public String getAddressDetail() { return addressDetail; }
+// 获取items。
     public List<OrderItemEntity> getItems() { return items; }
+// 获取timeline。
     public List<OrderStatus> getTimeline() { return List.copyOf(timeline); }
+// 获取用户。
     public UserEntity getUser() { return user; }
+// 获取请求、fingerprint。
     public String getRequestFingerprint() { return requestFingerprint; }
+// 获取支付、幂等、键。
     public String getPaymentIdempotencyKey() { return paymentIdempotencyKey; }
+// 处理 `setPaymentIdempotencyKey` 相关逻辑。
     public void setPaymentIdempotencyKey(String key) { paymentIdempotencyKey = key; }
+// 处理 `addItem` 相关逻辑。
     public void addItem(OrderItemEntity item) { items.add(item); }
 
+// 处理 `advance` 相关逻辑。
     public void advance(OrderStatus next) {
         if (!isAdjacent(status, next)) throw new DomainException("订单状态不可逆或跳跃");
         status = next;
         timeline.add(next);
     }
 
+// 判断adjacent。
     private boolean isAdjacent(OrderStatus current, OrderStatus next) {
         return (current == OrderStatus.PENDING_PAYMENT && next == OrderStatus.PAID)
                 || (current == OrderStatus.PAID && next == OrderStatus.MERCHANT_ACCEPTED)

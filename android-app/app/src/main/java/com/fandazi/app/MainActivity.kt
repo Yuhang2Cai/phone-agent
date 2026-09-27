@@ -24,6 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var bottomNavigation: com.google.android.material.bottomnavigation.BottomNavigationView
     private var pendingProtectedDestination: Int? = null
 
+// 初始化组件与页面状态。
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pendingProtectedDestination = savedInstanceState?.getInt(KEY_PENDING_DESTINATION)?.takeIf { it != 0 }
@@ -52,6 +53,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+// 处理 `navigateForSession` 相关逻辑。
     private fun navigateForSession(state: SessionState) {
         ViewModelProvider(
             this,
@@ -87,12 +89,18 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+// 处理 `applicationSession` 相关逻辑。
     fun applicationSession() = (application as FandaziApplication).sessionRepository
+// 处理 `orderingRepository` 相关逻辑。
     fun orderingRepository() = (application as FandaziApplication).orderingRepository
+// 处理 `cartStateStore` 相关逻辑。
     fun cartStateStore() = (application as FandaziApplication).cartStateStore
+// 处理 `cartOwner` 相关逻辑。
     fun cartOwner() = (applicationSession().state.value as? SessionState.Authenticated)?.user?.username ?: "guest"
+// 处理 `automationSettingsRepository` 相关逻辑。
     fun automationSettingsRepository() = (application as FandaziApplication).automationSettingsRepository
 
+// 打开protected、destination。
     fun openProtectedDestination(destination: Int) {
         if (applicationSession().state.value is SessionState.Authenticated) {
             navHost.navController.navigate(destination)
@@ -102,6 +110,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+// 处理 `onSaveInstanceState` 相关逻辑。
     override fun onSaveInstanceState(outState: Bundle) {
         pendingProtectedDestination?.let { outState.putInt(KEY_PENDING_DESTINATION, it) }
         super.onSaveInstanceState(outState)

@@ -9,9 +9,11 @@ class ApiAuthGateway(
     private val apiClient: ApiClient,
     private val gson: Gson = Gson()
 ) : AuthGateway {
+// 登录当前数据。
     override suspend fun login(username: String, password: String): ApiResult<AuthResponse> =
         apiClient.postJson("auth/login", gson.toJson(LoginRequest(username, password))).mapAuthResponse()
 
+// 注册当前数据。
     override suspend fun register(username: String, email: String, password: String): ApiResult<AuthResponse> =
         apiClient.postJson("auth/register", gson.toJson(RegisterRequest(username, email, password))).mapAuthResponse()
 

@@ -40,6 +40,8 @@ TOOL_DESCRIPTIONS = (
 )
 
 
+"""判断allowed、工具。"""
+"""判断allowed、工具。"""
 def is_allowed_tool(name: str) -> bool:
     return name in TOOL_ALLOWLIST
 
@@ -57,6 +59,8 @@ def langchain_tool_descriptions() -> list[Any]:
     class ToolPayload(BaseModel):
         payload: dict[str, Any] = Field(default_factory=dict)
 
+    """处理 `unavailable_tool` 相关逻辑。"""
+    """处理 `unavailable_tool` 相关逻辑。"""
     def unavailable_tool(payload: dict[str, Any]) -> dict[str, str]:
         raise RuntimeError("Tools must be invoked through SpringBootToolClient")
 

@@ -24,6 +24,7 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         AuthViewModelFactory((requireActivity() as MainActivity).applicationSession())
     }
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val viewBinding = FragmentAuthBinding.bind(view)
         binding = viewBinding
@@ -70,6 +71,7 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         }
     }
 
+// 处理 `onSaveInstanceState` 相关逻辑。
     override fun onSaveInstanceState(outState: Bundle) {
         val viewBinding = binding
         outState.putString(KEY_USERNAME, viewBinding?.usernameInput?.text?.toString().orEmpty())
@@ -78,6 +80,7 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         super.onSaveInstanceState(outState)
     }
 
+// 渲染当前数据。
     private fun render(state: AuthFormState) {
         val viewBinding = binding ?: return
         viewBinding.emailLayout.isVisible = state.isRegisterMode
@@ -95,6 +98,7 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
         state.errorMessage?.let { Toast.makeText(requireContext(), it, Toast.LENGTH_SHORT).show() }
     }
 
+// 在视图销毁时释放视图相关资源。
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()

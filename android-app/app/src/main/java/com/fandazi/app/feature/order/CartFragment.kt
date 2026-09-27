@@ -29,6 +29,7 @@ class CartFragment : Fragment(R.layout.fragment_cart) {
         OrderingViewModelFactory(activity.orderingRepository(), activity.cartStateStore(), activity.cartOwner())
     }
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentCartBinding.bind(view)
         binding.cartBack.setOnClickListener { view.findNavController().navigateUp() }
@@ -51,6 +52,7 @@ class CartFragment : Fragment(R.layout.fragment_cart) {
         }
     }
 
+// 渲染当前数据。
     private fun render(binding: FragmentCartBinding, state: OrderingUiState) {
         val quote = state.quote
         binding.cartMerchantName.text = state.selectedMerchant?.name ?: "本次点餐"
@@ -79,11 +81,13 @@ class CartFragment : Fragment(R.layout.fragment_cart) {
         binding.cartError.text = state.error.orEmpty()
     }
 
+// 处理 `onResume` 相关逻辑。
     override fun onResume() {
         super.onResume()
         view?.let { navigateToPaymentIfReady(it, viewModel.uiState.value) }
     }
 
+// 处理 `navigateToPaymentIfReady` 相关逻辑。
     private fun navigateToPaymentIfReady(view: View, state: OrderingUiState) {
         if (!state.checkoutReady || !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
         if (parentFragmentManager.isStateSaved || view.findNavController().currentDestination?.id != R.id.cartFragment) return

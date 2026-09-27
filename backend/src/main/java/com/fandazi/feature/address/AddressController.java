@@ -2,4 +2,11 @@
 package com.fandazi.feature.address;
 import com.fandazi.seed.SeedAddressMetadataRepository;
 import java.util.*; import org.springframework.http.*; import org.springframework.security.core.annotation.AuthenticationPrincipal; import org.springframework.validation.annotation.Validated; import org.springframework.web.bind.annotation.*; import jakarta.validation.Valid;
+// 初始化对象依赖与默认状态。
+// 处理 `response` 相关逻辑。
+// 列出当前数据。
+// 创建当前数据。
+// 更新当前数据。
+// 删除当前数据。
+// 处理 `setDefault` 相关逻辑。
 @RestController @RequestMapping("/api/addresses") public class AddressController { private final AddressService addresses; private final SeedAddressMetadataRepository metadata; public AddressController(AddressService addresses,SeedAddressMetadataRepository metadata){this.addresses=addresses;this.metadata=metadata;} private AddressResponse response(AddressEntity a){return metadata.findByAddressId(a.getId()).map(m->AddressResponse.from(a,m.isValid())).orElseGet(()->AddressResponse.from(a));} @GetMapping public List<AddressResponse> list(@AuthenticationPrincipal Long userId){return addresses.list(userId).stream().map(this::response).toList();}@PostMapping public ResponseEntity<AddressResponse> create(@AuthenticationPrincipal Long userId,@Valid @RequestBody AddressCommand command){return ResponseEntity.status(HttpStatus.CREATED).body(response(addresses.create(userId,command)));}@PutMapping("/{id}") public AddressResponse update(@AuthenticationPrincipal Long userId,@PathVariable Long id,@Valid @RequestBody AddressCommand command){return response(addresses.update(userId,id,command));}@DeleteMapping("/{id}") @ResponseStatus(HttpStatus.NO_CONTENT) public void delete(@AuthenticationPrincipal Long userId,@PathVariable Long id){addresses.delete(userId,id);}@PatchMapping("/{id}/default") public AddressResponse setDefault(@AuthenticationPrincipal Long userId,@PathVariable Long id){return response(addresses.setDefault(userId,id));} }

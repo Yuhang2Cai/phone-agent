@@ -36,6 +36,7 @@ class AgentGatewayTest {
     @Autowired private MockMvc mockMvc;
     @MockBean private AgentServiceClient agentService;
 
+// 验证 `allowsGuestsToBrowseMerchantsButKeepsAgentEndpointsProtected` 覆盖场景的预期行为与边界。
     @Test
     void allowsGuestsToBrowseMerchantsButKeepsAgentEndpointsProtected() throws Exception {
         mockMvc.perform(get("/api/merchants?keyword=清淡"))
@@ -44,6 +45,7 @@ class AgentGatewayTest {
                 .andExpect(status().isUnauthorized());
     }
 
+// 验证 `persistsAgentTraceAndDoesNotAllowAnotherUserToReuseItsSession` 覆盖场景的预期行为与边界。
     @Test
     void persistsAgentTraceAndDoesNotAllowAnotherUserToReuseItsSession() {
         UserEntity alice = users.save(new UserEntity("agent-alice", "agent-alice@example.com", "hash"));
@@ -60,6 +62,7 @@ class AgentGatewayTest {
                 .isInstanceOf(DomainException.class).hasMessageContaining("会话");
     }
 
+// 验证 `mapsAgentTimeoutToTerminalRetryableResultWithoutTouchingFoodEndpoints` 覆盖场景的预期行为与边界。
     @Test
     void mapsAgentTimeoutToTerminalRetryableResultWithoutTouchingFoodEndpoints() {
         UserEntity user = users.save(new UserEntity("agent-timeout", "agent-timeout@example.com", "hash"));
@@ -71,6 +74,7 @@ class AgentGatewayTest {
         assertThat(result.error()).contains("暂不可用");
     }
 
+// 验证 `replaysPersistedEventsAndKeepsTheOrdinaryMerchantPageAvailableAfterAgentFailure` 覆盖场景的预期行为与边界。
     @Test
     void replaysPersistedEventsAndKeepsTheOrdinaryMerchantPageAvailableAfterAgentFailure() throws Exception {
         UserEntity user = users.save(new UserEntity("agent-sse", "agent-sse@example.com", "hash"));
@@ -83,6 +87,7 @@ class AgentGatewayTest {
         mockMvc.perform(get("/api/merchants").with(auth)).andExpect(status().isOk());
     }
 
+// 验证 `keepsSseSubscriptionOpenAfterReplayingOnlyEventsNewerThanLastEventId` 覆盖场景的预期行为与边界。
     @Test
     void keepsSseSubscriptionOpenAfterReplayingOnlyEventsNewerThanLastEventId() throws Exception {
         UserEntity user = users.save(new UserEntity("agent-live-sse", "agent-live-sse@example.com", "hash"));
@@ -99,6 +104,7 @@ class AgentGatewayTest {
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("已接收点餐请求"))));
     }
 
+// 验证 `publishesEventsCreatedAfterSseConnectionToTheExistingSubscriber` 覆盖场景的预期行为与边界。
     @Test
     void publishesEventsCreatedAfterSseConnectionToTheExistingSubscriber() throws Exception {
         UserEntity user = users.save(new UserEntity("agent-realtime", "agent-realtime@example.com", "hash"));

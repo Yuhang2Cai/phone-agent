@@ -6,6 +6,7 @@ import com.fandazi.app.feature.ordering.SearchStatus
 enum class SearchFilter { COMPREHENSIVE, NEARBY, TOP_RATED, FAST_DELIVERY }
 
 object SearchUiCopy {
+// 处理 `status` 相关逻辑。
     fun status(status: SearchStatus): String = when (status) {
         SearchStatus.Idle -> "输入关键词，搜索附近好店"
         SearchStatus.Searching -> "正在为你寻找附近好店…"
@@ -15,6 +16,7 @@ object SearchUiCopy {
         SearchStatus.AuthRequired -> "登录后即可查看个性化结果"
     }
 
+// 处理 `filterLabel` 相关逻辑。
     fun filterLabel(filter: SearchFilter): String = when (filter) {
         SearchFilter.COMPREHENSIVE -> "综合"
         SearchFilter.NEARBY -> "距离近"

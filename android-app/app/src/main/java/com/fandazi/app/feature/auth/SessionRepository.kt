@@ -25,12 +25,15 @@ class SessionRepository(
     )
     val error: StateFlow<SessionError?> = mutableError.asStateFlow()
 
+// 登录当前数据。
     override suspend fun login(username: String, password: String): ApiResult<AuthResponse> =
         persistSuccessful(authGateway.login(username, password))
 
+// 注册当前数据。
     override suspend fun register(username: String, email: String, password: String): ApiResult<AuthResponse> =
         persistSuccessful(authGateway.register(username, email, password))
 
+// 退出登录当前数据。
     override suspend fun logout() {
         val cleared = try {
             storage.clear()
@@ -51,6 +54,7 @@ class SessionRepository(
         }
     }
 
+// 处理 `continueAsGuest` 相关逻辑。
     override suspend fun continueAsGuest() {
         Log.d(TAG, "continueAsGuest requested")
         if (storage.writeGuest()) {
@@ -63,8 +67,10 @@ class SessionRepository(
         }
     }
 
+// 处理 `tokenOrNull` 相关逻辑。
     fun tokenOrNull(): String? = (mutableState.value as? SessionState.Authenticated)?.token
 
+// 处理 `persistSuccessful` 相关逻辑。
     private suspend fun persistSuccessful(result: ApiResult<AuthResponse>): ApiResult<AuthResponse> {
         if (result !is ApiResult.Success) {
             mutableState.value = SessionState.Unauthenticated

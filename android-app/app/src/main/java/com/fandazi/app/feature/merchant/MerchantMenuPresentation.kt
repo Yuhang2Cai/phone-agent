@@ -10,8 +10,10 @@ data class MerchantMenuDish(val dish: Dish) {
 }
 
 object MerchantMenuPresentation {
+// 处理 `sections` 相关逻辑。
     fun sections(dishes: List<Dish>): List<MerchantMenuSection> = dishes.groupBy { it.category }
         .map { (category, items) -> MerchantMenuSection(category, items.map(::MerchantMenuDish)) }
 
+// 处理 `cartSummary` 相关逻辑。
     fun cartSummary(quantity: Int, total: BigDecimal): String = "已选 ${quantity} 份\n合计 ¥${total.stripTrailingZeros().toPlainString()}"
 }

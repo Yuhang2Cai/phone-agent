@@ -18,18 +18,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class CartController {
     private final CartService carts;
 
+// 初始化对象依赖与默认状态。
     public CartController(CartService carts) {
         this.carts = carts;
     }
 
     public record CreateDraftRequest(@NotNull @Positive Long merchantId) {}
 
+// 创建当前数据。
     @PostMapping
     public CartDraftResponse create(@AuthenticationPrincipal Long userId,
                                     @Valid @RequestBody CreateDraftRequest request) {
         return CartDraftResponse.from(carts.createDraft(userId, request.merchantId()));
     }
 
+// 处理 `items` 相关逻辑。
     @PutMapping("/{id}/items")
     public CartDraftResponse items(@AuthenticationPrincipal Long userId,
                                    @PathVariable Long id,
@@ -37,6 +40,7 @@ public class CartController {
         return CartDraftResponse.from(carts.replaceItems(userId, id, items));
     }
 
+// 校验当前数据。
     @PostMapping("/{id}/validate")
     public CartQuote validate(@AuthenticationPrincipal Long userId, @PathVariable Long id) {
         return carts.validate(userId, id);

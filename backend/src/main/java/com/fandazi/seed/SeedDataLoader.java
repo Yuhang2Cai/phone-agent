@@ -44,13 +44,16 @@ public class SeedDataLoader implements ApplicationRunner {
     private final DishOptionRepository options; private final UserRepository users; private final AddressRepository addresses; private final OrderRepository orders; private final SeedDishMetadataRepository dishMetadata; private final SeedAddressMetadataRepository addressMetadata;
     private final Path path;
     private List<SeedScenario> scenarios = List.of();
+// 初始化对象依赖与默认状态。
     public SeedDataLoader(ObjectMapper mapper, MerchantRepository merchants, MerchantReviewRepository reviews, DishRepository dishes, DishOptionRepository options,
                           UserRepository users, AddressRepository addresses, OrderRepository orders, SeedDishMetadataRepository dishMetadata, SeedAddressMetadataRepository addressMetadata, @Value("${seed.path:../data/seed}") String path) {
         this.mapper=mapper; this.merchants=merchants; this.reviews=reviews; this.dishes=dishes; this.options=options; this.users=users; this.addresses=addresses; this.orders=orders; this.dishMetadata=dishMetadata; this.addressMetadata=addressMetadata; this.path=Path.of(path);
     }
+// 运行当前数据。
     @Override @Transactional(rollbackFor = Exception.class) public void run(ApplicationArguments args) {
         try { load(args); } catch (IOException | RuntimeException ex) { throw new IllegalStateException("Seed fixture load failed", ex); }
     }
+// 加载当前数据。
     private void load(ApplicationArguments args) throws IOException {
         scenarios = readScenarios();
         if (users.findByUsername("seed_alice").isPresent()) {
@@ -95,8 +98,10 @@ public class SeedDataLoader implements ApplicationRunner {
             order.addItem(new OrderItemEntity(order,dish.getId(),dish.getName(),quantity,List.of(),"",dish.getPrice())); order.advance(OrderStatus.valueOf(text(fixture,"status"))); orders.save(order);
         }
     }
+// 获取scenarios。
     public List<SeedScenario> getScenarios() { return scenarios; }
 
+// 处理 `syncReviews` 相关逻辑。
     private void syncReviews(JsonNode fixtures, Map<String, MerchantEntity> merchantsByName) {
         for (JsonNode fixture : fixtures) {
             String merchantName = requiredFixtureText(fixture, "merchant");
@@ -117,6 +122,7 @@ public class SeedDataLoader implements ApplicationRunner {
         }
     }
 
+// 处理 `refreshExistingDishImages` 相关逻辑。
     private void refreshExistingDishImages(JsonNode templates) {
         List<DishEntity> existing = dishes.findAll();
         for (JsonNode template : templates) {
@@ -128,6 +134,7 @@ public class SeedDataLoader implements ApplicationRunner {
         }
         dishes.saveAll(existing);
     }
+// 读取scenarios。
     private List<SeedScenario> readScenarios() throws IOException {
         JsonNode fixture = read("agent-scenarios.json");
         if (!fixture.isArray()) throw new IllegalArgumentException("Agent scenario fixture must be an array");
@@ -140,18 +147,24 @@ public class SeedDataLoader implements ApplicationRunner {
         }
         return List.copyOf(parsed);
     }
+// 读取当前数据。
     private JsonNode read(String file) throws IOException { try (var input=Files.newInputStream(path.resolve(file))) { return mapper.readTree(input); } }
+// 处理 `text` 相关逻辑。
+    // 处理 `money` 相关逻辑。
     private static String text(JsonNode node,String name){return node.get(name).asText();} private static BigDecimal money(JsonNode node,String name){return node.get(name).decimalValue();}
+// 处理 `requiredRating` 相关逻辑。
     private static BigDecimal requiredRating(JsonNode node) {
         JsonNode rating = node.get("rating");
         if (rating == null || !rating.isNumber() || rating.decimalValue().signum() <= 0) throw new IllegalArgumentException("Dish template requires a positive rating");
         return rating.decimalValue();
     }
+// 处理 `requiredText` 相关逻辑。
     private static String requiredText(JsonNode node, String name) {
         JsonNode value = node.get(name);
         if (value == null || !value.isTextual() || value.asText().isBlank()) throw new IllegalArgumentException("Dish template requires " + name);
         return value.asText();
     }
+// 处理 `requiredStringArray` 相关逻辑。
     private static List<String> requiredStringArray(JsonNode node, String name) {
         JsonNode value = node.get(name);
         if (value == null || !value.isArray() || value.isEmpty()) throw new IllegalArgumentException("Dish template requires a non-empty " + name + " array");
@@ -162,11 +175,13 @@ public class SeedDataLoader implements ApplicationRunner {
         }
         return List.copyOf(result);
     }
+// 处理 `requiredScenarioText` 相关逻辑。
     private static String requiredScenarioText(JsonNode node, String name) {
         JsonNode value = node.get(name);
         if (value == null || !value.isTextual() || value.asText().isBlank()) throw new IllegalArgumentException("Agent scenario requires " + name);
         return value.asText();
     }
+// 处理 `requiredFixtureText` 相关逻辑。
     private static String requiredFixtureText(JsonNode node, String name) {
         JsonNode value = node.get(name);
         if (value == null || !value.isTextual() || value.asText().isBlank()) throw new IllegalArgumentException("Fixture requires " + name);

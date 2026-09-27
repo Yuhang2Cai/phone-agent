@@ -14,17 +14,20 @@ class ApiClientTest {
     private lateinit var server: MockWebServer
 
     @Before
+// 为测试准备依赖、替身和初始状态。
     fun setUp() {
         server = MockWebServer()
         server.start()
     }
 
     @After
+// 清理测试创建的资源与状态。
     fun tearDown() {
         server.shutdown()
     }
 
     @Test
+// 验证 `getInjectsBearerTokenFromSession` 覆盖场景的预期行为与边界。
     fun getInjectsBearerTokenFromSession() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(200).setBody("{\"username\":\"alice\"}"))
         val client = ApiClient(server.url("/api/").toString(), tokenProvider = { "jwt-token" })
@@ -36,6 +39,7 @@ class ApiClientTest {
     }
 
     @Test
+// 验证 `idempotentGetRetriesOnceAfterNetworkFailure` 覆盖场景的预期行为与边界。
     fun idempotentGetRetriesOnceAfterNetworkFailure() = runBlocking {
         server.enqueue(MockResponse().setSocketPolicy(okhttp3.mockwebserver.SocketPolicy.DISCONNECT_AT_START))
         server.enqueue(MockResponse().setResponseCode(200).setBody("{}"))
@@ -48,6 +52,7 @@ class ApiClientTest {
     }
 
     @Test
+// 验证 `clientUsesBackendErrorFieldForValidationAuthenticationAndConflictResponses` 覆盖场景的预期行为与边界。
     fun clientUsesBackendErrorFieldForValidationAuthenticationAndConflictResponses() = runBlocking {
         listOf(
             400 to "Invalid username or password",

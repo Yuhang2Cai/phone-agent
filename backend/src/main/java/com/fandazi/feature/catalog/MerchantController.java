@@ -30,6 +30,7 @@ public class MerchantController {
     private final SeedDishMetadataRepository metadata;
     private final MerchantReviewRepository reviews;
 
+// 初始化对象依赖与默认状态。
     public MerchantController(MerchantRepository merchants, DishRepository dishes, DishOptionRepository options, SeedDishMetadataRepository metadata, MerchantReviewRepository reviews) {
         this.merchants = merchants;
         this.dishes = dishes;
@@ -38,6 +39,7 @@ public class MerchantController {
         this.reviews = reviews;
     }
 
+// 搜索当前数据。
     @GetMapping
     public Page<MerchantResponse> search(@RequestParam(required = false) String keyword,
                                          @RequestParam(required = false) String category,
@@ -56,6 +58,7 @@ public class MerchantController {
         return new PageImpl<>(result.subList(from, to), pageable, result.size());
     }
 
+// 处理 `matches` 相关逻辑。
     private boolean matches(MerchantEntity merchant, String keyword, String category, Integer minutes, BigDecimal maxPrice, boolean openOnly) {
         boolean merchantOrDishMatches = keyword == null
                 || merchant.getName().contains(keyword)
@@ -68,6 +71,7 @@ public class MerchantController {
                 && (!openOnly || merchant.isOpen());
     }
 
+// 处理 `merchant` 相关逻辑。
     @GetMapping("/{id}")
     public ResponseEntity<MerchantResponse> merchant(@PathVariable Long id) {
         return merchants.findById(id)
@@ -76,6 +80,7 @@ public class MerchantController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+// 处理 `reviews` 相关逻辑。
     @GetMapping("/{merchantId}/reviews")
     public ResponseEntity<Page<MerchantReviewResponse>> reviews(
             @PathVariable Long merchantId,
@@ -87,6 +92,7 @@ public class MerchantController {
         return ResponseEntity.ok(reviews.findByMerchantId(merchantId, pageable).map(MerchantReviewResponse::from));
     }
 
+// 处理 `dishes` 相关逻辑。
     @GetMapping("/{id}/dishes")
     public List<DishResponse> dishes(@PathVariable Long id) {
         return dishes.findByMerchantId(id).stream()

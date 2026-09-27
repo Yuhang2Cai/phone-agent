@@ -14,8 +14,10 @@ data class HomePresentationState(
     val showAddressPrompt: Boolean
 ) {
     companion object {
+// 处理 `loading` 相关逻辑。
         fun loading() = HomePresentationState(HomeContentState.Loading, true, false, false, false, false)
 
+// 处理 `content` 相关逻辑。
         fun content(address: String?, merchants: List<Merchant>) = HomePresentationState(
             content = when {
                 address == null -> HomeContentState.NoAddress

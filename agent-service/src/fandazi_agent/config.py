@@ -19,6 +19,8 @@ class Settings:
     workflow_store_dir: str | None = None
     agent_internal_token: str | None = None
 
+    """处理 `from_env` 相关逻辑。"""
+    """处理 `from_env` 相关逻辑。"""
     @classmethod
     def from_env(cls) -> "Settings":
         return cls(

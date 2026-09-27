@@ -14,6 +14,7 @@ import java.math.BigDecimal
 @OptIn(ExperimentalCoroutinesApi::class)
 class OrderingViewModelTest {
     @Test
+// 验证 `emptySearchResultsExposeEmptyState` 覆盖场景的预期行为与边界。
     fun emptySearchResultsExposeEmptyState() = runTest {
         val viewModel = OrderingViewModel(FakeOrderingRepository(searchResult = ApiResult.Success(emptyList())), StandardTestDispatcher(testScheduler))
 
@@ -24,6 +25,7 @@ class OrderingViewModelTest {
     }
 
     @Test
+// 验证 `unauthorizedSearchExposesAuthRequiredState` 覆盖场景的预期行为与边界。
     fun unauthorizedSearchExposesAuthRequiredState() = runTest {
         val viewModel = OrderingViewModel(FakeOrderingRepository(searchResult = ApiResult.Failure(com.fandazi.app.core.network.ApiError.Http(401, "login required"))), StandardTestDispatcher(testScheduler))
 
@@ -34,6 +36,7 @@ class OrderingViewModelTest {
     }
 
     @Test
+// 验证 `selectingMerchantOptionAddressAndPayingProducesCompletedOrderTimeline` 覆盖场景的预期行为与边界。
     fun selectingMerchantOptionAddressAndPayingProducesCompletedOrderTimeline() = runTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
@@ -63,6 +66,7 @@ class OrderingViewModelTest {
     }
 
     @Test
+// 验证 `optionSelectionKeepsOneChoicePerGroupAndMergesRepeatedCartLine` 覆盖场景的预期行为与边界。
     fun optionSelectionKeepsOneChoicePerGroupAndMergesRepeatedCartLine() = runTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
@@ -86,12 +90,16 @@ class OrderingViewModelTest {
     }
 
     @Test
+// 验证 `persistedCartIsRestoredForSameOwner` 覆盖场景的预期行为与边界。
     fun persistedCartIsRestoredForSameOwner() {
         val draft = CartDraft(200, 1, emptyList())
         val quote = CartQuote(200, BigDecimal("12"), BigDecimal("3"), BigDecimal.ZERO, BigDecimal("15"), emptyList())
         val store = object : CartStateStore {
+// 验证 `read` 覆盖场景的预期行为与边界。
             override fun read(owner: String) = CartSnapshot(owner, Merchant(1, "清粥小菜", "粥汤", BigDecimal.TEN, BigDecimal("3"), 25, true), draft, quote)
+// 验证 `write` 覆盖场景的预期行为与边界。
             override fun write(snapshot: CartSnapshot) = Unit
+// 验证 `clear` 覆盖场景的预期行为与边界。
             override fun clear(owner: String) = Unit
         }
 
@@ -102,13 +110,17 @@ class OrderingViewModelTest {
     }
 
     @Test
+// 验证 `switchingMerchantRequiresConfirmationBeforeCartIsCleared` 覆盖场景的预期行为与边界。
     fun switchingMerchantRequiresConfirmationBeforeCartIsCleared() = runTest {
         val first = Merchant(1, "清粥小菜", "粥汤", BigDecimal.TEN, BigDecimal("3"), 25, true)
         val second = Merchant(2, "另一家店", "快餐", BigDecimal.TEN, BigDecimal("2"), 20, true)
         val draft = CartDraft(200, 1, emptyList())
         val store = object : CartStateStore {
+// 验证 `read` 覆盖场景的预期行为与边界。
             override fun read(owner: String) = CartSnapshot(owner, first, draft, null)
+// 验证 `write` 覆盖场景的预期行为与边界。
             override fun write(snapshot: CartSnapshot) = Unit
+// 验证 `clear` 覆盖场景的预期行为与边界。
             override fun clear(owner: String) = Unit
         }
         val viewModel = OrderingViewModel(
@@ -134,6 +146,7 @@ class OrderingViewModelTest {
     }
 
     @Test
+// 验证 `validationFailureKeepsEditableLinesAndDuplicateOrderSubmissionIsIgnored` 覆盖场景的预期行为与边界。
     fun validationFailureKeepsEditableLinesAndDuplicateOrderSubmissionIsIgnored() = runTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
@@ -161,6 +174,7 @@ class OrderingViewModelTest {
     }
 
     @Test
+// 验证 `orderRetryReusesTheSameIdempotencyKey` 覆盖场景的预期行为与边界。
     fun orderRetryReusesTheSameIdempotencyKey() = runTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
@@ -184,6 +198,7 @@ class OrderingViewModelTest {
     }
 
     @Test
+// 验证 `paymentRetryKeepsPendingOrderAndReusesIdempotencyKey` 覆盖场景的预期行为与边界。
     fun paymentRetryKeepsPendingOrderAndReusesIdempotencyKey() = runTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
@@ -233,20 +248,27 @@ class OrderingViewModelTest {
         private val draft = CartDraft(200, 1, emptyList())
         private val line = CartLine(10, "南瓜小米粥", 1, listOf(99), "不要香菜", BigDecimal("12"))
 
+// 验证 `searchMerchants` 覆盖场景的预期行为与边界。
         override suspend fun searchMerchants(keyword: String) = searchResult
+// 验证 `loadMenu` 覆盖场景的预期行为与边界。
         override suspend fun loadMenu(merchantId: Long) = ApiResult.Success(listOf(dish))
+// 验证 `createCartDraft` 覆盖场景的预期行为与边界。
         override suspend fun createCartDraft(merchantId: Long) = ApiResult.Success(draft)
+// 验证 `updateCart` 覆盖场景的预期行为与边界。
         override suspend fun updateCart(cartDraftId: Long, items: List<CartItemInput>): ApiResult<CartDraft> {
             lastItems = items
             val input = items.single()
             return ApiResult.Success(draft.copy(items = listOf(line.copy(quantity = input.quantity, optionIds = input.optionIds))))
         }
+// 验证 `validateCart` 覆盖场景的预期行为与边界。
         override suspend fun validateCart(cartDraftId: Long): ApiResult<CartQuote> = if (failValidation) {
             ApiResult.Failure(com.fandazi.app.core.network.ApiError.Http(409, "库存不足"))
         } else {
             ApiResult.Success(CartQuote(cartDraftId, BigDecimal("12"), BigDecimal("3"), BigDecimal.ZERO, BigDecimal("15"), listOf(line.copy(quantity = lastItems.firstOrNull()?.quantity ?: 1))))
         }
+// 验证 `loadAddresses` 覆盖场景的预期行为与边界。
         override suspend fun loadAddresses() = ApiResult.Success(listOf(address))
+// 验证 `createOrder` 覆盖场景的预期行为与边界。
         override suspend fun createOrder(cartDraftId: Long, addressId: Long, idempotencyKey: String): ApiResult<Order> {
             createOrderCalls += 1
             createOrderKey = idempotencyKey
@@ -257,6 +279,7 @@ class OrderingViewModelTest {
             }
             return ApiResult.Success(order(OrderStatus.PENDING_PAYMENT, listOf(OrderStatus.PENDING_PAYMENT)))
         }
+// 验证 `payOrder` 覆盖场景的预期行为与边界。
         override suspend fun payOrder(orderId: Long, idempotencyKey: String): ApiResult<Order> {
             payKey = idempotencyKey
             payKeys += idempotencyKey
@@ -266,9 +289,12 @@ class OrderingViewModelTest {
             }
             return ApiResult.Success(order(OrderStatus.MERCHANT_ACCEPTED, listOf(OrderStatus.PENDING_PAYMENT, OrderStatus.PAID, OrderStatus.MERCHANT_ACCEPTED)))
         }
+// 验证 `loadOrders` 覆盖场景的预期行为与边界。
         override suspend fun loadOrders() = ApiResult.Success(emptyList<Order>())
+// 验证 `loadOrder` 覆盖场景的预期行为与边界。
         override suspend fun loadOrder(orderId: Long) = ApiResult.Success(order(OrderStatus.MERCHANT_ACCEPTED, listOf(OrderStatus.PENDING_PAYMENT, OrderStatus.PAID, OrderStatus.MERCHANT_ACCEPTED)))
 
+// 验证 `order` 覆盖场景的预期行为与边界。
         private fun order(status: OrderStatus, timeline: List<OrderStatus>) = Order(300, status, "Cai", "13800000000", "公司默认地址", BigDecimal("12"), BigDecimal("3"), BigDecimal.ZERO, BigDecimal("15"), listOf(line), timeline)
     }
 }

@@ -11,12 +11,14 @@ import org.junit.Test
 import java.math.BigDecimal
 
 class OrderPresentationTest {
+// 验证 `order` 覆盖场景的预期行为与边界。
     private fun order(id: Long, status: OrderStatus, timeline: List<OrderStatus> = listOf(status)) = Order(
         id, status, "Cai", "13800000000", "公司", BigDecimal.TEN, BigDecimal.ZERO,
         BigDecimal.ZERO, BigDecimal.TEN, emptyList<CartLine>(), timeline
     )
 
     @Test
+// 验证 `filtersMapPendingDeliveryAndCompletedOrders` 覆盖场景的预期行为与边界。
     fun filtersMapPendingDeliveryAndCompletedOrders() {
         val pending = order(1, OrderStatus.PENDING_PAYMENT)
         val preparing = order(2, OrderStatus.PREPARING)
@@ -29,6 +31,7 @@ class OrderPresentationTest {
     }
 
     @Test
+// 验证 `timelineMarksReachedAndFutureSteps` 覆盖场景的预期行为与边界。
     fun timelineMarksReachedAndFutureSteps() {
         val order = order(
             2,

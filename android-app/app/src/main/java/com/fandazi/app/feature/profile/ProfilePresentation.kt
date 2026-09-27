@@ -7,6 +7,7 @@ import java.math.BigDecimal
 enum class AddressAction { DeleteAllowed, DeleteBlockedDefault }
 
 object AddressPolicy {
+// 删除action。
     fun deleteAction(address: Address): AddressAction =
         if (address.defaultAddress) AddressAction.DeleteBlockedDefault else AddressAction.DeleteAllowed
 }
@@ -25,6 +26,7 @@ data class AutomationSettingsState(
 ) {
     val isBlocked: Boolean get() = blockReason() != null
 
+// 处理 `blockReason` 相关逻辑。
     fun blockReason(): AutomationBlockReason? = when {
         defaultAddress?.defaultAddress != true || defaultAddress.valid.not() -> AutomationBlockReason.NoDefaultAddress
         proposedAmount > maxAmount -> AutomationBlockReason.AmountOverLimit

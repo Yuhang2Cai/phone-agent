@@ -23,6 +23,7 @@ class AddressEditFragment : Fragment(R.layout.fragment_address_edit) {
         AddressEditViewModelFactory((requireActivity() as MainActivity).orderingRepository())
     }
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentAddressEditBinding.bind(view)
         val id = arguments?.getLong(ARG_ID) ?: 0L
@@ -67,6 +68,7 @@ class AddressEditFragment : Fragment(R.layout.fragment_address_edit) {
         }
     }
 
+// 保存当前数据。
     private fun save(binding: FragmentAddressEditBinding, id: Long) {
         val address = addressFrom(binding, id)
         if (address.recipient.isBlank() || address.phone.isBlank() || address.detail.isBlank()) {
@@ -76,6 +78,7 @@ class AddressEditFragment : Fragment(R.layout.fragment_address_edit) {
         viewModel.save(address)
     }
 
+// 处理 `addressFrom` 相关逻辑。
     private fun addressFrom(binding: FragmentAddressEditBinding, id: Long) = Address(
         id,
         binding.addressRecipient.text.toString().trim(),

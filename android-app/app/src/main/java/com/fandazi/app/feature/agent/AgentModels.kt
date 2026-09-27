@@ -43,6 +43,7 @@ data class CandidateCart(
     val authorizationMode: AgentMode? = null,
     val orderId: Long? = null
 ) : Serializable {
+// 判断complete、confirmation。
     fun isCompleteForConfirmation() = merchantName.isNotBlank() && items.isNotEmpty() &&
         items.all { it.name.isNotBlank() && it.specification.isNotBlank() && it.price.isMoney() } &&
         address.isNotBlank() && deliveryFee.isMoney() && discount.isMoney() && total.isMoney() &&

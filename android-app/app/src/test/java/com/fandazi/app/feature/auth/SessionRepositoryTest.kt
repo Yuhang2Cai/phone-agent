@@ -11,6 +11,7 @@ import org.junit.Test
 
 class SessionRepositoryTest {
     @Test
+// 验证 `loginPersistsTokenAndPublishesAuthenticatedSession` 覆盖场景的预期行为与边界。
     fun loginPersistsTokenAndPublishesAuthenticatedSession() = runBlocking {
         val storage = InMemorySessionStorage()
         val repository = SessionRepository(FakeAuthGateway(ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com")))), storage)
@@ -23,6 +24,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `invalidCredentialsPublishRecoverableErrorWithoutPersistingSession` 覆盖场景的预期行为与边界。
     fun invalidCredentialsPublishRecoverableErrorWithoutPersistingSession() = runBlocking {
         val storage = InMemorySessionStorage()
         val repository = SessionRepository(FakeAuthGateway(ApiResult.Failure(ApiError.Http(401, "Invalid username or password"))), storage)
@@ -35,6 +37,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `timeoutLeavesUserUnauthenticated` 覆盖场景的预期行为与边界。
     fun timeoutLeavesUserUnauthenticated() = runBlocking {
         val repository = SessionRepository(FakeAuthGateway(ApiResult.Failure(ApiError.Timeout)), InMemorySessionStorage())
 
@@ -45,6 +48,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `logoutClearsPersistedSessionAndState` 覆盖场景的预期行为与边界。
     fun logoutClearsPersistedSessionAndState() = runBlocking {
         val storage = InMemorySessionStorage(PersistedSession("token-1", User("alice", "alice@example.com")))
         val repository = SessionRepository(FakeAuthGateway(), storage)
@@ -56,6 +60,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `newRepositoryRestoresPersistedSessionAfterProcessRecreation` 覆盖场景的预期行为与边界。
     fun newRepositoryRestoresPersistedSessionAfterProcessRecreation() {
         val storage = InMemorySessionStorage(PersistedSession("token-1", User("alice", "alice@example.com")))
 
@@ -65,6 +70,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `failedSessionWriteDoesNotPublishAuthenticatedState` 覆盖场景的预期行为与边界。
     fun failedSessionWriteDoesNotPublishAuthenticatedState() = runBlocking {
         val repository = SessionRepository(
             FakeAuthGateway(ApiResult.Success(AuthResponse("token-1", User("alice", "alice@example.com")))),
@@ -79,6 +85,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `storageInitializationFailureIsExposed` 覆盖场景的预期行为与边界。
     fun storageInitializationFailureIsExposed() {
         val repository = SessionRepository(
             FakeAuthGateway(),
@@ -90,6 +97,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `failedClearKeepsSessionAndExposesError` 覆盖场景的预期行为与边界。
     fun failedClearKeepsSessionAndExposesError() = runBlocking {
         val session = PersistedSession("token-1", User("alice", "alice@example.com"))
         val repository = SessionRepository(
@@ -104,6 +112,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `storageReadFailurePublishesErrorAndDoesNotPretendToRestoreSession` 覆盖场景的预期行为与边界。
     fun storageReadFailurePublishesErrorAndDoesNotPretendToRestoreSession() {
         val repository = SessionRepository(
             FakeAuthGateway(),
@@ -115,6 +124,7 @@ class SessionRepositoryTest {
     }
 
     @Test
+// 验证 `cancellationDuringSessionWriteIsRethrown` 覆盖场景的预期行为与边界。
     fun cancellationDuringSessionWriteIsRethrown() = runBlocking {
         val cancellation = CancellationException("test cancellation")
         val repository = SessionRepository(
@@ -133,8 +143,10 @@ class SessionRepositoryTest {
     private class FakeAuthGateway(
         private val loginResult: ApiResult<AuthResponse> = ApiResult.Failure(ApiError.Network("not configured"))
     ) : AuthGateway {
+// 验证 `login` 覆盖场景的预期行为与边界。
         override suspend fun login(username: String, password: String): ApiResult<AuthResponse> = loginResult
 
+// 验证 `register` 覆盖场景的预期行为与边界。
         override suspend fun register(username: String, email: String, password: String): ApiResult<AuthResponse> = loginResult
     }
 
@@ -148,14 +160,17 @@ class SessionRepositoryTest {
     ) : SessionStorage {
         private var session = initial
 
+// 验证 `read` 覆盖场景的预期行为与边界。
         override fun read(): Result<PersistedSession?> = readResult ?: Result.success(session)
 
+// 验证 `write` 覆盖场景的预期行为与边界。
         override suspend fun write(value: PersistedSession): Boolean {
             writeFailure?.let { throw it }
             if (writeResult) session = value
             return writeResult
         }
 
+// 验证 `clear` 覆盖场景的预期行为与边界。
         override suspend fun clear(): Boolean {
             if (clearResult) session = null
             return clearResult

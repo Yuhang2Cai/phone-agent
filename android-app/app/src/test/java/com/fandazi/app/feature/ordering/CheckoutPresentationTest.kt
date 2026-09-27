@@ -21,6 +21,7 @@ class CheckoutPresentationTest {
     )
 
     @Test
+// 验证 `optionsAreGroupedAndUnavailableOptionsCannotBeSelected` 覆盖场景的预期行为与边界。
     fun optionsAreGroupedAndUnavailableOptionsCannotBeSelected() {
         val groups = DishOptionsPresentation.groups(dish)
 
@@ -31,6 +32,7 @@ class CheckoutPresentationTest {
     }
 
     @Test
+// 验证 `checkoutSummaryContainsAddressAndFeeBreakdown` 覆盖场景的预期行为与边界。
     fun checkoutSummaryContainsAddressAndFeeBreakdown() {
         val quote = CartQuote(1, BigDecimal("24"), BigDecimal("3"), BigDecimal("2"), BigDecimal("25"), emptyList())
         val address = Address(9, "小林", "138****0000", "静安区南京西路 100 号", true)

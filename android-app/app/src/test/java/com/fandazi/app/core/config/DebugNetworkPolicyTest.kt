@@ -8,6 +8,7 @@ import java.io.File
 
 class DebugNetworkPolicyTest {
     @Test
+// 验证 `cleartextIsEnabledOnlyByDebugManifest` 覆盖场景的预期行为与边界。
     fun cleartextIsEnabledOnlyByDebugManifest() {
         val appRoot = findAppRoot()
         val mainManifest = File(appRoot, "src/main/AndroidManifest.xml").readText()
@@ -17,6 +18,7 @@ class DebugNetworkPolicyTest {
         assertTrue(debugManifest.contains("usesCleartextTraffic=\"true\""))
     }
 
+// 验证 `findAppRoot` 覆盖场景的预期行为与边界。
     private fun findAppRoot(): File {
         var directory = File(
             DebugNetworkPolicyTest::class.java.protectionDomain.codeSource.location.toURI()

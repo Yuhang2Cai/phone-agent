@@ -26,16 +26,20 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     private val mutableState = MutableStateFlow(AuthFormState())
     val state: StateFlow<AuthFormState> = mutableState.asStateFlow()
 
+// 处理 `setRegisterMode` 相关逻辑。
     fun setRegisterMode(isRegisterMode: Boolean) {
         mutableState.value = mutableState.value.copy(isRegisterMode = isRegisterMode)
     }
 
+// 更新draft。
     fun updateDraft(username: String, email: String, password: String) {
         mutableState.value = mutableState.value.copy(username = username, email = email, password = password)
     }
 
+// 处理 `continueAsGuest` 相关逻辑。
     suspend fun continueAsGuest() = sessions.continueAsGuest()
 
+// 处理 `submitLogin` 相关逻辑。
     suspend fun submitLogin(username: String, password: String) {
         if (!submitting.compareAndSet(false, true)) return
         try {
@@ -58,6 +62,7 @@ class AuthFormProcessor(private val sessions: SessionActions) {
         }
     }
 
+// 处理 `submitRegister` 相关逻辑。
     suspend fun submitRegister(username: String, email: String, password: String) {
         if (!submitting.compareAndSet(false, true)) return
         try {
@@ -80,6 +85,7 @@ class AuthFormProcessor(private val sessions: SessionActions) {
         }
     }
 
+// 处理 `publishErrors` 相关逻辑。
     private fun publishErrors(errors: ValidationErrors, isRegisterMode: Boolean): Boolean {
         mutableState.value = mutableState.value.copy(
             isRegisterMode = isRegisterMode,
@@ -92,12 +98,14 @@ class AuthFormProcessor(private val sessions: SessionActions) {
         return errors.isValid
     }
 
+// 校验当前数据。
     private fun validate(username: String, email: String?, password: String, isRegisterMode: Boolean): ValidationErrors = ValidationErrors(
         username = if (username.trim().isEmpty()) "请输入用户名" else null,
         email = if (isRegisterMode && (email.isNullOrBlank() || !EMAIL_PATTERN.matches(email.trim()))) "请输入有效邮箱" else null,
         password = if (password.length < MIN_PASSWORD_LENGTH) "密码至少需要 8 位" else null
     )
 
+// 处理 `complete` 相关逻辑。
     private fun complete(result: ApiResult<AuthResponse>) {
         mutableState.value = when (result) {
             is ApiResult.Success -> mutableState.value.copy(isSubmitting = false, errorMessage = null)

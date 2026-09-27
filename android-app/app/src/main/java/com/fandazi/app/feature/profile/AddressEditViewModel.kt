@@ -22,16 +22,20 @@ class AddressEditViewModel(private val repository: OrderingRepository) : ViewMod
     private val mutableState = MutableStateFlow<AddressSubmitState>(AddressSubmitState.Idle)
     val state = mutableState.asStateFlow()
 
+// 保存当前数据。
     fun save(address: Address) = submit {
         if (address.id > 0) repository.updateAddress(address) else repository.createAddress(address)
     }
 
+// 删除当前数据。
     fun delete(addressId: Long) = submit { repository.deleteAddress(addressId) }
 
+// 处理 `consumeResult` 相关逻辑。
     fun consumeResult() {
         if (mutableState.value !is AddressSubmitState.Submitting) mutableState.value = AddressSubmitState.Idle
     }
 
+// 处理 `submit` 相关逻辑。
     private fun submit(request: suspend () -> ApiResult<*>) {
         if (mutableState.value is AddressSubmitState.Submitting) return
         mutableState.value = AddressSubmitState.Submitting

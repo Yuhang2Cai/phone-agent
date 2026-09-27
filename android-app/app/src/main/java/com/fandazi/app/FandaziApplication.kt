@@ -28,6 +28,7 @@ class FandaziApplication : Application() {
     lateinit var automationSettingsRepository: AutomationSettingsRepository
         private set
 
+// 初始化组件与页面状态。
     override fun onCreate() {
         super.onCreate()
         apiClient = ApiClient(

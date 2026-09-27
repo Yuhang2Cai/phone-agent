@@ -9,6 +9,7 @@ import java.math.BigDecimal
 
 class ProfileSettingsBehaviorTest {
     @Test
+// 验证 `defaultAddressCannotBeDeleted` 覆盖场景的预期行为与边界。
     fun defaultAddressCannotBeDeleted() {
         val address = Address(1, "张先生", "13800000000", "上海市静安区南京西路 800 号", true)
 
@@ -16,6 +17,7 @@ class ProfileSettingsBehaviorTest {
     }
 
     @Test
+// 验证 `invalidAddressCannotBeSelectedAsAutomationDefault` 覆盖场景的预期行为与边界。
     fun invalidAddressCannotBeSelectedAsAutomationDefault() {
         val state = AutomationSettingsState(defaultAddress = null, maxAmount = BigDecimal("30"))
 
@@ -23,6 +25,7 @@ class ProfileSettingsBehaviorTest {
     }
 
     @Test
+// 验证 `amountOverLimitBlocksAutomation` 覆盖场景的预期行为与边界。
     fun amountOverLimitBlocksAutomation() {
         val state = AutomationSettingsState(
             defaultAddress = Address(1, "张先生", "13800000000", "上海市静安区南京西路 800 号", true, true),
@@ -35,6 +38,7 @@ class ProfileSettingsBehaviorTest {
     }
 
     @Test
+// 验证 `validAutomationSettingsAreEnabled` 覆盖场景的预期行为与边界。
     fun validAutomationSettingsAreEnabled() {
         val state = AutomationSettingsState(
             defaultAddress = Address(1, "张先生", "13800000000", "上海市静安区南京西路 800 号", true, true),

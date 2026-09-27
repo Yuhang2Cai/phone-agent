@@ -9,11 +9,13 @@ enum class SessionRoute {
 }
 
 object SessionRouteCoordinator {
+// 处理 `routeFor` 相关逻辑。
     fun routeFor(state: SessionState): SessionRoute = when (state) {
         SessionState.Unauthenticated -> SessionRoute.AUTH
         SessionState.Guest -> SessionRoute.HOME
         is SessionState.Authenticated -> SessionRoute.HOME
     }
 
+// 判断是否应当navigate。
     fun shouldNavigate(current: SessionRoute?, desired: SessionRoute): Boolean = current != desired
 }

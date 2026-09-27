@@ -22,6 +22,7 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
     private var binding: FragmentAddressBinding? = null
     private var loading = false
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding = FragmentAddressBinding.bind(view)
         binding?.addressBack?.setOnClickListener { view.findNavController().navigateUp() }
@@ -29,17 +30,20 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
         binding?.addressState?.setOnClickListener { loadAddresses() }
     }
 
+// 处理 `onResume` 相关逻辑。
     override fun onResume() {
         super.onResume()
         loadAddresses()
     }
 
+// 在视图销毁时释放视图相关资源。
     override fun onDestroyView() {
         loading = false
         binding = null
         super.onDestroyView()
     }
 
+// 加载addresses。
     private fun loadAddresses() {
         val current = binding ?: return
         if (loading) return
@@ -64,6 +68,7 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
         }
     }
 
+// 处理 `addAddressCard` 相关逻辑。
     private fun addAddressCard(current: FragmentAddressBinding, address: Address) {
         val card = LayoutInflater.from(requireContext()).inflate(R.layout.item_address_card, current.addressList, false)
         card.background = requireContext().getDrawable(if (address.defaultAddress) R.drawable.address_card_default_background else R.drawable.address_card_background)
@@ -84,6 +89,7 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
         current.addressList.addView(card)
     }
 
+// 处理 `setDefault` 相关逻辑。
     private fun setDefault(address: Address) {
         if (loading || !address.valid) return
         loading = true
@@ -101,6 +107,7 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
         }
     }
 
+// 打开editor。
     private fun openEditor(view: View, address: Address?) {
         view.findNavController().navigate(
             R.id.addressEditFragment,
@@ -115,12 +122,14 @@ class AddressFragment : Fragment(R.layout.fragment_address) {
         )
     }
 
+// 处理 `addressName` 相关逻辑。
     private fun addressName(address: Address): String = when {
         address.defaultAddress -> "公司默认地址"
         !address.valid -> "其他地址"
         else -> "${address.recipient}的地址"
     }
 
+// 处理 `maskPhone` 相关逻辑。
     private fun maskPhone(phone: String): String = if (phone.length >= 7) {
         phone.take(3) + "****" + phone.takeLast(4)
     } else phone

@@ -15,7 +15,9 @@ data class AutomationPolicy(
 )
 
 interface AutomationSettingsRepository {
+// 加载策略。
     suspend fun loadPolicy(): ApiResult<AutomationPolicy?>
+// 保存策略。
     suspend fun savePolicy(policy: AutomationPolicy): ApiResult<AutomationPolicy>
 }
 
@@ -23,6 +25,7 @@ class HttpAutomationSettingsRepository(
     private val apiClient: ApiClient,
     private val gson: Gson = Gson()
 ) : AutomationSettingsRepository {
+// 加载策略。
     override suspend fun loadPolicy(): ApiResult<AutomationPolicy?> = when (val result = apiClient.get("automation/policy")) {
         is ApiResult.Success -> {
             val body = result.value.trim()
@@ -31,12 +34,14 @@ class HttpAutomationSettingsRepository(
         is ApiResult.Failure -> result
     }
 
+// 保存策略。
     override suspend fun savePolicy(policy: AutomationPolicy): ApiResult<AutomationPolicy> =
         when (val result = apiClient.putJson("automation/policy", gson.toJson(policy))) {
             is ApiResult.Success -> parsePolicy(result.value)
             is ApiResult.Failure -> result
         }
 
+// 解析策略。
     private fun parsePolicy(body: String): ApiResult<AutomationPolicy> = runCatching {
         val json = JsonParser.parseString(body).asJsonObject
         AutomationPolicy(

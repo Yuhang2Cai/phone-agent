@@ -33,6 +33,7 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
     private var filter = OrderFilter.ALL
     private var expandedOrderId: Long? = null
 
+// 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentOrdersBinding.bind(view)
         filter = savedInstanceState?.getString(KEY_FILTER)?.let { runCatching { OrderFilter.valueOf(it) }.getOrNull() } ?: OrderFilter.ALL
@@ -67,6 +68,7 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
         }
     }
 
+// 渲染filters。
     private fun renderFilters(filters: Map<TextView, OrderFilter>) {
         filters.forEach { (button, value) ->
             button.setBackgroundResource(if (value == filter) R.drawable.search_button_background else R.drawable.dish_option_unselected)
@@ -74,6 +76,7 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
         }
     }
 
+// 渲染orders。
     private fun renderOrders(binding: FragmentOrdersBinding, orders: List<Order>) {
         val visible = OrderPresentation.filter(orders, filter)
         binding.orderList.removeAllViews()
@@ -112,6 +115,7 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
         }
     }
 
+// 渲染timeline。
     private fun renderTimeline(container: LinearLayout, order: Order) {
         container.removeAllViews()
         OrderPresentation.timeline(order).forEach { (status, complete) ->
@@ -125,6 +129,7 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
         }
     }
 
+// 处理 `timelineHint` 相关逻辑。
     private fun timelineHint(status: OrderStatus): String = when (status) {
         OrderStatus.MERCHANT_ACCEPTED -> "商家已确认订单，正在准备"
         OrderStatus.PREPARING -> "餐品正在制作中"
@@ -134,11 +139,13 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
         else -> ""
     }
 
+// 处理 `displayDate` 相关逻辑。
     private fun displayDate(createdAt: String?): String {
         val date = createdAt?.substringBefore('T')?.takeIf { it.length >= 10 } ?: return "今天"
         return "${date.substring(5, 7)}-${date.substring(8, 10)}"
     }
 
+// 打开pending、订单。
     private fun openPendingOrder(view: View, order: Order) {
         if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) || parentFragmentManager.isStateSaved) return
         val controller = view.findNavController()
@@ -148,6 +155,7 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
         controller.navigate(R.id.paymentFragment)
     }
 
+// 处理 `onSaveInstanceState` 相关逻辑。
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putString(KEY_FILTER, filter.name)
         outState.putLong(KEY_EXPANDED, expandedOrderId ?: -1L)

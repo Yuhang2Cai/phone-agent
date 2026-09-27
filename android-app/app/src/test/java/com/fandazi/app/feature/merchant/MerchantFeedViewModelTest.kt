@@ -36,9 +36,12 @@ import org.junit.Test
 class MerchantFeedViewModelTest {
     private val dispatcher = StandardTestDispatcher()
 
+// 为测试准备依赖、替身和初始状态。
     @Before fun setUp() = Dispatchers.setMain(dispatcher)
+// 清理测试创建的资源与状态。
     @After fun tearDown() = Dispatchers.resetMain()
 
+// 验证 `initialPageReplacesItemsAndUsesServerPageNumber` 覆盖场景的预期行为与边界。
     @Test fun initialPageReplacesItemsAndUsesServerPageNumber() = runTest(dispatcher) {
         val repository = FeedRepository()
         repository.respond(page(0, false, 1, 2))
@@ -61,6 +64,7 @@ class MerchantFeedViewModelTest {
         assertEquals(listOf(Triple(0, 4, true), Triple(0, 4, true)), repository.calls)
     }
 
+// 验证 `nextPageAppendsAndDeduplicatesByMerchantId` 覆盖场景的预期行为与边界。
     @Test fun nextPageAppendsAndDeduplicatesByMerchantId() = runTest(dispatcher) {
         val repository = FeedRepository()
         repository.respond(page(0, false, 1, 2))
@@ -81,6 +85,7 @@ class MerchantFeedViewModelTest {
         assertFalse(viewModel.state.value.isAppending)
     }
 
+// 验证 `duplicateTriggersWhileLoadingMakeOnlyOneCall` 覆盖场景的预期行为与边界。
     @Test fun duplicateTriggersWhileLoadingMakeOnlyOneCall() = runTest(dispatcher) {
         val repository = FeedRepository()
         val first = repository.pending()
@@ -103,6 +108,7 @@ class MerchantFeedViewModelTest {
         assertEquals(listOf(1L, 2L), viewModel.state.value.items.map { it.id })
     }
 
+// 验证 `initialFailureExposesOnlyInitialErrorAndRetryStartsAtZero` 覆盖场景的预期行为与边界。
     @Test fun initialFailureExposesOnlyInitialErrorAndRetryStartsAtZero() = runTest(dispatcher) {
         val repository = FeedRepository()
         repository.respond(ApiResult.Failure(ApiError.Network("offline")))
@@ -123,6 +129,7 @@ class MerchantFeedViewModelTest {
         assertNull(viewModel.state.value.initialError)
     }
 
+// 验证 `appendFailureRetainsItemsAndRetryUsesSamePage` 覆盖场景的预期行为与边界。
     @Test fun appendFailureRetainsItemsAndRetryUsesSamePage() = runTest(dispatcher) {
         val repository = FeedRepository()
         repository.respond(page(0, false, 1))
@@ -147,6 +154,7 @@ class MerchantFeedViewModelTest {
         assertNull(viewModel.state.value.appendError)
     }
 
+// 验证 `loadNextDoesNothingUntilAppendErrorIsExplicitlyRetried` 覆盖场景的预期行为与边界。
     @Test fun loadNextDoesNothingUntilAppendErrorIsExplicitlyRetried() = runTest(dispatcher) {
         val repository = FeedRepository()
         repository.respond(page(0, false, 1))
@@ -168,6 +176,7 @@ class MerchantFeedViewModelTest {
         assertEquals(failedState, viewModel.state.value)
     }
 
+// 验证 `lastPagePreventsFurtherCalls` 覆盖场景的预期行为与边界。
     @Test fun lastPagePreventsFurtherCalls() = runTest(dispatcher) {
         val repository = FeedRepository()
         repository.respond(page(0, true, 1))
@@ -183,6 +192,7 @@ class MerchantFeedViewModelTest {
         assertEquals(listOf(0), repository.calls.map { it.first })
     }
 
+// 验证 `newerInitialGenerationDiscardsStaleSuccess` 覆盖场景的预期行为与边界。
     @Test fun newerInitialGenerationDiscardsStaleSuccess() = runTest(dispatcher) {
         val repository = FeedRepository()
         val old = repository.pending(ignoreCancellation = true)
@@ -203,6 +213,7 @@ class MerchantFeedViewModelTest {
         assertEquals(2, repository.calls.size)
     }
 
+// 验证 `newerInitialGenerationDiscardsStaleFailure` 覆盖场景的预期行为与边界。
     @Test fun newerInitialGenerationDiscardsStaleFailure() = runTest(dispatcher) {
         val repository = FeedRepository()
         val old = repository.pending(ignoreCancellation = true)
@@ -222,6 +233,7 @@ class MerchantFeedViewModelTest {
         assertNull(viewModel.state.value.initialError)
     }
 
+// 验证 `page` 覆盖场景的预期行为与边界。
     private fun page(number: Int, last: Boolean, vararg ids: Long) = PagedResult(
         content = ids.map { Merchant(it, "Merchant $it", "food", BigDecimal.TEN, BigDecimal.ONE, 20, true) },
         number = number,
@@ -233,12 +245,15 @@ class MerchantFeedViewModelTest {
         val calls = mutableListOf<Triple<Int, Int, Boolean>>()
         private val responses = ArrayDeque<suspend () -> ApiResult<PagedResult<Merchant>>>()
 
+// 验证 `respond` 覆盖场景的预期行为与边界。
         fun respond(page: PagedResult<Merchant>) = respond(ApiResult.Success(page))
 
+// 验证 `respond` 覆盖场景的预期行为与边界。
         fun respond(result: ApiResult<PagedResult<Merchant>>) {
             responses.addLast { result }
         }
 
+// 验证 `pending` 覆盖场景的预期行为与边界。
         fun pending(ignoreCancellation: Boolean = false): CompletableDeferred<ApiResult<PagedResult<Merchant>>> {
             val deferred = CompletableDeferred<ApiResult<PagedResult<Merchant>>>()
             responses.addLast {
@@ -247,20 +262,31 @@ class MerchantFeedViewModelTest {
             return deferred
         }
 
+// 验证 `loadMerchants` 覆盖场景的预期行为与边界。
         override suspend fun loadMerchants(page: Int, size: Int, openOnly: Boolean): ApiResult<PagedResult<Merchant>> {
             calls += Triple(page, size, openOnly)
             return responses.removeFirst().invoke()
         }
 
+// 验证 `searchMerchants` 覆盖场景的预期行为与边界。
         override suspend fun searchMerchants(keyword: String): ApiResult<List<Merchant>> = unsupported()
+// 验证 `loadMenu` 覆盖场景的预期行为与边界。
         override suspend fun loadMenu(merchantId: Long): ApiResult<List<Dish>> = unsupported()
+// 验证 `createCartDraft` 覆盖场景的预期行为与边界。
         override suspend fun createCartDraft(merchantId: Long): ApiResult<CartDraft> = unsupported()
+// 验证 `updateCart` 覆盖场景的预期行为与边界。
         override suspend fun updateCart(cartDraftId: Long, items: List<CartItemInput>): ApiResult<CartDraft> = unsupported()
+// 验证 `validateCart` 覆盖场景的预期行为与边界。
         override suspend fun validateCart(cartDraftId: Long): ApiResult<CartQuote> = unsupported()
+// 验证 `loadAddresses` 覆盖场景的预期行为与边界。
         override suspend fun loadAddresses(): ApiResult<List<Address>> = unsupported()
+// 验证 `createOrder` 覆盖场景的预期行为与边界。
         override suspend fun createOrder(cartDraftId: Long, addressId: Long, idempotencyKey: String): ApiResult<Order> = unsupported()
+// 验证 `payOrder` 覆盖场景的预期行为与边界。
         override suspend fun payOrder(orderId: Long, idempotencyKey: String): ApiResult<Order> = unsupported()
+// 验证 `loadOrders` 覆盖场景的预期行为与边界。
         override suspend fun loadOrders(): ApiResult<List<Order>> = unsupported()
+// 验证 `loadOrder` 覆盖场景的预期行为与边界。
         override suspend fun loadOrder(orderId: Long): ApiResult<Order> = unsupported()
 
         private fun <T> unsupported(): T = error("Unexpected repository call")

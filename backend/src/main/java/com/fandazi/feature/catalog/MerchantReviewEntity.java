@@ -36,8 +36,10 @@ public class MerchantReviewEntity {
     @Column(nullable = false)
     private Instant createdAt;
 
+// 初始化对象依赖与默认状态。
     protected MerchantReviewEntity() {}
 
+// 初始化对象依赖与默认状态。
     public MerchantReviewEntity(MerchantEntity merchant, String reviewerName, BigDecimal rating, String content, Instant createdAt) {
         this.merchant = merchant;
         this.reviewerName = reviewerName;
@@ -46,10 +48,16 @@ public class MerchantReviewEntity {
         this.createdAt = createdAt;
     }
 
+// 获取id。
     public Long getId() { return id; }
+// 获取商家。
     public MerchantEntity getMerchant() { return merchant; }
+// 获取reviewer、name。
     public String getReviewerName() { return reviewerName; }
+// 获取rating。
     public BigDecimal getRating() { return rating; }
+// 获取content。
     public String getContent() { return content; }
+// 获取created、at。
     public Instant getCreatedAt() { return createdAt; }
 }

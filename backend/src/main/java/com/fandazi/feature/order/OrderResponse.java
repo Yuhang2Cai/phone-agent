@@ -13,6 +13,7 @@ public record OrderResponse(
     public record Item(Long dishId, String dishName, int quantity, List<Long> optionIds,
                        String optionSummary, BigDecimal unitPrice) {}
 
+// 处理 `from` 相关逻辑。
     public static OrderResponse from(OrderEntity order) {
         return new OrderResponse(
                 order.getId(), order.getStatus(), order.getAddressRecipient(), order.getAddressPhone(),
