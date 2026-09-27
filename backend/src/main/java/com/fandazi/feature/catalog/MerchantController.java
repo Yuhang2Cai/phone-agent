@@ -27,12 +27,14 @@ public class MerchantController {
     private final DishRepository dishes;
     private final DishOptionRepository options;
     private final SeedDishMetadataRepository metadata;
+    private final MerchantReviewRepository reviews;
 
-    public MerchantController(MerchantRepository merchants, DishRepository dishes, DishOptionRepository options, SeedDishMetadataRepository metadata) {
+    public MerchantController(MerchantRepository merchants, DishRepository dishes, DishOptionRepository options, SeedDishMetadataRepository metadata, MerchantReviewRepository reviews) {
         this.merchants = merchants;
         this.dishes = dishes;
         this.options = options;
         this.metadata = metadata;
+        this.reviews = reviews;
     }
 
     @GetMapping
@@ -71,6 +73,17 @@ public class MerchantController {
                 .map(MerchantResponse::from)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{merchantId}/reviews")
+    public ResponseEntity<Page<MerchantReviewResponse>> reviews(
+            @PathVariable Long merchantId,
+            @RequestParam(defaultValue = "0") @Min(0) int page,
+            @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size) {
+        if (!merchants.existsById(merchantId)) return ResponseEntity.notFound().build();
+        Pageable pageable = PageRequest.of(page, size,
+                Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("id")));
+        return ResponseEntity.ok(reviews.findByMerchantId(merchantId, pageable).map(MerchantReviewResponse::from));
     }
 
     @GetMapping("/{id}/dishes")

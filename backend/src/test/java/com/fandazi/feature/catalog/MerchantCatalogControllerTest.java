@@ -2,10 +2,13 @@ package com.fandazi.feature.catalog;
 
 import com.fandazi.FandaziApplication;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -22,6 +25,7 @@ class MerchantCatalogControllerTest {
 
     @Autowired MockMvc mockMvc;
     @Autowired MerchantRepository merchantRepository;
+    @Autowired JdbcTemplate jdbc;
 
     @Test
     void pagesOpenMerchantsInStableIdOrder() throws Exception {
@@ -71,5 +75,54 @@ class MerchantCatalogControllerTest {
                 .andExpect(jsonPath("$.totalElements").value(1))
                 .andExpect(jsonPath("$.content[0].id").value(matching.getId()))
                 .andExpect(jsonPath("$.content[0].open").value(false));
+    }
+
+    @Test
+    void pagesOnlyRequestedMerchantReviewsByTimestampThenDescendingId() throws Exception {
+        var merchant = merchantRepository.save(new MerchantEntity("甲店", "快餐", TEN, ONE, 20, true));
+        var other = merchantRepository.save(new MerchantEntity("乙店", "快餐", TEN, ONE, 20, true));
+        var sameTime = Instant.parse("2026-09-27T08:00:00Z");
+        insertReview(merchant.getId(), "旧评", "3.0", "先前评价", sameTime.minusSeconds(60));
+        insertReview(merchant.getId(), "小饭", "4.8", "味道很好", sameTime);
+        insertReview(merchant.getId(), "小圆", "4.5", "送达准时", sameTime);
+        insertReview(other.getId(), "别家客", "5.0", "别家评价", sameTime.plusSeconds(60));
+
+        mockMvc.perform(get("/api/merchants/{id}/reviews", merchant.getId()).param("page", "0").param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].merchantId").value(merchant.getId()))
+                .andExpect(jsonPath("$.content[0].reviewerName").value("小圆"))
+                .andExpect(jsonPath("$.content[0].rating").value(4.5))
+                .andExpect(jsonPath("$.content[0].content").value("送达准时"))
+                .andExpect(jsonPath("$.content[0].createdAt").value("2026-09-27T08:00:00Z"))
+                .andExpect(jsonPath("$.content[0].id").isNumber())
+                .andExpect(jsonPath("$.totalElements").value(3))
+                .andExpect(jsonPath("$.totalPages").value(3))
+                .andExpect(jsonPath("$.size").value(1))
+                .andExpect(jsonPath("$.number").value(0));
+        mockMvc.perform(get("/api/merchants/{id}/reviews", merchant.getId()).param("page", "1").param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].reviewerName").value("小饭"));
+        mockMvc.perform(get("/api/merchants/{id}/reviews", merchant.getId()).param("page", "2").param("size", "1"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].reviewerName").value("旧评"));
+    }
+
+    @Test
+    void rejectsInvalidReviewPagingAndMissingMerchant() throws Exception {
+        var merchant = merchantRepository.save(new MerchantEntity("甲店", "快餐", TEN, ONE, 20, true));
+
+        mockMvc.perform(get("/api/merchants/{id}/reviews", merchant.getId()).param("page", "-1"))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/merchants/{id}/reviews", merchant.getId()).param("size", "0"))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/merchants/{id}/reviews", merchant.getId()).param("size", "101"))
+                .andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/merchants/{id}/reviews", Long.MAX_VALUE))
+                .andExpect(status().isNotFound());
+    }
+
+    private void insertReview(Long merchantId, String reviewerName, String rating, String content, Instant createdAt) {
+        jdbc.update("insert into merchant_reviews (merchant_id, reviewer_name, rating, content, created_at) values (?, ?, ?, ?, ?)",
+                merchantId, reviewerName, new BigDecimal(rating), content, Timestamp.from(createdAt));
     }
 }
