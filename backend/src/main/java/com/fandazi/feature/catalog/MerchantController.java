@@ -6,10 +6,12 @@ import java.math.BigDecimal;
 import java.util.List;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,11 +40,12 @@ public class MerchantController {
                                          @RequestParam(required = false) String category,
                                          @RequestParam(required = false) Integer maxDeliveryMinutes,
                                          @RequestParam(required = false) BigDecimal maxPrice,
+                                         @RequestParam(defaultValue = "false") boolean openOnly,
                                          @RequestParam(defaultValue = "0") @Min(0) int page,
                                          @RequestParam(defaultValue = "20") @Min(1) @Max(100) int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        var result = merchants.findAll().stream()
-                .filter(merchant -> matches(merchant, keyword, category, maxDeliveryMinutes, maxPrice))
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "id"));
+        var result = merchants.findAll(pageable.getSort()).stream()
+                .filter(merchant -> matches(merchant, keyword, category, maxDeliveryMinutes, maxPrice, openOnly))
                 .map(MerchantResponse::from)
                 .toList();
         int from = Math.min((int) pageable.getOffset(), result.size());
@@ -50,7 +53,7 @@ public class MerchantController {
         return new PageImpl<>(result.subList(from, to), pageable, result.size());
     }
 
-    private boolean matches(MerchantEntity merchant, String keyword, String category, Integer minutes, BigDecimal maxPrice) {
+    private boolean matches(MerchantEntity merchant, String keyword, String category, Integer minutes, BigDecimal maxPrice, boolean openOnly) {
         boolean merchantOrDishMatches = keyword == null
                 || merchant.getName().contains(keyword)
                 || dishes.findByMerchantId(merchant.getId()).stream().anyMatch(dish ->
@@ -58,7 +61,16 @@ public class MerchantController {
         return merchantOrDishMatches
                 && (category == null || merchant.getCategory().equals(category))
                 && (minutes == null || merchant.getDeliveryMinutes() <= minutes)
-                && (maxPrice == null || merchant.getMinimumOrder().compareTo(maxPrice) <= 0);
+                && (maxPrice == null || merchant.getMinimumOrder().compareTo(maxPrice) <= 0)
+                && (!openOnly || merchant.isOpen());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<MerchantResponse> merchant(@PathVariable Long id) {
+        return merchants.findById(id)
+                .map(MerchantResponse::from)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping("/{id}/dishes")
