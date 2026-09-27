@@ -2,7 +2,6 @@
 package com.fandazi.feature.cart;
 import com.fandazi.feature.catalog.DishEntity; import jakarta.persistence.*; import java.util.*;
 // 初始化对象依赖与默认状态。
-// 初始化对象依赖与默认状态。
 // 获取菜品。
 // 获取quantity。
 // 获取option、ids。

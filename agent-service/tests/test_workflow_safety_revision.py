@@ -19,11 +19,9 @@ from fandazi_agent.state import AgentState
 
 class FakeSpringBootToolClient(SpringBootToolClient):
     """验证 `__init__` 覆盖场景的预期行为与边界。"""
-    """验证 `__init__` 覆盖场景的预期行为与边界。"""
     def __init__(self):
         self.requests = []
 
-    """验证 `call` 覆盖场景的预期行为与边界。"""
     """验证 `call` 覆盖场景的预期行为与边界。"""
     def call(self, request):
         self.requests.append(request)
@@ -36,7 +34,6 @@ class FakeSpringBootToolClient(SpringBootToolClient):
         return ToolResult(ok=True, data=data.get(request.tool_name, {}))
 
 
-"""验证 `request` 覆盖场景的预期行为与边界。"""
 """验证 `request` 覆盖场景的预期行为与边界。"""
 def request(
     text: str,
@@ -176,7 +173,6 @@ def test_order_mode_fails_closed_and_records_event_when_configured_model_fails()
     agent = FoodOrderingAgent(client)
 
     """验证 `broken_model` 覆盖场景的预期行为与边界。"""
-    """验证 `broken_model` 覆盖场景的预期行为与边界。"""
     def broken_model(*_):
         raise ModelClassificationError("llm_classification_failed")
 
@@ -224,12 +220,10 @@ def test_order_creation_survives_payment_failure_and_retry_only_retries_payment(
 
     class PaymentFailsOnceClient(FakeSpringBootToolClient):
         """验证 `__init__` 覆盖场景的预期行为与边界。"""
-        """验证 `__init__` 覆盖场景的预期行为与边界。"""
         def __init__(self):
             super().__init__()
             self.payment_attempts = 0
 
-        """验证 `call` 覆盖场景的预期行为与边界。"""
         """验证 `call` 覆盖场景的预期行为与边界。"""
         def call(self, tool_request):
             if tool_request.tool_name == "pay_mock_order":
@@ -294,12 +288,10 @@ def test_uncertain_create_order_keeps_workflow_and_reuses_same_operation_key():
 
     class CreateUncertainOnceClient(FakeSpringBootToolClient):
         """验证 `__init__` 覆盖场景的预期行为与边界。"""
-        """验证 `__init__` 覆盖场景的预期行为与边界。"""
         def __init__(self):
             super().__init__()
             self.create_attempts = 0
 
-        """验证 `call` 覆盖场景的预期行为与边界。"""
         """验证 `call` 覆盖场景的预期行为与边界。"""
         def call(self, tool_request):
             if tool_request.tool_name == "create_order":

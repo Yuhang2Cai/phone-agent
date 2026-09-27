@@ -3,7 +3,6 @@ package com.fandazi.feature.payment;
 import com.fandazi.feature.DomainException; import com.fandazi.feature.order.*; import org.springframework.stereotype.Service; import org.springframework.transaction.annotation.Transactional;
 // 初始化对象依赖与默认状态。
 // 支付当前数据。
-// 支付当前数据。
 // 支付响应。
 // 处理 `alreadyPaid` 相关逻辑。
 // 支付内部。

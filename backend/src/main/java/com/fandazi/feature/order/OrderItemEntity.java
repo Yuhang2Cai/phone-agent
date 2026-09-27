@@ -2,7 +2,6 @@
 package com.fandazi.feature.order;
 import jakarta.persistence.*; import java.math.BigDecimal; import java.util.*;
 // 初始化对象依赖与默认状态。
-// 初始化对象依赖与默认状态。
 // 获取菜品、id。
 // 获取菜品、name。
 // 获取quantity。

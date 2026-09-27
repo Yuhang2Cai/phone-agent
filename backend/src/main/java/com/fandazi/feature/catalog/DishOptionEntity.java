@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 @Entity @Table(name="dish_options")
 // 初始化对象依赖与默认状态。
-// 初始化对象依赖与默认状态。
-// 初始化对象依赖与默认状态。
 // 获取id。
 // 获取菜品。
 // 获取group、name。

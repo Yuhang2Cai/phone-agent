@@ -2,7 +2,6 @@
 package com.fandazi.feature.cart;
 import com.fandazi.feature.auth.UserEntity; import com.fandazi.feature.catalog.MerchantEntity; import jakarta.persistence.*; import java.util.*;
 // 初始化对象依赖与默认状态。
-// 初始化对象依赖与默认状态。
 // 获取id。
 // 获取用户。
 // 获取商家。

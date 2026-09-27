@@ -16,7 +16,6 @@ from fandazi_agent.spring_client import SpringBootToolClient
 
 
 """验证 `order_request` 覆盖场景的预期行为与边界。"""
-"""验证 `order_request` 覆盖场景的预期行为与边界。"""
 def order_request():
     return ToolRequest(tool_name="create_order", userId="u-1", sessionId="s-1", traceId="trace-current", idempotencyKey="workflow-1:create_order", payload={"cartId": "cart-1"})
 
@@ -62,7 +61,6 @@ def test_spring_response_classification_distinguishes_rejection_from_uncertainty
 def test_spring_transport_errors_are_explicitly_uncertain(monkeypatch, exception_type):
     """防止回归：超时必须标记结果不确定，重试不能另建订单。"""
     """验证 `fail` 覆盖场景的预期行为与边界。"""
-    """验证 `fail` 覆盖场景的预期行为与边界。"""
     def fail(*args, **kwargs):
         raise exception_type("connection lost")
 
@@ -104,7 +102,6 @@ def test_spring_tool_client_sends_the_configured_internal_token(monkeypatch):
     response = httpx.Response(200, json={"ok": True, "data": {}}, request=httpx.Request("POST", "http://spring/internal/tools/create_order"))
 
     """验证 `post` 覆盖场景的预期行为与边界。"""
-    """验证 `post` 覆盖场景的预期行为与边界。"""
     def post(*args, **kwargs):
         captured.update(kwargs)
         return response
@@ -119,12 +116,10 @@ def test_spring_tool_client_sends_the_configured_internal_token(monkeypatch):
 
 
 """验证 `test_spring_tool_client_reads_internal_token_from_environment` 覆盖场景的预期行为与边界。"""
-"""验证 `test_spring_tool_client_reads_internal_token_from_environment` 覆盖场景的预期行为与边界。"""
 def test_spring_tool_client_reads_internal_token_from_environment(monkeypatch):
     captured = {}
     response = httpx.Response(200, json={"ok": True, "data": {}}, request=httpx.Request("POST", "http://spring/internal/tools/get_addresses"))
 
-    """验证 `post` 覆盖场景的预期行为与边界。"""
     """验证 `post` 覆盖场景的预期行为与边界。"""
     def post(*args, **kwargs):
         captured.update(kwargs)
@@ -137,7 +132,6 @@ def test_spring_tool_client_reads_internal_token_from_environment(monkeypatch):
     assert captured["headers"] == {"X-Agent-Token": "environment-token"}
 
 
-"""验证 `test_settings_reads_internal_token_from_environment` 覆盖场景的预期行为与边界。"""
 """验证 `test_settings_reads_internal_token_from_environment` 覆盖场景的预期行为与边界。"""
 def test_settings_reads_internal_token_from_environment(monkeypatch):
     monkeypatch.setenv("AGENT_INTERNAL_TOKEN", "settings-token")

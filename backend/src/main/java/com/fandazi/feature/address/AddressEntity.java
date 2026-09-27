@@ -4,7 +4,6 @@ import com.fandazi.feature.auth.UserEntity;
 import jakarta.persistence.*;
 @Entity @Table(name="addresses")
 // 初始化对象依赖与默认状态。
-// 初始化对象依赖与默认状态。
 // 获取id。
 // 获取用户。
 // 获取recipient。

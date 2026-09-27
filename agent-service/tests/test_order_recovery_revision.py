@@ -23,22 +23,18 @@ class FakeWorkflowStore:
     """外部存储测试替身：代理实例销毁后只保留序列化数据。"""
 
     """验证 `__init__` 覆盖场景的预期行为与边界。"""
-    """验证 `__init__` 覆盖场景的预期行为与边界。"""
     def __init__(self, storage=None):
         self.storage = storage if storage is not None else {}
 
-    """验证 `load` 覆盖场景的预期行为与边界。"""
     """验证 `load` 覆盖场景的预期行为与边界。"""
     def load(self, user_id, session_id):
         value = self.storage.get((user_id, session_id))
         return json.loads(value) if value is not None else None
 
     """验证 `save` 覆盖场景的预期行为与边界。"""
-    """验证 `save` 覆盖场景的预期行为与边界。"""
     def save(self, user_id, session_id, snapshot):
         self.storage[(user_id, session_id)] = json.dumps(snapshot, ensure_ascii=False)
 
-    """验证 `delete` 覆盖场景的预期行为与边界。"""
     """验证 `delete` 覆盖场景的预期行为与边界。"""
     def delete(self, user_id, session_id):
         self.storage.pop((user_id, session_id), None)
@@ -50,12 +46,10 @@ class SimulatedProcessExit(BaseException):
 
 class RecoveryToolClient(SpringBootToolClient):
     """验证 `__init__` 覆盖场景的预期行为与边界。"""
-    """验证 `__init__` 覆盖场景的预期行为与边界。"""
     def __init__(self, outcomes=()):
         self.outcomes = iter(outcomes)
         self.requests = []
 
-    """验证 `call` 覆盖场景的预期行为与边界。"""
     """验证 `call` 覆盖场景的预期行为与边界。"""
     def call(self, request):
         self.requests.append(request)
@@ -74,19 +68,16 @@ class RecoveryToolClient(SpringBootToolClient):
 
 
 """验证 `request` 覆盖场景的预期行为与边界。"""
-"""验证 `request` 覆盖场景的预期行为与边界。"""
 def request(text="宫保鸡丁", *, user_id="u-1", session_id="recovery", trace_id="trace-first", mode="auto_order"):
     return AgentRunRequest(userId=user_id, sessionId=session_id, traceId=trace_id, text=text, mode=mode)
 
 
-"""验证 `make_agent` 覆盖场景的预期行为与边界。"""
 """验证 `make_agent` 覆盖场景的预期行为与边界。"""
 def make_agent(client, **kwargs):
     settings = Settings(None, None, None, "http://localhost:8080", 16, 8, 100, "r4-test-signing-key")
     return FoodOrderingAgent(client, settings=settings, **kwargs)
 
 
-"""验证 `uncertain_failure` 覆盖场景的预期行为与边界。"""
 """验证 `uncertain_failure` 覆盖场景的预期行为与边界。"""
 def uncertain_failure():
     return ToolResult(ok=False, error="response_lost", error_kind="uncertain")
@@ -165,7 +156,6 @@ def test_store_save_failure_prevents_create_order_dispatch():
     """防止回归：持久化存储不可用时不得执行无法追踪的副作用。"""
     class BrokenStore(FakeWorkflowStore):
         """验证 `save` 覆盖场景的预期行为与边界。"""
-        """验证 `save` 覆盖场景的预期行为与边界。"""
         def save(self, *args):
             raise OSError("store unavailable")
 
@@ -179,7 +169,6 @@ def test_store_save_failure_prevents_create_order_dispatch():
 def test_store_load_failure_does_not_start_a_new_workflow():
     """防止回归：存储读取失败不得视为空状态并重复下单。"""
     class BrokenStore(FakeWorkflowStore):
-        """验证 `load` 覆盖场景的预期行为与边界。"""
         """验证 `load` 覆盖场景的预期行为与边界。"""
         def load(self, *args):
             raise OSError("store unavailable")
@@ -196,7 +185,6 @@ def test_recovery_can_still_be_cancelled_after_a_store_write_failure():
     class TemporarilyUnavailableStore(FakeWorkflowStore):
         unavailable = False
 
-        """验证 `save` 覆盖场景的预期行为与边界。"""
         """验证 `save` 覆盖场景的预期行为与边界。"""
         def save(self, *args):
             if self.unavailable:
@@ -223,7 +211,6 @@ def test_known_create_success_survives_a_store_write_failure_in_the_same_agent()
     class TemporarilyUnavailableStore(FakeWorkflowStore):
         unavailable = True
 
-        """验证 `save` 覆盖场景的预期行为与边界。"""
         """验证 `save` 覆盖场景的预期行为与边界。"""
         def save(self, user_id, session_id, snapshot):
             if self.unavailable and snapshot["next_action"] == "payment_retry":
@@ -356,7 +343,6 @@ def test_terminal_cleanup_failure_never_replays_create_order(restart, outcome):
         unavailable = True
 
         """验证 `delete` 覆盖场景的预期行为与边界。"""
-        """验证 `delete` 覆盖场景的预期行为与边界。"""
         def delete(self, *args):
             if self.unavailable:
                 raise OSError("delete unavailable")
@@ -468,7 +454,6 @@ def test_http_app_uses_configured_file_store_after_app_restart(tmp_path, monkeyp
 def test_restart_after_create_success_retries_only_payment():
     """防止回归：支付阶段崩溃后不得重复创建订单。"""
     class CrashAtPaymentClient(RecoveryToolClient):
-        """验证 `call` 覆盖场景的预期行为与边界。"""
         """验证 `call` 覆盖场景的预期行为与边界。"""
         def call(self, tool_request):
             if tool_request.tool_name == "pay_mock_order":
@@ -618,7 +603,6 @@ def test_file_store_failed_replace_preserves_previous_recovery(tmp_path, monkeyp
     original = {"workflow_id": "original", "operation_keys": {"create_order": "original:create_order"}}
     store.save("u-1", "recovery", original)
 
-    """验证 `fail_replace` 覆盖场景的预期行为与边界。"""
     """验证 `fail_replace` 覆盖场景的预期行为与边界。"""
     def fail_replace(*args):
         raise OSError("replace failed")

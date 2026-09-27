@@ -20,14 +20,11 @@ class WorkflowStore(Protocol):
     """
 
     """加载当前数据。"""
-    """加载当前数据。"""
     def load(self, user_id: str, session_id: str) -> dict[str, Any] | None: ...
 
     """保存当前数据。"""
-    """保存当前数据。"""
     def save(self, user_id: str, session_id: str, snapshot: dict[str, Any]) -> None: ...
 
-    """删除当前数据。"""
     """删除当前数据。"""
     def delete(self, user_id: str, session_id: str) -> None: ...
 
@@ -40,18 +37,15 @@ class FileWorkflowStore:
     """
 
     """处理 `__init__` 相关逻辑。"""
-    """处理 `__init__` 相关逻辑。"""
     def __init__(self, directory: str | Path):
         self.directory = Path(directory)
         self.directory.mkdir(parents=True, exist_ok=True)
 
     """处理 `_path` 相关逻辑。"""
-    """处理 `_path` 相关逻辑。"""
     def _path(self, user_id: str, session_id: str) -> Path:
         owner = json.dumps([user_id, session_id], ensure_ascii=False, separators=(",", ":"))
         return self.directory / (sha256(owner.encode("utf-8")).hexdigest() + ".json")
 
-    """加载当前数据。"""
     """加载当前数据。"""
     def load(self, user_id: str, session_id: str) -> dict[str, Any] | None:
         try:
@@ -63,7 +57,6 @@ class FileWorkflowStore:
             raise ValueError("Workflow snapshot must be a JSON object")
         return snapshot
 
-    """保存当前数据。"""
     """保存当前数据。"""
     def save(self, user_id: str, session_id: str, snapshot: dict[str, Any]) -> None:
         encoded = json.dumps(snapshot, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -77,7 +70,6 @@ class FileWorkflowStore:
         finally:
             Path(temporary).unlink(missing_ok=True)
 
-    """删除当前数据。"""
     """删除当前数据。"""
     def delete(self, user_id: str, session_id: str) -> None:
         self._path(user_id, session_id).unlink(missing_ok=True)
