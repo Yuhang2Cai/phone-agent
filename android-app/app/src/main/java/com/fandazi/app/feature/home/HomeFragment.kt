@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -16,16 +17,24 @@ import com.fandazi.app.databinding.FragmentHomeBinding
 import com.fandazi.app.feature.agent.AgentSurface
 import com.fandazi.app.feature.agent.openAgentAssistant
 import com.fandazi.app.feature.auth.SessionError
+import com.fandazi.app.feature.ordering.OrderingViewModel
+import com.fandazi.app.feature.ordering.OrderingViewModelFactory
+import com.fandazi.app.feature.ordering.bindMerchantNavigation
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 class HomeFragment : Fragment(R.layout.fragment_home) {
+    private val viewModel: OrderingViewModel by activityViewModels {
+        val activity = requireActivity() as MainActivity
+        OrderingViewModelFactory(activity.orderingRepository(), activity.cartStateStore(), activity.cartOwner())
+    }
     private var binding: FragmentHomeBinding? = null
 
 // 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val viewBinding = FragmentHomeBinding.bind(view)
         binding = viewBinding
+        bindMerchantNavigation(viewModel, R.id.homeFragment)
         val activity = requireActivity() as MainActivity
         val openSearch = { view.findNavController().navigate(R.id.searchFragment) }
         val openAssistant = { openAgentAssistant(AgentSurface.HOME) }
@@ -44,7 +53,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         viewBinding.quickLightMealButton.setOnClickListener { openAssistant() }
         viewBinding.quickBudgetButton.setOnClickListener { openAssistant() }
         viewBinding.repeatOrderButton.setOnClickListener { openAssistant() }
-        viewBinding.merchantPageButton.setOnClickListener { view.findNavController().navigate(R.id.merchantFragment) }
+        viewBinding.merchantPageButton.setOnClickListener { openSearch() }
         viewBinding.homeAddress.setOnClickListener { view.findNavController().navigate(R.id.profileFragment) }
         viewBinding.homeNotification.setOnClickListener {
             Toast.makeText(requireContext(), R.string.home_notification, Toast.LENGTH_SHORT).show()
@@ -107,7 +116,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             card.merchantBackgroundImage.setImageResource(images[index])
             card.merchantDistance.text = distances[index].replace("● ", "● 距离 ")
             card.root.contentDescription = getString(cards[index].first)
-            card.root.setOnClickListener { requireView().findNavController().navigate(R.id.merchantFragment) }
+            // 静态卡片没有真实 ID，先搜索其名称，再由搜索结果按真实 ID 选择商家。
+            card.root.setOnClickListener {
+                viewModel.search(getString(cards[index].first))
+                requireView().findNavController().navigate(R.id.searchFragment)
+            }
         }
     }
 

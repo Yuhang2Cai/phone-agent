@@ -2,17 +2,16 @@
 package com.fandazi.app.feature.ordering
 
 import androidx.lifecycle.ViewModel
+import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -20,9 +19,7 @@ import java.util.UUID
 
 enum class SearchStatus { Idle, Searching, Results, Empty, NetworkError, AuthRequired }
 
-sealed interface MerchantNavigationEvent {
-    data class OpenDetail(val merchantId: Long) : MerchantNavigationEvent
-}
+data class MerchantNavigationRequest(val requestId: Long, val merchantId: Long)
 
 data class OrderingUiState(
     val keyword: String = "",
@@ -39,6 +36,7 @@ data class OrderingUiState(
     val orders: List<Order> = emptyList(),
     val currentOrder: Order? = null,
     val pendingMerchantSwitch: Merchant? = null,
+    val pendingMerchantSwitchRequestId: Long? = null,
     val checkoutReady: Boolean = false,
     val isSubmittingOrder: Boolean = false,
     val isLoading: Boolean = false,
@@ -47,7 +45,6 @@ data class OrderingUiState(
     val error: String? = null
 )
 
-@OptIn(ExperimentalForInheritanceCoroutinesApi::class)
 class OrderingViewModel(
     private val repository: OrderingRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
@@ -55,23 +52,14 @@ class OrderingViewModel(
     private val cartOwner: String = "guest"
 ) : ViewModel() {
     private var merchantGeneration = 0L
-    private data class PendingNavigation(val generation: Long, val event: MerchantNavigationEvent)
-    private val _navigationEvents = MutableSharedFlow<PendingNavigation>()
-    val navigationEvents: SharedFlow<MerchantNavigationEvent> = object : SharedFlow<MerchantNavigationEvent> {
-        // 内部流不重放，包装层也不保存历史导航。
-        override val replayCache: List<MerchantNavigationEvent> get() = emptyList()
-
-        override suspend fun collect(collector: FlowCollector<MerchantNavigationEvent>): Nothing {
-            _navigationEvents.collect { navigation ->
-                // 检查必须紧贴订阅者调用：emit 等待期间，新请求、取消或用户切换都可能使事件过期。
-                if (navigation.generation == merchantGeneration) collector.emit(navigation.event)
-            }
-        }
-    }
+    private var merchantRequestJob: Job? = null
+    private val _merchantNavigationRequest = MutableStateFlow<MerchantNavigationRequest?>(null)
+    val merchantNavigationRequest: StateFlow<MerchantNavigationRequest?> = _merchantNavigationRequest.asStateFlow()
     private var orderRequestKey: String? = null
     private var paymentRequestKey: String? = null
     private var activeOrderUsesCurrentCart = false
     private var activeCartOwner = cartOwner
+
     private val restored = cartStore.read(activeCartOwner)
     private val _uiState = MutableStateFlow(
         OrderingUiState(
@@ -97,7 +85,7 @@ class OrderingViewModel(
 // 处理 `switchCartOwner` 相关逻辑。
     fun switchCartOwner(owner: String) {
         if (owner == activeCartOwner) return
-        ++merchantGeneration
+        nextMerchantGeneration()
         activeCartOwner = owner
         val snapshot = cartStore.read(owner)
         orderRequestKey = snapshot?.orderRequestKey
@@ -115,6 +103,7 @@ class OrderingViewModel(
                 selectedAddress = null,
                 currentOrder = snapshot?.currentOrder,
                 pendingMerchantSwitch = null,
+                pendingMerchantSwitchRequestId = null,
                 checkoutReady = false,
                 isSubmittingOrder = false,
                 isLoading = false,
@@ -143,11 +132,11 @@ class OrderingViewModel(
 
 // 打开商家。
     fun openMerchant(merchantId: Long) {
-        val request = ++merchantGeneration
+        val request = nextMerchantGeneration()
         _uiState.update {
-            it.copy(menu = emptyList(), selectedDish = null, pendingMerchantSwitch = null, isLoading = true, error = null)
+            it.copy(menu = emptyList(), selectedDish = null, pendingMerchantSwitch = null, pendingMerchantSwitchRequestId = null, isLoading = true, error = null)
         }
-        viewModelScope.launch(dispatcher) {
+        merchantRequestJob = viewModelScope.launch(dispatcher) {
             if (request != merchantGeneration) return@launch
             when (val result = repository.loadMerchant(merchantId)) {
                 is ApiResult.Success -> prepareMerchant(result.value, request)
@@ -160,30 +149,61 @@ class OrderingViewModel(
     }
 
     // 旧弹窗回调没有待确认目标时直接忽略，不能使新打开请求失效或结束其加载状态。
-    fun confirmMerchantSwitch() {
+    fun confirmMerchantSwitch(requestId: Long? = _uiState.value.pendingMerchantSwitchRequestId) {
+        if (requestId != _uiState.value.pendingMerchantSwitchRequestId) return
         val target = _uiState.value.pendingMerchantSwitch ?: return
-        val request = ++merchantGeneration
+        val request = nextMerchantGeneration()
         clearCart()
-        _uiState.update { it.copy(pendingMerchantSwitch = null, isLoading = true, error = null) }
-        viewModelScope.launch(dispatcher) { prepareMerchant(target, request) }
+        _uiState.update { it.copy(pendingMerchantSwitch = null, pendingMerchantSwitchRequestId = null, isLoading = true, error = null) }
+        merchantRequestJob = viewModelScope.launch(dispatcher) {
+            if (request != merchantGeneration) return@launch
+            prepareMerchant(target, request)
+        }
     }
 
 // 取消商家、switch。
-    fun cancelMerchantSwitch() {
+    fun cancelMerchantSwitch(requestId: Long? = null) {
+        if (requestId != null && requestId != _uiState.value.pendingMerchantSwitchRequestId) return
+        nextMerchantGeneration()
+        _uiState.update { it.copy(pendingMerchantSwitch = null, pendingMerchantSwitchRequestId = null, isLoading = false) }
+    }
+
+    // 新操作立即撤销未确认导航；取消请求仅用于节省资源，迟到结果仍由代次检查拦截。
+    private fun nextMerchantGeneration(): Long {
         ++merchantGeneration
-        _uiState.update { it.copy(pendingMerchantSwitch = null, isLoading = false) }
+        _merchantNavigationRequest.value = null
+        merchantRequestJob?.cancel()
+        merchantRequestJob = null
+        return merchantGeneration
+    }
+
+    // 旧页面的确认只能清除自己处理的请求，不能误清后来发布的导航。
+    fun acknowledgeMerchantNavigation(requestId: Long) {
+        _merchantNavigationRequest.update { if (it?.requestId == requestId) null else it }
+    }
+
+    // 界面在主线程同步校验、导航、确认，中间不挂起；导航抛错时保留请求供恢复后重试。
+    @MainThread
+    fun consumeMerchantNavigation(requestId: Long, navigate: (Long) -> Unit): Boolean {
+        val request = _merchantNavigationRequest.value ?: return false
+        if (request.requestId != requestId) return false
+        navigate(request.merchantId)
+        acknowledgeMerchantNavigation(requestId)
+        return true
     }
 
 // 加载商家。
     private suspend fun prepareMerchant(merchant: Merchant, request: Long) {
         if (request != merchantGeneration) return
         if (_uiState.value.cartDraft?.merchantId?.let { it != merchant.id } == true) {
-            _uiState.update { it.copy(pendingMerchantSwitch = merchant, isLoading = false) }
+            _uiState.update { it.copy(pendingMerchantSwitch = merchant, pendingMerchantSwitchRequestId = request, isLoading = false) }
             return
         }
-        _uiState.update { it.copy(selectedMerchant = merchant, pendingMerchantSwitch = null) }
+        _uiState.update { it.copy(selectedMerchant = merchant, pendingMerchantSwitch = null, pendingMerchantSwitchRequestId = null) }
         if (request != merchantGeneration) return
-        _navigationEvents.emit(PendingNavigation(request, MerchantNavigationEvent.OpenDetail(merchant.id)))
+        // 未确认请求会跨生命周期重放；菜单请求不依赖页面是否正在收集导航。
+        _merchantNavigationRequest.value = MerchantNavigationRequest(request, merchant.id)
+        if (request != merchantGeneration) return
         loadMenuFor(merchant.id, request)
     }
 

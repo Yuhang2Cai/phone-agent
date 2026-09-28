@@ -21,6 +21,7 @@ import com.fandazi.app.feature.agent.openAgentAssistant
 import com.fandazi.app.feature.agent.AgentSurface
 import com.fandazi.app.feature.ordering.OrderingViewModel
 import com.fandazi.app.feature.ordering.OrderingViewModelFactory
+import com.fandazi.app.feature.ordering.bindMerchantNavigation
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
@@ -33,6 +34,12 @@ class MerchantFragment : Fragment(R.layout.fragment_merchant) {
 // 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentMerchantBinding.bind(view)
+        bindMerchantNavigation(viewModel, R.id.merchantFragment)
+        // 进程重建后共享状态可能为空，按路由 ID 恢复；已有请求仍在加载时不重复发起。
+        val merchantId = requireArguments().getLong("merchantId")
+        if (viewModel.uiState.value.selectedMerchant?.id != merchantId && !viewModel.uiState.value.isLoading &&
+            viewModel.uiState.value.pendingMerchantSwitch == null && viewModel.merchantNavigationRequest.value == null
+        ) viewModel.openMerchant(merchantId)
         binding.merchantBack.setOnClickListener { view.findNavController().navigateUp() }
         binding.agentFab.setOnClickListener { openAgentAssistant(AgentSurface.MERCHANT) }
         val openCart = View.OnClickListener {

@@ -1,0 +1,80 @@
+appId: com.fandazi.app
+---
+# 运行前卸载两个旧包并安装本次 APK；使用测试环境有效账号传入 MAESTRO_USERNAME、MAESTRO_PASSWORD。
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "${MAESTRO_USERNAME}"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "${MAESTRO_PASSWORD}"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_header_search"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "盖饭"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible: "饭搭子盖饭社"
+    timeout: 30000
+- tapOn: "饭搭子盖饭社"
+- extendedWaitUntil:
+    visible: "招牌辣椒鸡盖饭 1"
+    timeout: 30000
+- tapOn: "加入招牌辣椒鸡盖饭 1"
+- tapOn: "选择中辣"
+- tapOn: "选择加蛋"
+- tapOn:
+    id: "com.fandazi.app:id/add_to_cart"
+- extendedWaitUntil:
+    visible: "去购物车"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/merchant_back"
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- eraseText
+- inputText: "粥"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/merchant_card"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/merchant_card"
+    index: 0
+- assertVisible: "清空当前购物车？"
+- tapOn: "取消"
+- assertVisible:
+    id: "com.fandazi.app:id/search_button"
+- tapOn:
+    id: "com.fandazi.app:id/merchant_card"
+    index: 0
+- assertVisible: "清空当前购物车？"
+- tapOn: "清空并进入"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/dish_card"
+    timeout: 30000
+# 后台恢复不应重复入栈；一次返回必须回到搜索页。
+- pressKey: HOME
+- launchApp:
+    stopApp: false
+- assertVisible:
+    id: "com.fandazi.app:id/merchant_back"
+- tapOn:
+    id: "com.fandazi.app:id/merchant_back"
+- assertVisible:
+    id: "com.fandazi.app:id/search_button"

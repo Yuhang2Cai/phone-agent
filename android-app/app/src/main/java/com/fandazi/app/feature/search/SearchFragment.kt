@@ -25,6 +25,7 @@ import com.fandazi.app.feature.ordering.Merchant
 import com.fandazi.app.feature.ordering.OrderingViewModel
 import com.fandazi.app.feature.ordering.OrderingViewModelFactory
 import com.fandazi.app.feature.ordering.SearchStatus
+import com.fandazi.app.feature.ordering.bindMerchantNavigation
 import kotlinx.coroutines.launch
 
 class SearchFragment : Fragment(R.layout.fragment_search) {
@@ -37,6 +38,7 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 // 在视图创建后绑定控件、事件与初始状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentSearchBinding.bind(view)
+        bindMerchantNavigation(viewModel, R.id.searchFragment)
         binding.searchBack.setOnClickListener { view.findNavController().navigateUp() }
         binding.searchInput.requestFocus()
         binding.searchInput.post { (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)?.showSoftInput(binding.searchInput, InputMethodManager.SHOW_IMPLICIT) }
@@ -51,18 +53,6 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     render(binding, state.merchants, state.searchStatus, state.error, state.keyword)
-                    state.pendingMerchantSwitch?.let { target ->
-                        com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
-                            .setTitle("清空当前购物车？")
-                            .setMessage("购物车中已有其他商家的菜品。清空后才能进入「${target.name}」。")
-                            .setNegativeButton("取消") { _, _ -> viewModel.cancelMerchantSwitch() }
-                            .setPositiveButton("清空并进入") { _, _ ->
-                                viewModel.confirmMerchantSwitch()
-                                requireView().findNavController().navigate(R.id.merchantFragment)
-                            }
-                            .setOnCancelListener { viewModel.cancelMerchantSwitch() }
-                            .show()
-                    }
                 }
             }
         }
@@ -128,9 +118,8 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
             val cover = listOf(R.drawable.home_merchant_3, R.drawable.home_merchant_2, R.drawable.home_merchant_1)[((merchant.id - 1) % 3).toInt()]
             ImageLoader.load(card.findViewById(R.id.merchant_cover), merchant.imageUrl, cover, cover)
             card.setOnClickListener {
-                val requiresSwitch = viewModel.uiState.value.cartDraft?.merchantId?.let { it != merchant.id } == true
+                // 查询成功并处理跨店确认后，由生命周期收集器统一导航。
                 viewModel.openMerchant(merchant.id)
-                if (!requiresSwitch) requireView().findNavController().navigate(R.id.merchantFragment)
             }
             binding.searchResults.addView(card)
         }

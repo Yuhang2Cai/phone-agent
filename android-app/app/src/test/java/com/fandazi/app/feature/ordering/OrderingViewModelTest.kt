@@ -11,6 +11,7 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.flow.filterNotNull
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -18,6 +19,98 @@ import java.math.BigDecimal
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OrderingViewModelTest {
+    @Test
+    fun staleDialogCannotConfirmOrCancelANewerSwitchToTheSameMerchant() = runTest {
+        val first = Merchant(1, "清粥小菜", "粥汤", BigDecimal.TEN, BigDecimal("3"), 25, true)
+        val draft = CartDraft(200, 1, emptyList())
+        var clears = 0
+        val store = object : CartStateStore {
+            override fun read(owner: String) = CartSnapshot(owner, first, draft, null)
+            override fun write(snapshot: CartSnapshot) = Unit
+            override fun clear(owner: String) { clears++ }
+        }
+        val repository = FakeOrderingRepository()
+        val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler), store)
+        viewModel.openMerchant(2)
+        runCurrent()
+        val oldId = requireNotNull(viewModel.uiState.value.pendingMerchantSwitchRequestId)
+        viewModel.openMerchant(2)
+        runCurrent()
+        val pending = viewModel.uiState.value
+        assertEquals(2L, pending.pendingMerchantSwitchRequestId)
+
+        viewModel.confirmMerchantSwitch(oldId)
+        viewModel.cancelMerchantSwitch(oldId)
+        runCurrent()
+        assertEquals(pending, viewModel.uiState.value)
+        assertEquals(0, clears)
+        assertEquals(null, viewModel.merchantNavigationRequest.value)
+        assertEquals(listOf("merchant:2", "merchant:2"), repository.selectionCalls)
+
+        viewModel.confirmMerchantSwitch(requireNotNull(pending.pendingMerchantSwitchRequestId))
+        runCurrent()
+        assertEquals(1, clears)
+        assertEquals(null, viewModel.uiState.value.cartDraft)
+        assertEquals(MerchantNavigationRequest(3, 2), viewModel.merchantNavigationRequest.value)
+        assertEquals(setOf(2L), viewModel.uiState.value.menu.map(Dish::merchantId).toSet())
+        assertEquals(listOf("merchant:2", "merchant:2", "menu:2"), repository.selectionCalls)
+    }
+
+    @Test
+    fun acknowledgementAfterNavigationCannotClearReentrantNewRequest() = runTest {
+        val viewModel = OrderingViewModel(FakeOrderingRepository(), StandardTestDispatcher(testScheduler))
+        viewModel.openMerchant(1)
+        runCurrent()
+        assertTrue(viewModel.consumeMerchantNavigation(1) {
+            assertEquals(1L, it)
+            viewModel.openMerchant(2)
+            runCurrent()
+        })
+        assertEquals(MerchantNavigationRequest(2, 2), viewModel.merchantNavigationRequest.value)
+    }
+
+    @Test
+    fun oldAcknowledgementCannotClearNewRequest() = runTest {
+        val viewModel = OrderingViewModel(FakeOrderingRepository(), StandardTestDispatcher(testScheduler))
+        viewModel.openMerchant(1)
+        runCurrent()
+        val first = requireNotNull(viewModel.merchantNavigationRequest.value)
+        assertEquals(MerchantNavigationRequest(1, 1), first)
+        viewModel.openMerchant(2)
+        assertEquals(null, viewModel.merchantNavigationRequest.value)
+        runCurrent()
+        val latest = requireNotNull(viewModel.merchantNavigationRequest.value)
+        assertEquals(MerchantNavigationRequest(2, 2), latest)
+
+        viewModel.acknowledgeMerchantNavigation(first.requestId)
+        assertEquals(latest, viewModel.merchantNavigationRequest.value)
+        val destinations = mutableListOf<Long>()
+        assertEquals(false, viewModel.consumeMerchantNavigation(first.requestId) { destinations += it })
+        assertTrue(destinations.isEmpty())
+        assertTrue(viewModel.consumeMerchantNavigation(latest.requestId) {
+            assertEquals(latest, viewModel.merchantNavigationRequest.value)
+            destinations += it
+        })
+        assertEquals(listOf(2L), destinations)
+        assertEquals(null, viewModel.merchantNavigationRequest.value)
+        assertEquals(false, viewModel.consumeMerchantNavigation(latest.requestId) { destinations += it })
+        assertEquals(listOf(2L), destinations)
+    }
+
+    @Test
+    fun failedNavigationKeepsRequestForRetry() = runTest {
+        val viewModel = OrderingViewModel(FakeOrderingRepository(), StandardTestDispatcher(testScheduler))
+        viewModel.openMerchant(2)
+        runCurrent()
+        val request = requireNotNull(viewModel.merchantNavigationRequest.value)
+        try {
+            viewModel.consumeMerchantNavigation(request.requestId) { error("导航尚未完成") }
+            org.junit.Assert.fail("导航失败必须保留请求")
+        } catch (_: IllegalStateException) {
+            assertEquals(request, viewModel.merchantNavigationRequest.value)
+        }
+    }
+
     @Test
 // 验证 `navigationWaitsForMerchantButDoesNotWaitForMenu` 覆盖场景的预期行为与边界。
     fun navigationWaitsForMerchantButDoesNotWaitForMenu() = runTest {
@@ -29,11 +122,11 @@ class OrderingViewModelTest {
         repository.merchantLoader = { merchantReady.await(); merchantLoader(it) }
         repository.menuLoader = { menuReady.await(); menuLoader(it) }
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
-        val events = mutableListOf<MerchantNavigationEvent>()
+        val events = mutableListOf<Long>()
         val navigationStates = mutableListOf<OrderingUiState>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.navigationEvents.collect {
-                events += it
+            viewModel.merchantNavigationRequest.filterNotNull().collect {
+                events += it.merchantId
                 navigationStates += viewModel.uiState.value
             }
         }
@@ -45,8 +138,7 @@ class OrderingViewModelTest {
 
         merchantReady.complete(Unit)
         runCurrent()
-
-        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(2)), events)
+        assertEquals(listOf(2L), events)
         assertEquals(2L, navigationStates.single().selectedMerchant?.id)
         assertTrue(navigationStates.single().isLoading)
         assertTrue(navigationStates.single().menu.isEmpty())
@@ -63,9 +155,9 @@ class OrderingViewModelTest {
 // 验证 `failedLookupNeverNavigates` 覆盖场景的预期行为与边界。
     fun failedLookupNeverNavigates() = runTest {
         val viewModel = OrderingViewModel(FakeOrderingRepository(), StandardTestDispatcher(testScheduler))
-        val events = mutableListOf<MerchantNavigationEvent>()
+        val events = mutableListOf<Long>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.navigationEvents.collect { events += it }
+            viewModel.merchantNavigationRequest.filterNotNull().collect { events += it.merchantId }
         }
 
         viewModel.openMerchant(404)
@@ -82,15 +174,15 @@ class OrderingViewModelTest {
         val repository = FakeOrderingRepository()
         repository.menuLoader = { ApiResult.Failure(ApiError.Network("菜单加载失败")) }
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
-        val events = mutableListOf<MerchantNavigationEvent>()
+        val events = mutableListOf<Long>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.navigationEvents.collect { events += it }
+            viewModel.merchantNavigationRequest.filterNotNull().collect { events += it.merchantId }
         }
 
         viewModel.openMerchant(2)
         advanceUntilIdle()
 
-        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(2)), events)
+        assertEquals(listOf(2L), events)
         assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
         assertTrue(viewModel.uiState.value.menu.isEmpty())
         assertEquals(null, viewModel.uiState.value.selectedDish)
@@ -99,22 +191,39 @@ class OrderingViewModelTest {
     }
 
     @Test
-// 验证 `navigationIsNotReplayedToNewCollectors` 覆盖场景的预期行为与边界。
-    fun navigationIsNotReplayedToNewCollectors() = runTest {
+    // 模拟页面停止收集和重建：未确认请求仍可见，成功导航后的重新收集不能重复导航。
+    fun unacknowledgedRequestSurvivesRecollectionUntilConsumed() = runTest {
         val viewModel = OrderingViewModel(FakeOrderingRepository(), StandardTestDispatcher(testScheduler))
         viewModel.openMerchant(1)
-        advanceUntilIdle()
-        val events = mutableListOf<MerchantNavigationEvent>()
+        runCurrent()
+        val observed = mutableListOf<MerchantNavigationRequest>()
+        val firstPage = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.merchantNavigationRequest.filterNotNull().collect { observed += it }
+        }
+        assertEquals(listOf(MerchantNavigationRequest(1, 1)), observed)
+        firstPage.cancel()
+        val destinations = mutableListOf<Long>()
+        val secondPage = backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.merchantNavigationRequest.filterNotNull().collect {
+                observed += it
+                viewModel.consumeMerchantNavigation(it.requestId) { id -> destinations += id }
+            }
+        }
+        assertEquals(listOf(MerchantNavigationRequest(1, 1), MerchantNavigationRequest(1, 1)), observed)
+        assertEquals(listOf(1L), destinations)
+        assertEquals(null, viewModel.merchantNavigationRequest.value)
+        secondPage.cancel()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.navigationEvents.collect { events += it }
+            viewModel.merchantNavigationRequest.filterNotNull().collect {
+                viewModel.consumeMerchantNavigation(it.requestId) { id -> destinations += id }
+            }
         }
         runCurrent()
-        assertTrue(events.isEmpty())
-
-        viewModel.openMerchant(2)
-        advanceUntilIdle()
-
-        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(2)), events)
+        assertEquals(listOf(1L), destinations)
+        viewModel.openMerchant(1)
+        runCurrent()
+        assertEquals(listOf(1L, 1L), destinations)
+        assertEquals(null, viewModel.merchantNavigationRequest.value)
     }
 
     @Test
@@ -133,34 +242,37 @@ class OrderingViewModelTest {
     }
 
     @Test
-    // 用首个事件阻塞订阅者，让旧导航确定性地停在 emit，再发起新的打开请求。
+    // 暂停订阅者时连续打开商家；恢复后只能看到最新代次，菜单加载不再等待导航确认。
     fun supersededNavigationIsNotDeliveredWhenBlockedCollectorResumes() = runTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
         val releaseCollector = CompletableDeferred<Unit>()
-        val events = mutableListOf<MerchantNavigationEvent>()
+        val events = mutableListOf<Long>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.navigationEvents.collect {
-                events += it
+            viewModel.merchantNavigationRequest.filterNotNull().collect {
+                events += it.merchantId
                 if (events.size == 1) releaseCollector.await()
             }
         }
         viewModel.openMerchant(1)
         runCurrent()
-        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(1)), events)
+        assertEquals(listOf(1L), events)
 
         viewModel.openMerchant(2)
         runCurrent()
         assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
-        assertEquals(listOf("merchant:1", "menu:1", "merchant:2"), repository.selectionCalls)
+        assertEquals(listOf("merchant:1", "menu:1", "merchant:2", "menu:2"), repository.selectionCalls)
         viewModel.openMerchant(1)
         runCurrent()
         assertEquals(1L, viewModel.uiState.value.selectedMerchant?.id)
 
         releaseCollector.complete(Unit)
+        // 明确执行当前时刻的后台订阅任务；不得把最新事件缺失误判为调度尚未推进。
         runCurrent()
 
-        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(1), MerchantNavigationEvent.OpenDetail(1)), events)
+        assertEquals(listOf(1L, 1L), events)
+        assertEquals(MerchantNavigationRequest(3, 1), viewModel.merchantNavigationRequest.value)
+        assertEquals(listOf("merchant:1", "menu:1", "merchant:2", "menu:2", "merchant:1", "menu:1"), repository.selectionCalls)
         assertEquals(setOf(1L), viewModel.uiState.value.menu.map(Dish::merchantId).toSet())
         assertEquals(false, viewModel.uiState.value.isLoading)
     }
@@ -171,10 +283,10 @@ class OrderingViewModelTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
         val releaseCollector = CompletableDeferred<Unit>()
-        val events = mutableListOf<MerchantNavigationEvent>()
+        val events = mutableListOf<Long>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.navigationEvents.collect {
-                events += it
+            viewModel.merchantNavigationRequest.filterNotNull().collect {
+                events += it.merchantId
                 if (events.size == 1) releaseCollector.await()
             }
         }
@@ -183,17 +295,18 @@ class OrderingViewModelTest {
         viewModel.openMerchant(2)
         runCurrent()
         assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
-        assertEquals(listOf("merchant:1", "menu:1", "merchant:2"), repository.selectionCalls)
+        assertEquals(listOf("merchant:1", "menu:1", "merchant:2", "menu:2"), repository.selectionCalls)
 
         viewModel.cancelMerchantSwitch()
         val cancelledState = viewModel.uiState.value
         releaseCollector.complete(Unit)
         runCurrent()
 
-        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(1)), events)
+        assertEquals(listOf(1L), events)
         assertEquals(cancelledState, viewModel.uiState.value)
         assertEquals(false, viewModel.uiState.value.isLoading)
-        assertTrue(viewModel.uiState.value.menu.isEmpty())
+        assertEquals(setOf(2L), viewModel.uiState.value.menu.map(Dish::merchantId).toSet())
+        assertEquals(null, viewModel.merchantNavigationRequest.value)
     }
 
     @Test
@@ -201,10 +314,10 @@ class OrderingViewModelTest {
         val repository = FakeOrderingRepository()
         val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
         val releaseCollector = CompletableDeferred<Unit>()
-        val events = mutableListOf<MerchantNavigationEvent>()
+        val events = mutableListOf<Long>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.navigationEvents.collect {
-                events += it
+            viewModel.merchantNavigationRequest.filterNotNull().collect {
+                events += it.merchantId
                 if (events.size == 1) releaseCollector.await()
             }
         }
@@ -213,14 +326,14 @@ class OrderingViewModelTest {
         viewModel.openMerchant(2)
         runCurrent()
         assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
-        assertEquals(listOf("merchant:1", "menu:1", "merchant:2"), repository.selectionCalls)
+        assertEquals(listOf("merchant:1", "menu:1", "merchant:2", "menu:2"), repository.selectionCalls)
 
         viewModel.switchCartOwner("另一用户")
         val switchedState = viewModel.uiState.value
         releaseCollector.complete(Unit)
         runCurrent()
 
-        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(1)), events)
+        assertEquals(listOf(1L), events)
         assertEquals(switchedState, viewModel.uiState.value)
         assertEquals(null, viewModel.uiState.value.selectedMerchant)
     }
@@ -236,9 +349,9 @@ class OrderingViewModelTest {
             repository.merchantLoader = { if (duringLookup) release.await(); merchantLoader(it) }
             repository.menuLoader = { if (!duringLookup) release.await(); menuLoader(it) }
             val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
-            val events = mutableListOf<MerchantNavigationEvent>()
+            val events = mutableListOf<Long>()
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-                viewModel.navigationEvents.collect { events += it }
+                viewModel.merchantNavigationRequest.filterNotNull().collect { events += it.merchantId }
             }
             viewModel.openMerchant(2)
             runCurrent()
@@ -254,7 +367,7 @@ class OrderingViewModelTest {
             assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
             assertEquals(setOf(2L), viewModel.uiState.value.menu.map(Dish::merchantId).toSet())
             assertEquals(false, viewModel.uiState.value.isLoading)
-            assertEquals(listOf(MerchantNavigationEvent.OpenDetail(2)), events)
+            assertEquals(listOf(2L), events)
             assertEquals(listOf("merchant:2", "menu:2"), repository.selectionCalls)
         }
     }
@@ -315,9 +428,9 @@ class OrderingViewModelTest {
             val defaultLoader = repository.merchantLoader
             repository.merchantLoader = { if (it == 1L) first.await() else defaultLoader(it) }
             val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
-            val events = mutableListOf<MerchantNavigationEvent>()
+            val events = mutableListOf<Long>()
             backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-                viewModel.navigationEvents.collect { events += it }
+                viewModel.merchantNavigationRequest.filterNotNull().collect { events += it.merchantId }
             }
             viewModel.openMerchant(1)
             runCurrent()
@@ -331,7 +444,7 @@ class OrderingViewModelTest {
             assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
             assertEquals(newerState, viewModel.uiState.value)
             assertEquals(listOf("merchant:1", "merchant:2", "menu:2"), repository.selectionCalls)
-            assertEquals(listOf(MerchantNavigationEvent.OpenDetail(2)), events)
+            assertEquals(listOf(2L), events)
         }
     }
 
@@ -520,9 +633,9 @@ class OrderingViewModelTest {
             store,
             "Cai"
         )
-        val events = mutableListOf<MerchantNavigationEvent>()
+        val events = mutableListOf<Long>()
         backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
-            viewModel.navigationEvents.collect { events += it }
+            viewModel.merchantNavigationRequest.filterNotNull().collect { events += it.merchantId }
         }
 
         viewModel.openMerchant(2)
@@ -548,7 +661,7 @@ class OrderingViewModelTest {
         assertEquals(null, viewModel.uiState.value.pendingMerchantSwitch)
         assertEquals(1, cartClears)
         assertEquals(listOf("merchant:2", "merchant:2", "menu:2"), repository.selectionCalls)
-        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(2)), events)
+        assertEquals(listOf(2L), events)
         assertEquals(setOf(2L), viewModel.uiState.value.menu.map(Dish::merchantId).toSet())
     }
 
