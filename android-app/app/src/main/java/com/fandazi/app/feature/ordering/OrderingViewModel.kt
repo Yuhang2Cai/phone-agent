@@ -8,9 +8,11 @@ import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalForInheritanceCoroutinesApi
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -45,6 +47,7 @@ data class OrderingUiState(
     val error: String? = null
 )
 
+@OptIn(ExperimentalForInheritanceCoroutinesApi::class)
 class OrderingViewModel(
     private val repository: OrderingRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
@@ -52,8 +55,19 @@ class OrderingViewModel(
     private val cartOwner: String = "guest"
 ) : ViewModel() {
     private var merchantGeneration = 0L
-    private val _navigationEvents = MutableSharedFlow<MerchantNavigationEvent>()
-    val navigationEvents = _navigationEvents.asSharedFlow()
+    private data class PendingNavigation(val generation: Long, val event: MerchantNavigationEvent)
+    private val _navigationEvents = MutableSharedFlow<PendingNavigation>()
+    val navigationEvents: SharedFlow<MerchantNavigationEvent> = object : SharedFlow<MerchantNavigationEvent> {
+        // 内部流不重放，包装层也不保存历史导航。
+        override val replayCache: List<MerchantNavigationEvent> get() = emptyList()
+
+        override suspend fun collect(collector: FlowCollector<MerchantNavigationEvent>): Nothing {
+            _navigationEvents.collect { navigation ->
+                // 检查必须紧贴订阅者调用：emit 等待期间，新请求、取消或用户切换都可能使事件过期。
+                if (navigation.generation == merchantGeneration) collector.emit(navigation.event)
+            }
+        }
+    }
     private var orderRequestKey: String? = null
     private var paymentRequestKey: String? = null
     private var activeOrderUsesCurrentCart = false
@@ -145,13 +159,10 @@ class OrderingViewModel(
         }
     }
 
-// 确认商家、switch。
+    // 旧弹窗回调没有待确认目标时直接忽略，不能使新打开请求失效或结束其加载状态。
     fun confirmMerchantSwitch() {
+        val target = _uiState.value.pendingMerchantSwitch ?: return
         val request = ++merchantGeneration
-        val target = _uiState.value.pendingMerchantSwitch ?: run {
-            _uiState.update { it.copy(isLoading = false) }
-            return
-        }
         clearCart()
         _uiState.update { it.copy(pendingMerchantSwitch = null, isLoading = true, error = null) }
         viewModelScope.launch(dispatcher) { prepareMerchant(target, request) }
@@ -171,7 +182,8 @@ class OrderingViewModel(
             return
         }
         _uiState.update { it.copy(selectedMerchant = merchant, pendingMerchantSwitch = null) }
-        _navigationEvents.emit(MerchantNavigationEvent.OpenDetail(merchant.id))
+        if (request != merchantGeneration) return
+        _navigationEvents.emit(PendingNavigation(request, MerchantNavigationEvent.OpenDetail(merchant.id)))
         loadMenuFor(merchant.id, request)
     }
 

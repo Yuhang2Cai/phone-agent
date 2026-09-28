@@ -133,6 +133,133 @@ class OrderingViewModelTest {
     }
 
     @Test
+    // 用首个事件阻塞订阅者，让旧导航确定性地停在 emit，再发起新的打开请求。
+    fun supersededNavigationIsNotDeliveredWhenBlockedCollectorResumes() = runTest {
+        val repository = FakeOrderingRepository()
+        val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
+        val releaseCollector = CompletableDeferred<Unit>()
+        val events = mutableListOf<MerchantNavigationEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.navigationEvents.collect {
+                events += it
+                if (events.size == 1) releaseCollector.await()
+            }
+        }
+        viewModel.openMerchant(1)
+        runCurrent()
+        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(1)), events)
+
+        viewModel.openMerchant(2)
+        runCurrent()
+        assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
+        assertEquals(listOf("merchant:1", "menu:1", "merchant:2"), repository.selectionCalls)
+        viewModel.openMerchant(1)
+        runCurrent()
+        assertEquals(1L, viewModel.uiState.value.selectedMerchant?.id)
+
+        releaseCollector.complete(Unit)
+        runCurrent()
+
+        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(1), MerchantNavigationEvent.OpenDetail(1)), events)
+        assertEquals(setOf(1L), viewModel.uiState.value.menu.map(Dish::merchantId).toSet())
+        assertEquals(false, viewModel.uiState.value.isLoading)
+    }
+
+    @Test
+    // 取消操作必须撤销尚未送达的导航，订阅者恢复后也不能打开已取消的商家。
+    fun cancelledNavigationIsNotDeliveredWhenBlockedCollectorResumes() = runTest {
+        val repository = FakeOrderingRepository()
+        val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
+        val releaseCollector = CompletableDeferred<Unit>()
+        val events = mutableListOf<MerchantNavigationEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.navigationEvents.collect {
+                events += it
+                if (events.size == 1) releaseCollector.await()
+            }
+        }
+        viewModel.openMerchant(1)
+        runCurrent()
+        viewModel.openMerchant(2)
+        runCurrent()
+        assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
+        assertEquals(listOf("merchant:1", "menu:1", "merchant:2"), repository.selectionCalls)
+
+        viewModel.cancelMerchantSwitch()
+        val cancelledState = viewModel.uiState.value
+        releaseCollector.complete(Unit)
+        runCurrent()
+
+        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(1)), events)
+        assertEquals(cancelledState, viewModel.uiState.value)
+        assertEquals(false, viewModel.uiState.value.isLoading)
+        assertTrue(viewModel.uiState.value.menu.isEmpty())
+    }
+
+    @Test
+    fun changingCartOwnerDiscardsNavigationWaitingForBlockedCollector() = runTest {
+        val repository = FakeOrderingRepository()
+        val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
+        val releaseCollector = CompletableDeferred<Unit>()
+        val events = mutableListOf<MerchantNavigationEvent>()
+        backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+            viewModel.navigationEvents.collect {
+                events += it
+                if (events.size == 1) releaseCollector.await()
+            }
+        }
+        viewModel.openMerchant(1)
+        runCurrent()
+        viewModel.openMerchant(2)
+        runCurrent()
+        assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
+        assertEquals(listOf("merchant:1", "menu:1", "merchant:2"), repository.selectionCalls)
+
+        viewModel.switchCartOwner("另一用户")
+        val switchedState = viewModel.uiState.value
+        releaseCollector.complete(Unit)
+        runCurrent()
+
+        assertEquals(listOf(MerchantNavigationEvent.OpenDetail(1)), events)
+        assertEquals(switchedState, viewModel.uiState.value)
+        assertEquals(null, viewModel.uiState.value.selectedMerchant)
+    }
+
+    @Test
+    fun staleConfirmationPreservesLookupAndMenuAlreadyInFlight() = runTest {
+        // 分别停在查商家和加载菜单，防止只保留 isLoading 却仍递增代次的局部修复。
+        for (duringLookup in listOf(true, false)) {
+            val repository = FakeOrderingRepository()
+            val release = CompletableDeferred<Unit>()
+            val merchantLoader = repository.merchantLoader
+            val menuLoader = repository.menuLoader
+            repository.merchantLoader = { if (duringLookup) release.await(); merchantLoader(it) }
+            repository.menuLoader = { if (!duringLookup) release.await(); menuLoader(it) }
+            val viewModel = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
+            val events = mutableListOf<MerchantNavigationEvent>()
+            backgroundScope.launch(UnconfinedTestDispatcher(testScheduler)) {
+                viewModel.navigationEvents.collect { events += it }
+            }
+            viewModel.openMerchant(2)
+            runCurrent()
+            val openingState = viewModel.uiState.value
+            assertTrue(openingState.isLoading)
+            assertEquals(null, openingState.pendingMerchantSwitch)
+
+            viewModel.confirmMerchantSwitch()
+            assertEquals(openingState, viewModel.uiState.value)
+            release.complete(Unit)
+            advanceUntilIdle()
+
+            assertEquals(2L, viewModel.uiState.value.selectedMerchant?.id)
+            assertEquals(setOf(2L), viewModel.uiState.value.menu.map(Dish::merchantId).toSet())
+            assertEquals(false, viewModel.uiState.value.isLoading)
+            assertEquals(listOf(MerchantNavigationEvent.OpenDetail(2)), events)
+            assertEquals(listOf("merchant:2", "menu:2"), repository.selectionCalls)
+        }
+    }
+
+    @Test
 // 验证 `openingMerchantImmediatelyClearsPreviousMenuAndDish` 覆盖场景的预期行为与边界。
     fun openingMerchantImmediatelyClearsPreviousMenuAndDish() = runTest {
         val repository = FakeOrderingRepository()
@@ -446,11 +573,17 @@ class OrderingViewModelTest {
 
         viewModel.openMerchant(1)
         assertEquals(null, viewModel.uiState.value.pendingMerchantSwitch)
+        val openingState = viewModel.uiState.value
         viewModel.confirmMerchantSwitch()
+        assertEquals(openingState, viewModel.uiState.value)
         advanceUntilIdle()
 
         assertEquals(draft, viewModel.uiState.value.cartDraft)
         assertEquals(null, viewModel.uiState.value.pendingMerchantSwitch)
+        assertEquals(1L, viewModel.uiState.value.selectedMerchant?.id)
+        assertEquals(setOf(1L), viewModel.uiState.value.menu.map(Dish::merchantId).toSet())
+        assertEquals(false, viewModel.uiState.value.isLoading)
+        assertEquals(listOf("merchant:2", "merchant:1", "menu:1"), repository.selectionCalls)
     }
 
     @Test
