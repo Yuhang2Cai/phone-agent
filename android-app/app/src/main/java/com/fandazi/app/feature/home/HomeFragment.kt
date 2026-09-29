@@ -61,6 +61,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         bindQuickCategories(viewBinding)
         bindNearbyCards(viewBinding)
+        // 首页后续请求距离排序前统一经过策略校验，定位拒绝时不能展示伪造距离。
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 activity.applicationSession().error.collect { error ->
@@ -116,10 +117,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
             card.merchantBackgroundImage.setImageResource(images[index])
             card.merchantDistance.text = distances[index].replace("● ", "● 距离 ")
             card.root.contentDescription = getString(cards[index].first)
-            // 静态卡片没有真实 ID，先搜索其名称，再由搜索结果按真实 ID 选择商家。
+            // 首页示例卡片映射到演示数据中的稳定 publicId，直接进入新的团购门店详情页。
             card.root.setOnClickListener {
-                viewModel.search(getString(cards[index].first))
-                requireView().findNavController().navigate(R.id.searchFragment)
+                val arguments = Bundle().apply {
+                    putString("storePublicId", "store-${String.format("%03d", index + 1)}")
+                }
+                requireView().findNavController().navigate(R.id.storeFragment, arguments)
             }
         }
     }

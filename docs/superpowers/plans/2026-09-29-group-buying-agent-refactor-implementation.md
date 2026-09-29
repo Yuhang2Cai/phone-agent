@@ -305,7 +305,7 @@ git commit -m "feat: consume independent agent event stream"
 - Produces tools: `search_stores`、`get_store_detail`、`list_deal_packages`、`get_deal_detail`、`search_reviews`。
 - Produces intents: `greeting`、`chitchat`、`store_recommendation`、`deal_recommendation`、`store_info`、`review_query`、`group_buy_order`、`coupon`、`refund_after_sale`、`complaint`、`faq`、`out_of_scope` 的基础定义。
 
-- [ ] **Step 1: 编写失败的排序和工具测试**
+- [x] **Step 1: 编写失败的排序和工具测试**
 
 ```java
 @Test
@@ -323,7 +323,7 @@ def test_single_recommendation_goal_uses_deterministic_workflow():
     assert result.tool_names == ["search_stores", "list_deal_packages"]
 ```
 
-- [ ] **Step 2: 运行三端测试并确认失败**
+- [x] **Step 2: 运行三端测试并确认失败**
 
 Run: `mvn -f backend/pom.xml -Dtest=StoreDealApiTest test`
 
@@ -331,19 +331,19 @@ Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m pytest tests/test_group_
 
 Run: `cd android-app; .\gradlew.bat testDebugUnitTest --tests "*HomeSortTest"`
 
-- [ ] **Step 3: 实现 Spring 查询、排序和工具分派**
+- [x] **Step 3: 实现 Spring 查询、排序和工具分派**
 
 综合排序必须稳定；人均使用 `Store.averageSpendCents`；距离排序只在有效坐标存在时启用。工具结果只返回契约允许字段。
 
-- [ ] **Step 4: 迁移 12 类意图基础定义并实现 Agent 确定性推荐工作流**
+- [x] **Step 4: 迁移 12 类意图基础定义并实现 Agent 确定性推荐工作流**
 
 先一次性迁移 12 类意图名称、输出模型和最小可用边界示例，确保后续购买、券和售后切片不再依赖旧外卖意图；千级本地文案和完整离线评测留到 Task 9。随后实现推荐确定性工作流。一个推荐目标可以串行调用多个只读工具，但保持 `is_composite=false`；多个独立目标才进入 DAG。
 
-- [ ] **Step 5: 改造 Android 首页、门店和套餐页面**
+- [x] **Step 5: 改造 Android 首页、门店和套餐页面**
 
 首页不显示商圈；定位拒绝时禁用距离排序。门店页展示概览、套餐、评价和使用须知，不出现菜品加购和购物车。
 
-- [ ] **Step 6: 运行测试与 Maestro**
+- [x] **Step 6: 运行测试与 Maestro**
 
 Run: `mvn -f backend/pom.xml -Dtest=StoreDealApiTest test`
 
@@ -355,7 +355,7 @@ Run: `maestro test maestro/group-buying-01-browse.yaml`
 
 Expected: 登录和游客都能浏览；三种排序符合规则；推荐工具序列正确。
 
-- [ ] **Step 7: 提交浏览推荐切片**
+- [x] **Step 7: 提交浏览推荐切片**
 
 ```bash
 git add backend android-app maestro

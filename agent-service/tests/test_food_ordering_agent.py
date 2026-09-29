@@ -23,12 +23,10 @@ class FakeSpringBootToolClient(SpringBootToolClient):
     """契约测试替身：代理不负责后端下单业务逻辑。"""
 
     """验证 `__init__` 覆盖场景的预期行为与边界。"""
-    """验证 `__init__` 覆盖场景的预期行为与边界。"""
     def __init__(self, responses: dict[str, ToolResult] | None = None):
         self.responses = responses or {}
         self.requests = []
 
-    """验证 `call` 覆盖场景的预期行为与边界。"""
     """验证 `call` 覆盖场景的预期行为与边界。"""
     def call(self, request):
         self.requests.append(request)
@@ -36,14 +34,12 @@ class FakeSpringBootToolClient(SpringBootToolClient):
 
 
 """验证 `request` 覆盖场景的预期行为与边界。"""
-"""验证 `request` 覆盖场景的预期行为与边界。"""
 def request(text: str, *, mode: str = "recommend", session_id: str = "s-1") -> AgentRunRequest:
     return AgentRunRequest(
         userId="u-1", sessionId=session_id, text=text, mode=mode, traceId="trace-1"
     )
 
 
-"""验证 `test_cart_draft_payload_selects_only_one_explicitly_named_merchant` 覆盖场景的预期行为与边界。"""
 """验证 `test_cart_draft_payload_selects_only_one_explicitly_named_merchant` 覆盖场景的预期行为与边界。"""
 def test_cart_draft_payload_selects_only_one_explicitly_named_merchant():
     state = AgentState(
@@ -63,7 +59,6 @@ def test_cart_draft_payload_selects_only_one_explicitly_named_merchant():
     assert payload["merchantId"] == "m-1"
 
 
-"""验证 `test_cart_draft_payload_keeps_ambiguous_or_missing_merchant_unselected` 覆盖场景的预期行为与边界。"""
 """验证 `test_cart_draft_payload_keeps_ambiguous_or_missing_merchant_unselected` 覆盖场景的预期行为与边界。"""
 @pytest.mark.parametrize(
     "merchants,text",
@@ -103,6 +98,18 @@ def test_missing_information_returns_question_without_order_tool():
 
     assert result.status == "needs_input"
     assert result.next_action == "collect_missing_info"
+    assert not client.requests
+
+
+def test_budget_only_order_request_asks_for_food_details_without_calling_tools():
+    """Break caught: a budget-only request is treated as a complete order and fails in merchant lookup."""
+    client = FakeSpringBootToolClient()
+
+    result = FoodOrderingAgent(client).run(request("30 元以内", mode="order"))
+
+    assert result.status == "needs_input"
+    assert result.next_action == "collect_missing_info"
+    assert "菜品" in result.message or "商家" in result.message
     assert not client.requests
 
 
@@ -153,7 +160,6 @@ def test_auto_order_pays_java_nested_order_response_with_top_level_order_id():
     """防止回归：支付流程必须识别后端返回的订单编号结构。"""
 
     class RequiresOrderIdClient(FakeSpringBootToolClient):
-        """验证 `call` 覆盖场景的预期行为与边界。"""
         """验证 `call` 覆盖场景的预期行为与边界。"""
         def call(self, tool_request):
             self.requests.append(tool_request)
@@ -219,7 +225,6 @@ def test_reorder_cart_draft_uses_history_mapping_without_guessing_items():
     """防止回归：再次下单必须沿用后端保存的历史菜品映射。"""
 
     class RequiresHistoryItemsClient(FakeSpringBootToolClient):
-        """验证 `call` 覆盖场景的预期行为与边界。"""
         """验证 `call` 覆盖场景的预期行为与边界。"""
         def call(self, tool_request):
             self.requests.append(tool_request)
@@ -492,5 +497,6 @@ def test_langchain_tool_descriptions_use_a_real_payload_schema_without_runtime_w
         warnings.simplefilter("always")
         descriptions = langchain_tool_descriptions()
 
-    assert len(descriptions) == 8
+    # 团购门店、套餐和评价工具加入后，工具描述数量从旧外卖基线扩展为十三个。
+    assert len(descriptions) == 13
     assert not [item for item in recorded if "fields may not start" in str(item.message)]

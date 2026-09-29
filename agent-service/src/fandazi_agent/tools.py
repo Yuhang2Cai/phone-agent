@@ -10,6 +10,11 @@ from pydantic import BaseModel, Field
 
 TOOL_ALLOWLIST = frozenset(
     {
+        "search_stores",
+        "get_store_detail",
+        "list_deal_packages",
+        "get_deal_detail",
+        "search_reviews",
         "search_merchants",
         "list_dishes",
         "get_last_order",
@@ -29,6 +34,11 @@ class ToolDescription:
 
 
 TOOL_DESCRIPTIONS = (
+    ToolDescription("search_stores", "Search group-buying stores by city, category, budget, and sort."),
+    ToolDescription("get_store_detail", "Fetch public store information."),
+    ToolDescription("list_deal_packages", "List available fixed group-buying packages for a store."),
+    ToolDescription("get_deal_detail", "Fetch fixed package price, stock, validity, and usage rules."),
+    ToolDescription("search_reviews", "Fetch store or package reviews."),
     ToolDescription("search_merchants", "Find merchants matching general food preferences."),
     ToolDescription("list_dishes", "List dishes from one merchant."),
     ToolDescription("get_last_order", "Fetch the user's latest completed order for exact reorder."),

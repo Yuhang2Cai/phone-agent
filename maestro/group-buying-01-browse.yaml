@@ -1,0 +1,18 @@
+# 团购浏览冒烟流程：验证首页进入门店详情并展示套餐入口。
+# 该脚本只验证页面导航，不依赖真实支付或订单副作用。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- assertVisible:
+    id: "com.fandazi.app:id/homeFragment"
+- tapOn:
+    id: "com.fandazi.app:id/home_merchant_one"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/storeFragment"
+    timeout: 10000
+- assertVisible: "门店详情"
+- assertVisible: "团购套餐"

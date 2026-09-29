@@ -25,4 +25,10 @@
     <fragment android:id="@+id/automationSettingsFragment" android:name="com.fandazi.app.feature.profile.AutomationSettingsFragment" android:label="@string/automation_title" />
     <fragment android:id="@+id/cartFragment" android:name="com.fandazi.app.feature.order.CartFragment" android:label="@string/cart_title" />
     <fragment android:id="@+id/paymentFragment" android:name="com.fandazi.app.feature.order.PaymentFragment" android:label="@string/payment_page" />
+    <fragment android:id="@+id/storeFragment" android:name="com.fandazi.app.feature.store.StoreFragment" android:label="门店详情">
+        <argument android:name="storePublicId" app:argType="string" />
+    </fragment>
+    <fragment android:id="@+id/dealDetailFragment" android:name="com.fandazi.app.feature.deal.DealDetailFragment" android:label="团购套餐">
+        <argument android:name="dealPublicId" app:argType="string" />
+    </fragment>
 </navigation>

@@ -36,6 +36,7 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/internal/tools/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/merchants/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/stores/**", "/api/deals/**").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response, exception) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

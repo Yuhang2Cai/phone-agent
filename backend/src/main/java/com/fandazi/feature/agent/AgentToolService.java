@@ -15,6 +15,12 @@ import com.fandazi.feature.catalog.DishOptionRepository;
 import com.fandazi.feature.catalog.DishRepository;
 import com.fandazi.feature.catalog.MerchantEntity;
 import com.fandazi.feature.catalog.MerchantRepository;
+import com.fandazi.feature.catalog.StoreEntity;
+import com.fandazi.feature.catalog.StoreReviewEntity;
+import com.fandazi.feature.catalog.StoreReviewRepository;
+import com.fandazi.feature.catalog.StoreService;
+import com.fandazi.feature.catalog.DealPackageEntity;
+import com.fandazi.feature.catalog.DealPackageService;
 import com.fandazi.feature.order.CreateOrderCommand;
 import com.fandazi.feature.order.OrderEntity;
 import com.fandazi.feature.order.OrderConflictException;
@@ -30,10 +36,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service public class AgentToolService {
-    private static final java.util.Set<String> ALLOWED=java.util.Set.of("search_merchants","list_dishes","get_last_order","create_cart_draft","validate_cart","get_addresses","create_order","pay_mock_order");
-    private final AgentSessionService sessions; private final AgentEventService events; private final MerchantRepository merchants; private final DishRepository dishes; private final DishOptionRepository options; private final AddressService addresses; private final CartService carts; private final OrderAuthorizationService authorizations; private final AutomationPolicyService policies; private final OrderService orders; private final OrderRepository orderRepository; private final PaymentService payments;
+    private static final java.util.Set<String> ALLOWED=java.util.Set.of("search_stores","get_store_detail","list_deal_packages","get_deal_detail","search_reviews","search_merchants","list_dishes","get_last_order","create_cart_draft","validate_cart","get_addresses","create_order","pay_mock_order");
+    private final AgentSessionService sessions; private final AgentEventService events; private final MerchantRepository merchants; private final DishRepository dishes; private final DishOptionRepository options; private final AddressService addresses; private final CartService carts; private final OrderAuthorizationService authorizations; private final AutomationPolicyService policies; private final OrderService orders; private final OrderRepository orderRepository; private final PaymentService payments; private final StoreService stores; private final DealPackageService deals; private final StoreReviewRepository storeReviews;
 // 初始化对象依赖与默认状态。
-    public AgentToolService(AgentSessionService sessions,AgentEventService events,MerchantRepository merchants,DishRepository dishes,DishOptionRepository options,AddressService addresses,CartService carts,OrderAuthorizationService authorizations,AutomationPolicyService policies,OrderService orders,OrderRepository orderRepository,PaymentService payments){this.sessions=sessions;this.events=events;this.merchants=merchants;this.dishes=dishes;this.options=options;this.addresses=addresses;this.carts=carts;this.authorizations=authorizations;this.policies=policies;this.orders=orders;this.orderRepository=orderRepository;this.payments=payments;}
+    public AgentToolService(AgentSessionService sessions,AgentEventService events,MerchantRepository merchants,DishRepository dishes,DishOptionRepository options,AddressService addresses,CartService carts,OrderAuthorizationService authorizations,AutomationPolicyService policies,OrderService orders,OrderRepository orderRepository,PaymentService payments,StoreService stores,DealPackageService deals,StoreReviewRepository storeReviews){this.sessions=sessions;this.events=events;this.merchants=merchants;this.dishes=dishes;this.options=options;this.addresses=addresses;this.carts=carts;this.authorizations=authorizations;this.policies=policies;this.orders=orders;this.orderRepository=orderRepository;this.payments=payments;this.stores=stores;this.deals=deals;this.storeReviews=storeReviews;}
 // 判断allowed。
     public boolean isAllowed(String name){return ALLOWED.contains(name);}
 // 处理 `execute` 相关逻辑。
@@ -42,11 +48,18 @@ import org.springframework.transaction.annotation.Transactional;
         AgentSession session=sessions.trustedForUpdate(request.sessionId()); Long userId=session.getUser().getId();
         events.record(userId,session.getSessionId(),"tool","正在执行工具",name,"running",Map.of());
         ToolResult result=switch(name){
+            case "search_stores" -> searchStores(request.payload()); case "get_store_detail" -> storeDetail(request.payload()); case "list_deal_packages" -> listDeals(request.payload()); case "get_deal_detail" -> dealDetail(request.payload()); case "search_reviews" -> searchReviews(request.payload());
             case "search_merchants" -> search(request.payload()); case "list_dishes" -> listDishes(request.payload()); case "get_last_order" -> lastOrder(userId);
             case "create_cart_draft" -> createDraft(userId,request.payload()); case "validate_cart" -> validate(userId,request.payload()); case "get_addresses" -> getAddresses(userId);
             case "create_order" -> createOrder(userId,session,request); case "pay_mock_order" -> pay(userId,session,request); default -> throw new DomainException("工具不在白名单中");};
         events.record(userId,session.getSessionId(),"tool","工具执行完成",name,"ok",result.data()); return result;
     }
+    // 以下五个只读工具都基于 Spring 查询结果构造返回值，模型不能自行生成门店、价格或库存字段。
+    private ToolResult searchStores(Map<String,Object> payload){String city=String.valueOf(payload.getOrDefault("cityCode",""));String sort=String.valueOf(payload.getOrDefault("sort","RECOMMENDED"));java.math.BigDecimal lat=decimal(payload.get("latitude"));java.math.BigDecimal lon=decimal(payload.get("longitude"));Integer min=integer(payload.get("minPriceCents"));Integer max=integer(payload.get("maxPriceCents"));return ToolResult.ok(Map.of("stores",stores.search(city,sort,lat,lon,String.valueOf(payload.getOrDefault("category","")),min,max).stream().map(this::storeData).toList()));}
+    private ToolResult storeDetail(Map<String,Object> payload){return ToolResult.ok(Map.of("store",storeData(stores.require(String.valueOf(payload.getOrDefault("storeId",""))))));}
+    private ToolResult listDeals(Map<String,Object> payload){return ToolResult.ok(Map.of("deals",deals.list(String.valueOf(payload.getOrDefault("storeId","")),String.valueOf(payload.getOrDefault("sort",""))).stream().map(this::dealData).toList()));}
+    private ToolResult dealDetail(Map<String,Object> payload){return ToolResult.ok(Map.of("deal",dealData(deals.require(String.valueOf(payload.getOrDefault("dealId",""))))));}
+    private ToolResult searchReviews(Map<String,Object> payload){StoreEntity store=stores.require(String.valueOf(payload.getOrDefault("storeId","")));String keyword=String.valueOf(payload.getOrDefault("keyword",""));return ToolResult.ok(Map.of("reviews",storeReviews.findAll().stream().filter(item->item.getStore().getId().equals(store.getId())).filter(item->keyword.isBlank()||item.getContent().contains(keyword)).sorted(java.util.Comparator.comparing(StoreReviewEntity::getCreatedAt).reversed()).limit(20).map(this::reviewData).toList()));}
 // 搜索当前数据。
     private ToolResult search(Map<String,Object> payload){String query=String.valueOf(payload.getOrDefault("query","")).trim();List<Map<String,Object>> values=merchants.findAll().stream().filter(m->m.isOpen()&&(query.isBlank()||query.contains(m.getName())||query.contains(m.getCategory())||m.getName().contains(query)||m.getCategory().contains(query)||dishes.findByMerchantId(m.getId()).stream().anyMatch(d->query.contains(d.getName())||d.getName().contains(query)||d.getDescription().contains(query)))).map(this::merchant).toList();return ToolResult.ok(Map.of("merchants",values));}
 // 列出dishes。
@@ -77,6 +90,9 @@ import org.springframework.transaction.annotation.Transactional;
     private String requireKey(String key){if(key==null||key.isBlank())throw new DomainException("缺少幂等键");return key;}
 // 处理 `merchant` 相关逻辑。
     private Map<String,Object> merchant(MerchantEntity m){return Map.of("id",m.getId(),"name",m.getName(),"category",m.getCategory(),"open",m.isOpen(),"minimumOrder",m.getMinimumOrder(),"deliveryFee",m.getDeliveryFee());}
+    private Map<String,Object> storeData(StoreEntity s){Map<String,Object> data=new LinkedHashMap<>();data.put("publicId",s.getPublicId());data.put("name",s.getName());data.put("brandName",s.getBrandName());data.put("cityCode",s.getCityCode());data.put("address",s.getAddress());data.put("category",s.getCategory());data.put("averageSpendCents",s.getAverageSpendCents());data.put("latitude",s.getLatitude());data.put("longitude",s.getLongitude());data.put("open",s.isOpen());data.put("openingHours",s.getOpeningHours());return data;}
+    private Map<String,Object> dealData(DealPackageEntity d){return Map.of("publicId",d.getPublicId(),"storeId",d.getStore().getPublicId(),"title",d.getTitle(),"description",d.getDescription(),"priceCents",d.getPriceCents(),"originalPriceCents",d.getOriginalPriceCents(),"inventory",d.getInventory(),"validFrom",d.getValidFrom(),"validTo",d.getValidTo(),"purchaseLimit",d.getPurchaseLimit());}
+    private Map<String,Object> reviewData(StoreReviewEntity r){return Map.of("storeId",r.getStore().getPublicId(),"reviewerName",r.getReviewerName(),"rating",r.getRating(),"content",r.getContent(),"createdAt",r.getCreatedAt());}
 // 处理 `dish` 相关逻辑。
     private Map<String,Object> dish(DishEntity d){return Map.of("id",d.getId(),"merchantId",d.getMerchant().getId(),"name",d.getName(),"price",d.getPrice(),"stock",d.getStock());}
 // 处理 `address` 相关逻辑。
@@ -85,4 +101,6 @@ import org.springframework.transaction.annotation.Transactional;
     private Map<String,Object> quoteData(CartQuote q,Long addressId,Long cartId){Map<String,Object> data=new LinkedHashMap<>();data.put("valid",true);data.put("cartDraftId",cartId);data.put("addressId",addressId);data.put("total",q.total());data.put("subtotal",q.subtotal());data.put("deliveryFee",q.deliveryFee());data.put("merchantId",q.merchantId());return data;}
 // 处理 `orderData` 相关逻辑。
     private Map<String,Object> orderData(OrderResponse order){return Map.of("id",order.id(),"status",order.status().name(),"total",order.total(),"address",order.detail());}
+    private java.math.BigDecimal decimal(Object value){try{return value==null?null:new java.math.BigDecimal(String.valueOf(value));}catch(NumberFormatException ignored){return null;}}
+    private Integer integer(Object value){try{return value==null?null:Integer.valueOf(String.valueOf(value));}catch(NumberFormatException ignored){return null;}}
 }
