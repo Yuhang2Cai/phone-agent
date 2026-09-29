@@ -42,7 +42,8 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.jdbc.core.JdbcTemplate;
 
-@SpringBootTest(properties = "seed.enabled=true")
+// 旧外卖种子测试只验证原有表，关闭团购种子以保持基线数量断言和删除顺序稳定。
+@SpringBootTest(properties = {"seed.enabled=true", "group.seed.enabled=false"})
 class SeedDataLoaderTest {
 
     private static final Path FIXTURE_SOURCE = Path.of("../data/seed").toAbsolutePath().normalize();

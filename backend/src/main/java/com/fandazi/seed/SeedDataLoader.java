@@ -13,6 +13,20 @@ import com.fandazi.feature.catalog.MerchantEntity;
 import com.fandazi.feature.catalog.MerchantRepository;
 import com.fandazi.feature.catalog.MerchantReviewEntity;
 import com.fandazi.feature.catalog.MerchantReviewRepository;
+import com.fandazi.feature.catalog.DealPackageEntity;
+import com.fandazi.feature.catalog.DealPackageRepository;
+import com.fandazi.feature.catalog.StoreEntity;
+import com.fandazi.feature.catalog.StoreRepository;
+import com.fandazi.feature.catalog.StoreReviewEntity;
+import com.fandazi.feature.catalog.StoreReviewRepository;
+import com.fandazi.feature.coupon.CouponEntity;
+import com.fandazi.feature.coupon.CouponRepository;
+import com.fandazi.feature.grouporder.GroupBuyOrderEntity;
+import com.fandazi.feature.grouporder.GroupBuyOrderRepository;
+import com.fandazi.feature.grouporder.GroupBuyOrderStatus;
+import com.fandazi.feature.voucher.VoucherEntity;
+import com.fandazi.feature.voucher.VoucherRepository;
+import com.fandazi.feature.voucher.VoucherStatus;
 import com.fandazi.feature.order.OrderEntity;
 import com.fandazi.feature.order.OrderItemEntity;
 import com.fandazi.feature.order.OrderRepository;
@@ -24,6 +38,8 @@ import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,12 +58,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class SeedDataLoader implements ApplicationRunner {
     private final ObjectMapper mapper; private final MerchantRepository merchants; private final MerchantReviewRepository reviews; private final DishRepository dishes;
     private final DishOptionRepository options; private final UserRepository users; private final AddressRepository addresses; private final OrderRepository orders; private final SeedDishMetadataRepository dishMetadata; private final SeedAddressMetadataRepository addressMetadata;
-    private final Path path;
+    private final StoreRepository stores; private final DealPackageRepository deals; private final StoreReviewRepository storeReviews;
+    private final CouponRepository coupons; private final GroupBuyOrderRepository groupOrders; private final VoucherRepository vouchers;
+    private final Path path; private final boolean groupSeedEnabled;
     private List<SeedScenario> scenarios = List.of();
 // 初始化对象依赖与默认状态。
     public SeedDataLoader(ObjectMapper mapper, MerchantRepository merchants, MerchantReviewRepository reviews, DishRepository dishes, DishOptionRepository options,
-                          UserRepository users, AddressRepository addresses, OrderRepository orders, SeedDishMetadataRepository dishMetadata, SeedAddressMetadataRepository addressMetadata, @Value("${seed.path:../data/seed}") String path) {
-        this.mapper=mapper; this.merchants=merchants; this.reviews=reviews; this.dishes=dishes; this.options=options; this.users=users; this.addresses=addresses; this.orders=orders; this.dishMetadata=dishMetadata; this.addressMetadata=addressMetadata; this.path=Path.of(path);
+                          UserRepository users, AddressRepository addresses, OrderRepository orders, SeedDishMetadataRepository dishMetadata, SeedAddressMetadataRepository addressMetadata,
+                          StoreRepository stores, DealPackageRepository deals, StoreReviewRepository storeReviews, CouponRepository coupons,
+                          GroupBuyOrderRepository groupOrders, VoucherRepository vouchers, @Value("${seed.path:../data/seed}") String path,
+                          @Value("${group.seed.enabled:true}") boolean groupSeedEnabled) {
+        this.mapper=mapper; this.merchants=merchants; this.reviews=reviews; this.dishes=dishes; this.options=options; this.users=users; this.addresses=addresses; this.orders=orders; this.dishMetadata=dishMetadata; this.addressMetadata=addressMetadata;
+        this.stores=stores; this.deals=deals; this.storeReviews=storeReviews; this.coupons=coupons; this.groupOrders=groupOrders; this.vouchers=vouchers;
+        this.path=Path.of(path); this.groupSeedEnabled=groupSeedEnabled;
     }
 // 运行当前数据。
     @Override @Transactional(rollbackFor = Exception.class) public void run(ApplicationArguments args) {
@@ -61,6 +84,8 @@ public class SeedDataLoader implements ApplicationRunner {
             Map<String, MerchantEntity> merchantsByName = new HashMap<>();
             for (MerchantEntity merchant : merchants.findAll()) merchantsByName.put(merchant.getName(), merchant);
             syncReviews(read("reviews.json"), merchantsByName);
+            // 旧外卖种子已经存在时仍需执行团购种子同步，保证新增门店可以独立补齐。
+            if (groupSeedEnabled) syncGroupBuyingData(merchantsByName);
             return;
         }
         JsonNode merchantData = read("merchants.json");
@@ -97,7 +122,133 @@ public class SeedDataLoader implements ApplicationRunner {
             OrderEntity order=new OrderEntity(orderUser,text(fixture,"idempotencyKey"),"seed-history",merchant.getName(), address.getRecipient(),address.getPhone(),address.getDetail(),subtotal,merchant.getDeliveryFee(),BigDecimal.ZERO,subtotal.add(merchant.getDeliveryFee()));
             order.addItem(new OrderItemEntity(order,dish.getId(),dish.getName(),quantity,List.of(),"",dish.getPrice())); order.advance(OrderStatus.valueOf(text(fixture,"status"))); orders.save(order);
         }
+        // 首次建立旧数据后，再装载独立团购域，避免修改既有外卖表的业务语义。
+        if (groupSeedEnabled) syncGroupBuyingData(merchantsByName);
     }
+    /**
+     * 幂等加载团购领域种子。
+     *
+     * <p>团购数据使用独立表和公开标识，不修改旧外卖商家的数量和评价统计；
+     * 因此旧种子测试可以关闭本开关，生产和团购集成测试则使用默认开启状态。</p>
+     */
+    private void syncGroupBuyingData(Map<String, MerchantEntity> merchantsByName) throws IOException {
+        Map<String, StoreEntity> storesByPublicId = new HashMap<>();
+        for (StoreEntity store : stores.findAll()) storesByPublicId.put(store.getPublicId(), store);
+
+        // 只在门店表为空时创建基础门店，避免重复启动产生重复公开资源。
+        if (storesByPublicId.isEmpty()) {
+            for (JsonNode fixture : read("stores.json")) {
+                MerchantEntity merchant = merchantsByName.get(fixture.path("merchant").asText());
+                StoreEntity store = new StoreEntity(
+                        requiredFixtureText(fixture, "publicId"), requiredFixtureText(fixture, "brandName"),
+                        requiredFixtureText(fixture, "name"), requiredFixtureText(fixture, "cityCode"),
+                        requiredFixtureText(fixture, "address"), requiredFixtureText(fixture, "phone"),
+                        requiredFixtureText(fixture, "category"), fixture.path("latitude").decimalValue(),
+                        fixture.path("longitude").decimalValue(), fixture.path("averageSpendCents").asInt(),
+                        fixture.path("open").asBoolean(), requiredFixtureText(fixture, "openingHours"), merchant
+                );
+                storesByPublicId.put(store.getPublicId(), stores.save(store));
+            }
+        }
+
+        Map<String, DealPackageEntity> dealsByPublicId = new HashMap<>();
+        for (DealPackageEntity deal : deals.findAll()) dealsByPublicId.put(deal.getPublicId(), deal);
+
+        // 套餐模板通过 count 展开为确定数量，公开 ID 由门店和模板序号共同组成。
+        if (dealsByPublicId.isEmpty()) {
+            for (JsonNode fixture : read("deals.json")) {
+                String storeId = requiredFixtureText(fixture, "store");
+                StoreEntity store = storesByPublicId.get(storeId);
+                if (store == null) throw new IllegalArgumentException("Deal fixture references unknown store: " + storeId);
+                int count = fixture.path("count").asInt(1);
+                for (int index = 1; index <= count; index++) {
+                    String publicId = "deal-" + storeId.substring("store-".length()) + "-" + index;
+                    DealPackageEntity deal = new DealPackageEntity(
+                            publicId, store, requiredFixtureText(fixture, "title") + " " + index,
+                            requiredFixtureText(fixture, "description"), fixture.path("priceCents").asInt(),
+                            fixture.path("originalPriceCents").asInt(), fixture.path("inventory").asInt(),
+                            LocalDate.of(2026, 1, 1), LocalDate.of(2027, 12, 31), true,
+                            fixture.path("purchaseLimit").asInt(), 1
+                    );
+                    dealsByPublicId.put(publicId, deals.save(deal));
+                }
+            }
+        }
+
+        // 30 条模板各展开 10 条评价，使用固定时间和名称保证唯一键稳定。
+        if (storeReviews.count() == 0) {
+            for (JsonNode fixture : read("group-reviews.json")) {
+                StoreEntity store = storesByPublicId.get(requiredFixtureText(fixture, "store"));
+                if (store == null) throw new IllegalArgumentException("Review fixture references unknown store");
+                int count = fixture.path("count").asInt(1);
+                Instant start = Instant.parse(requiredFixtureText(fixture, "createdAt"));
+                for (int index = 1; index <= count; index++) {
+                    storeReviews.save(new StoreReviewEntity(
+                            store, requiredFixtureText(fixture, "reviewerPrefix") + index,
+                            fixture.path("rating").decimalValue(), requiredFixtureText(fixture, "content"),
+                            start.plusSeconds(index * 86400L)
+                    ));
+                }
+            }
+        }
+
+        // 优惠券定义同样用 count 展开，保证演示环境至少有 30 个可查询对象。
+        if (coupons.count() == 0) {
+            for (JsonNode fixture : read("coupons.json")) {
+                int count = fixture.path("count").asInt(1);
+                for (int index = 1; index <= count; index++) {
+                    coupons.save(new CouponEntity(
+                            String.format("coupon-%03d", index), requiredFixtureText(fixture, "name") + index,
+                            fixture.path("thresholdCents").asInt(), fixture.path("discountCents").asInt(),
+                            LocalDate.parse(requiredFixtureText(fixture, "validFrom")),
+                            LocalDate.parse(requiredFixtureText(fixture, "validTo")),
+                            requiredFixtureText(fixture, "scopeDescription"), fixture.path("active").asBoolean()
+                    ));
+                }
+            }
+        }
+
+        // 订单只创建一次；级联保存会先保存订单，再保存按数量生成的团购券。
+        if (groupOrders.count() == 0) {
+            UserEntity user = users.findByUsername("seed_alice")
+                    .orElseThrow(() -> new IllegalArgumentException("Group order seed requires seed_alice"));
+            Map<String, GroupBuyOrderEntity> savedOrders = new HashMap<>();
+            for (JsonNode fixture : read("group-orders.json")) {
+                DealPackageEntity deal = dealsByPublicId.get(requiredFixtureText(fixture, "deal"));
+                if (deal == null) throw new IllegalArgumentException("Group order references unknown deal");
+                GroupBuyOrderEntity order = new GroupBuyOrderEntity(
+                        requiredFixtureText(fixture, "publicId"), user, deal.getStore(), deal,
+                        fixture.path("quantity").asInt(), fixture.path("totalCents").asInt(),
+                        GroupBuyOrderStatus.valueOf(requiredFixtureText(fixture, "status")),
+                        LocalDateTime.parse(requiredFixtureText(fixture, "expiresAt"))
+                );
+                savedOrders.put(order.getPublicId(), groupOrders.save(order));
+            }
+            applyVoucherSeedStatuses(savedOrders);
+        }
+    }
+
+    /** 将种子中的核销、退款和过期状态应用到订单自动生成的团购券。 */
+    private void applyVoucherSeedStatuses(Map<String, GroupBuyOrderEntity> savedOrders) throws IOException {
+        Map<String, Integer> nextIndexByOrder = new HashMap<>();
+        for (JsonNode fixture : read("vouchers.json")) {
+            String orderId = requiredFixtureText(fixture, "order");
+            GroupBuyOrderEntity order = savedOrders.get(orderId);
+            if (order == null) throw new IllegalArgumentException("Voucher fixture references unknown order: " + orderId);
+            VoucherStatus status = VoucherStatus.valueOf(requiredFixtureText(fixture, "status"));
+            int count = fixture.path("count").asInt(1);
+            int start = nextIndexByOrder.getOrDefault(orderId, 0);
+            for (int offset = 0; offset < count; offset++) {
+                if (start + offset >= order.getVouchers().size()) {
+                    throw new IllegalArgumentException("Voucher fixture quantity exceeds order quantity: " + orderId);
+                }
+                order.getVouchers().get(start + offset).restoreSeedStatus(status);
+            }
+            nextIndexByOrder.put(orderId, start + count);
+        }
+        vouchers.saveAll(savedOrders.values().stream().flatMap(order -> order.getVouchers().stream()).toList());
+    }
+
 // 获取scenarios。
     public List<SeedScenario> getScenarios() { return scenarios; }
 
