@@ -21,10 +21,12 @@ import org.springframework.stereotype.Service;
         if (mode == AgentMode.CONFIRM && isConfirmation(text)) sessions.confirm(userId, sessionId);
         events.record(userId, sessionId, "parsed", "已接收点餐请求", null, "running", java.util.Map.of());
         try {
+            // 将用户身份、会话和模式作为 Spring 已校验的上下文传给独立 Agent，模型不能自行伪造这些字段。
             AgentResult result=client.run(new AgentRunRequest(userId.toString(),sessionId,text,mode == AgentMode.THIS_TASK_AUTO ? "auto_order" : "order",traceId));
             result=completeConfirmation(userId, mode, result);
             bindAuthorizedCandidate(userId, sessionId, result);
-            for (AgentResult.Event event: result.events()) events.record(userId,sessionId,event.type(),event.summary(),event.toolName(),event.status(),event.payload());
+            // 旧替身返回的事件仍由网关写入；V1 客户端已经逐行记录，避免同一事件重复审计。
+            if (!result.eventsRecorded()) for (AgentResult.Event event: result.events()) events.record(userId,sessionId,event.type(),event.summary(),event.toolName(),event.status(),event.payload());
             events.record(userId,sessionId,result.status() == AgentResult.Status.FAILED ? "failed" : "completed",result.message(),null,result.status().name().toLowerCase(),result.candidateCart());
             return result;
         } catch (AgentServiceUnavailableException exception) {
@@ -39,7 +41,7 @@ import org.springframework.stereotype.Service;
         var draft=carts.owned(userId,cartId); CartQuote quote=carts.validate(userId,cartId); var address=addresses.owned(userId,addressId);
         List<Map<String,Object>> items=quote.lines().stream().map(line->Map.<String,Object>of("name",line.dishName(),"specification",line.optionSummary().isBlank()?"无额外规格":line.optionSummary(),"price",line.unitPrice(),"quantity",line.quantity())).toList();
         Map<String,Object> cart=new LinkedHashMap<>(); cart.put("merchantName",draft.getMerchant().getName()); cart.put("items",items); cart.put("cartDraftId",cartId); cart.put("workflowId",result.candidateCart().get("workflowId")); cart.put("address",address.getRecipient()+" "+address.getPhone()+" "+address.getDetail()); cart.put("addressId",addressId); cart.put("deliveryFee",quote.deliveryFee()); cart.put("discount",quote.discount()); cart.put("total",quote.total()); cart.put("maxAmount",maximum); cart.put("authorizationMode",mode.name());
-        return new AgentResult(result.status(),result.message(),result.nextAction(),cart,result.events(),result.error());
+        return new AgentResult(result.status(),result.message(),result.nextAction(),cart,result.events(),result.error(),result.eventsRecorded());
     }
 // 处理 `bindAuthorizedCandidate` 相关逻辑。
     private void bindAuthorizedCandidate(Long userId, String sessionId, AgentResult result) {

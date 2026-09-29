@@ -226,7 +226,7 @@ git commit -m "feat: add group buying domain foundation"
 - Produces: `GET /internal/v1/health`。
 - Consumes: `AgentRunRequestV1`、`AgentEventV1`、短期内部 JWT。
 
-- [ ] **Step 1: 编写失败的 Agent API 测试**
+- [x] **Step 1: 编写失败的 Agent API 测试**
 
 ```python
 def test_run_rejects_missing_internal_jwt(client):
@@ -244,19 +244,19 @@ def test_run_streams_started_and_completed_events(client, internal_jwt):
     assert events[-1]["type"] == "run_completed"
 ```
 
-- [ ] **Step 2: 运行测试并确认 HTTP 服务不存在**
+- [x] **Step 2: 运行测试并确认 HTTP 服务不存在**
 
 Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m pytest tests/test_agent_service_api.py -q`
 
-- [ ] **Step 3: 实现 FastAPI、Pydantic 模型、JWT 校验和 NDJSON 编码**
+- [x] **Step 3: 实现 FastAPI、Pydantic 模型、JWT 校验和 NDJSON 编码**
 
 `runId` 由 Agent 创建；`traceId` 由 Spring 传入；简单请求不生成 `planId`。流式事件只允许公开业务摘要。
 
-- [ ] **Step 4: 修改 Spring 客户端逐行消费 NDJSON**
+- [x] **Step 4: 修改 Spring 客户端逐行消费 NDJSON**
 
 Spring 每收到一条事件就调用 `AgentEventService.record(...)`，终态映射为 `AgentRunResultV1`，传输中断映射为 `DEPENDENCY_UNAVAILABLE`。
 
-- [ ] **Step 5: 运行 Python 和 Java 协议测试**
+- [x] **Step 5: 运行 Python 和 Java 协议测试**
 
 Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m pytest tests/test_agent_service_api.py -q`
 
@@ -264,7 +264,7 @@ Run: `mvn -f backend/pom.xml -Dtest=AgentGatewayV1ContractTest test`
 
 Expected: JWT 拒绝、NDJSON 顺序、终态解析和中断处理全部 PASS。
 
-- [ ] **Step 6: 提交运行协议**
+- [x] **Step 6: 提交运行协议**
 
 ```bash
 git add service requirements.txt tests/test_agent_service_api.py
