@@ -1,0 +1,116 @@
+# 团购 Agent 可调用工具的白名单；Agent 只能选择这里声明的工具。
+# 业务字段必须由 Spring Boot 查询并校验后返回。
+schemaVersion: "1.0"
+contractName: "fandazi-agent-tools"
+commonRequest:
+  required: [schemaVersion, userId, sessionId, traceId, runId, taskId, idempotencyKey, payload]
+commonResult:
+  required: [schemaVersion, ok, data, error]
+errorCodes: [VALIDATION_ERROR, NOT_FOUND, FORBIDDEN, CONFLICT, EXPIRED, RATE_LIMITED, DEPENDENCY_UNAVAILABLE, INTERNAL_ERROR]
+
+tools:
+  - name: search_stores
+    description: "按城市、位置、品类、人均和排序方式查询门店"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [cityCode], optional: [latitude, longitude, category, minPriceCents, maxPriceCents, sort]}
+    output: {type: store_list}
+    errors: [VALIDATION_ERROR, NOT_FOUND, DEPENDENCY_UNAVAILABLE]
+  - name: get_store_detail
+    description: "查询门店公开详情、营业信息和适用套餐"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [storeId]}
+    output: {type: store_detail}
+    errors: [NOT_FOUND, FORBIDDEN, DEPENDENCY_UNAVAILABLE]
+  - name: list_deal_packages
+    description: "查询门店当前可售的固定团购套餐"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [storeId], optional: [sort]}
+    output: {type: deal_list}
+    errors: [NOT_FOUND, DEPENDENCY_UNAVAILABLE]
+  - name: get_deal_detail
+    description: "查询固定套餐价格、库存、有效期和使用须知"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [dealId]}
+    output: {type: deal_detail}
+    errors: [NOT_FOUND, EXPIRED, DEPENDENCY_UNAVAILABLE]
+  - name: search_reviews
+    description: "查询门店或套餐评价摘要和代表性评价"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [storeId], optional: [dealId, rating, keyword, page]}
+    output: {type: review_list}
+    errors: [NOT_FOUND, DEPENDENCY_UNAVAILABLE]
+  - name: list_user_orders
+    description: "查询当前用户的团购订单列表"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [], optional: [status, page]}
+    output: {type: order_list}
+    errors: [FORBIDDEN, DEPENDENCY_UNAVAILABLE]
+  - name: get_order_detail
+    description: "查询当前用户指定团购订单及券状态"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [orderId]}
+    output: {type: order_detail}
+    errors: [NOT_FOUND, FORBIDDEN, DEPENDENCY_UNAVAILABLE]
+  - name: list_user_vouchers
+    description: "查询当前用户团购券、有效期和核销状态"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [], optional: [status, orderId]}
+    output: {type: voucher_list}
+    errors: [FORBIDDEN, DEPENDENCY_UNAVAILABLE]
+  - name: create_purchase_quote
+    description: "根据固定套餐和购买数量生成短期报价"
+    risk: WRITE_PREVIEW
+    confirmationRequired: false
+    input: {required: [dealId, quantity], optional: [couponId]}
+    output: {type: purchase_quote}
+    errors: [VALIDATION_ERROR, NOT_FOUND, CONFLICT, EXPIRED, DEPENDENCY_UNAVAILABLE]
+  - name: create_group_buy_order
+    description: "使用有效确认凭证创建团购订单"
+    risk: WRITE
+    confirmationRequired: true
+    input: {required: [quoteId, confirmationGrantId]}
+    output: {type: order_detail}
+    errors: [VALIDATION_ERROR, NOT_FOUND, FORBIDDEN, CONFLICT, EXPIRED, DEPENDENCY_UNAVAILABLE]
+  - name: pay_mock_order
+    description: "使用有效确认凭证执行模拟支付"
+    risk: WRITE
+    confirmationRequired: true
+    input: {required: [orderId, confirmationGrantId]}
+    output: {type: payment_result}
+    errors: [NOT_FOUND, FORBIDDEN, CONFLICT, EXPIRED, DEPENDENCY_UNAVAILABLE]
+  - name: request_refund
+    description: "为尚未核销的团购券发起退款申请"
+    risk: WRITE
+    confirmationRequired: true
+    input: {required: [voucherId, reason, confirmationGrantId]}
+    output: {type: refund_result}
+    errors: [VALIDATION_ERROR, NOT_FOUND, FORBIDDEN, CONFLICT, EXPIRED, DEPENDENCY_UNAVAILABLE]
+  - name: query_coupon
+    description: "查询当前用户可领取或可使用的优惠券"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [], optional: [storeId, dealId]}
+    output: {type: coupon_list}
+    errors: [NOT_FOUND, FORBIDDEN, DEPENDENCY_UNAVAILABLE]
+  - name: query_faq
+    description: "查询团购平台规则、支付、核销和售后帮助"
+    risk: READ_ONLY
+    confirmationRequired: false
+    input: {required: [question], optional: [topic]}
+    output: {type: faq_answer}
+    errors: [VALIDATION_ERROR, DEPENDENCY_UNAVAILABLE]
+  - name: submit_complaint
+    description: "使用有效确认凭证提交团购服务投诉"
+    risk: WRITE
+    confirmationRequired: true
+    input: {required: [subject, description, confirmationGrantId], optional: [orderId, voucherId]}
+    output: {type: complaint_ticket}
+    errors: [VALIDATION_ERROR, NOT_FOUND, FORBIDDEN, EXPIRED, DEPENDENCY_UNAVAILABLE]

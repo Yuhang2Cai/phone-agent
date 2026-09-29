@@ -1,0 +1,63 @@
+# 手机项目与独立 Agent 服务之间的基础运行协议；Agent 仓库保存该文件的受控副本。
+schemaVersion: "1.0"
+protocolName: "fandazi-agent-protocol"
+
+agentRunRequest:
+  required: [schemaVersion, userId, sessionId, traceId, runId, query, context]
+  properties:
+    schemaVersion: {type: string, const: "1.0"}
+    userId: {type: string, description: "已登录用户的公开标识"}
+    sessionId: {type: string, description: "长期聊天会话标识"}
+    traceId: {type: string, description: "本次用户请求的端到端链路标识"}
+    runId: {type: string, description: "可暂停和恢复的 Agent 任务标识"}
+    query: {type: string, description: "用户当前输入"}
+    context: {type: object, description: "Spring 重建后的可信上下文，不接受模型自行伪造"}
+
+agentEvent:
+  required: [schemaVersion, eventId, eventType, traceId, runId, sequence, status]
+  eventTypes: [run_started, intent_decided, progress, text_delta, card, confirmation_required, tool_result, run_completed, error]
+  properties:
+    schemaVersion: {type: string, const: "1.0"}
+    eventId: {type: string}
+    eventType: {type: string}
+    traceId: {type: string}
+    runId: {type: string}
+    planId: {type: string, nullable: true, description: "仅复合任务存在的 DAG 计划标识"}
+    sequence: {type: integer, minimum: 0}
+    status: {type: string, enum: [running, waiting_confirmation, succeeded, failed, cancelled]}
+    payload: {type: object}
+
+agentRunResult:
+  required: [schemaVersion, traceId, runId, status, isComposite, events]
+  properties:
+    schemaVersion: {type: string, const: "1.0"}
+    traceId: {type: string}
+    runId: {type: string}
+    planId: {type: string, nullable: true}
+    status: {type: string, enum: [succeeded, failed, waiting_confirmation, cancelled]}
+    isComposite: {type: boolean, description: "是否包含多个可独立成立的用户目标"}
+    intent: {type: string, nullable: true}
+    events: {type: array, items: {type: object}}
+    error: {type: object, nullable: true}
+
+agentCard:
+  required: [schemaVersion, cardType, resourceId, actions]
+  cardTypes: [store, deal, order, voucher, coupon, review, confirmation, error]
+  properties:
+    schemaVersion: {type: string, const: "1.0"}
+    cardType: {type: string}
+    resourceId: {type: string, description: "业务公开资源标识，不能由模型生成业务字段"}
+    actions: {type: array, items: {type: object}}
+
+confirmationGrant:
+  required: [grantId, userId, sessionId, action, resourceId, expiresAt, consumed]
+  properties:
+    grantId: {type: string}
+    userId: {type: string}
+    sessionId: {type: string}
+    action: {type: string, enum: [create_group_buy_order, pay_mock_order, request_refund, submit_complaint]}
+    resourceId: {type: string}
+    amountCents: {type: integer, nullable: true}
+    ruleVersion: {type: string}
+    expiresAt: {type: string, format: date-time}
+    consumed: {type: boolean}
