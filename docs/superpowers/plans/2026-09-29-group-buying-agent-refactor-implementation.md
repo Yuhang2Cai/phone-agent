@@ -298,6 +298,7 @@ git commit -m "feat: consume independent agent event stream"
 - Test: `[Agent] tests/test_group_buying_read_tools.py`
 - Test: `[手机] android-app/app/src/test/java/com/fandazi/app/feature/home/HomeSortTest.kt`
 - Create: `[手机] maestro/group-buying-01-browse.yaml`
+- Design: `Figma 文件「饭搭子团购浏览 UI」`，用于首页、门店详情和套餐详情的 XML 转换基准。
 
 **Interfaces:**
 - Produces: `GET /api/stores`，参数 `cityCode/sort/latitude/longitude/category/minPrice/maxPrice`。
@@ -339,11 +340,27 @@ Run: `cd android-app; .\gradlew.bat testDebugUnitTest --tests "*HomeSortTest"`
 
 先一次性迁移 12 类意图名称、输出模型和最小可用边界示例，确保后续购买、券和售后切片不再依赖旧外卖意图；千级本地文案和完整离线评测留到 Task 9。随后实现推荐确定性工作流。一个推荐目标可以串行调用多个只读工具，但保持 `is_composite=false`；多个独立目标才进入 DAG。
 
-- [x] **Step 5: 改造 Android 首页、门店和套餐页面**
+- [ ] **Step 5: 先完成 Figma UI 设计，再改造 Android 首页、门店和套餐页面**
 
-首页不显示商圈；定位拒绝时禁用距离排序。门店页展示概览、套餐、评价和使用须知，不出现菜品加购和购物车。
+UI 实施不采用 TDD。必须先在 Figma 中完成并确认以下设计稿，再将设计转换为 Android XML：
 
-- [x] **Step 6: 运行测试与 Maestro**
+1. 首页团购发现：位置、搜索、推荐/人均/距离排序、门店卡片和底部导航。
+2. 门店详情：门店概览、评分、地址、团购套餐入口和评价入口。
+3. 套餐详情：价格、原价、库存、购买须知、评价和购买按钮。
+
+Figma 设计文件：`https://www.figma.com/design/fDqc9laGSxeCnh83uuw8Zz`。
+
+完成 Figma 设计后，按设计稿转换 XML，并保证首页不显示商圈；定位拒绝时禁用距离排序；门店页不出现菜品加购和旧外卖购物车。
+
+- [ ] **Step 6: 运行 Android 构建、Maestro 和视觉验收**
+
+UI 验收顺序固定为：
+
+1. 构建最新 debug APK。
+2. 从模拟器卸载旧版 `com.fandazi.app` 和干扰应用 `com.dirror.music`。
+3. 安装最新 APK。
+4. 执行 `maestro test maestro/group-buying-01-browse.yaml`。
+5. 对照 Figma 设计稿检查页面层级、间距、颜色、字体、文字溢出和点击路径。
 
 Run: `mvn -f backend/pom.xml -Dtest=StoreDealApiTest test`
 
@@ -353,9 +370,9 @@ Run: `cd android-app; .\gradlew.bat testDebugUnitTest assembleDebug`
 
 Run: `maestro test maestro/group-buying-01-browse.yaml`
 
-Expected: 登录和游客都能浏览；三种排序符合规则；推荐工具序列正确。
+Expected: Figma 设计与 XML 页面一致；登录和游客都能浏览；三种排序符合规则；推荐工具序列正确；Maestro 真实模拟器流程通过。
 
-- [x] **Step 7: 提交浏览推荐切片**
+- [ ] **Step 7: 视觉验收通过后提交浏览推荐切片**
 
 ```bash
 git add backend android-app maestro
