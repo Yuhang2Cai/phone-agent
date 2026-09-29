@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/storeFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:padding="24dp">
+
+    <TextView
+        android:id="@+id/storeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="门店详情"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/storePublicId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="门店详情"
-        android:textSize="20sp" />
-</FrameLayout>
+        android:layout_marginTop="12dp"
+        android:text="门店编号"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/storeDealsTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="团购套餐"
+        android:textSize="18sp" />
+</LinearLayout>
