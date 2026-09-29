@@ -19,6 +19,51 @@ class AgentRunRequest(BaseModel):
     trace_id: str = Field(alias="traceId", min_length=1)
 
 
+class AgentRunRequestV1(BaseModel):
+    """定义 Spring Boot 调用独立 Agent 服务时使用的 V1 请求。"""
+
+    model_config = ConfigDict(populate_by_name=True)
+
+    schema_version: Literal["1.0"] = Field(alias="schemaVersion")
+    user_id: str = Field(alias="userId", min_length=1)
+    session_id: str = Field(alias="sessionId", min_length=1)
+    trace_id: str = Field(alias="traceId", min_length=1)
+    # 兼容已发布契约中的 runId；缺少时由 Agent 服务生成新的运行标识。
+    run_id: str | None = Field(default=None, alias="runId")
+    query: str = Field(min_length=1, max_length=2000)
+    context: dict[str, Any] = Field(default_factory=dict)
+
+    def to_legacy_request(self, run_id: str) -> "AgentRunRequest":
+        """把 V1 请求转换成现有 LangGraph 使用的内部请求模型。"""
+        mode = self.context.get("mode", "recommend")
+        if mode not in {"recommend", "order", "auto_order", "strategy"}:
+            mode = "recommend"
+        return AgentRunRequest(
+            userId=self.user_id,
+            sessionId=self.session_id,
+            text=self.query,
+            mode=mode,
+            traceId=self.trace_id,
+        )
+
+
+class AgentEventV1(BaseModel):
+    """表示可被 Spring 逐行消费的公开 Agent 事件。"""
+
+    schema_version: Literal["1.0"] = Field(default="1.0", alias="schemaVersion")
+    event_id: str = Field(alias="eventId")
+    event_type: Literal[
+        "run_started", "intent_decided", "progress", "text_delta", "card",
+        "confirmation_required", "tool_result", "run_completed", "error"
+    ] = Field(alias="eventType")
+    trace_id: str = Field(alias="traceId")
+    run_id: str = Field(alias="runId")
+    plan_id: str | None = Field(default=None, alias="planId")
+    sequence: int
+    status: Literal["running", "waiting_confirmation", "succeeded", "failed", "cancelled"]
+    payload: dict[str, Any] = Field(default_factory=dict)
+
+
 class AgentEvent(BaseModel):
     node: str
     kind: Literal["info", "tool", "warning", "error"]
