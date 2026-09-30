@@ -4,7 +4,7 @@
 
 **Goal:** 将现有外卖 App 重构为可运行的餐饮到店团购 App，并用 `D:\project\-Demo-master` 独立 Agent 服务替换手机项目旧 Agent Service。
 
-**Architecture:** 先冻结跨仓库契约、团购核心模型和安全边界，再按浏览推荐、购买支付、券核销、售后支持、长期记忆五个纵向切片完成 Spring Boot、Agent 和 Android。Android 只连接 Spring Boot，Agent 只通过 Spring 白名单工具访问业务事实。
+**Architecture:** 先冻结跨仓库契约、团购核心模型和安全边界，再按浏览推荐、购买支付、券核销、售后支持、长期记忆五个纵向切片完成 Spring Boot、Agent 和 Android。Android 只连接 Spring Boot，Agent 只通过 Spring 白名单工具访问业务事实。Android 禁止写死门店、套餐、菜品、评价、订单、优惠券、价格、库存、状态和用户账户等业务数据；除底部 Tab 等纯 UI 结构外，页面展示和交互必须使用 Spring Boot 后端接口，接口失败不得回退到静态业务数据。
 
 **Tech Stack:** Android XML + MVVM + OkHttp + Gson、Spring Boot 3.4.5 + Java 17 + JPA + Flyway + MySQL、Python + LangGraph + FastAPI + MySQL + Chroma、JUnit + pytest + Robolectric + MockWebServer + Maestro。
 
@@ -447,7 +447,7 @@ git commit -m "feat: orchestrate store and deal recommendations"
 - Constraint: 卡片只能在用户点击后执行受控导航，事件接收不得自动切换 Fragment。
 - Design: `UI-15A`至`UI-15J`、`UI-16`、`UI-17A`和`UI-17B`。
 
-- [ ] **Step 1: 编写失败的登录门槛和禁止自动跳转测试**
+- [x] **Step 1: 编写登录门槛和禁止自动跳转测试**
 
 ```kotlin
 @Test
@@ -461,6 +461,8 @@ fun receivingStoreCardDoesNotNavigateUntilClick() {
     assertNull(viewModel.navigation.value)
 }
 ```
+
+实际完成：新增 `AgentLoginGateTest`，覆盖游客登录门槛、已登录进入聊天页，以及接收门店卡事件不产生自动导航请求；新增 `AgentNavigationPolicy` 和只读导航状态，为后续卡片点击导航保留明确边界。
 
 - [ ] **Step 2: 运行 Android 与 Spring 测试确认失败**
 

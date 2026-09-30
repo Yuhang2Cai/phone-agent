@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -37,6 +38,12 @@ class AgentViewModel(
         createdOrderId = savedState[CREATED_ORDER_ID]
     ))
     val uiState = _uiState.asStateFlow()
+    /**
+     * 卡片导航请求的只读投影。
+     *
+     * 当前任务只允许用户点击后产生请求；模型事件、流式进度和普通文本都不会自动写入该值。
+     */
+    val navigation = _uiState.asStateFlow().map { it.navigation }
     private var eventsJob: Job? = null
     private val sessionId: String = savedState[SESSION_ID] ?: UUID.randomUUID().toString().also { savedState[SESSION_ID] = it }
     private var retryText: String? = null
@@ -82,7 +89,16 @@ class AgentViewModel(
         if (request.isEmpty()) return
         retryText = request
         requestedAmountLimit = request.requestedAmountLimit()
-        updateState { it.copy(composerText = "", messages = it.messages + ChatMessage(request, true), error = null, isSending = true) }
+        updateState {
+            it.copy(
+                composerText = "",
+                messages = it.messages + ChatMessage(request, true),
+                events = emptyList(),
+                error = null,
+                isSending = true
+            )
+        }
+        if (_uiState.value.sheetMode != AgentSheetMode.HIDDEN && eventsJob?.isActive != true) subscribeEvents()
         viewModelScope.launch(dispatcher) {
             when (val result = repository.sendMessage(sessionId, request, mode())) {
                 is ApiResult.Success -> {
@@ -167,7 +183,11 @@ class AgentViewModel(
     private fun subscribeEvents() {
         eventsJob = viewModelScope.launch(dispatcher) {
             repository.streamEvents(sessionId, _uiState.value.lastEventId)
-                .catch { updateState { it.copy(error = AgentError.Server("AI 助手连接中断，请稍后重试")) } }
+                .catch {
+                    if (!_uiState.value.isSending) {
+                        updateState { state -> state.copy(error = AgentError.Server("AI 助手连接中断，请稍后重试")) }
+                    }
+                }
                 .collect { appendEvent(it) }
         }
     }
@@ -175,7 +195,7 @@ class AgentViewModel(
 // 应用结果。
     private fun applyResult(result: AgentMessageResult) {
         updateState { state ->
-            val allEvents = result.events.fold(state.events) { current, event -> current.addIfNew(event) }
+            val allEvents = state.events
             val cart = result.candidateCart?.withEffectiveAmountLimit()
             when (result.status) {
                 AgentStatus.FAILED -> state.copy(
@@ -203,7 +223,8 @@ class AgentViewModel(
                     lastEventId = allEvents.mapNotNull(AgentEvent::id).maxOrNull() ?: state.lastEventId,
                     confirmation = null,
                     candidateCart = null,
-                    createdOrderId = cart?.orderId.takeIf { result.nextAction == "payment_followup" }
+                    createdOrderId = cart?.orderId.takeIf { result.nextAction == "payment_followup" },
+                    error = null
                 )
             }
         }
@@ -216,6 +237,13 @@ class AgentViewModel(
             savedState[LAST_EVENT_ID] = it.lastEventId
         }
     }
+
+    /**
+     * 接收流式事件并更新进度状态。
+     *
+     * 这里明确不产生页面导航请求，避免模型返回门店卡后未经用户点击就跳转页面。
+     */
+    fun onAgentEvent(event: AgentEvent) = appendEvent(event)
 
 // 处理 `showError` 相关逻辑。
     private fun showError(error: ApiError) = updateState {
