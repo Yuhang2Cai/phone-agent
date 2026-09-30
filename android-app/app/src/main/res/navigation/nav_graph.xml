@@ -30,5 +30,6 @@
     </fragment>
     <fragment android:id="@+id/dealDetailFragment" android:name="com.fandazi.app.feature.deal.DealDetailFragment" android:label="团购套餐">
         <argument android:name="dealPublicId" app:argType="string" />
+        <argument android:name="storePublicId" app:argType="string" />
     </fragment>
 </navigation>

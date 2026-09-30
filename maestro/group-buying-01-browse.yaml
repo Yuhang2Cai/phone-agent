@@ -63,3 +63,6 @@ appId: com.fandazi.app
     id: "com.fandazi.app:id/deal_rule"
 - assertVisible:
     id: "com.fandazi.app:id/deal_purchase"
+- assertVisible: "selected-deal-deal-001-1"
+- tapOn: "deal-option-deal-001-2"
+- assertVisible: "selected-deal-deal-001-2"
