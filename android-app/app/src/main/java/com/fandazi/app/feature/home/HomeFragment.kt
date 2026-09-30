@@ -1,135 +1,117 @@
-// 首页模块：管理页面交互和状态展示。
+// 团购首页：渲染 UI-01 的发现页结构，并将门店卡片导航到新的团购门店详情页。
 package com.fandazi.app.feature.home
 
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import androidx.core.view.isVisible
-import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.databinding.FragmentHomeBinding
-import com.fandazi.app.feature.agent.AgentSurface
-import com.fandazi.app.feature.agent.openAgentAssistant
-import com.fandazi.app.feature.auth.SessionError
-import com.fandazi.app.feature.ordering.OrderingViewModel
-import com.fandazi.app.feature.ordering.OrderingViewModelFactory
-import com.fandazi.app.feature.ordering.bindMerchantNavigation
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 
+/**
+ * 展示餐饮团购首页。
+ *
+ * 页面当前使用确定性演示数据保证视觉验收稳定；门店公开 ID 与后端种子数据保持一致。
+ * 搜索、分类和排序只改变浏览入口，不在本地猜测业务结果。
+ */
 class HomeFragment : Fragment(R.layout.fragment_home) {
-    private val viewModel: OrderingViewModel by activityViewModels {
-        val activity = requireActivity() as MainActivity
-        OrderingViewModelFactory(activity.orderingRepository(), activity.cartStateStore(), activity.cartOwner())
-    }
     private var binding: FragmentHomeBinding? = null
 
-// 在视图创建后绑定控件、事件与初始状态。
+    /** 绑定首页搜索、分类、排序和门店导航。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val viewBinding = FragmentHomeBinding.bind(view)
         binding = viewBinding
-        bindMerchantNavigation(viewModel, R.id.homeFragment)
-        val activity = requireActivity() as MainActivity
-        val openSearch = { view.findNavController().navigate(R.id.searchFragment) }
-        val openAssistant = { openAgentAssistant(AgentSurface.HOME) }
 
-        viewBinding.homeSearchButton.setOnClickListener { openSearch() }
-        viewBinding.homeHeaderSearch.setOnClickListener {
-            viewBinding.homeSearchButton.isVisible = true
-            viewBinding.homeHero.layoutParams = viewBinding.homeHero.layoutParams.apply {
-                height = (300 * resources.displayMetrics.density).toInt()
-            }
-            viewBinding.homeScroll.smoothScrollTo(0, 0)
-        }
-        viewBinding.homeVoiceButton.setOnClickListener { openAssistant() }
-        viewBinding.agentFab.setOnClickListener { openAssistant() }
-        viewBinding.homeFloatingAssistant.setOnClickListener { openAssistant() }
-        viewBinding.quickLightMealButton.setOnClickListener { openAssistant() }
-        viewBinding.quickBudgetButton.setOnClickListener { openAssistant() }
-        viewBinding.repeatOrderButton.setOnClickListener { openAssistant() }
-        viewBinding.merchantPageButton.setOnClickListener { openSearch() }
-        viewBinding.homeAddress.setOnClickListener { view.findNavController().navigate(R.id.profileFragment) }
-        viewBinding.homeNotification.setOnClickListener {
-            Toast.makeText(requireContext(), R.string.home_notification, Toast.LENGTH_SHORT).show()
+        // 搜索框和所有分类都进入搜索结果页，并通过参数保留用户选择。
+        viewBinding.homeSearchButton.setOnClickListener { openSearch(view, null) }
+        val categoryBindings = listOf(
+            viewBinding.categoryRecommend to "推荐",
+            viewBinding.categoryDrink to "奶茶咖啡",
+            viewBinding.categoryFastFood to "快餐小吃",
+            viewBinding.categoryHotpot to "火锅",
+            viewBinding.categoryBarbecue to "烧烤烤肉",
+            viewBinding.categoryLocal to "地方菜系"
+        )
+        categoryBindings.forEach { (categoryView, category) ->
+            categoryView.setOnClickListener { openSearch(view, category) }
         }
 
-        bindQuickCategories(viewBinding)
-        bindNearbyCards(viewBinding)
-        // 首页后续请求距离排序前统一经过策略校验，定位拒绝时不能展示伪造距离。
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                activity.applicationSession().error.collect { error ->
-                    val message = when (error) {
-                        SessionError.StorageReadFailed -> getString(R.string.session_read_failed)
-                        SessionError.StorageClearFailed -> getString(R.string.logout_failed_retry)
-                        SessionError.StorageUnavailable, SessionError.StorageWriteFailed -> getString(R.string.session_storage_unavailable)
-                        null -> null
-                    }
-                    message?.let { Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show() }
-                }
-            }
+        // 排序和筛选的真实查询由搜索页统一执行；首页只负责明确入口和定位能力提示。
+        viewBinding.sortAverage.setOnClickListener { openSearch(view, "人均") }
+        viewBinding.sortDistance.setOnClickListener {
+            Toast.makeText(requireContext(), "允许定位后可按距离排序", Toast.LENGTH_SHORT).show()
+            openSearch(view, "距离")
         }
+        viewBinding.openFilter.setOnClickListener { openSearch(view, "筛选") }
+        viewBinding.homeLocation.setOnClickListener {
+            Toast.makeText(requireContext(), "首版支持城市选择，暂不提供商圈筛选", Toast.LENGTH_SHORT).show()
+        }
+
+        renderStores(viewBinding)
     }
 
-// 处理 `bindQuickCategories` 相关逻辑。
-    private fun bindQuickCategories(viewBinding: FragmentHomeBinding) {
-        val categories = listOf(
-            Triple(viewBinding.homeCategoryHealthy, "健康轻食", "轻盈无负担"),
-            Triple(viewBinding.homeCategorySpicy, "无辣不欢", "干饭人必选"),
-            Triple(viewBinding.homeCategorySoup, "暖心汤面", "治愈一整天"),
-            Triple(viewBinding.homeCategoryTea, "下午茶", "甜一点吧")
+    /**
+     * 渲染经过审核的演示门店卡片。
+     * 每张卡片只展示到店团购字段，禁止出现配送费、骑手、收货地址和起送价。
+     */
+    private fun renderStores(viewBinding: FragmentHomeBinding) {
+        val stores = listOf(
+            StorePreview("store-001", "蜀香老火锅", "4.8", "2867", "1.2km", "经典双人牛肉套餐", "168", "298", "5.6折", R.drawable.home_merchant_1, R.drawable.home_merchant_2),
+            StorePreview("store-002", "北城烧烤", "4.6", "1890", "2.4km", "招牌烤串双人餐", "128", "228", "5.6折", R.drawable.home_merchant_2, R.drawable.home_merchant_3),
+            StorePreview("store-003", "一风堂拉面", "4.7", "3205", "3.1km", "经典豚骨拉面双人餐", "98", "176", "5.6折", R.drawable.home_merchant_3, R.drawable.home_merchant_1),
+            StorePreview("store-004", "M Stand", "4.5", "932", "1.8km", "拿铁+蛋糕双人餐", "58", "98", "5.9折", R.drawable.home_merchant_1, R.drawable.home_merchant_2)
         )
-        val images = listOf(
-            R.drawable.home_merchant_2,
-            R.drawable.home_merchant_1,
-            R.drawable.home_merchant_3,
-            R.drawable.home_merchant_2
-        )
-        categories.forEachIndexed { index, (category, title, subtitle) ->
-            category.categoryTitle.text = title
-            category.categorySubtitle.text = subtitle
-            category.categoryImage.setImageResource(images[index])
-            category.root.contentDescription = "$title，$subtitle"
-            category.root.setOnClickListener { openAgentAssistant(AgentSurface.HOME) }
-        }
-    }
-
-// 处理 `bindNearbyCards` 相关逻辑。
-    private fun bindNearbyCards(viewBinding: FragmentHomeBinding) {
-        val cards = listOf(
-            Triple(R.string.nearby_merchant_1, R.string.nearby_merchant_1_meta, R.string.nearby_merchant_1_tags),
-            Triple(R.string.nearby_merchant_2, R.string.nearby_merchant_2_meta, R.string.nearby_merchant_2_tags),
-            Triple(R.string.nearby_merchant_3, R.string.nearby_merchant_3_meta, R.string.nearby_merchant_3_tags)
-        )
-        val images = listOf(R.drawable.home_merchant_1, R.drawable.home_merchant_2, R.drawable.home_merchant_3)
-        val distances = listOf("● 1.2 km", "● 1.6 km", "● 2.1 km")
-        listOf(viewBinding.homeMerchantOne, viewBinding.homeMerchantTwo, viewBinding.homeMerchantThree).forEachIndexed { index, card ->
-            card.merchantName.setText(cards[index].first)
-            card.merchantMeta.setText(cards[index].second)
-            card.merchantTags.setText(cards[index].third)
-            card.merchantFoodImage.setImageResource(images[index])
-            card.merchantBackgroundImage.setImageResource(images[index])
-            card.merchantDistance.text = distances[index].replace("● ", "● 距离 ")
-            card.root.contentDescription = getString(cards[index].first)
-            // 首页示例卡片映射到演示数据中的稳定 publicId，直接进入新的团购门店详情页。
-            card.root.setOnClickListener {
-                val arguments = Bundle().apply {
-                    putString("storePublicId", "store-${String.format("%03d", index + 1)}")
-                }
+        val inflater = LayoutInflater.from(requireContext())
+        viewBinding.homeStoreList.removeAllViews()
+        stores.forEach { store ->
+            val card = inflater.inflate(R.layout.item_group_buy_store_card, viewBinding.homeStoreList, false)
+            card.findViewById<ImageView>(R.id.store_image).setImageResource(store.image)
+            card.findViewById<ImageView>(R.id.deal_image).setImageResource(store.dealImage)
+            card.findViewById<TextView>(R.id.store_name).text = store.name
+            card.findViewById<TextView>(R.id.store_rating).text = "★ ${store.rating}"
+            card.findViewById<TextView>(R.id.store_reviews).text = "${store.reviewCount}条评价"
+            card.findViewById<TextView>(R.id.store_distance).text = store.distance
+            card.findViewById<TextView>(R.id.deal_name).text = store.dealName
+            card.findViewById<TextView>(R.id.deal_price).text = "¥${store.price}"
+            card.findViewById<TextView>(R.id.deal_original_price).text = "¥${store.originalPrice}"
+            card.findViewById<TextView>(R.id.deal_discount).text = store.discount
+            card.contentDescription = "${store.name}，评分${store.rating}，${store.dealName}"
+            card.setOnClickListener {
+                val arguments = Bundle().apply { putString("storePublicId", store.publicId) }
                 requireView().findNavController().navigate(R.id.storeFragment, arguments)
             }
+            viewBinding.homeStoreList.addView(card)
         }
     }
 
-// 在视图销毁时释放视图相关资源。
+    /** 将可选查询词传入搜索结果页，空值表示由用户自行输入。 */
+    private fun openSearch(view: View, query: String?) {
+        val arguments = Bundle().apply { query?.let { putString("initialQuery", it) } }
+        view.findNavController().navigate(R.id.searchFragment, arguments)
+    }
+
+    /** 页面销毁后释放 ViewBinding，避免持有失效视图。 */
     override fun onDestroyView() {
         binding = null
         super.onDestroyView()
     }
+
+    /** 首页门店卡片所需的稳定展示字段。 */
+    private data class StorePreview(
+        val publicId: String,
+        val name: String,
+        val rating: String,
+        val reviewCount: String,
+        val distance: String,
+        val dealName: String,
+        val price: String,
+        val originalPrice: String,
+        val discount: String,
+        val image: Int,
+        val dealImage: Int
+    )
 }

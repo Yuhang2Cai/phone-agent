@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 团购主操作按钮，统一使用珊瑚橙和 10dp 圆角。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/group_buy_orange" />
+    <corners android:radius="10dp" />
+</shape>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 团购列表卡片背景：轻阴影由控件 elevation 提供，此处只定义白底与小圆角。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/surface_card" />
+    <corners android:radius="10dp" />
+</shape>

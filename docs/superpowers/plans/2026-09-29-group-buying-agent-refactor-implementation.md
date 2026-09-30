@@ -10,6 +10,10 @@
 
 **Spec:** `docs/superpowers/specs/2026-09-29-group-buying-agent-refactor-design.md`
 
+**UI Spec:** `D:\project\-Demo-master\docs\ui-design\ui-design-spec.md`
+
+**Figma:** `https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN`
+
 ## Global Constraints
 
 - 手机项目根目录：`C:\Users\caid0\Documents\ChatGPT\手机agent\.worktrees\fandazi-ai`。
@@ -21,6 +25,9 @@
 - 业务金额协议统一使用整数分，时间统一使用 UTC ISO-8601，外部资源使用 UUID `publicId`。
 - 购买、模拟支付、退款和投诉必须经过 Spring Boot 一次性确认凭证。
 - Agent 只在聊天框输出文字或结构化卡片，不自动跳转页面。
+- Android UI 必须先完成对应 Figma Frame 的逐页确认，再转换为 XML；UI 视觉开发不采用 TDD，业务状态和 ViewModel 逻辑仍需自动化测试。
+- 底部导航固定为`首页`、`AI助手`、`订单`、`我的`，并使用房屋、机器人、订单单据、用户轮廓图标；禁止字符、圆点、圆形底板或第五个 Tab。
+- `UI-15A`至`UI-15J`是十个独立 Figma Frame，但 Android 只实现一个`AgentChatFragment`和一个导航目的地。
 - 每完成一个任务，运行该任务列出的测试并勾选复选框；不得用预期结果代替实测结果。
 - 所有 Agent 实验同步记录到 `D:\project\-Demo-master\docs\experiments\intent-routing-experiments.md`。
 - 工作树当前包含既有未提交修改；执行者不得覆盖、回退或混入无关文件。
@@ -35,6 +42,7 @@
 - `android-app/app/src/main/`：Android 页面、网络模型和聊天卡片。
 - `data/seed/`：确定性团购种子数据。
 - `maestro/`：每个 Android 切片的真实模拟器验收。
+- `D:\project\-Demo-master\docs\ui-design\ui-design-spec.md`：跨仓库 UI 字段、页面状态和禁止项的规格来源。
 
 ### Agent 项目
 
@@ -290,15 +298,27 @@ git commit -m "feat: consume independent agent event stream"
 - Create: `[Agent] workflows/__init__.py`
 - Modify: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/home/HomeFragment.kt`
 - Modify: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/home/HomePresentationState.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/home/SearchResultsFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/home/SearchFilterState.kt`
 - Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/store/StoreFragment.kt`
 - Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/store/StoreModels.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/store/StoreDealsFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/store/StoreDishesFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/store/StoreReviewsFragment.kt`
 - Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/deal/DealDetailFragment.kt`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_home.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_search_results.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_store.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_store_deals.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_store_dishes.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_store_reviews.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_deal_detail.xml`
 - Modify: `[手机] android-app/app/src/main/res/navigation/nav_graph.xml`
 - Test: `[手机] backend/src/test/java/com/fandazi/feature/catalog/StoreDealApiTest.java`
 - Test: `[Agent] tests/test_group_buying_read_tools.py`
 - Test: `[手机] android-app/app/src/test/java/com/fandazi/app/feature/home/HomeSortTest.kt`
 - Create: `[手机] maestro/group-buying-01-browse.yaml`
-- Design: `Figma 文件「饭搭子团购浏览 UI」`，用于首页、门店详情和套餐详情的 XML 转换基准。
+- Design: `UI-01`至`UI-06`，用于首页、搜索筛选、门店三 Tab 和套餐详情的 XML 转换基准。
 
 **Interfaces:**
 - Produces: `GET /api/stores`，参数 `cityCode/sort/latitude/longitude/category/minPrice/maxPrice`。
@@ -340,19 +360,22 @@ Run: `cd android-app; .\gradlew.bat testDebugUnitTest --tests "*HomeSortTest"`
 
 先一次性迁移 12 类意图名称、输出模型和最小可用边界示例，确保后续购买、券和售后切片不再依赖旧外卖意图；千级本地文案和完整离线评测留到 Task 9。随后实现推荐确定性工作流。一个推荐目标可以串行调用多个只读工具，但保持 `is_composite=false`；多个独立目标才进入 DAG。
 
-- [ ] **Step 5: 先完成 Figma UI 设计，再改造 Android 首页、门店和套餐页面**
+- [x] **Step 5: 先完成 Figma UI 设计，再改造 Android 首页、门店和套餐页面**
 
-UI 实施不采用 TDD。必须先在 Figma 中完成并确认以下设计稿，再将设计转换为 Android XML：
+UI 实施不采用 TDD。必须先在最新 Figma 中逐页确认以下 Frame，再将设计转换为 Android XML：
 
-1. 首页团购发现：位置、搜索、推荐/人均/距离排序、门店卡片和底部导航。
-2. 门店详情：门店概览、评分、地址、团购套餐入口和评价入口。
-3. 套餐详情：价格、原价、库存、购买须知、评价和购买按钮。
+1. `UI-01 首页`：位置、搜索、横向分类、`人均/距离/筛选`和门店卡片，不显示 AI 横幅。
+2. `UI-02 搜索与筛选结果`：保持`首页`Tab选中，复用分类、排序与筛选状态。
+3. `UI-03 门店详情`：第一行只保留`优惠/菜品/评价`，默认展示优惠套餐。
+4. `UI-04 门店菜品`：展示菜品列表，不提供外卖加购。
+5. `UI-05 门店评价`：展示评分分布与评价列表。
+6. `UI-06 套餐详情`：展示套餐明细、使用规则和固定购买操作，移除右上角搜索、收藏、分享和更多按钮。
 
-Figma 设计文件：`https://www.figma.com/design/fDqc9laGSxeCnh83uuw8Zz`。
+Figma 设计文件：`https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN`。
 
-完成 Figma 设计后，按设计稿转换 XML，并保证首页不显示商圈；定位拒绝时禁用距离排序；门店页不出现菜品加购和旧外卖购物车。
+完成 Figma 逐页确认后，按设计稿转换 XML，并保证首页不显示商圈；定位拒绝时禁用距离排序；门店页不出现`买单/环境服务/更多`、菜品加购和旧外卖购物车。`UI-01`至`UI-06`底部导航使用四个具体图标，不残留旧`Tab Icon/...`椭圆节点。实际完成的 Figma Frame 为 `UI-01`（`63:2`）、`UI-02`（`63:88`）、`UI-03`（`64:2`）、`UI-04`（`64:88`）、`UI-05`（`64:144`）和`UI-06`（`64:225`）；Android 端使用现有单一导航容器实现门店三 Tab，行为与页面设计一致。
 
-- [ ] **Step 6: 运行 Android 构建、Maestro 和视觉验收**
+- [x] **Step 6: 运行 Android 构建、Maestro 和视觉验收**
 
 UI 验收顺序固定为：
 
@@ -370,9 +393,11 @@ Run: `cd android-app; .\gradlew.bat testDebugUnitTest assembleDebug`
 
 Run: `maestro test maestro/group-buying-01-browse.yaml`
 
-Expected: Figma 设计与 XML 页面一致；登录和游客都能浏览；三种排序符合规则；推荐工具序列正确；Maestro 真实模拟器流程通过。
+Expected: `UI-01`至`UI-06`与 XML 页面一致；登录和游客都能浏览；分类、三种排序和筛选符合规则；门店三 Tab 正确；推荐工具序列正确；底部导航无圆形占位；Maestro 真实模拟器流程通过。
 
-- [ ] **Step 7: 视觉验收通过后提交浏览推荐切片**
+实际验证结果：`assembleDebug` 构建通过；后端 `StoreDealApiTest` 为 2/2 通过；Agent `test_group_buying_read_tools.py` 为 2/2 通过；Maestro `group-buying-01-browse.yaml` 在 `Medium_Phone_API_36.1` 上完整通过，覆盖游客浏览、搜索、门店三 Tab 和套餐详情。截图复核确认底部导航为四个具体图标且无默认选中胶囊。Android 全量 `testDebugUnitTest` 可执行，但现有 122 个测试中有 6 个与本次切片无关的既有失败（`AgentViewModelTest` 2 个、`MerchantFeedViewModelTest` 1 个、`MerchantNavigationPagesTest` 3 个）；本切片相关的 `HomeSortTest` 单独运行通过。Windows 含中文工作树路径会使 Gradle 测试类加载失败，使用临时盘符映射后已完成真实测试执行。
+
+- [x] **Step 7: 视觉验收通过后提交浏览推荐切片**
 
 ```bash
 git add backend android-app maestro
@@ -382,11 +407,18 @@ git add dag workflows tests/test_group_buying_read_tools.py
 git commit -m "feat: orchestrate store and deal recommendations"
 ```
 
+本次已提交浏览推荐 UI 切片：`a616c99 feat: add group buying discovery UI slice`。Agent 工作流与后端查询代码沿用此前已完成的提交，未在本次 UI 提交中重复改写。
+
 ### Task 5: 建立 Android AI 标签、流式消息和聊天卡片框架
 
 **Files:**
 - Modify: `[手机] android-app/app/src/main/res/menu/bottom_navigation_menu.xml`
 - Modify: `[手机] android-app/app/src/main/res/navigation/nav_graph.xml`
+- Modify: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/auth/AuthFragment.kt`
+- Modify: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/auth/AuthViewModel.kt`
+- Modify: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/profile/ProfileFragment.kt`
+- Modify: `[手机] android-app/app/src/main/res/layout/fragment_auth.xml`
+- Modify: `[手机] android-app/app/src/main/res/layout/fragment_profile.xml`
 - Replace: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentSheetFragment.kt`
 - Remove from runtime: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentFloatingButtonPolicy.kt`
 - Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentChatFragment.kt`
@@ -399,6 +431,10 @@ git commit -m "feat: orchestrate store and deal recommendations"
 - Create: `[手机] android-app/app/src/main/res/layout/fragment_agent_chat.xml`
 - Create: `[手机] android-app/app/src/main/res/layout/item_agent_store_card.xml`
 - Create: `[手机] android-app/app/src/main/res/layout/item_agent_deal_card.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/item_agent_order_card.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/item_agent_progress.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/item_agent_login_gate.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/item_agent_error.xml`
 - Modify: `[手机] android-app/app/src/main/res/values/strings.xml`
 - Test: `[手机] android-app/app/src/test/java/com/fandazi/app/feature/agent/AgentLoginGateTest.kt`
 - Test: `[手机] android-app/app/src/test/java/com/fandazi/app/feature/agent/AgentCardRendererTest.kt`
@@ -407,8 +443,9 @@ git commit -m "feat: orchestrate store and deal recommendations"
 
 **Interfaces:**
 - Consumes: `AgentEventV1` 和 `AgentCardV1`。
-- Produces: 聊天内文字、业务进度、门店卡、套餐卡和错误卡。
+- Produces: 账号密码登录/注册、游客“我的”、聊天内文字、业务进度、门店卡、套餐卡、订单卡、登录拦截和错误卡。
 - Constraint: 卡片只能在用户点击后执行受控导航，事件接收不得自动切换 Fragment。
+- Design: `UI-15A`至`UI-15J`、`UI-16`、`UI-17A`和`UI-17B`。
 
 - [ ] **Step 1: 编写失败的登录门槛和禁止自动跳转测试**
 
@@ -433,13 +470,36 @@ Run: `mvn -f backend/pom.xml -Dtest=AgentCardEnrichmentTest test`
 
 - [ ] **Step 3: 将 AI助手加入底部导航并移除悬浮入口**
 
-游客进入 AI 标签时只展示登录引导；登录成功后返回 AI 标签。删除布局中的常驻悬浮球引用，不删除仍被历史测试引用的源码，直到 Task 11 统一清理。
+底部导航固定为`首页/AI助手/订单/我的`，使用房屋、机器人、订单单据和用户轮廓图标；选中项图标和文字为珊瑚橙，禁止使用圆点或圆形底板。游客进入 AI 标签时展示`UI-15H`登录拦截；登录成功后返回 AI 标签。删除布局中的常驻悬浮球引用，不删除仍被历史测试引用的源码，直到 Task 11 统一清理。
 
-- [ ] **Step 4: 实现 NDJSON/SSE 事件解析和版本化卡片渲染**
+- [ ] **Step 4: 逐页确认 AI 助手和游客“我的”Figma Frame**
 
-Agent 仅返回卡片类型和公开资源 ID，Spring 的 `AgentCardEnrichmentService` 校验资源归属并补充价格、状态和按钮。未知卡片版本渲染为安全错误卡，不从模型文本解析业务字段。
+逐张打开并确认`UI-15A`至`UI-15J`和`UI-16`，检查每张都是 393×852 的完整页面，而不是组件集合或静态图片占位。重点确认聊天头部、消息区、输入区、四项底部导航、卡片宽度、处理中状态和错误重试；`UI-15H`不得展示套餐结果。任何待确认 Frame 未通过时，只修改 Figma 和 UI 规格，不进入 Android XML 实现。
 
-- [ ] **Step 5: 运行 Android 测试、构建和 Maestro**
+- [ ] **Step 5: 实现 NDJSON/SSE 事件解析和版本化卡片渲染**
+
+Agent 仅返回卡片类型和公开资源 ID，Spring 的 `AgentCardEnrichmentService` 校验资源归属并补充价格、状态和按钮。未知卡片版本渲染为安全错误卡，不从模型文本解析业务字段。`AgentChatFragment`必须覆盖以下十个完整界面状态，但不创建十个导航目的地：
+
+```text
+UI-15A EMPTY
+UI-15B LOADING
+UI-15C TEXT_RESPONSE
+UI-15D STORE_CARD
+UI-15E DEAL_CARD
+UI-15F ORDER_CARD
+UI-15G COMPOSITE_PROGRESS
+UI-15H LOGIN_GATE
+UI-15I ERROR_FALLBACK
+UI-15J MULTI_TURN
+```
+
+每种状态都保留完整聊天头部、消息区、输入区和底部导航。`progress`事件实时更新步骤；不得展示模型内部思考，也不得使用固定“预计需要 10-20 秒”作为真实承诺。
+
+- [ ] **Step 6: 按 `UI-16`、`UI-17A`、`UI-17B` 改造账号页面**
+
+`AuthFragment`使用登录/注册两种页面模式：登录只包含账号和密码，注册包含账号、密码和可选昵称，不接入验证码。游客“我的”只展示登录/注册入口和设置，不展示订单、团购券或退款记录；登录后相关业务入口由真实账户状态提供。
+
+- [ ] **Step 7: 运行 Android 测试、构建、Maestro 和逐页视觉验收**
 
 Run: `cd android-app; .\gradlew.bat testDebugUnitTest lintDebug assembleDebug`
 
@@ -447,9 +507,9 @@ Run: `mvn -f backend/pom.xml -Dtest=AgentCardEnrichmentTest test`
 
 Run: `maestro test maestro/group-buying-02-agent-chat.yaml`
 
-Expected: 游客被引导登录；流式文字和卡片在聊天框显示；收卡时页面不自动跳转。
+Expected: 游客被引导登录；账号密码登录/注册符合设计；流式文字、进度和卡片在聊天框显示；收卡时页面不自动跳转；`UI-15A`至`UI-15J`十种状态逐页与 Figma 一致；底部导航没有圆形占位或第五个 Tab。
 
-- [ ] **Step 6: 提交聊天框架**
+- [ ] **Step 8: 提交账号与聊天框架**
 
 ```bash
 git add android-app maestro/group-buying-02-agent-chat.yaml
@@ -469,9 +529,13 @@ git commit -m "feat: add authenticated agent chat tab and cards"
 - Create: `[Agent] workflows/purchase.py`
 - Modify: `[Agent] dag/tool_registry.py`
 - Modify: `[Agent] dag/tool_adapters.py`
-- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/purchase/DealCheckoutFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/purchase/DealCheckoutBottomSheetFragment.kt`
 - Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/purchase/PurchaseViewModel.kt`
-- Create: `[手机] android-app/app/src/main/res/layout/fragment_deal_checkout.xml`
+- Modify: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/order/PaymentFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/purchase/PaymentSuccessFragment.kt`
+- Create: `[手机] android-app/app/src/main/res/layout/sheet_deal_checkout.xml`
+- Modify: `[手机] android-app/app/src/main/res/layout/fragment_payment.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_payment_success.xml`
 - Create: `[手机] android-app/app/src/main/res/layout/item_agent_confirmation_card_v1.xml`
 - Test: `[手机] backend/src/test/java/com/fandazi/feature/purchase/PurchaseConfirmationTest.java`
 - Test: `[手机] backend/src/test/java/com/fandazi/feature/grouporder/GroupBuyOrderIdempotencyTest.java`
@@ -483,6 +547,7 @@ git commit -m "feat: add authenticated agent chat tab and cards"
 - Produces tools: `create_purchase_quote`、`create_group_buy_order`、`pay_mock_order`。
 - Produces cards: `confirmation_card`、`order_card`。
 - Consumes: 单次 `ConfirmationGrant` 和系统生成幂等键。
+- Design: `UI-07 下单确认弹窗`、`UI-08 模拟支付`、`UI-09 支付成功与团购券生成`。
 
 - [ ] **Step 1: 编写失败的报价变化、确认过期和幂等测试**
 
@@ -520,7 +585,7 @@ Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m pytest tests/test_purcha
 
 - [ ] **Step 5: 实现 Android 套餐确认和模拟支付**
 
-确认页只包含套餐、数量、优惠、总额和使用规则，不出现配送地址、配送费或菜品规格。
+`UI-07`使用套餐详情上的底部弹窗，背景加遮罩；只展示套餐、数量、商品总价、活动优惠、小计和实付金额，不出现配送地址、配送费、菜品规格、秒杀、神券包、美团券或商家券。`UI-08`是独立模拟支付页，支付按钮只调用演示支付接口。`UI-09`展示支付成功和团购券生成结果，主操作为查看团购券，辅助操作为返回订单。三页示例金额和真实接口金额必须一致。
 
 - [ ] **Step 6: 运行全切片验证**
 
@@ -531,6 +596,8 @@ Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m pytest tests/test_purcha
 Run: `cd android-app; .\gradlew.bat testDebugUnitTest assembleDebug`
 
 Run: `maestro test maestro/group-buying-03-purchase.yaml`
+
+Expected: `套餐详情 → 下单确认弹窗 → 模拟支付 → 支付成功`完整通过；弹窗字段、金额、按钮和页面层级与`UI-07`至`UI-09`一致；不存在真实支付入口或已删除的营销模块。
 
 - [ ] **Step 7: 提交购买支付切片**
 
@@ -552,9 +619,18 @@ git commit -m "feat: orchestrate confirmed group buying purchase"
 - Modify: `[手机] backend/src/main/java/com/fandazi/feature/agent/AgentToolService.java`
 - Modify: `[Agent] dag/tool_registry.py`
 - Modify: `[Agent] dag/tool_adapters.py`
+- Modify: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/order/OrdersFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/order/GroupOrderDetailFragment.kt`
 - Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherQrFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/voucher/RedemptionResultFragment.kt`
 - Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt`
+- Modify: `[手机] android-app/app/src/main/res/layout/fragment_orders.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_group_order_detail.xml`
 - Create: `[手机] android-app/app/src/main/res/layout/fragment_voucher_detail.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_voucher_qr.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_redemption_result.xml`
+- Modify: `[手机] android-app/app/src/main/res/navigation/nav_graph.xml`
 - Create: `[手机] android-app/app/src/main/res/layout/item_agent_voucher_card.xml`
 - Test: `[手机] backend/src/test/java/com/fandazi/feature/voucher/VoucherLifecycleTest.java`
 - Test: `[手机] backend/src/test/java/com/fandazi/feature/voucher/VoucherTokenSecurityTest.java`
@@ -565,6 +641,7 @@ git commit -m "feat: orchestrate confirmed group buying purchase"
 - Produces tools: `list_user_vouchers`、`get_order_detail`。
 - Produces: `POST /api/vouchers/{publicId}/display-token` 和受保护演示核销接口。
 - Produces card: `voucher_card`。
+- Design: `UI-10 订单列表`、`UI-11 订单详情`、`UI-12 团购券详情`、`UI-13 核销二维码`、`UI-14 核销结果`。
 
 - [ ] **Step 1: 编写失败的券数量、令牌过期和重复核销测试**
 
@@ -592,7 +669,7 @@ Agent 只读取券摘要，不获取可直接核销的秘密；二维码令牌�
 
 - [ ] **Step 5: 实现 Android 订单分段视图和券详情**
 
-订单标签为“待使用、已使用、退款/售后、全部”。核销入口明确标记为演示功能。
+订单页按 Figma 使用`全部`、`待使用`、`已完成`、`退款/售后`四个状态标签，底部`订单`Tab为珊瑚橙选中。`UI-11`订单详情提供查看团购券和符合条件时的退款入口。`UI-12`只展示券状态、订单信息和使用规则，不内嵌二维码；用户点击`出示核销码`后进入`UI-13`并按需请求短时令牌。演示核销完成后进入`UI-14`，展示核销结果、编号和返回订单操作。
 
 - [ ] **Step 6: 运行测试与 Maestro**
 
@@ -603,6 +680,8 @@ Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m pytest tests/test_vouche
 Run: `cd android-app; .\gradlew.bat testDebugUnitTest assembleDebug`
 
 Run: `maestro test maestro/group-buying-04-voucher-redemption.yaml`
+
+Expected: `订单列表 → 订单详情 → 团购券详情 → 核销二维码 → 核销结果 → 返回订单`完整通过；二维码秘密不进入 Agent；五个页面分别与`UI-10`至`UI-14`一致。
 
 - [ ] **Step 7: 提交券核销切片**
 
@@ -634,8 +713,20 @@ git commit -m "feat: add voucher query tools"
 - Modify: `[Agent] node/agent/data/11-会员积分与活动规则FAQ.md`
 - Modify: `[Agent] node/agent/data/12-售后维权与纠纷处理FAQ.md`
 - Modify: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/order/OrdersFragment.kt`
-- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/order/GroupOrderDetailFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/refund/RefundRequestFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/refund/RefundProgressFragment.kt`
 - Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/review/ReviewFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/support/HelpFaqFragment.kt`
+- Create: `[手机] android-app/app/src/main/java/com/fandazi/app/feature/support/ComplaintFragment.kt`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_refund_request.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_refund_progress.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_review.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_help_faq.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/fragment_complaint.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/view_orders_empty.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/view_error_retry.xml`
+- Create: `[手机] android-app/app/src/main/res/layout/view_network_error.xml`
+- Modify: `[手机] android-app/app/src/main/res/navigation/nav_graph.xml`
 - Test: `[手机] backend/src/test/java/com/fandazi/feature/refund/RefundEligibilityTest.java`
 - Test: `[手机] backend/src/test/java/com/fandazi/feature/review/ReviewEligibilityTest.java`
 - Test: `[手机] backend/src/test/java/com/fandazi/feature/support/CouponComplaintToolTest.java`
@@ -645,6 +736,7 @@ git commit -m "feat: add voucher query tools"
 **Interfaces:**
 - Produces tools: `list_user_orders`、`get_order_detail`、`request_refund`、`query_coupon`、`query_faq`、`submit_complaint`。
 - Constraint: 仅 `UNUSED` 券可退款；至少一张券核销后允许每个订单评价一次。
+- Design: `UI-18A 退款申请`、`UI-18B 退款进度`、`UI-19 发布评价`、`UI-20A FAQ与帮助`、`UI-20B 投诉提交`、`UI-21A 空订单`、`UI-21B 加载失败`、`UI-21C 网络异常`。
 
 - [ ] **Step 1: 编写失败的退款与评价资格测试**
 
@@ -675,11 +767,15 @@ Run: `mvn -f backend/pom.xml -Dtest=RefundEligibilityTest,ReviewEligibilityTest,
 
 “查退款条件并推荐火锅套餐”拆成两个独立目标；推荐分支可以在退款查询失败时继续，退款写节点失败时停止其下游写操作。
 
-- [ ] **Step 5: 实现 Android 售后、评价和对应聊天卡片**
+- [ ] **Step 5: 逐页确认售后、帮助和异常状态 Figma Frame**
 
-退款确认卡展示券、金额、原因和有效期；订单详情只对符合资格的订单显示评价入口。
+逐张确认`UI-18A`、`UI-18B`、`UI-19`、`UI-20A`、`UI-20B`、`UI-21A`、`UI-21B`和`UI-21C`。确认内容必须覆盖真实入口、返回路径、空状态操作和错误重试，不允许只确认孤立组件。任何 Frame 未通过时，只更新 Figma 与 UI 规格，不进入 Android XML 实现。
 
-- [ ] **Step 6: 运行切片测试与 Maestro**
+- [ ] **Step 6: 实现 Android 售后、评价和对应聊天卡片**
+
+退款确认卡展示券、金额、原因和有效期；订单详情只对符合资格的订单显示评价入口。Android 页面按`UI-18A`至`UI-20B`实现：退款申请展示关联订单、原因和补充说明；退款进度展示真实处理状态；评价页展示评分和文字输入；FAQ 使用可展开问题列表；投诉页展示问题类型、可选订单和问题描述。同步实现`UI-21A`至`UI-21C`三个全屏状态：订单为空时提供返回首页入口；接口失败时提供原地重试；网络异常时说明连接问题并允许重试。三个状态必须复用正式底部导航和确定的具体图标，禁止用圆点或字符占位。所有页面禁止出现外卖配送、骑手、收货地址或购物车字段。
+
+- [ ] **Step 7: 运行切片测试与 Maestro**
 
 Run: `mvn -f backend/pom.xml -Dtest=RefundEligibilityTest,ReviewEligibilityTest,CouponComplaintToolTest test`
 
@@ -689,7 +785,9 @@ Run: `cd android-app; .\gradlew.bat testDebugUnitTest assembleDebug`
 
 Run: `maestro test maestro/group-buying-05-after-sale.yaml`
 
-- [ ] **Step 7: 提交售后切片**
+Expected: 从订单详情进入退款或评价，从帮助页进入投诉；售后五页和三个异常状态分别与 Figma 一致；资格控制、确认凭证、重试行为和返回路径完整通过。
+
+- [ ] **Step 8: 提交售后切片**
 
 ```bash
 git add backend android-app maestro/group-buying-05-after-sale.yaml
@@ -791,6 +889,7 @@ git commit -m "feat: migrate intent routing to group buying domain"
 **Interfaces:**
 - Produces: 记忆 CRUD、明确“记住/忘记”、Top-K 检索、TTL 清理和 Chroma 重建。
 - Authority: MySQL `memory_items` 是权威；Chroma 只保存 `memoryId/document/embedding/metadata`。
+- Design gate: 当前 35 张 UI Frame 不包含“AI 记忆”页面；开始 Android 页面实现前，必须先在同一 Figma 文件补充并经人工确认独立全屏设计稿，禁止开发者自行推断界面。
 
 - [ ] **Step 1: 编写失败的记忆边界测试**
 
@@ -818,11 +917,15 @@ Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m pytest tests/test_memory
 
 会话开始注入少量稳定画像；每轮按当前问题检索 Top-K 情景、反馈和程序性记忆。冲突、过期或低相关记忆不注入。
 
-- [ ] **Step 5: 实现 Spring 代理和 Android“AI 记忆”页面**
+- [ ] **Step 5: 先补充并确认“AI 记忆”Figma 页面**
+
+在现有 Figma 文件中新增独立的“AI 记忆”全屏 Frame，明确列表、纠正、删除、清空、空状态和敏感信息提示。设计确认后，将新 Frame 编号和链接回填到 UI 规范及本计划；未确认前只允许实现后端与 Agent 记忆能力，不开始 Android 视觉实现。
+
+- [ ] **Step 6: 实现 Spring 代理和 Android“AI 记忆”页面**
 
 Android 不直连 Agent Memory API；所有查看、纠正、删除和清空请求经 Spring 校验用户身份。
 
-- [ ] **Step 6: 运行三端测试与 Maestro**
+- [ ] **Step 7: 运行三端测试、截图比对与 Maestro**
 
 Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m pytest tests/test_memory_service.py tests/test_memory_retrieval.py tests/test_memory_retention.py -q`
 
@@ -832,7 +935,9 @@ Run: `cd android-app; .\gradlew.bat testDebugUnitTest assembleDebug`
 
 Run: `maestro test maestro/group-buying-06-agent-memory.yaml`
 
-- [ ] **Step 7: 提交长期记忆切片**
+Expected: 记忆增删改查、空状态和清空确认完整通过；Android 截图与已确认的“AI 记忆”Figma Frame 一致。
+
+- [ ] **Step 8: 提交长期记忆切片**
 
 ```bash
 git add database/schema/003_create_agent_memory.sql memory config/memory.yaml service graph tests
@@ -927,6 +1032,8 @@ git commit -m "refactor: retire takeaway runtime paths"
 - Create: `[手机] docker-compose.integration.yml`
 - Modify: `[手机] start-fandazi-services.ps1`
 - Create: `[手机] maestro/group-buying-99-full-regression.yaml`
+- Create: `[手机] docs/ui-acceptance/README.md`
+- Create: `[手机] docs/ui-acceptance/screenshots/`
 - Modify: `[手机] docs/verification-report.md`
 - Modify: `[手机] docs/architecture.md`
 - Modify: `[手机] docs/api-and-agent.md`
@@ -935,6 +1042,7 @@ git commit -m "refactor: retire takeaway runtime paths"
 - Produces: `ScenarioCase`、`EvaluationResult`、`Scorer` 插件接口。
 - Produces: 可启动 MySQL、Spring Boot 和新 Agent 的集成 Compose。
 - Produces: 最终实测报告和回滚说明。
+- Produces: 35 张 Figma Frame 的确认状态、逐屏验收矩阵和 Android 实机截图；最终验收前必须把待确认 Frame 全部完成确认。后续新增“AI 记忆”Frame 单独追加，不冒充既有 35 张之一。
 
 - [ ] **Step 1: 编写失败的评分器替换测试**
 
@@ -980,13 +1088,15 @@ Run: `C:\Users\caid0\anaconda3\envs\pinnT\python.exe -m evaluation.runner --data
 
 Expected: 输出准确率、工具选择、记忆、确认安全、任务成功率和 P50/P95；实测结果写入实验文档。
 
-- [ ] **Step 7: 安装最新 APK 并运行全部 Maestro**
+- [ ] **Step 7: 安装最新 APK、逐屏截图并运行全部 Maestro**
 
 先按项目约束卸载旧 `com.fandazi.app` 和干扰应用 `com.dirror.music`，再安装本次 debug APK。
 
 Run: `maestro test maestro/group-buying-99-full-regression.yaml`
 
-Expected: 浏览、排序、登录门槛、AI 文字/卡片、购买、支付、券、核销、退款、评价和记忆管理完整通过。
+按照 UI 规范中的 35 张 Frame 建立验收矩阵，为每个可达状态保存同尺寸 Android 截图并记录对应 Frame 名称。AI 助手必须覆盖`UI-15A`至`UI-15J`十种状态，但运行时仍是一个`AgentChatFragment`和一个导航目的地；不得为了匹配设计稿创建十个业务页面。
+
+Expected: 浏览、排序、登录门槛、AI 文字/卡片/复合进度/错误/多轮、购买、支付、券、核销、退款、评价和异常态完整通过；底部导航在所有主页面都使用房屋、机器人、订单凭证、用户轮廓图标；35 张 Frame 均已最终确认，逐屏截图与对应 Frame 的内容、状态和层级一致。
 
 - [ ] **Step 8: 验证降级与回滚**
 
@@ -994,7 +1104,7 @@ Expected: 浏览、排序、登录门槛、AI 文字/卡片、购买、支付、
 
 - [ ] **Step 9: 更新最终文档和实验记录**
 
-`docs/verification-report.md` 写入实际命令、日期、环境和结果；Agent 实验文档写入本轮实测指标；架构文档列出所有最终文件和运行方式。
+`docs/verification-report.md` 写入实际命令、日期、环境和结果；`docs/ui-acceptance/README.md` 写入 35 张 Frame 到 Android 截图、入口和 Maestro 场景的映射；Agent 实验文档写入本轮实测指标；架构文档列出所有最终文件和运行方式。
 
 - [ ] **Step 10: 提交最终集成**
 
@@ -1023,4 +1133,4 @@ Task 1 契约
   -> Task 12 评测与最终验收
 ```
 
-Task 4 完成后，Task 5 与 Task 9 可以在文件边界不冲突时并行；Task 6、7、8 必须按业务状态依赖顺序执行。Task 11 必须等所有替代路径通过后再删除旧运行代码。
+Task 4 完成后，Task 5 与 Task 9 可以在文件边界不冲突时并行；Task 6、7、8 必须按业务状态依赖顺序执行。每个 Android 切片都先核对对应 Figma 全屏 Frame，再实现业务逻辑和页面，最后用截图与 Maestro 联合验收；不把零散组件或静态图片上传视为页面完成。Task 10 的“AI 记忆”尚无已确认设计稿，必须先补稿再实现 Android 页面。Task 11 必须等所有替代路径通过后再删除旧运行代码。

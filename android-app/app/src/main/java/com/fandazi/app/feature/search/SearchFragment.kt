@@ -1,129 +1,121 @@
-// 搜索模块：管理页面交互和状态展示。
+// 团购搜索页：管理 UI-02 的查询、分类、排序和门店结果展示。
 package com.fandazi.app.feature.search
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
-import com.fandazi.app.MainActivity
 import com.fandazi.app.R
-import com.fandazi.app.core.image.ImageLoader
 import com.fandazi.app.databinding.FragmentSearchBinding
-import com.fandazi.app.feature.agent.AgentSurface
-import com.fandazi.app.feature.agent.openAgentAssistant
-import com.fandazi.app.feature.ordering.Merchant
-import com.fandazi.app.feature.ordering.OrderingViewModel
-import com.fandazi.app.feature.ordering.OrderingViewModelFactory
-import com.fandazi.app.feature.ordering.SearchStatus
-import com.fandazi.app.feature.ordering.bindMerchantNavigation
-import kotlinx.coroutines.launch
 
+/**
+ * 团购搜索与筛选结果页。
+ *
+ * 当前切片先提供确定性视觉和交互骨架；查询参数会完整保留，后续接入 Store API 时无需修改页面结构。
+ */
 class SearchFragment : Fragment(R.layout.fragment_search) {
-    private val viewModel: OrderingViewModel by activityViewModels {
-        val activity = requireActivity() as MainActivity
-        OrderingViewModelFactory(activity.orderingRepository(), activity.cartStateStore(), activity.cartOwner())
-    }
-    private var selectedFilter = SearchFilter.COMPREHENSIVE
+    private var selectedCategory = "推荐"
+    private var selectedSort = "人均"
 
-// 在视图创建后绑定控件、事件与初始状态。
+    /** 初始化查询词，并绑定分类、排序与结果卡片。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentSearchBinding.bind(view)
-        bindMerchantNavigation(viewModel, R.id.searchFragment)
-        binding.searchBack.setOnClickListener { view.findNavController().navigateUp() }
-        binding.searchInput.requestFocus()
-        binding.searchInput.post { (requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager)?.showSoftInput(binding.searchInput, InputMethodManager.SHOW_IMPLICIT) }
-        binding.clearSearch.setOnClickListener { binding.searchInput.text?.clear() }
-        binding.searchInput.doAfterTextChanged { viewModel.updateSearchKeyword(it?.toString().orEmpty()) }
-        binding.searchButton.setOnClickListener { submitSearch(binding) }
-        binding.aiSuggestion.setOnClickListener { openAgentAssistant(AgentSurface.SEARCH) }
-        binding.agentFab.setOnClickListener { openAgentAssistant(AgentSurface.SEARCH) }
-        renderFilters(binding)
+        val initialQuery = arguments?.getString("initialQuery").orEmpty()
+        binding.searchInput.setText(initialQuery.takeUnless { it in setOf("推荐", "人均", "距离", "筛选") }.orEmpty())
+        selectedCategory = initialQuery.takeIf { it in CATEGORIES } ?: if (initialQuery == "火锅") "火锅" else "推荐"
+        selectedSort = initialQuery.takeIf { it in SORTS } ?: "人均"
 
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    render(binding, state.merchants, state.searchStatus, state.error, state.keyword)
-                }
+        binding.searchBack.setOnClickListener { view.findNavController().navigateUp() }
+        binding.clearSearch.setOnClickListener { binding.searchInput.text?.clear() }
+        binding.searchInput.doAfterTextChanged { renderResults(binding) }
+        binding.searchButton.setOnClickListener { renderResults(binding) }
+        renderCategories(binding)
+        renderFilters(binding)
+        renderResults(binding)
+    }
+
+    /** 横向分类仅改变查询条件，不创建新的页面或业务意图。 */
+    private fun renderCategories(binding: FragmentSearchBinding) {
+        binding.searchCategories.removeAllViews()
+        CATEGORIES.forEach { category ->
+            val view = TextView(requireContext()).apply {
+                text = category
+                textSize = 13f
+                gravity = android.view.Gravity.CENTER
+                setTextColor(ContextCompat.getColor(requireContext(), if (category == selectedCategory) R.color.group_buy_orange else R.color.group_buy_text))
+                setTypeface(typeface, if (category == selectedCategory) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+                setOnClickListener { selectedCategory = category; renderCategories(binding); renderResults(binding) }
             }
+            binding.searchCategories.addView(view, android.widget.LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, android.view.ViewGroup.LayoutParams.MATCH_PARENT).apply { marginEnd = 22.dp })
         }
     }
 
-// 处理 `submitSearch` 相关逻辑。
-    private fun submitSearch(binding: FragmentSearchBinding) {
-        viewModel.search(binding.searchInput.text?.toString().orEmpty().ifBlank { "清淡午餐" })
-    }
-
-// 渲染filters。
+    /** 排序栏只展示首版允许的人均、距离和筛选入口。 */
     private fun renderFilters(binding: FragmentSearchBinding) {
         binding.filterRow.removeAllViews()
-        SearchFilter.entries.forEach { filter ->
-            val chip = TextView(requireContext()).apply {
-                id = View.generateViewId()
-                text = SearchUiCopy.filterLabel(filter)
-                textSize = 12f
+        SORTS.forEach { sort ->
+            val view = TextView(requireContext()).apply {
+                text = if (sort == "筛选") "筛选 ⏷" else "$sort⌄"
+                textSize = 14f
                 gravity = android.view.Gravity.CENTER
-                minWidth = 92.dp
-                minHeight = 40.dp
-                setPadding(14.dp, 0, 14.dp, 0)
-                contentDescription = "筛选${text}"
-                setOnClickListener { selectedFilter = filter; renderFilters(binding); renderCurrent(binding) }
+                minHeight = 44.dp
+                setTextColor(ContextCompat.getColor(requireContext(), if (sort == selectedSort) R.color.group_buy_orange else R.color.group_buy_text))
+                setOnClickListener { selectedSort = sort; renderFilters(binding); renderResults(binding) }
             }
-            chip.background = ContextCompat.getDrawable(requireContext(), if (filter == selectedFilter) R.drawable.search_filter_selected else R.drawable.search_filter_unselected)
-            val params = android.widget.LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 40.dp)
-            params.marginEnd = 6.dp
-            binding.filterRow.addView(chip, params)
+            binding.filterRow.addView(view, android.widget.LinearLayout.LayoutParams(android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 44.dp).apply { marginStart = 24.dp })
         }
     }
 
-// 渲染current。
-    private fun renderCurrent(binding: FragmentSearchBinding) {
-        val state = viewModel.uiState.value
-        render(binding, state.merchants, state.searchStatus, state.error, state.keyword)
-    }
-
-// 渲染当前数据。
-    private fun render(binding: FragmentSearchBinding, merchants: List<Merchant>, status: SearchStatus, error: String?, keyword: String) {
-        if (binding.searchInput.text.toString() != keyword) binding.searchInput.setText(keyword)
-        val visible = merchants.filter { it.open || selectedFilter != SearchFilter.COMPREHENSIVE }.let { list ->
-            when (selectedFilter) {
-                SearchFilter.NEARBY -> list.sortedBy { it.deliveryMinutes }
-                SearchFilter.TOP_RATED -> list.sortedByDescending { it.id }
-                SearchFilter.FAST_DELIVERY -> list.sortedBy { it.deliveryMinutes }
-                SearchFilter.COMPREHENSIVE -> list
-            }
-        }
-        binding.resultCount.text = if (visible.isEmpty()) "" else "共 ${visible.size} 家商家  ›"
-        binding.searchStatus.text = error ?: SearchUiCopy.status(status)
-        binding.searchStatus.setOnClickListener(if (status == SearchStatus.NetworkError) View.OnClickListener { submitSearch(binding) } else null)
+    /**
+     * 根据当前条件重建可点击卡片。
+     * 演示数据不伪造配送状态；距离仅作为定位已授权场景下的展示样例。
+     */
+    private fun renderResults(binding: FragmentSearchBinding) {
+        val keyword = binding.searchInput.text?.toString().orEmpty().trim()
+        val stores = previews.filter { preview ->
+            keyword.isBlank() || preview.name.contains(keyword) || preview.deal.contains(keyword) || selectedCategory == "推荐" || preview.category == selectedCategory
+        }.sortedWith(compareBy { if (selectedSort == "距离") it.distanceValue else it.priceValue })
+        binding.resultCount.text = "找到相关团购 ${stores.size} 个"
+        binding.searchStatus.text = if (selectedSort == "距离") "距离排序需要可用定位；无权限时保持默认顺序" else ""
         binding.searchResults.removeAllViews()
-        visible.forEach { merchant ->
-            val card = LayoutInflater.from(requireContext()).inflate(R.layout.item_search_merchant, binding.searchResults, false)
-            card.contentDescription = "${merchant.name}，查看商家菜单"
-            card.findViewById<TextView>(R.id.merchant_name).text = merchant.name
-            card.findViewById<TextView>(R.id.merchant_distance).text = "● 距离 ${String.format(java.util.Locale.US, "%.1f", 1.0 + (merchant.id % 20) / 10.0)} km"
-            card.findViewById<TextView>(R.id.merchant_meta).text = "★ ${(4.6 + (merchant.id % 4) * 0.1).coerceAtMost(4.9)}   月售 ${1000 + merchant.id * 100}+  |  ${merchant.deliveryMinutes} 分钟送达"
-            card.findViewById<TextView>(R.id.merchant_tags).text = "${merchant.category}   清淡健康   家常美味   现做现送"
-            card.findViewById<TextView>(R.id.merchant_price).text = "¥${merchant.minimumOrder}-${merchant.minimumOrder.add(java.math.BigDecimal.TEN)}   |   起送 ¥${merchant.minimumOrder}   |   配送 ¥${merchant.deliveryFee}"
-            card.findViewById<TextView>(R.id.merchant_description).text = "“食材新鲜，味道清淡，适合工作日午餐！”"
-            val cover = listOf(R.drawable.home_merchant_3, R.drawable.home_merchant_2, R.drawable.home_merchant_1)[((merchant.id - 1) % 3).toInt()]
-            ImageLoader.load(card.findViewById(R.id.merchant_cover), merchant.imageUrl, cover, cover)
+        val inflater = LayoutInflater.from(requireContext())
+        stores.forEach { preview ->
+            val card = inflater.inflate(R.layout.item_group_buy_store_card, binding.searchResults, false)
+            card.findViewById<ImageView>(R.id.store_image).setImageResource(preview.image)
+            card.findViewById<ImageView>(R.id.deal_image).setImageResource(preview.dealImage)
+            card.findViewById<TextView>(R.id.store_name).text = preview.name
+            card.findViewById<TextView>(R.id.store_rating).text = "★ ${preview.rating}"
+            card.findViewById<TextView>(R.id.store_reviews).text = "${preview.reviews}条评价"
+            card.findViewById<TextView>(R.id.store_distance).text = preview.distance
+            card.findViewById<TextView>(R.id.deal_name).text = preview.deal
+            card.findViewById<TextView>(R.id.deal_price).text = "¥${preview.price}"
+            card.findViewById<TextView>(R.id.deal_original_price).text = "¥${preview.originalPrice}"
+            card.findViewById<TextView>(R.id.deal_discount).text = preview.discount
             card.setOnClickListener {
-                // 查询成功并处理跨店确认后，由生命周期收集器统一导航。
-                viewModel.openMerchant(merchant.id)
+                view?.findNavController()?.navigate(R.id.storeFragment, Bundle().apply { putString("storePublicId", preview.publicId) })
             }
             binding.searchResults.addView(card)
         }
     }
 
     private val Int.dp: Int get() = (this * resources.displayMetrics.density).toInt()
+
+    /** 搜索结果页使用的稳定预览模型。 */
+    private data class Preview(val publicId: String, val name: String, val category: String, val rating: String, val reviews: String, val distance: String, val distanceValue: Int, val deal: String, val price: String, val priceValue: Int, val originalPrice: String, val discount: String, val image: Int, val dealImage: Int)
+
+    private companion object {
+        val CATEGORIES = listOf("推荐", "奶茶咖啡", "快餐小吃", "火锅", "烧烤烤肉", "地方菜系")
+        val SORTS = listOf("人均", "距离", "筛选")
+        val previews = listOf(
+            Preview("store-001", "巴蜀老火锅", "火锅", "4.8", "3267", "2.1km", 21, "经典四人火锅套餐", "198", 198, "302", "6.6折", R.drawable.home_merchant_2, R.drawable.home_merchant_1),
+            Preview("store-002", "蜀香园火锅", "火锅", "4.7", "1894", "3.5km", 35, "甄选牛肉双人套餐", "128", 128, "196", "6.5折", R.drawable.home_merchant_1, R.drawable.home_merchant_2),
+            Preview("store-003", "海底捞火锅", "火锅", "4.9", "8921", "4.8km", 48, "双人经典套餐", "268", 268, "336", "8.0折", R.drawable.home_merchant_3, R.drawable.home_merchant_1),
+            Preview("store-004", "捞王锅物料理", "火锅", "4.6", "3721", "6.3km", 63, "甄选和牛三人套餐", "298", 298, "428", "7.0折", R.drawable.home_merchant_2, R.drawable.home_merchant_3)
+        )
+    }
 }

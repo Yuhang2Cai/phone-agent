@@ -18,6 +18,9 @@ import com.fandazi.app.core.navigation.SessionRouteCoordinator
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import com.fandazi.app.feature.auth.SessionState
+import com.fandazi.app.feature.agent.AgentSheetFragment
+import com.fandazi.app.feature.agent.AgentViewModel
+import com.fandazi.app.feature.agent.AgentViewModelFactory
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navHost: NavHostFragment
@@ -32,6 +35,19 @@ class MainActivity : AppCompatActivity() {
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         bottomNavigation = findViewById(R.id.bottom_navigation)
         bottomNavigation.setOnItemSelectedListener { item: MenuItem ->
+            // AI 助手是固定底部 Tab，但 Task 5 完成前仍复用现有聊天容器。
+            // 游客点击时先进入登录页，避免绕过 Agent 的认证门槛。
+            if (item.itemId == R.id.agentAssistantTab) {
+                if (applicationSession().state.value is SessionState.Authenticated) {
+                    AgentSheetFragment.show(supportFragmentManager)
+                    ViewModelProvider(this, AgentViewModelFactory((application as FandaziApplication).agentRepository))
+                        .get(AgentViewModel::class.java)
+                        .openAssistant()
+                } else {
+                    openLogin()
+                }
+                return@setOnItemSelectedListener false
+            }
             if (navHost.navController.currentDestination?.id == item.itemId) return@setOnItemSelectedListener true
             navHost.navController.navigate(item.itemId)
             true
@@ -40,9 +56,21 @@ class MainActivity : AppCompatActivity() {
             if (destination.id != R.id.authFragment && pendingProtectedDestination != null) {
                 pendingProtectedDestination = null
             }
-            bottomNavigation.isVisible = destination.id in setOf(R.id.homeFragment, R.id.searchFragment, R.id.ordersFragment, R.id.profileFragment)
+            // 门店三个内容状态属于首页浏览链路，继续显示并选中首页 Tab；套餐详情按设计隐藏底部导航。
+            bottomNavigation.isVisible = destination.id in setOf(
+                R.id.homeFragment,
+                R.id.searchFragment,
+                R.id.storeFragment,
+                R.id.ordersFragment,
+                R.id.profileFragment
+            )
             if (bottomNavigation.isVisible) {
-                bottomNavigation.menu.findItem(if (destination.id == R.id.searchFragment) R.id.homeFragment else destination.id)?.isChecked = true
+                val selectedItem = if (destination.id in setOf(R.id.searchFragment, R.id.storeFragment)) {
+                    R.id.homeFragment
+                } else {
+                    destination.id
+                }
+                bottomNavigation.menu.findItem(selectedItem)?.isChecked = true
             }
         }
 
@@ -108,6 +136,11 @@ class MainActivity : AppCompatActivity() {
             pendingProtectedDestination = destination
             navHost.navController.navigate(R.id.authFragment, bundleOf("require_login" to true))
         }
+    }
+
+// 打开login。
+    fun openLogin() {
+        navHost.navController.navigate(R.id.authFragment, bundleOf("require_login" to true))
     }
 
 // 处理 `onSaveInstanceState` 相关逻辑。

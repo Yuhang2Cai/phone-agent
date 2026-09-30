@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 门店优惠页的套餐行，点击整行或抢购按钮均进入套餐详情。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="92dp" android:gravity="center_vertical" android:orientation="horizontal">
+    <ImageView android:id="@+id/deal_cover" android:layout_width="96dp" android:layout_height="82dp" android:contentDescription="套餐图片" android:scaleType="centerCrop" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="10dp" android:layout_weight="1" android:gravity="center_vertical" android:orientation="vertical">
+        <TextView android:id="@+id/deal_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/group_buy_text" android:textSize="16sp" android:textStyle="bold" />
+        <TextView android:id="@+id/deal_description" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/group_buy_muted" android:textSize="11sp" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+            <TextView android:id="@+id/deal_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/group_buy_orange" android:textSize="20sp" android:textStyle="bold" />
+            <TextView android:id="@+id/deal_old_price" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textColor="@color/group_buy_muted" android:textSize="11sp" />
+            <TextView android:id="@+id/deal_discount" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:background="@drawable/group_buy_discount_background" android:padding="4dp" android:textColor="@color/group_buy_orange" android:textSize="10sp" />
+        </LinearLayout>
+    </LinearLayout>
+    <TextView android:id="@+id/deal_action" android:layout_width="64dp" android:layout_height="40dp" android:background="@drawable/group_buy_primary_button" android:gravity="center" android:text="抢购" android:textColor="@color/surface_card" android:textSize="14sp" android:textStyle="bold" />
+</LinearLayout>

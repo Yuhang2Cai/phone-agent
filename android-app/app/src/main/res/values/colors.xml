@@ -13,11 +13,19 @@
     <color name="surface_card">#FFFFFF</color>
     <color name="success_green">#18A058</color>
     <color name="warning_red">#E5484D</color>
-    <color name="bottom_nav_tint">#68707D</color>
+    <color name="bottom_nav_unselected">#68707D</color>
     <color name="home_background">#FFF9F3</color>
     <color name="home_ink">#281713</color>
     <color name="home_secondary">#766B70</color>
     <color name="home_warm_muted">#A48476</color>
     <color name="home_orange">#FF6426</color>
     <color name="home_purple">#7657E8</color>
+    <!-- 团购改版的基础色与 Figma Design Tokens 保持一致。 -->
+    <color name="group_buy_green">#092E29</color>
+    <color name="group_buy_orange">#FF4F2E</color>
+    <color name="group_buy_background">#FAF7F0</color>
+    <color name="group_buy_text">#141A1F</color>
+    <color name="group_buy_muted">#6B7585</color>
+    <color name="group_buy_line">#E5E8EB</color>
+    <color name="group_buy_discount">#FFEAE3</color>
 </resources>

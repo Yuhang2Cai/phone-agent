@@ -1,39 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/home_background">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingStart="12dp" android:paddingTop="6dp" android:paddingEnd="12dp">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:gravity="center_vertical">
-            <ImageButton android:id="@+id/search_back" android:layout_width="38dp" android:layout_height="44dp" android:background="@android:color/transparent" android:contentDescription="返回" android:padding="9dp" android:src="@drawable/ic_back" />
-            <TextView android:id="@+id/title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:fontFamily="sans-serif-black" android:text="饭搭子" android:textColor="@color/home_ink" android:textSize="23sp" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="3dp" android:fontFamily="sans-serif-black" android:text="AI" android:textColor="@color/home_orange" android:textSize="23sp" android:textStyle="italic" />
-            <Space android:layout_width="0dp" android:layout_height="1dp" android:layout_weight="1" />
-            <TextView android:id="@+id/location_label" android:layout_width="wrap_content" android:layout_height="44dp" android:gravity="center_vertical" android:text="● 上海 · 静安区⌄" android:textColor="@color/home_ink" android:textSize="12sp" android:textStyle="bold" />
+<!-- 搜索与筛选结果 UI-02：复用首页分类、排序和团购门店卡片。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="76dp" android:background="@color/group_buy_green" android:gravity="bottom|center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="10dp" android:paddingBottom="8dp">
+        <ImageButton android:id="@+id/search_back" android:layout_width="38dp" android:layout_height="44dp" android:background="@android:color/transparent" android:contentDescription="返回" android:padding="9dp" android:src="@drawable/ic_back" android:tint="@color/surface_card" />
+        <LinearLayout android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/group_buy_search_background" android:gravity="center_vertical" android:paddingStart="12dp">
+            <ImageView android:layout_width="21dp" android:layout_height="21dp" android:contentDescription="搜索" android:src="@drawable/ic_home_search" />
+            <EditText android:id="@+id/search_input" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="7dp" android:layout_weight="1" android:background="@android:color/transparent" android:hint="搜索餐厅、菜品或商家" android:inputType="text" android:singleLine="true" android:textColor="@color/group_buy_text" android:textColorHint="@color/group_buy_muted" android:textSize="14sp" />
+            <TextView android:id="@+id/clear_search" android:layout_width="36dp" android:layout_height="match_parent" android:gravity="center" android:text="×" android:textColor="@color/group_buy_muted" android:textSize="22sp" />
         </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="5dp" android:background="@drawable/search_input_background" android:gravity="center_vertical" android:paddingStart="12dp">
-            <ImageView android:layout_width="26dp" android:layout_height="26dp" android:importantForAccessibility="no" android:src="@drawable/ic_home_search" />
-            <EditText android:id="@+id/search_input" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="8dp" android:layout_weight="1" android:background="@android:color/transparent" android:hint="@string/search_input_hint" android:inputType="text" android:padding="0dp" android:singleLine="true" android:textColor="@color/brand_ink" android:textColorHint="@color/brand_muted" android:textSize="15sp" />
-            <TextView android:id="@+id/clear_search" android:layout_width="38dp" android:layout_height="match_parent" android:contentDescription="清除搜索" android:clickable="true" android:focusable="true" android:gravity="center" android:text="×" android:textColor="@color/brand_weak" android:textSize="24sp" />
-            <TextView android:id="@+id/search_button" android:layout_width="74dp" android:layout_height="44dp" android:layout_marginEnd="3dp" android:background="@drawable/search_button_background" android:clickable="true" android:contentDescription="搜索" android:focusable="true" android:gravity="center" android:text="搜索" android:textColor="@color/surface_card" android:textSize="14sp" android:textStyle="bold" />
-        </LinearLayout>
-        <FrameLayout android:id="@+id/ai_suggestion" android:layout_width="match_parent" android:layout_height="86dp" android:layout_marginTop="8dp" android:background="@drawable/search_ai_banner_background" android:clickable="true" android:contentDescription="AI 建议：试试南瓜小米粥" android:focusable="true">
-            <ImageView android:layout_width="68dp" android:layout_height="68dp" android:layout_gravity="start|center_vertical" android:layout_marginStart="8dp" android:importantForAccessibility="no" android:src="@drawable/brand_mascot_rounded" />
-            <ImageView android:layout_width="112dp" android:layout_height="match_parent" android:layout_gravity="end" android:alpha="0.38" android:importantForAccessibility="no" android:scaleType="centerCrop" android:src="@drawable/home_merchant_1" />
-            <View android:layout_width="92dp" android:layout_height="match_parent" android:layout_gravity="end" android:background="@drawable/search_ai_image_fade" />
-            <LinearLayout android:layout_width="260dp" android:layout_height="wrap_content" android:layout_gravity="start|center_vertical" android:layout_marginStart="81dp" android:orientation="vertical">
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:text="AI 建议：试试南瓜小米粥" android:textColor="@color/brand_ink" android:textSize="16sp" android:textStyle="bold" />
-                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="3dp" android:ellipsize="end" android:maxLines="1" android:text="清淡养胃，营养均衡，适合午餐～" android:textColor="@color/brand_muted" android:textSize="11sp" />
-            </LinearLayout>
-            <TextView android:layout_width="24dp" android:layout_height="match_parent" android:layout_gravity="end" android:gravity="center" android:text="›" android:textColor="@color/brand_muted" android:textSize="27sp" />
-        </FrameLayout>
-        <HorizontalScrollView android:layout_width="match_parent" android:layout_height="52dp" android:layout_marginTop="4dp" android:scrollbars="none"><LinearLayout android:id="@+id/filter_row" android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" /></HorizontalScrollView>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="38dp" android:gravity="center_vertical" android:paddingStart="4dp" android:paddingEnd="4dp">
-            <TextView android:id="@+id/nearby_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="附近商家" android:textColor="@color/home_ink" android:textSize="19sp" android:textStyle="bold" />
-            <TextView android:id="@+id/result_count" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/brand_muted" android:textSize="11sp" />
-        </LinearLayout>
-        <TextView android:id="@+id/search_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="4dp" android:textColor="@color/brand_muted" android:textSize="11sp" />
-        <ScrollView android:id="@+id/results_scroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingTop="4dp" android:paddingBottom="18dp"><LinearLayout android:id="@+id/search_results" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" /></ScrollView>
+        <TextView android:id="@+id/search_button" android:layout_width="58dp" android:layout_height="44dp" android:layout_marginStart="7dp" android:background="@drawable/group_buy_primary_button" android:gravity="center" android:text="搜索" android:textColor="@color/surface_card" android:textSize="14sp" android:textStyle="bold" />
     </LinearLayout>
-    <FrameLayout android:id="@+id/agent_fab" android:layout_width="56dp" android:layout_height="56dp" android:layout_gravity="end|bottom" android:layout_marginEnd="14dp" android:layout_marginBottom="14dp" android:background="@drawable/home_floating_orb_background" android:clickable="true" android:contentDescription="打开 AI 助手" android:elevation="10dp" android:focusable="true">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:orientation="horizontal"><View android:layout_width="5dp" android:layout_height="14dp" android:layout_marginEnd="10dp" android:background="@drawable/home_floating_eye" /><View android:layout_width="5dp" android:layout_height="14dp" android:background="@drawable/home_floating_eye" /></LinearLayout>
-    </FrameLayout>
-</FrameLayout>
+
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="58dp" android:scrollbars="none">
+        <LinearLayout android:id="@+id/search_categories" android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="16dp" android:paddingEnd="16dp" />
+    </HorizontalScrollView>
+    <LinearLayout android:id="@+id/filter_row" android:layout_width="match_parent" android:layout_height="44dp" android:gravity="end|center_vertical" android:orientation="horizontal" android:paddingEnd="14dp" />
+    <TextView android:id="@+id/result_count" android:layout_width="match_parent" android:layout_height="32dp" android:gravity="center_vertical" android:paddingStart="14dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" />
+    <TextView android:id="@+id/search_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="14dp" android:paddingEnd="14dp" android:textColor="@color/group_buy_muted" android:textSize="11sp" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="16dp">
+        <LinearLayout android:id="@+id/search_results" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+    </ScrollView>
+</LinearLayout>
