@@ -83,7 +83,8 @@ class AuthFragment : Fragment(R.layout.fragment_auth) {
 // 渲染当前数据。
     private fun render(state: AuthFormState) {
         val viewBinding = binding ?: return
-        viewBinding.emailLayout.isVisible = state.isRegisterMode
+        // 当前注册流程只展示账号和密码，email 仅作为旧接口兼容字段在请求层保留。
+        viewBinding.emailLayout.isVisible = false
         viewBinding.loginModeButton.isEnabled = state.isRegisterMode
         viewBinding.registerModeButton.isEnabled = !state.isRegisterMode
         viewBinding.loginIndicator.isVisible = !state.isRegisterMode

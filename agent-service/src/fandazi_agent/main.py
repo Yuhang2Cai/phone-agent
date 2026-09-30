@@ -101,6 +101,8 @@ def create_app(agent: FoodOrderingAgent | None = None, *, settings: Settings | N
                 "message": result.message,
                 "nextAction": result.next_action,
                 "error": result.error,
+                # 终态卡片跟随同一条版本化协议返回，保证客户端不会出现文本与卡片不一致。
+                "cards": result.cards,
             })
         except Exception as exc:
             # 传输层仍保持合法终态，避免客户端只能依赖连接是否断开猜测结果。

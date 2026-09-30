@@ -169,6 +169,7 @@ class HttpAgentRepository(
             nextAction = value.string("nextAction"),
             candidateCart = value.objectOrNull("candidateCart")?.toCandidateCart(),
             events = value.array("events").mapNotNull { it.asJsonObjectOrNull()?.toEvent() },
+            cards = value.array("cards").mapNotNull { it.asJsonObjectOrNull()?.toCard() },
             error = value.string("error")
         )
     }
@@ -184,8 +185,19 @@ class HttpAgentRepository(
         type = string("type").orEmpty(),
         summary = string("summary").orEmpty(),
         toolName = string("toolName"),
-        status = string("status")
+        status = string("status"),
+        payload = get("payload")?.asJsonObjectOrNull()?.entrySet()
+            ?.associate { entry -> entry.key to entry.value.toString().trim('"') }.orEmpty()
     )
+
+    /** 解析后端卡片字段，未知字段保留为字符串供通用渲染器展示。 */
+    private fun JsonObject.toCard(): AgentCardPayload? {
+        val type = string("type")?.takeIf(String::isNotBlank) ?: return null
+        val fields = entrySet().asSequence()
+            .filter { it.key !in setOf("type", "storePublicId", "dealPublicId", "orderPublicId") }
+            .associate { it.key to it.value.toString().trim('"') }
+        return AgentCardPayload(type, string("storePublicId"), string("dealPublicId"), string("orderPublicId"), fields)
+    }
 
     private fun JsonObject.toCandidateCart(): CandidateCart? {
         val merchant = string("merchantName").orEmpty()

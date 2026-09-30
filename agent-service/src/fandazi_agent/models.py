@@ -98,6 +98,8 @@ class AgentResult(BaseModel):
     next_action: str
     candidate_cart: dict[str, Any] = Field(default_factory=dict)
     events: list[AgentEvent] = Field(default_factory=list)
+    # 卡片只携带服务端确认过的公开 ID 和展示字段，客户端不得自行补造业务数据。
+    cards: list[dict[str, Any]] = Field(default_factory=list)
     error: str | None = None
 
 

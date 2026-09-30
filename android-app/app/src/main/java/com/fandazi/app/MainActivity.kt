@@ -18,9 +18,6 @@ import com.fandazi.app.core.navigation.SessionRouteCoordinator
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import com.fandazi.app.feature.auth.SessionState
-import com.fandazi.app.feature.agent.AgentSheetFragment
-import com.fandazi.app.feature.agent.AgentViewModel
-import com.fandazi.app.feature.agent.AgentViewModelFactory
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navHost: NavHostFragment
@@ -35,15 +32,12 @@ class MainActivity : AppCompatActivity() {
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         bottomNavigation = findViewById(R.id.bottom_navigation)
         bottomNavigation.setOnItemSelectedListener { item: MenuItem ->
-            // AI 助手是固定底部 Tab，但 Task 5 完成前仍复用现有聊天容器。
-            // 游客点击时先进入登录页，避免绕过 Agent 的认证门槛。
+            // AI 助手使用正式导航页面；游客点击时先进入登录页，避免绕过 Agent 的认证门槛。
             if (item.itemId == R.id.agentAssistantTab) {
                 if (applicationSession().state.value is SessionState.Authenticated) {
-                    AgentSheetFragment.show(supportFragmentManager)
-                    ViewModelProvider(this, AgentViewModelFactory((application as FandaziApplication).agentRepository))
-                        .get(AgentViewModel::class.java)
-                        .openAssistant()
+                    navHost.navController.navigate(R.id.agentChatFragment)
                 } else {
+                    pendingProtectedDestination = R.id.agentChatFragment
                     openLogin()
                 }
                 return@setOnItemSelectedListener false
@@ -61,12 +55,15 @@ class MainActivity : AppCompatActivity() {
                 R.id.homeFragment,
                 R.id.searchFragment,
                 R.id.storeFragment,
+                R.id.agentChatFragment,
                 R.id.ordersFragment,
                 R.id.profileFragment
             )
             if (bottomNavigation.isVisible) {
                 val selectedItem = if (destination.id in setOf(R.id.searchFragment, R.id.storeFragment)) {
                     R.id.homeFragment
+                } else if (destination.id == R.id.agentChatFragment) {
+                    R.id.agentAssistantTab
                 } else {
                     destination.id
                 }
@@ -94,7 +91,8 @@ class MainActivity : AppCompatActivity() {
             R.id.authFragment -> SessionRoute.AUTH
             R.id.homeFragment, R.id.searchFragment, R.id.merchantFragment, R.id.ordersFragment,
             R.id.profileFragment, R.id.addressFragment, R.id.addressEditFragment,
-            R.id.automationSettingsFragment, R.id.cartFragment, R.id.paymentFragment -> SessionRoute.HOME
+            R.id.automationSettingsFragment, R.id.cartFragment, R.id.paymentFragment,
+            R.id.agentChatFragment -> SessionRoute.HOME
             else -> null
         }
         Log.d("FandaziSession", "session navigation: state=${state::class.java.simpleName}, current=$current, desired=$desired")

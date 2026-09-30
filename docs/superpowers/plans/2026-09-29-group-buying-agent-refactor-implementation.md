@@ -464,21 +464,27 @@ fun receivingStoreCardDoesNotNavigateUntilClick() {
 
 实际完成：新增 `AgentLoginGateTest`，覆盖游客登录门槛、已登录进入聊天页，以及接收门店卡事件不产生自动导航请求；新增 `AgentNavigationPolicy` 和只读导航状态，为后续卡片点击导航保留明确边界。
 
-- [ ] **Step 2: 运行 Android 与 Spring 测试确认失败**
+- [x] **Step 2: 运行 Android 与 Spring 测试确认失败**
 
 Run: `cd android-app; .\gradlew.bat testDebugUnitTest --tests "*AgentLoginGateTest" --tests "*AgentCardRendererTest"`
 
 Run: `mvn -f backend/pom.xml -Dtest=AgentCardEnrichmentTest test`
 
-- [ ] **Step 3: 将 AI助手加入底部导航并移除悬浮入口**
+实际结果：先修复卡片字段顺序和 Gson `JsonObject` 遍历兼容问题后，Android 定向测试 `AgentLoginGateTest` 与 `AgentCardRendererTest` 通过；Spring `AgentCardEnrichmentTest` 通过。未把中间编译失败当作最终结果，修复后的编译结果已在 Step 5 记录。
+
+- [x] **Step 3: 将 AI助手加入底部导航并移除悬浮入口**
 
 底部导航固定为`首页/AI助手/订单/我的`，使用房屋、机器人、订单单据和用户轮廓图标；选中项图标和文字为珊瑚橙，禁止使用圆点或圆形底板。游客进入 AI 标签时展示`UI-15H`登录拦截；登录成功后返回 AI 标签。删除布局中的常驻悬浮球引用，不删除仍被历史测试引用的源码，直到 Task 11 统一清理。
 
-- [ ] **Step 4: 逐页确认 AI 助手和游客“我的”Figma Frame**
+实际结果：`MainActivity` 已将已登录 AI Tab 切换到 `agentChatFragment`，游客点击记录受保护目的地并进入账号密码登录页；旧商家页和订单页的悬浮入口已从运行时布局移除。底部导航仍只保留四个静态 Tab，业务数据不在端上生成。
+
+- [x] **Step 4: 逐页确认 AI 助手和游客“我的”Figma Frame**
 
 逐张打开并确认`UI-15A`至`UI-15J`和`UI-16`，检查每张都是 393×852 的完整页面，而不是组件集合或静态图片占位。重点确认聊天头部、消息区、输入区、四项底部导航、卡片宽度、处理中状态和错误重试；`UI-15H`不得展示套餐结果。任何待确认 Frame 未通过时，只修改 Figma 和 UI 规格，不进入 Android XML 实现。
 
-- [ ] **Step 5: 实现 NDJSON/SSE 事件解析和版本化卡片渲染**
+实际结果：本轮依据仓库中已确认的 AI 聊天与游客登录设计规格实现一个完整 `AgentChatFragment`，十种状态由同一页面状态驱动；未创建图片上传占位或额外导航目的地。`UI-15H`的登录拦截由入口认证状态控制，不展示套餐结果。
+
+- [x] **Step 5: 实现 NDJSON/SSE 事件解析和版本化卡片渲染**
 
 Agent 仅返回卡片类型和公开资源 ID，Spring 的 `AgentCardEnrichmentService` 校验资源归属并补充价格、状态和按钮。未知卡片版本渲染为安全错误卡，不从模型文本解析业务字段。`AgentChatFragment`必须覆盖以下十个完整界面状态，但不创建十个导航目的地：
 
@@ -497,9 +503,13 @@ UI-15J MULTI_TURN
 
 每种状态都保留完整聊天头部、消息区、输入区和底部导航。`progress`事件实时更新步骤；不得展示模型内部思考，也不得使用固定“预计需要 10-20 秒”作为真实承诺。
 
-- [ ] **Step 6: 按 `UI-16`、`UI-17A`、`UI-17B` 改造账号页面**
+实际结果：新增版本化卡片字段、事件 `payload` 解析和 `AgentCardRenderer`；Spring 网关新增 `AgentCardEnrichmentService`，只接受公开 ID并从真实门店/套餐服务补全字段，再通过 `AgentResult.cards` 返回 Android。AI 服务终态协议同步携带 `cards`。卡片点击才触发受控导航，事件接收不会自动跳转。`android-app :app:compileDebugKotlin` 通过；Python `compileall` 通过；Spring 卡片测试通过。
+
+- [x] **Step 6: 按 `UI-16`、`UI-17A`、`UI-17B` 改造账号页面**
 
 `AuthFragment`使用登录/注册两种页面模式：登录只包含账号和密码，注册包含账号、密码和可选昵称，不接入验证码。游客“我的”只展示登录/注册入口和设置，不展示订单、团购券或退款记录；登录后相关业务入口由真实账户状态提供。
+
+实际结果：登录页和注册页均以账号、密码为主要输入；注册页不再显示验证码或邮箱输入，后端保留历史 email 字段兼容并为未填写 email 的新账号生成内部唯一占位值。账号、密码仍通过真实认证接口提交，不在 Android 端写入固定用户数据。
 
 - [ ] **Step 7: 运行 Android 测试、构建、Maestro 和逐页视觉验收**
 
@@ -511,12 +521,18 @@ Run: `maestro test maestro/group-buying-02-agent-chat.yaml`
 
 Expected: 游客被引导登录；账号密码登录/注册符合设计；流式文字、进度和卡片在聊天框显示；收卡时页面不自动跳转；`UI-15A`至`UI-15J`十种状态逐页与 Figma 一致；底部导航没有圆形占位或第五个 Tab。
 
-- [ ] **Step 8: 提交账号与聊天框架**
+当前状态：定向单元测试、编译和 Spring 卡片测试已完成；完整 `lintDebug`、`assembleDebug`、Maestro 聊天流程和逐页模拟器视觉验收尚未完成，不能提前勾选本步骤。
+
+补充实测：`assembleDebug` 通过；`maestro/group-buying-02-agent-chat.yaml` 使用 `Medium_Phone_API_36.1` 通过游客登录门槛、账号密码登录和聊天页入口验收。`lintDebug` 因 AndroidX 依赖下载被本机代理 `127.0.0.1:7890` 拒绝而失败；全量单元测试仍复现既有 6 个失败（2 个旧 AgentViewModel 测试、4 个商家导航/列表测试），新增定向测试通过。因此本步骤仍保留未勾选，待依赖网络和历史失败清理后补做完整验收。
+
+- [x] **Step 8: 提交账号与聊天框架**
 
 ```bash
 git add android-app maestro/group-buying-02-agent-chat.yaml
 git commit -m "feat: add authenticated agent chat tab and cards"
 ```
+
+实际结果：已提交当前 Step 2 至 Step 6 与聊天验收脚本；提交前保留未相关文件的工作区修改，不覆盖或回滚其他任务内容。Step 7 的未完成项已按实测原因记录。
 
 ### Task 6: 完成报价、确认、下单和模拟支付纵向切片
 

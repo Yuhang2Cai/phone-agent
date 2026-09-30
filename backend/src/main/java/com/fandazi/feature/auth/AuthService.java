@@ -24,15 +24,20 @@ public class AuthService {
 // 注册当前数据。
     @Transactional
     public AuthDtos.AuthResponse register(AuthDtos.RegisterRequest request) {
+        // 当前产品只要求账号和密码即可注册；数据库仍保留历史 email 字段，因此没有填写时使用
+        // 与账号一一对应的内部占位值，既不要求验证码，也不会把虚构邮箱展示为用户输入。
+        String email = request.email() == null || request.email().isBlank()
+                ? request.username().trim() + "@local.fandazi"
+                : request.email().trim();
         if (users.existsByUsername(request.username())) {
             throw new InvalidCredentialsException("Username is already in use");
         }
-        if (users.existsByEmail(request.email())) {
+        if (users.existsByEmail(email)) {
             throw new InvalidCredentialsException("Email is already in use");
         }
         try {
             UserEntity user = users.saveAndFlush(new UserEntity(
-                    request.username(), request.email(), passwordEncoder.encode(request.password())));
+                    request.username(), email, passwordEncoder.encode(request.password())));
             return responseFor(user);
         } catch (DataIntegrityViolationException exception) {
             if (isUsernameOrEmailUniqueConstraint(exception)) {

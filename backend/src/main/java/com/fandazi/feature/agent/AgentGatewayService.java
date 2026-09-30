@@ -12,9 +12,9 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service public class AgentGatewayService {
-    private final AgentSessionService sessions; private final AgentServiceClient client; private final AgentEventService events; private final CartService carts; private final AddressService addresses;
+    private final AgentSessionService sessions; private final AgentServiceClient client; private final AgentEventService events; private final CartService carts; private final AddressService addresses; private final AgentCardEnrichmentService cards;
 // 初始化对象依赖与默认状态。
-    public AgentGatewayService(AgentSessionService sessions, AgentServiceClient client, AgentEventService events, CartService carts, AddressService addresses) { this.sessions=sessions; this.client=client; this.events=events; this.carts=carts; this.addresses=addresses; }
+    public AgentGatewayService(AgentSessionService sessions, AgentServiceClient client, AgentEventService events, CartService carts, AddressService addresses, AgentCardEnrichmentService cards) { this.sessions=sessions; this.client=client; this.events=events; this.carts=carts; this.addresses=addresses; this.cards=cards; }
 // 处理当前数据。
     public AgentResult handle(Long userId,String sessionId,String text,AgentMode mode) {
         String traceId=UUID.randomUUID().toString(); AgentSession session=sessions.start(userId,sessionId,mode,traceId);
@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
         try {
             // 将用户身份、会话和模式作为 Spring 已校验的上下文传给独立 Agent，模型不能自行伪造这些字段。
             AgentResult result=client.run(new AgentRunRequest(userId.toString(),sessionId,text,mode == AgentMode.THIS_TASK_AUTO ? "auto_order" : "order",traceId));
+            // 模型只提交公开 ID；网关在返回 Android 前重新查询真实资源，防止客户端展示过期或伪造字段。
+            result = enrichCards(result);
             result=completeConfirmation(userId, mode, result);
             bindAuthorizedCandidate(userId, sessionId, result);
             // 旧替身返回的事件仍由网关写入；V1 客户端已经逐行记录，避免同一事件重复审计。
@@ -33,6 +35,17 @@ import org.springframework.stereotype.Service;
             events.record(userId,sessionId,"failed",exception.getMessage(),null,"retryable",java.util.Map.of()); return AgentResult.failed(exception.getMessage());
         }
     }
+
+    /** 逐张校验并补全 Agent 卡片；任何非法卡片都作为明确失败返回，禁止静态兜底。 */
+    private AgentResult enrichCards(AgentResult result) {
+        if (result.cards().isEmpty()) return result;
+        try {
+            List<Map<String, Object>> enriched = result.cards().stream().map(cards::enrich).toList();
+            return new AgentResult(result.status(), result.message(), result.nextAction(), result.candidateCart(), result.events(), enriched, result.error(), result.eventsRecorded());
+        } catch (com.fandazi.feature.DomainException exception) {
+            return AgentResult.failed(exception.getMessage());
+        }
+    }
 // 处理 `completeConfirmation` 相关逻辑。
     private AgentResult completeConfirmation(Long userId, AgentMode mode, AgentResult result) {
         if (result.status()!=AgentResult.Status.AWAITING_CONFIRMATION) return result;
@@ -41,7 +54,7 @@ import org.springframework.stereotype.Service;
         var draft=carts.owned(userId,cartId); CartQuote quote=carts.validate(userId,cartId); var address=addresses.owned(userId,addressId);
         List<Map<String,Object>> items=quote.lines().stream().map(line->Map.<String,Object>of("name",line.dishName(),"specification",line.optionSummary().isBlank()?"无额外规格":line.optionSummary(),"price",line.unitPrice(),"quantity",line.quantity())).toList();
         Map<String,Object> cart=new LinkedHashMap<>(); cart.put("merchantName",draft.getMerchant().getName()); cart.put("items",items); cart.put("cartDraftId",cartId); cart.put("workflowId",result.candidateCart().get("workflowId")); cart.put("address",address.getRecipient()+" "+address.getPhone()+" "+address.getDetail()); cart.put("addressId",addressId); cart.put("deliveryFee",quote.deliveryFee()); cart.put("discount",quote.discount()); cart.put("total",quote.total()); cart.put("maxAmount",maximum); cart.put("authorizationMode",mode.name());
-        return new AgentResult(result.status(),result.message(),result.nextAction(),cart,result.events(),result.error(),result.eventsRecorded());
+        return new AgentResult(result.status(),result.message(),result.nextAction(),cart,result.events(),result.cards(),result.error(),result.eventsRecorded());
     }
 // 处理 `bindAuthorizedCandidate` 相关逻辑。
     private void bindAuthorizedCandidate(Long userId, String sessionId, AgentResult result) {

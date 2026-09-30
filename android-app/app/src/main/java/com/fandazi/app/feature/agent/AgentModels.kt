@@ -34,7 +34,22 @@ data class AgentEvent(
     val type: String,
     val summary: String,
     val toolName: String? = null,
-    val status: String? = null
+    val status: String? = null,
+    /** 事件附带的后端字段，例如工具进度或卡片引用；客户端不自行补造业务值。 */
+    val payload: Map<String, String> = emptyMap()
+) : Serializable
+
+/**
+ * 后端返回的卡片引用与补全字段。
+ *
+ * Android 只保存后端返回的公开 ID 和展示字段，不在本地补造门店、套餐或订单数据。
+ */
+data class AgentCardPayload(
+    val type: String,
+    val storePublicId: String? = null,
+    val dealPublicId: String? = null,
+    val orderPublicId: String? = null,
+    val fields: Map<String, String> = emptyMap()
 ) : Serializable
 
 data class CandidateCartItem(
@@ -72,7 +87,9 @@ data class AgentMessageResult(
     val nextAction: String?,
     val candidateCart: CandidateCart?,
     val events: List<AgentEvent>,
-    val error: String? = null
+    val error: String? = null,
+    /** 由后端补全后的卡片列表，字段只用于渲染和受控导航。 */
+    val cards: List<AgentCardPayload> = emptyList()
 )
 
 data class OrderConfirmation(
@@ -105,6 +122,8 @@ data class AgentUiState(
     val composerText: String = "",
     val messages: List<ChatMessage> = emptyList(),
     val events: List<AgentEvent> = emptyList(),
+    /** 当前轮回答携带的卡片；页面刷新时仍以服务端返回为准。 */
+    val cards: List<AgentCardPayload> = emptyList(),
     val candidateCart: CandidateCart? = null,
     val confirmation: OrderConfirmation? = null,
     val authorization: AgentAuthorization = AgentAuthorization(),

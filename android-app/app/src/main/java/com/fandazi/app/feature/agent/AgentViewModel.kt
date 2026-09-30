@@ -205,6 +205,7 @@ class AgentViewModel(
                     lastEventId = allEvents.mapNotNull(AgentEvent::id).maxOrNull() ?: state.lastEventId,
                     confirmation = null,
                     candidateCart = null,
+                    cards = result.cards,
                     error = AgentError.Server(userFacingFailure(result.error ?: result.message))
                 )
                 AgentStatus.AWAITING_CONFIRMATION -> state.copy(
@@ -213,6 +214,7 @@ class AgentViewModel(
                     events = allEvents,
                     lastEventId = allEvents.mapNotNull(AgentEvent::id).maxOrNull() ?: state.lastEventId,
                     candidateCart = cart,
+                    cards = result.cards,
                     confirmation = cart?.takeIf(CandidateCart::isCompleteForConfirmation)?.toConfirmation(),
                     error = if (cart?.isCompleteForConfirmation() == true) null else AgentError.Server("订单详情不完整，不能确认或开启自动授权")
                 )
@@ -223,6 +225,7 @@ class AgentViewModel(
                     lastEventId = allEvents.mapNotNull(AgentEvent::id).maxOrNull() ?: state.lastEventId,
                     confirmation = null,
                     candidateCart = null,
+                    cards = result.cards,
                     createdOrderId = cart?.orderId.takeIf { result.nextAction == "payment_followup" },
                     error = null
                 )
@@ -244,6 +247,9 @@ class AgentViewModel(
      * 这里明确不产生页面导航请求，避免模型返回门店卡后未经用户点击就跳转页面。
      */
     fun onAgentEvent(event: AgentEvent) = appendEvent(event)
+
+    /** 消费页面已经处理的导航请求，避免页面重绘时重复跳转。 */
+    fun consumeNavigation() = updateState { it.copy(navigation = null) }
 
 // 处理 `showError` 相关逻辑。
     private fun showError(error: ApiError) = updateState {

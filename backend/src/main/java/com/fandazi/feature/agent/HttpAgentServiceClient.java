@@ -131,9 +131,12 @@ class HttpAgentServiceClient implements AgentServiceClient {
             default -> AgentResult.Status.FAILED;
         };
         Object error = payload.get("error");
+        List<Map<String, Object>> cards = payload.get("cards") instanceof List<?> rawCards
+                ? rawCards.stream().filter(item -> item instanceof Map<?, ?>).map(this::map).toList()
+                : List.of();
         return new AgentResult(mapped, String.valueOf(payload.getOrDefault("message", "请求未完成。")),
                 String.valueOf(payload.getOrDefault("nextAction", mapped == AgentResult.Status.FAILED ? "retry" : "completed")),
-                map(payload.get("candidateCart")), events, error == null ? null : String.valueOf(error), true);
+                map(payload.get("candidateCart")), events, cards, error == null ? null : String.valueOf(error), true);
     }
 
     /** 将协议中的 JSON 对象安全转换为字符串键 Map。 */

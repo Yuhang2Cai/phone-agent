@@ -101,7 +101,8 @@ class AuthFormProcessor(private val sessions: SessionActions) {
 // 校验当前数据。
     private fun validate(username: String, email: String?, password: String, isRegisterMode: Boolean): ValidationErrors = ValidationErrors(
         username = if (username.trim().isEmpty()) "请输入用户名" else null,
-        email = if (isRegisterMode && (email.isNullOrBlank() || !EMAIL_PATTERN.matches(email.trim()))) "请输入有效邮箱" else null,
+        // 注册已经改为账号加密码即可完成；只有用户主动填写兼容字段时才校验邮箱格式。
+        email = if (isRegisterMode && !email.isNullOrBlank() && !EMAIL_PATTERN.matches(email.trim())) "请输入有效邮箱" else null,
         password = if (password.length < MIN_PASSWORD_LENGTH) "密码至少需要 8 位" else null
     )
 
