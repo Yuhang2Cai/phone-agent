@@ -17,8 +17,6 @@ import androidx.navigation.findNavController
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.databinding.FragmentOrdersBinding
-import com.fandazi.app.feature.agent.AgentSurface
-import com.fandazi.app.feature.agent.openAgentAssistant
 import com.fandazi.app.feature.ordering.Order
 import com.fandazi.app.feature.ordering.OrderStatus
 import com.fandazi.app.feature.ordering.OrderingViewModel
@@ -42,7 +40,6 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
         } else {
             viewModel.uiState.value.currentOrder?.takeIf { it.status != OrderStatus.PENDING_PAYMENT }?.id
         }
-        binding.agentFab.setOnClickListener { openAgentAssistant(AgentSurface.ORDERS) }
         val filters = mapOf(
             binding.filterAll to OrderFilter.ALL,
             binding.filterPending to OrderFilter.PENDING_PAYMENT,

@@ -1,4 +1,4 @@
-// 商家菜单模块：管理页面交互和状态展示。
+// 商家详情页：展示当前选中商家的信息、分类菜单和购物车摘要，并处理选菜入口。
 package com.fandazi.app.feature.merchant
 
 import android.os.Bundle
@@ -17,8 +17,6 @@ import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.core.image.ImageLoader
 import com.fandazi.app.databinding.FragmentMerchantBinding
-import com.fandazi.app.feature.agent.openAgentAssistant
-import com.fandazi.app.feature.agent.AgentSurface
 import com.fandazi.app.feature.ordering.OrderingViewModel
 import com.fandazi.app.feature.ordering.OrderingViewModelFactory
 import com.fandazi.app.feature.ordering.bindMerchantNavigation
@@ -31,7 +29,7 @@ class MerchantFragment : Fragment(R.layout.fragment_merchant) {
         OrderingViewModelFactory(activity.orderingRepository(), activity.cartStateStore(), activity.cartOwner())
     }
 
-// 在视图创建后绑定控件、事件与初始状态。
+    // 与 Activity 共用 OrderingViewModel，使搜索页选中的商家和本页菜单保持同一份状态。
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentMerchantBinding.bind(view)
         bindMerchantNavigation(viewModel, R.id.merchantFragment)
@@ -41,7 +39,6 @@ class MerchantFragment : Fragment(R.layout.fragment_merchant) {
             viewModel.uiState.value.pendingMerchantSwitch == null && viewModel.merchantNavigationRequest.value == null
         ) viewModel.openMerchant(merchantId)
         binding.merchantBack.setOnClickListener { view.findNavController().navigateUp() }
-        binding.agentFab.setOnClickListener { openAgentAssistant(AgentSurface.MERCHANT) }
         val openCart = View.OnClickListener {
             (requireActivity() as MainActivity).openProtectedDestination(R.id.cartFragment)
         }
@@ -52,6 +49,7 @@ class MerchantFragment : Fragment(R.layout.fragment_merchant) {
                 viewModel.uiState.collect { state ->
                     val selectedMerchant = state.selectedMerchant
                     binding.title.text = "饭搭子"
+                    // 首页直接进入且尚未选中商家时会走此占位分支，因此显示“清粥小菜”。
                     binding.merchantName.text = selectedMerchant?.name ?: "清粥小菜"
                     binding.merchantMeta.text = "★ 4.8  |  ${selectedMerchant?.deliveryMinutes ?: 25} 分钟送达"
                     binding.merchantSubtitle.text = "${selectedMerchant?.category ?: "清淡健康"} · 家常美味 · 现做现送"
@@ -60,6 +58,7 @@ class MerchantFragment : Fragment(R.layout.fragment_merchant) {
                     binding.menuItems.removeAllViews()
                     binding.categoryList.removeAllViews()
                     Log.d("FandaziMerchant", "render merchant=${state.selectedMerchant?.name} menu=${state.menu.size} loading=${state.isLoading}")
+                    // 每次菜单状态变化后按分类重建菜品视图；售罄判定交给展示层统一计算。
                     MerchantMenuPresentation.sections(state.menu).forEachIndexed { sectionIndex, section ->
                         TextView(requireContext()).apply {
                             text = section.category
@@ -73,7 +72,7 @@ class MerchantFragment : Fragment(R.layout.fragment_merchant) {
                         }
                         section.dishes.forEachIndexed { dishIndex, menuDish ->
                             val dish = menuDish.dish
-                            val card = LayoutInflater.from(requireContext()).inflate(R.layout.item_merchant_dish, binding.menuItems, false)
+                            val card = LayoutInflater.from(requireContext(  )).inflate(R.layout.item_merchant_dish, binding.menuItems, false)
                             card.findViewById<TextView>(R.id.dish_name).text = dish.name
                             card.findViewById<TextView>(R.id.dish_description).text = dish.description.ifBlank { dish.category }
                             card.findViewById<TextView>(R.id.dish_tags).text = if (menuDish.isAddable) "现做现送" else "已售罄"
@@ -88,6 +87,7 @@ class MerchantFragment : Fragment(R.layout.fragment_merchant) {
                             add.setOnClickListener {
                                 viewModel.selectDish(dish.id)
                                 val availableOptions = dish.options.filter { it.available }
+                                // 无可选规格时直接加入；有规格时先让用户选择，再提交到共享购物车状态。
                                 if (availableOptions.isEmpty()) {
                                     viewModel.addSelectedDish()
                                 } else {
