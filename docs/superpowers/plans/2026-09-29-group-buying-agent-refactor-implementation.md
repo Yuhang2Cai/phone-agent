@@ -20,9 +20,9 @@
 
 | 任务 | 当前状态 | 当前剩余工作 |
 |---|---|---|
-| Task1 契约 | 已有 1.0 契约与历史自测 | 补正 1.1 状态、事件、准备工具和三端字段 |
-| Task2 领域与种子 | 已有模型与种子 | 页面数据完整性、金额快照、时间与夹具复核 |
-| Task3 新 Agent 服务 | 重新打开 | 当前脚本仍启动旧 agent-service，完成目标入口与切换 |
+| Task1 契约 | 1.1 补正已独立 PASS 并提交 | 后续任务沿用严格契约，新增字段同步双仓 |
+| Task2 领域与种子 | 独立 PASS，阻塞项 0 | 提交验收文件；图片加载失败与旧卡片错误文案在 Task8 复核 |
+| Task3 新 Agent 服务 | 新入口、12 类、DAG 与工具桥接已独立 PASS 并提交 | 后续 UI 验收使用新服务，不复用旧服务结论 |
 | Task4 浏览推荐 | 有历史局部通过记录 | 用新 Agent 验证推荐，核对本期适用页面 |
 | Task5 AI 页面 | 未完成完整独立验收 | 公共状态、卡片和多轮，按 UI 容差核验 |
 | Task6 购买支付 | 部分开发自测通过 | 新 Agent 确认恢复、完整独立验收 |
@@ -50,7 +50,7 @@
 - UI 阻塞项是缺少核心内容、明显布局错位、不可操作、文字重叠溢出、错误导航/图标/选中态和虚假业务结果。
 - 底部固定首页、AI助手、订单、我的四图标；AI 使用同一个聊天路由，收到结果不自动跳转。
 - 核销暂缓。评价使用后端开发夹具，保持资格规则，Android 不提供假核销。
-- 本次文档修订不执行代码迁移、启动切换、数据库迁移或既有测试；以下未勾选项须后续实际实施。
+- 原计划重构阶段只修改文档；当前实际执行以任务复选框及独立报告为准，未勾选项不能视作验收完成。
 - 每次只推进一个任务或明确的前置补正；无需每个细小 UI 修改都重跑全量测试，定向自测后在收尾运行一次适用全量回归。
 - 所有 Agent 实验写入 `[Agent] docs/experiments/intent-routing-experiments.md`；任务证据写入手机 `docs/verification/`。
 - 实现、自测、独立验收、提交分别记录。独立 Agent 亲自运行适用检查；未运行、失败或证据不足不能勾选验收。
@@ -85,6 +85,8 @@
 | AI 进度残留、协议英文状态、卡片长标识 | Task5 公共展示与 Task8.5 |
 | 独立报告的 Android 131 项中 12 项失败 | Task8.7 先定位归属，最终 Task12 全量通过 |
 | UI-21B 尚未独立触发 | Task8.6，给出可重复失败与恢复场景 |
+| 后端未知卡片错误文案的历史断言失败 | Task8.7 修复公开卡片错误优先级，保留有效断言，不宣称 Task2 全量后端全绿 |
+| 外部餐图源偶发超时/连接中断 | Task8 真实验证缺图、加载失败占位和重试，禁止假餐图兜底 |
 | 原视觉失败报告 | 按最新容差重判：轻微差异为建议，核心缺失仍为阻塞；不得自动把 FAIL 改 PASS |
 
 ---
@@ -101,7 +103,7 @@
 - [x] 固定 Spring 分配 runId、追问/确认沿用 runId、每次输入新 traceId；更新三端兼容映射。
 - [x] 同步新 Agent 受控副本、版本与 SHA-256，不仅校验工具名，还校验关键请求/响应字段。
 - [x] 运行手机 AgentContractSchemaTest 和新 Agent tests/test_cross_repo_contracts.py；独立验收契约一致性。
-- [ ] 验收通过后提交本任务文件。
+- [x] 验收通过后提交本任务文件（手机 f4902b8、新 Agent fad28f8；与 Task3 直接依赖一同入库）。
 
 命令：手机 `mvn -f backend/pom.xml -Dtest=AgentContractSchemaTest test`；新 Agent `C:/Users/caid0/anaconda3/envs/pinnT/python.exe -m pytest tests/test_cross_repo_contracts.py -q`。
 
@@ -109,18 +111,20 @@
 
 ### Task 2: 补齐领域、页面数据与确定性夹具
 
-**Files:** `[手机] backend/.../catalog/DealPackageEntity.java`、`DealPackageResponse.java`、`grouporder/GroupBuyOrderService.java`、`refund/RefundService.java`、`voucher/VoucherService.java`、`seed/SeedDataLoader.java`、`data/seed/`；追加 `backend/src/main/resources/db/migration/`；`backend/src/test/java/com/fandazi/feature/grouporder/GroupOrderSummaryContractTest.java`。
+**Files:** `[手机] backend/.../catalog/DealPackageEntity.java`、`DealPackageResponse.java`、`grouporder/GroupBuyOrderService.java`、`refund/RefundService.java`、`voucher/VoucherService.java`、`seed/SeedDataLoader.java`、`seed/Task2DevelopmentFixtures.java`、`core/money/`、`core/time/`、`core/identity/`、`data/seed/`；实际追加 `backend/src/main/java/db/migration/V12__decimal_payment_snapshots.java`、`V13__random_public_ids_and_legacy_aliases.java`（原 SQL V1–V11 不改）；`backend/src/test/java/com/fandazi/feature/grouporder/GroupOrderSummaryContractTest.java`；双仓契约可选字段及新 Agent `tests/test_task2_page_data_contract.py`、`test_task2_page_data_live.py`、`test_task2_fixtures_live.py`。完整写集见 Task2 开发/独立报告。
 
 **接口目标:** spec 6.1 页面字段表；退款来自支付快照分摊；时间明确时区；服务端 canRefund/canReview；真实图片与缺图状态。
 
 - [x] 团购实体、V6/V7 和基础种子已有，历史记录保留。
-- [ ] 对照 spec 6.1 逐字段检查实际接口，补齐订单/券/退款摘要及图片 URL；给出可空字段规则。
-- [ ] 校验金额来自订单支付快照，落实 DECIMAL 存储与整数分协议边界、UTC 时间与 UUID publicId；核对现有整数分存储和可枚举目录 ID 的差异，制定字段与引用映射，必要数据库变更仅追加迁移。
-- [ ] 建立无订单、待支付、可退款、已申请、可评价、已评价、无候选券的隔离开发夹具。
-- [ ] 运行 GroupOrderSummaryContractTest、GroupBuyingSeedDataTest、RefundEligibilityTest、ReviewEligibilityTest；独立核查真实 MySQL 响应。
+- [x] 对照 spec 6.1 逐字段检查实际接口，补齐订单/券/退款摘要及图片 URL；给出可空字段规则。
+- [x] 校验金额来自订单支付快照，落实 DECIMAL 存储与整数分协议边界、UTC 时间与 UUID publicId；核对现有整数分存储和可枚举目录 ID 的差异，制定字段与引用映射，必要数据库变更仅追加迁移。
+- [x] 建立无订单、待支付、可退款、已申请、可评价、已评价、无候选券的隔离开发夹具。
+- [x] 运行 GroupOrderSummaryContractTest、GroupBuyingSeedDataTest、RefundEligibilityTest、ReviewEligibilityTest；独立核查真实 MySQL 响应。
 - [ ] 提交已验收的数据与接口补正。
 
 命令：`mvn -f backend/pom.xml -Dtest=GroupOrderSummaryContractTest,GroupBuyingSeedDataTest,RefundEligibilityTest,ReviewEligibilityTest test`。若历史测试名与实际类不同，先登记实际对应关系，不假称已运行不存在的测试。
+
+2026-10-02 独立验收 PASS：定向 Maven 70/70、新 Agent 离线 352/352、Task2 真实在线 9/9、Task3 真实在线 5/5，另有 40 项实际 HTTP/MySQL 断言与 10 项独立 Java 检查。真实 V13 保留历史 25 单、29 券、6 退款，金额/归属/引用差异为 0。完整后端 194/195，唯一旧卡片文案失败不属于 Task2 数据实现，但留在 Task8.7 修复；餐图首轮超时及复验通过均记录，不掩盖稳定性风险。报告：`docs/verification/2026-10-01-task2-independent-acceptance.md`。本任务未改 Android，不宣称 APK 通过。
 
 ### Task 3: 将新 Agent 实际接入并校正运行来源
 
@@ -136,7 +140,7 @@
 - [x] 在新项目运行 tests/test_agent_service_api.py；手机运行 AgentGatewayV1ContractTest。
 - [x] 运行新 Agent 的最小团购分类与 Planner 契约测试，核对两层模型输出和工具目标均使用相同的 12 类名称；千级语料和完整评测留在 Task9，不倒置任务依赖。
 - [x] 独立 Agent 实测新服务身份、JWT 拒绝、NDJSON 顺序、问候、输入暂停和确认恢复。
-- [ ] 通过后提交并回写运行命令；旧服务退役范围最终由 Task11 核查。
+- [x] 通过后提交并回写运行命令（手机 f4902b8、新 Agent fad28f8，命令见独立报告）；旧服务退役范围最终由 Task11 核查。
 
 Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在归档。
 
@@ -209,7 +213,7 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 
 - [ ] 绑定本人券、订单、套餐、真实金额、原因和补充说明；金额/资格未取得时禁止提交。
 - [ ] 用户显式提交时走后端准备/确认；重复点击不重复申请，已核销/未付款/已申请券拒绝。
-- [ ] 进度显示后端 PENDING、申请时间和摘要；不伪造审核完成、到账或处理时限。
+- [ ] 进度显示后端 REQUESTED（待处理）、申请时间和摘要；不伪造审核完成、到账或处理时限。
 - [ ] 保持返回路径，输入错误保留所填内容；轻微布局/色值差异记录为建议。
 - [ ] 开发运行退款 API/资格测试、最新 APK 对应 Maestro 并保存两页截图。
 
@@ -238,7 +242,7 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 #### 8.5 新 Agent 售后聊天交互
 
 - [ ] 实现真实三层识别后的售后工作流；不继续扩展旧服务作为交付路径。
-- [ ] 退款：候选券 → 点击选券 → 补原因 → prepare_refund → confirmation 卡 → 明确确认 → request_refund → PENDING。
+- [ ] 退款：候选券 → 点击选券 → 补原因 → prepare_refund → confirmation 卡 → 明确确认 → request_refund → REQUESTED（待处理）。
 - [ ] 投诉：类型/描述/可选本人订单 → prepare_complaint → confirmation 卡 → 明确确认 → submit_complaint。
 - [ ] waiting_input 是等待补充，允许输入且不显示失败；waiting_confirmation 不提前写入。
 - [ ] 卡片金额、资格、原因和有效期来自后端；券号展示可用末位摘要，操作仍传完整公开 ID；凭证不作为文案泄漏。

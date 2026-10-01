@@ -27,6 +27,8 @@ final class AgentDomainProjection {
         result.put("description", deal.getDescription()); result.put("priceCents", deal.getPriceCents()); result.put("originalPriceCents", deal.getOriginalPriceCents());
         result.put("inventory", deal.getInventory()); result.put("validFrom", deal.getValidFrom().toString()); result.put("validTo", deal.getValidTo().toString());
         result.put("purchaseLimit", deal.getPurchaseLimit()); result.put("active", deal.isActive());
+        // 工具和普通目录 API 使用同一套餐真实图片，缺失时原样输出 null。
+        result.put("imageUrl", deal.getImageUrl()); result.put("imageAlt", deal.getImageAlt());
         return result;
     }
     /** 公开评价直接使用数据库存储的 Instant 和评分，禁止拼造点评内容。 */

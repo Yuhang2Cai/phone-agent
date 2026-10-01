@@ -1,6 +1,6 @@
 [
-  {"store":"store-001","title":"双人招牌盖饭套餐","description":"两份招牌盖饭，支持到店使用。","priceCents":8800,"originalPriceCents":10800,"inventory":80,"purchaseLimit":4,"count":4},
-  {"store":"store-002","title":"双人川味套餐","description":"两人川味热菜套餐，固定内容不可拆换。","priceCents":12800,"originalPriceCents":16800,"inventory":80,"purchaseLimit":4,"count":4},
+  {"store":"store-001","title":"双人招牌盖饭套餐","description":"两份招牌盖饭，支持到店使用。","priceCents":8800,"originalPriceCents":10800,"inventory":80,"purchaseLimit":4,"count":4,"imageUrl":"https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg","imageAlt":"招牌鸡肉盖饭，套餐主食实拍"},
+  {"store":"store-002","title":"双人川味套餐","description":"两人川味热菜套餐，固定内容不可拆换。","priceCents":12800,"originalPriceCents":16800,"inventory":80,"purchaseLimit":4,"count":4,"imageUrl":null,"imageAlt":null},
   {"store":"store-003","title":"单人热辣套餐","description":"单人主食与小菜组合，适合工作日午餐。","priceCents":4800,"originalPriceCents":6200,"inventory":80,"purchaseLimit":4,"count":4},
   {"store":"store-004","title":"双人暖胃粥套餐","description":"两人粥品与点心组合，适合早餐和晚餐。","priceCents":6800,"originalPriceCents":8600,"inventory":80,"purchaseLimit":4,"count":4},
   {"store":"store-005","title":"双人轻食套餐","description":"两份鸡胸沙拉和饮品，酱料独立提供。","priceCents":10800,"originalPriceCents":13600,"inventory":80,"purchaseLimit":4,"count":4},

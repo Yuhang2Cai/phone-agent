@@ -40,12 +40,20 @@ public class GroupBuyOrderEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "deal_id", nullable = false) private DealPackageEntity deal;
     @Column(name = "idempotency_key", nullable = false) private String idempotencyKey;
     @Column(nullable = false) private int quantity;
-    @Column(name = "total_cents", nullable = false) private int totalCents;
+    // 总额仍以整数分参与 Java 校验，持久化使用精确 DECIMAL 元，不能读取套餐现价替代。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2) private int totalCents;
+    // 已付款快照在支付事务内确定；待支付没有付款事实，金额和支付时间均保留 null。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "paid_total_amount", precision = 12, scale = 2) private Integer paidTotalCents;
+    @Column(name = "paid_at") private LocalDateTime paidAt;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 40) private GroupBuyOrderStatus status;
     @Column(name = "created_at", nullable = false) private LocalDateTime createdAt;
     @Column(name = "expires_at", nullable = false) private LocalDateTime expiresAt;
     @Column(name = "request_fingerprint", nullable = false, length = 128) private String requestFingerprint;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    // 持久化后仍以券内部主键顺序展示，和迁移分配余分的顺序一致，不能依赖数据库任意行顺序。
+    @jakarta.persistence.OrderBy("id ASC")
     private List<VoucherEntity> vouchers = new ArrayList<>();
 
     protected GroupBuyOrderEntity() {}
@@ -75,13 +83,16 @@ public class GroupBuyOrderEntity {
         if (totalCents < 0) throw new IllegalArgumentException("团购金额不能为负数");
         this.publicId = publicId; this.user = user; this.store = store; this.deal = deal;
         this.idempotencyKey = idempotencyKey; this.quantity = quantity; this.totalCents = totalCents;
-        this.status = status; this.createdAt = LocalDateTime.now(); this.expiresAt = expiresAt;
+        this.status = status; this.createdAt = com.fandazi.core.time.BusinessTime.now(); this.expiresAt = expiresAt;
         this.requestFingerprint = requestFingerprint;
 
         // 每一个购买数量都生成一张独立团购券，后续可以分别核销或退款。
         for (int index = 0; index < quantity; index++) {
-            vouchers.add(new VoucherEntity(this, user, deal, "voucher-" + UUID.randomUUID(), expiresAt));
+            vouchers.add(new VoucherEntity(this, user, deal, UUID.randomUUID().toString(), expiresAt));
         }
+        // 已支付历史种子同样需要支付事实；取消/过期不能凭状态猜测是否曾付款。
+        if (status == GroupBuyOrderStatus.PAID || status == GroupBuyOrderStatus.PARTIALLY_USED
+                || status == GroupBuyOrderStatus.USED || status == GroupBuyOrderStatus.REFUNDED) capturePayment();
     }
 
     public Long getId() { return id; }
@@ -92,6 +103,10 @@ public class GroupBuyOrderEntity {
     public String getIdempotencyKey() { return idempotencyKey; }
     public int getQuantity() { return quantity; }
     public int getTotalCents() { return totalCents; }
+    /** 返回数据库保存的实付整数分，未付款返回 null；只供内部退款和券分摊读取。 */
+    public Integer getPaidTotalCents() { return paidTotalCents; }
+    /** 返回真实支付时间，未付款返回 null；不作为新协议字段下发。 */
+    public LocalDateTime getPaidAt() { return paidAt; }
     public GroupBuyOrderStatus getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getExpiresAt() { return expiresAt; }
@@ -103,6 +118,19 @@ public class GroupBuyOrderEntity {
         if (status == GroupBuyOrderStatus.PAID) return;
         if (status != GroupBuyOrderStatus.PENDING_PAYMENT) throw new IllegalStateException("订单当前不可支付");
         status = GroupBuyOrderStatus.PAID;
+        capturePayment();
+    }
+
+    /** 在同一订单聚合内保存支付快照并一次性分摊余分；失败由外层事务整体回滚。 */
+    private void capturePayment() {
+        paidTotalCents = totalCents;
+        paidAt = com.fandazi.core.time.BusinessTime.now();
+        // 先分商，再把余分按建立券的稳定顺序分给前几张，每张相差至多一分且合计等于实付。
+        int base = paidTotalCents / quantity;
+        int remainder = paidTotalCents % quantity;
+        for (int index = 0; index < vouchers.size(); index++) {
+            vouchers.get(index).capturePaymentAmount(base + (index < remainder ? 1 : 0));
+        }
     }
 
     /**

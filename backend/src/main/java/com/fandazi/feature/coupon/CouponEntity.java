@@ -16,8 +16,12 @@ public class CouponEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Column(name = "public_id", nullable = false, unique = true, length = 80) private String publicId;
     @Column(nullable = false) private String name;
-    @Column(name = "threshold_cents", nullable = false) private int thresholdCents;
-    @Column(name = "discount_cents", nullable = false) private int discountCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "threshold_amount", nullable = false, precision = 12, scale = 2) private int thresholdCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "discount_amount", nullable = false, precision = 12, scale = 2) private int discountCents;
     @Column(name = "valid_from", nullable = false) private LocalDate validFrom;
     @Column(name = "valid_to", nullable = false) private LocalDate validTo;
     @Column(name = "scope_description", nullable = false, length = 500) private String scopeDescription;

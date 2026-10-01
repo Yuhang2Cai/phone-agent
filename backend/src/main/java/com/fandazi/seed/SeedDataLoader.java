@@ -54,6 +54,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 @Component
+// 基础目录必须先于开发状态夹具装载，避免 fixture 解析到尚不存在的 UUID 别名。
+@org.springframework.core.annotation.Order(0)
 @ConditionalOnProperty(name = "seed.enabled", havingValue = "true")
 public class SeedDataLoader implements ApplicationRunner {
     private final ObjectMapper mapper; private final MerchantRepository merchants; private final MerchantReviewRepository reviews; private final DishRepository dishes;
@@ -61,6 +63,9 @@ public class SeedDataLoader implements ApplicationRunner {
     private final StoreRepository stores; private final DealPackageRepository deals; private final StoreReviewRepository storeReviews;
     private final CouponRepository coupons; private final GroupBuyOrderRepository groupOrders; private final VoucherRepository vouchers;
     private final Path path; private final boolean groupSeedEnabled;
+    // 内部夹具使用旧别名关联，公开实体只保存随机 UUID；重复装载必须复用已持久化映射。
+    @org.springframework.beans.factory.annotation.Autowired
+    private com.fandazi.core.identity.PublicIdAliases publicIds;
     private List<SeedScenario> scenarios = List.of();
 // 初始化对象依赖与默认状态。
     public SeedDataLoader(ObjectMapper mapper, MerchantRepository merchants, MerchantReviewRepository reviews, DishRepository dishes, DishOptionRepository options,
@@ -134,13 +139,14 @@ public class SeedDataLoader implements ApplicationRunner {
     private void syncGroupBuyingData(Map<String, MerchantEntity> merchantsByName) throws IOException {
         Map<String, StoreEntity> storesByPublicId = new HashMap<>();
         for (StoreEntity store : stores.findAll()) storesByPublicId.put(store.getPublicId(), store);
+        includeAliases(storesByPublicId, "store");
 
         // 只在门店表为空时创建基础门店，避免重复启动产生重复公开资源。
         if (storesByPublicId.isEmpty()) {
             for (JsonNode fixture : read("stores.json")) {
                 MerchantEntity merchant = merchantsByName.get(fixture.path("merchant").asText());
                 StoreEntity store = new StoreEntity(
-                        requiredFixtureText(fixture, "publicId"), requiredFixtureText(fixture, "brandName"),
+                        publicIds.getOrCreate("store", requiredFixtureText(fixture, "publicId")), requiredFixtureText(fixture, "brandName"),
                         requiredFixtureText(fixture, "name"), requiredFixtureText(fixture, "cityCode"),
                         requiredFixtureText(fixture, "address"), requiredFixtureText(fixture, "phone"),
                         requiredFixtureText(fixture, "category"), fixture.path("latitude").decimalValue(),
@@ -148,13 +154,15 @@ public class SeedDataLoader implements ApplicationRunner {
                         fixture.path("open").asBoolean(), requiredFixtureText(fixture, "openingHours"), merchant
                 );
                 storesByPublicId.put(store.getPublicId(), stores.save(store));
+                storesByPublicId.put(requiredFixtureText(fixture, "publicId"), store);
             }
         }
 
         Map<String, DealPackageEntity> dealsByPublicId = new HashMap<>();
         for (DealPackageEntity deal : deals.findAll()) dealsByPublicId.put(deal.getPublicId(), deal);
+        includeAliases(dealsByPublicId, "deal");
 
-        // 套餐模板通过 count 展开为确定数量，公开 ID 由门店和模板序号共同组成。
+        // 模板序号只用于内部别名；实际对外 UUID 随机生成并持久化，不能从门店编号推导。
         if (dealsByPublicId.isEmpty()) {
             for (JsonNode fixture : read("deals.json")) {
                 String storeId = requiredFixtureText(fixture, "store");
@@ -162,7 +170,8 @@ public class SeedDataLoader implements ApplicationRunner {
                 if (store == null) throw new IllegalArgumentException("Deal fixture references unknown store: " + storeId);
                 int count = fixture.path("count").asInt(1);
                 for (int index = 1; index <= count; index++) {
-                    String publicId = "deal-" + storeId.substring("store-".length()) + "-" + index;
+                    String alias = "deal-" + storeId.substring("store-".length()) + "-" + index;
+                    String publicId = publicIds.getOrCreate("deal", alias);
                     DealPackageEntity deal = new DealPackageEntity(
                             publicId, store, requiredFixtureText(fixture, "title") + " " + index,
                             requiredFixtureText(fixture, "description"), fixture.path("priceCents").asInt(),
@@ -171,7 +180,21 @@ public class SeedDataLoader implements ApplicationRunner {
                             fixture.path("purchaseLimit").asInt(), 1
                     );
                     dealsByPublicId.put(publicId, deals.save(deal));
+                    dealsByPublicId.put(alias, deal);
                 }
+            }
+        }
+
+        // 只同步模板明确声明的套餐图，旧库也可补图；未声明的资源不覆盖人工维护图片。
+        for (JsonNode fixture : read("deals.json")) {
+            if (!fixture.has("imageUrl")) continue;
+            String storeAlias = requiredFixtureText(fixture, "store");
+            for (int index = 1; index <= fixture.path("count").asInt(1); index++) {
+                String alias = "deal-" + storeAlias.substring("store-".length()) + "-" + index;
+                var deal = dealsByPublicId.get(alias);
+                if (deal == null) throw new IllegalArgumentException("套餐图片引用不存在：" + alias);
+                deal.replaceImage(fixture.path("imageUrl").isNull() ? null : fixture.path("imageUrl").asText(),
+                        fixture.path("imageAlt").isMissingNode() || fixture.path("imageAlt").isNull() ? null : fixture.path("imageAlt").asText());
             }
         }
 
@@ -198,7 +221,7 @@ public class SeedDataLoader implements ApplicationRunner {
                 int count = fixture.path("count").asInt(1);
                 for (int index = 1; index <= count; index++) {
                     coupons.save(new CouponEntity(
-                            String.format("coupon-%03d", index), requiredFixtureText(fixture, "name") + index,
+                            publicIds.getOrCreate("coupon", String.format("coupon-%03d", index)), requiredFixtureText(fixture, "name") + index,
                             fixture.path("thresholdCents").asInt(), fixture.path("discountCents").asInt(),
                             LocalDate.parse(requiredFixtureText(fixture, "validFrom")),
                             LocalDate.parse(requiredFixtureText(fixture, "validTo")),
@@ -217,14 +240,22 @@ public class SeedDataLoader implements ApplicationRunner {
                 DealPackageEntity deal = dealsByPublicId.get(requiredFixtureText(fixture, "deal"));
                 if (deal == null) throw new IllegalArgumentException("Group order references unknown deal");
                 GroupBuyOrderEntity order = new GroupBuyOrderEntity(
-                        requiredFixtureText(fixture, "publicId"), user, deal.getStore(), deal,
+                        publicIds.getOrCreate("order", requiredFixtureText(fixture, "publicId")), user, deal.getStore(), deal,
                         fixture.path("quantity").asInt(), fixture.path("totalCents").asInt(),
                         GroupBuyOrderStatus.valueOf(requiredFixtureText(fixture, "status")),
                         LocalDateTime.parse(requiredFixtureText(fixture, "expiresAt"))
                 );
-                savedOrders.put(order.getPublicId(), groupOrders.save(order));
+                savedOrders.put(requiredFixtureText(fixture, "publicId"), groupOrders.save(order));
             }
             applyVoucherSeedStatuses(savedOrders);
+        }
+    }
+
+    /** 将仅供内部引用的别名加入当前实体索引；映射仍指向原实体，不新建或改变用户归属。 */
+    private <T> void includeAliases(Map<String, T> entities, String kind) {
+        for (var alias : publicIds.mappings(kind).entrySet()) {
+            T entity = entities.get(alias.getValue());
+            if (entity != null) entities.put(alias.getKey(), entity);
         }
     }
 

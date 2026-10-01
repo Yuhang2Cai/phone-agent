@@ -26,9 +26,10 @@ public class ReviewService {
     /** 核销过至少一张券的订单可以评价；唯一约束兜住并发重复请求。 */
     @Transactional
     public Map<String, Object> create(Long userId, String orderId, int rating, String content) {
-        var order = orders.findByUserIdAndPublicId(userId, orderId)
+        // 锁住本人订单，使检查唯一评价和保存处于同一事务，数据库唯一索引继续兜住其他入口。
+        var order = orders.findOwnedForUpdate(userId, orderId)
                 .orElseThrow(() -> new DomainException("团购订单不存在"));
-        if (order.getVouchers().stream().noneMatch(voucher -> voucher.getStatus() == VoucherStatus.REDEEMED)) {
+        if (order.getVouchers().stream().noneMatch(voucher -> voucher.getStatus() == VoucherStatus.REDEEMED && voucher.getRedeemedAt() != null)) {
             throw new DomainException("核销后才能评价");
         }
         if (rating < 1 || rating > 5) throw new DomainException("评分必须为1至5分");

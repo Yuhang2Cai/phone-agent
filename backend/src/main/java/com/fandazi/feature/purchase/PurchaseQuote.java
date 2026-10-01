@@ -28,9 +28,15 @@ public class PurchaseQuote {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "user_id", nullable = false) private UserEntity user;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "deal_id", nullable = false) private DealPackageEntity deal;
     @Column(nullable = false) private int quantity;
-    @Column(name = "subtotal_cents", nullable = false) private int subtotalCents;
-    @Column(name = "discount_cents", nullable = false) private int discountCents;
-    @Column(name = "total_cents", nullable = false) private int totalCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "subtotal_amount", nullable = false, precision = 12, scale = 2) private int subtotalCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "discount_amount", nullable = false, precision = 12, scale = 2) private int discountCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "total_amount", nullable = false, precision = 12, scale = 2) private int totalCents;
     @Column(name = "expires_at", nullable = false) private Instant expiresAt;
     @Column(name = "created_at", nullable = false) private Instant createdAt;
     @Column(nullable = false, length = 40) private String status;

@@ -15,7 +15,7 @@ public class DealPackageController {
     /** 注入套餐查询服务。 */
     public DealPackageController(DealPackageService deals) { this.deals = deals; }
 
-    /** 查询套餐价格、库存、有效期和使用说明。 */
+    /** 查询套餐价格、库存、有效期和可空真实图片；由服务在事务内构造响应，避免脱离会话后读取门店关联。 */
     @GetMapping("/{publicId}")
-    public DealPackageResponse detail(@PathVariable String publicId) { return DealPackageResponse.from(deals.require(publicId)); }
+    public DealPackageResponse detail(@PathVariable String publicId) { return deals.detail(publicId); }
 }

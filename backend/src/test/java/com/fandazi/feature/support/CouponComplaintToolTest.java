@@ -32,6 +32,8 @@ import org.springframework.transaction.annotation.Transactional;
 @ActiveProfiles("test")
 @Transactional
 class CouponComplaintToolTest {
+    // 测试仍以确定性别名选择场景，实际 API 和断言使用数据库随机 UUID，防止开放旧枚举入口。
+    @Autowired private com.fandazi.core.identity.PublicIdAliases publicIds;
     @Autowired private CouponService coupons;
     @Autowired private ComplaintService complaints;
     @Autowired private CouponRepository couponRepository;
@@ -59,15 +61,15 @@ class CouponComplaintToolTest {
     void complaintRequiresOwnedOrderAndMatchingGrantAction() {
         var stranger = users.save(new UserEntity("complaint-stranger-" + UUID.randomUUID(), "complaint-stranger@example.com", "hash"));
         String sessionId = "complaint-" + UUID.randomUUID();
-        assertThatThrownBy(() -> complaints.prepare(stranger.getId(), sessionId, "group-order-paid"))
+        assertThatThrownBy(() -> complaints.prepare(stranger.getId(), sessionId, publicIds.require("order", "group-order-paid")))
                 .isInstanceOf(DomainException.class).hasMessageContaining("订单不存在");
 
         var alice = users.findByUsername("seed_alice").orElseThrow();
-        String wrongAction = grants.issue(alice.getId(), sessionId, "group-order-paid", 0, "complaint-v1").getGrantId();
-        assertThatThrownBy(() -> complaints.submit(alice.getId(), sessionId, "group-order-paid", "门店服务", "到店体验问题", wrongAction))
+        String wrongAction = grants.issue(alice.getId(), sessionId, publicIds.require("order", "group-order-paid"), 0, "complaint-v1").getGrantId();
+        assertThatThrownBy(() -> complaints.submit(alice.getId(), sessionId, publicIds.require("order", "group-order-paid"), "门店服务", "到店体验问题", wrongAction))
                 .isInstanceOf(DomainException.class).hasMessageContaining("动作不匹配");
-        String grant = complaints.prepare(alice.getId(), sessionId, "group-order-paid").get("confirmationGrant").toString();
-        var submitted = complaints.submit(alice.getId(), sessionId, "group-order-paid", "门店服务", "到店体验问题", grant);
+        String grant = complaints.prepare(alice.getId(), sessionId, publicIds.require("order", "group-order-paid")).get("confirmationGrant").toString();
+        var submitted = complaints.submit(alice.getId(), sessionId, publicIds.require("order", "group-order-paid"), "门店服务", "到店体验问题", grant);
         assertThat(submitted.get("status")).isEqualTo("OPEN");
     }
 
@@ -77,9 +79,9 @@ class CouponComplaintToolTest {
         var alice = users.findByUsername("seed_alice").orElseThrow();
         String sessionId = "complaint-agent-" + UUID.randomUUID();
         sessions.start(alice.getId(), sessionId, AgentMode.CONFIRM, "trace");
-        String grant = complaints.prepare(alice.getId(), sessionId, "group-order-paid").get("confirmationGrant").toString();
+        String grant = complaints.prepare(alice.getId(), sessionId, publicIds.require("order", "group-order-paid")).get("confirmationGrant").toString();
         ToolRequest request = new ToolRequest(alice.getId().toString(), sessionId, "trace", "complaint-1", "workflow",
-                java.util.Map.of("orderId", "group-order-paid", "subject", "门店服务", "description", "到店体验问题",
+                java.util.Map.of("orderId", publicIds.require("order", "group-order-paid"), "subject", "门店服务", "description", "到店体验问题",
                         "confirmationGrant", grant));
         assertThatThrownBy(() -> tools.execute("submit_complaint", request))
                 .isInstanceOf(DomainException.class).hasMessageContaining("用户确认");
@@ -97,7 +99,7 @@ class CouponComplaintToolTest {
         sessions.start(alice.getId(), sessionId, AgentMode.CONFIRM, "trace");
         for (String name : java.util.List.of("list_user_orders", "list_user_vouchers", "query_coupon", "query_faq", "get_order_detail")) {
             java.util.Map<String, Object> payload = name.equals("get_order_detail")
-                    ? java.util.Map.of("orderId", "group-order-paid") : java.util.Map.of();
+                    ? java.util.Map.of("orderId", publicIds.require("order", "group-order-paid")) : java.util.Map.of();
             var request = new ToolRequest(alice.getId().toString(), sessionId, "trace", name, "workflow", payload);
             assertThat(tools.execute(name, request).ok()).isTrue();
         }

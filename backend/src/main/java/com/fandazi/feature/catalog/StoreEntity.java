@@ -31,7 +31,9 @@ public class StoreEntity {
     @Column(nullable = false, length = 64) private String category;
     @Column(nullable = false, precision = 10, scale = 7) private BigDecimal latitude;
     @Column(nullable = false, precision = 10, scale = 7) private BigDecimal longitude;
-    @Column(name = "average_spend_cents", nullable = false) private int averageSpendCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "average_spend_amount", nullable = false, precision = 12, scale = 2) private int averageSpendCents;
     @Column(nullable = false) private boolean open;
     @Column(name = "opening_hours", nullable = false, length = 128) private String openingHours;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "merchant_id") private MerchantEntity merchant;

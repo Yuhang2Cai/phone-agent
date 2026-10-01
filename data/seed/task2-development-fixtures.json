@@ -1,0 +1,9 @@
+[
+  {"scenario":"no_orders","deal":"deal-001-1","quantity":0},
+  {"scenario":"pending_payment","deal":"deal-002-1","quantity":3,"totalCents":10001},
+  {"scenario":"refundable","deal":"deal-001-1","quantity":3,"totalCents":10001},
+  {"scenario":"refund_requested","deal":"deal-001-1","quantity":1,"totalCents":10001},
+  {"scenario":"reviewable","deal":"deal-001-1","quantity":2,"totalCents":10001},
+  {"scenario":"reviewed","deal":"deal-001-1","quantity":1,"totalCents":10001},
+  {"scenario":"no_candidates","deal":"deal-002-1","quantity":1,"totalCents":10001}
+]

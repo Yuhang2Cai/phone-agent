@@ -12,10 +12,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /** 验证门店、套餐只通过团购公开 API 暴露，不回退到旧外卖商家接口。 */
-@SpringBootTest(properties = {"seed.enabled=true", "group.seed.enabled=true"})
+@SpringBootTest(properties = {"seed.enabled=true", "group.seed.enabled=true",
+        "spring.datasource.url=jdbc:h2:mem:task2-store-deal;MODE=MySQL;DB_CLOSE_DELAY=-1"})
 @AutoConfigureMockMvc
 class StoreDealApiTest {
     @Autowired private MockMvc mockMvc;
+    // 仅测试装载器解析旧夹具别名，公开请求发送随机 UUID，不把旧别名暴露成目录入口。
+    @Autowired private com.fandazi.core.identity.PublicIdAliases publicIds;
 
     @Test
     void distanceSortRequiresUsableLocation() throws Exception {
@@ -33,8 +36,21 @@ class StoreDealApiTest {
                 .andExpect(jsonPath("$[0].publicId").isNotEmpty())
                 .andExpect(jsonPath("$[0].averageSpendCents").isNumber());
 
-        mockMvc.perform(get("/api/stores/store-001/deals"))
+        mockMvc.perform(get("/api/stores/{storeId}/deals", publicIds.require("store", "store-001")))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].publicId").value("deal-001-1"));
+                .andExpect(jsonPath("$[*].publicId").value(org.hamcrest.Matchers.hasItem(publicIds.require("deal", "deal-001-1"))));
+    }
+
+    /** 目录 UUID 升级后不能继续允许猜测 store-001 或 deal-001-1 获取公开目录。 */
+    @Test
+    void legacyAliasesAreNotPublicCatalogRoutes() throws Exception {
+        mockMvc.perform(get("/api/stores/store-001/deals")).andExpect(status().is4xxClientError());
+        mockMvc.perform(get("/api/deals/deal-001-1")).andExpect(status().is4xxClientError());
+        mockMvc.perform(get("/api/deals/{dealId}", publicIds.require("deal", "deal-001-1")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.imageUrl").isNotEmpty())
+                .andExpect(jsonPath("$.imageAlt").isNotEmpty());
+        // 缺图是明确的 null 字段，服务端不能用另一套餐图片兜底。
+        mockMvc.perform(get("/api/deals/{dealId}", publicIds.require("deal", "deal-002-1")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.imageUrl").value(org.hamcrest.Matchers.nullValue()));
     }
 }

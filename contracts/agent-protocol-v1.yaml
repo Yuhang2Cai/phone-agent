@@ -324,6 +324,7 @@ storeCardData:
     open: {type: boolean}
     openingHours: *text
     imageUrl: {type: [string, "null"], format: uri}
+    imageAlt: {type: [string, "null"]}
 dealCardData:
   type: object
   additionalProperties: false
@@ -340,6 +341,7 @@ dealCardData:
     validTo: *date
     purchaseLimit: {type: integer, minimum: 1}
     imageUrl: {type: [string, "null"], format: uri}
+    imageAlt: {type: [string, "null"]}
 orderCardData:
   type: object
   additionalProperties: false
@@ -353,6 +355,11 @@ orderCardData:
     status: {type: string, enum: [PENDING_PAYMENT, PAID, PARTIALLY_USED, USED, REFUNDED, EXPIRED, CANCELLED]}
     createdAt: *timestamp
     canReview: {type: boolean}
+    # 名称、图片都由 Spring 补齐；可选字段保持 1.1 已发布载荷的兼容性。
+    storeName: *text
+    dealTitle: *text
+    imageUrl: {type: [string, "null"], format: uri}
+    imageAlt: {type: [string, "null"]}
 voucherCardData:
   type: object
   additionalProperties: false
@@ -366,6 +373,13 @@ voucherCardData:
     canRefund: {type: boolean}
     expiresAt: *timestamp
     redeemedAt: {type: [string, "null"], format: date-time}
+    dealId: *publicId
+    storeId: *publicId
+    # 未支付时没有券支付分摊，不允许用套餐现价替代；金额由后端只读快照给出。
+    amountCents: {type: [integer, "null"], minimum: 0}
+    createdAt: *timestamp
+    imageUrl: {type: [string, "null"], format: uri}
+    imageAlt: {type: [string, "null"]}
 couponCardData:
   type: object
   additionalProperties: false

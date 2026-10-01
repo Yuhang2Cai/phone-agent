@@ -51,7 +51,7 @@ public class GroupBuyOrderService {
         int total = Math.multiplyExact(deal.getPriceCents(), quantity);
         confirmations.consume(userId, sessionId, grantId, dealId, "deal-v" + deal.getVersion());
         var order = new GroupBuyOrderEntity(UUID.randomUUID().toString(), user, deal.getStore(), deal, idempotencyKey, quantity,
-                total, GroupBuyOrderStatus.PENDING_PAYMENT, LocalDateTime.now().plusDays(30), deal.getPublicId() + ":" + deal.getVersion() + ":" + quantity);
+                total, GroupBuyOrderStatus.PENDING_PAYMENT, com.fandazi.core.time.BusinessTime.now().plusDays(30), deal.getPublicId() + ":" + deal.getVersion() + ":" + quantity);
         return data(orders.save(order));
     }
 
@@ -129,28 +129,15 @@ public class GroupBuyOrderService {
         // 聊天和订单摘要的名称来自持久化门店、套餐，不让 Agent 补造卡片展示字段。
         data.put("storeName", order.getStore().getName()); data.put("dealTitle", order.getDeal().getTitle());
         // 创建时间来自订单事实，供评价页显示下单时间；不能让客户端用当前时间或订单号冒充。
-        data.put("createdAt", order.getCreatedAt().toString());
+        data.put("createdAt", com.fandazi.core.time.BusinessTime.utc(order.getCreatedAt()));
+        // 图片来自订单所购套餐；缺图保留 null 供 Android 使用统一占位。
+        data.put("imageUrl", order.getDeal().getImageUrl()); data.put("imageAlt", order.getDeal().getImageAlt());
         // 评价入口由服务端按核销事实与订单唯一评价记录计算，客户端不根据展示状态猜测资格。
-        data.put("canReview", order.getVouchers().stream().anyMatch(voucher -> voucher.getStatus() == VoucherStatus.REDEEMED)
+        data.put("canReview", order.getVouchers().stream().anyMatch(voucher -> voucher.getStatus() == VoucherStatus.REDEEMED && voucher.getRedeemedAt() != null)
                 && !reviews.existsByOrderId(order.getId()));
         // 列表卡需要完整的真实门店与套餐字段；只排除二维码令牌，不能让 Android 猜测或写死展示数据。
-        data.put("vouchers", order.getVouchers().stream().map(voucher -> {
-            // 未核销券的 redeemedAt 允许为空，因此使用可变 Map 避免 Map.of 拒绝 null。
-            Map<String, Object> voucherData = new LinkedHashMap<>();
-            voucherData.put("publicId", voucher.getPublicId());
-            voucherData.put("orderId", order.getPublicId());
-            voucherData.put("dealId", voucher.getDeal().getPublicId());
-            voucherData.put("dealTitle", voucher.getDeal().getTitle());
-            voucherData.put("storeId", order.getStore().getPublicId());
-            voucherData.put("storeName", order.getStore().getName());
-            voucherData.put("status", voucher.getStatus().name());
-            // 订单内的券也下发同一资格字段，避免列表与券详情显示相互矛盾的退款入口。
-            voucherData.put("canRefund", refunds.canRefund(voucher));
-            // 审计列和 Android 都消费 JSON 字符串；空核销时间继续保留 null。
-            voucherData.put("expiresAt", voucher.getExpiresAt().toString());
-            voucherData.put("redeemedAt", voucher.getRedeemedAt() == null ? null : voucher.getRedeemedAt().toString());
-            return voucherData;
-        }).toList());
+        data.put("vouchers", order.getVouchers().stream().map(voucher ->
+                com.fandazi.feature.voucher.VoucherSummary.from(voucher, refunds.canRefund(voucher))).toList());
         return data;
     }
 }

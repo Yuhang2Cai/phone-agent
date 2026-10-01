@@ -10,10 +10,13 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 class Task1NestedPublicEventAcceptanceTest {
+    /** 每次运行使用独立内存库，避免其他 create-drop 上下文关闭时删除本类仍在使用的表。 */
+    private static final String TEST_DATABASE_URL = "jdbc:h2:mem:task1-nested-" + UUID.randomUUID()
+            + ";MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE";
+
+    /** 只覆盖数据库地址；保留真实迁移、生产事件逻辑、事务回滚和全部既有验收断言。 */
+    @DynamicPropertySource
+    static void isolateTestDatabase(DynamicPropertyRegistry properties) {
+        // 地址在本类内稳定，使同一 Spring 上下文可复用，但不会与其他测试类共用 schema。
+        properties.add("spring.datasource.url", () -> TEST_DATABASE_URL);
+    }
+
     @Autowired private AgentEventService events;
     @Autowired private AgentMessageService messages;
     @Autowired private AgentEventRepository repository;

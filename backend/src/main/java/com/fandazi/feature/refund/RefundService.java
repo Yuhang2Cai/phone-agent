@@ -25,18 +25,15 @@ public class RefundService {
         this.vouchers = vouchers; this.requests = requests; this.grants = grants;
     }
 
-    /** 查询归属和申请资格；仅 `UNUSED` 且未重复申请的券允许申请。 */
+    /** 查询本人已支付、未使用、未过期且无申请的券，返回实际分摊金额和页面摘要；不合资格抛出领域异常。 */
     @Transactional(readOnly = true)
     public Map<String, Object> eligibility(Long userId, String voucherId) {
         VoucherEntity voucher = owned(userId, voucherId);
         assertEligible(voucher);
-        Map<String, Object> result = new LinkedHashMap<>();
-        result.put("voucherId", voucher.getPublicId());
-        result.put("orderId", voucher.getOrder().getPublicId());
-        result.put("dealTitle", voucher.getDeal().getTitle());
-        // 退款按已成交订单的单位金额快照计算，套餐现价变化不能改变用户已支付的退款摘要。
-        result.put("amountCents", voucher.getOrder().getTotalCents() / voucher.getOrder().getQuantity());
-        result.put("expiresAt", voucher.getExpiresAt().toString());
+        Map<String, Object> result = resourceSummary(voucher);
+        // 该值来自支付事务的券分摊快照，余分已在支付时保存，不能再整除或读取套餐现价。
+        result.put("amountCents", voucher.getAmountCents());
+        result.put("canRefund", true);
         return result;
     }
 
@@ -58,7 +55,7 @@ public class RefundService {
         assertEligible(voucher);
         // 资格先于凭证消费，确保已核销券不吞掉用户的确认凭证。
         grants.consumeBound(userId, sessionId, grantId, "REQUEST_REFUND", voucherId,
-                voucher.getOrder().getTotalCents() / voucher.getOrder().getQuantity(), "refund-v1");
+                voucher.getAmountCents(), "refund-v1");
         RefundRequestEntity request = requests.save(new RefundRequestEntity(UUID.randomUUID().toString(), voucher,
                 voucher.getUser(), reason.trim()));
         return summary(request);
@@ -76,7 +73,8 @@ public class RefundService {
     public boolean canRefund(VoucherEntity voucher) {
         // `UNUSED` 只是必要条件：未支付订单和已提交过申请的券都不能再次进入退款流程。
         return voucher.getStatus() == VoucherStatus.UNUSED
-                && voucher.getOrder().getStatus() != GroupBuyOrderStatus.PENDING_PAYMENT
+                && hasEligiblePayment(voucher)
+                && voucher.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now())
                 && !requests.existsByVoucherId(voucher.getId());
     }
 
@@ -88,7 +86,18 @@ public class RefundService {
         if (voucher.getOrder().getStatus() == GroupBuyOrderStatus.PENDING_PAYMENT) {
             throw new DomainException("未支付订单不可退款");
         }
+        // 只接受存在支付事实的有效订单状态；取消、过期或全退订单即使残留 UNUSED 券也拒绝。
+        if (!hasEligiblePayment(voucher)) throw new DomainException("订单当前不可退款或缺少支付事实");
+        if (!voucher.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now()))
+            throw new DomainException("团购券已过期，不可退款");
         if (requests.existsByVoucherId(voucher.getId())) throw new DomainException("该团购券已申请退款");
+    }
+
+    /** 支付快照与聚合状态共同证明可退交易；不能把“不是待支付”视作已付款证据。 */
+    private boolean hasEligiblePayment(VoucherEntity voucher) {
+        var order = voucher.getOrder();
+        return (order.getStatus() == GroupBuyOrderStatus.PAID || order.getStatus() == GroupBuyOrderStatus.PARTIALLY_USED)
+                && order.getPaidTotalCents() != null && voucher.getAmountCents() != null;
     }
 
     /** 私有归属查询只按当前鉴权用户 ID 返回券，防止横向越权。 */
@@ -99,7 +108,23 @@ public class RefundService {
 
     /** 响应仅暴露公开编号与必要状态，不下发内部主键。 */
     private Map<String, Object> summary(RefundRequestEntity request) {
-        return Map.of("requestId", request.getPublicId(), "voucherId", request.getVoucher().getPublicId(),
-                "status", request.getStatus().name(), "reason", request.getReason(), "createdAt", request.getCreatedAt().toString());
+        var result = resourceSummary(request.getVoucher());
+        // 申请阶段只表示 REQUESTED，不将状态写成已退款或已到账，金额来自申请自己的持久化快照。
+        result.put("requestId", request.getPublicId()); result.put("amountCents", request.getAmountCents());
+        result.put("status", request.getStatus().name()); result.put("reason", request.getReason());
+        result.put("createdAt", com.fandazi.core.time.BusinessTime.utc(request.getCreatedAt()));
+        return result;
+    }
+
+    /** 准备与进度共用真实资源摘要；可空图片使用可变 Map，禁止因 Map.of 拒绝 null 而丢字段。 */
+    private Map<String, Object> resourceSummary(VoucherEntity voucher) {
+        var order = voucher.getOrder(); var deal = voucher.getDeal();
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("voucherId", voucher.getPublicId()); result.put("orderId", order.getPublicId());
+        result.put("storeId", order.getStore().getPublicId()); result.put("dealId", deal.getPublicId());
+        result.put("storeName", order.getStore().getName()); result.put("dealTitle", deal.getTitle());
+        result.put("expiresAt", com.fandazi.core.time.BusinessTime.utc(voucher.getExpiresAt()));
+        result.put("imageUrl", deal.getImageUrl()); result.put("imageAlt", deal.getImageAlt());
+        return result;
     }
 }

@@ -31,6 +31,9 @@ public class VoucherEntity {
     @Column(name = "expires_at", nullable = false) private LocalDateTime expiresAt;
     @Column(name = "redeemed_at") private LocalDateTime redeemedAt;
     @Column(name = "created_at", nullable = false) private LocalDateTime createdAt;
+    // 券金额由订单支付实付分摊，未付款为 null；退款只读取此列，不对现价重复计算。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "allocated_amount", precision = 12, scale = 2) private Integer amountCents;
 
     protected VoucherEntity() {}
 
@@ -39,7 +42,7 @@ public class VoucherEntity {
                          String publicId, LocalDateTime expiresAt) {
         this.order = order; this.user = user; this.deal = deal; this.publicId = publicId;
         this.qrToken = "qr-" + publicId; this.status = VoucherStatus.UNUSED;
-        this.expiresAt = expiresAt; this.createdAt = LocalDateTime.now();
+        this.expiresAt = expiresAt; this.createdAt = com.fandazi.core.time.BusinessTime.now();
     }
 
     public Long getId() { return id; }
@@ -52,6 +55,15 @@ public class VoucherEntity {
     public LocalDateTime getExpiresAt() { return expiresAt; }
     public LocalDateTime getRedeemedAt() { return redeemedAt; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    /** 返回该券实付分摊整数分，订单未支付为 null。 */
+    public Integer getAmountCents() { return amountCents; }
+
+    /** 仅订单支付聚合调用；已确定金额不能改写，负数或改价抛出异常阻止退款快照漂移。 */
+    public void capturePaymentAmount(int cents) {
+        if (cents < 0) throw new IllegalArgumentException("券实付金额不能为负数");
+        if (amountCents != null && amountCents != cents) throw new IllegalStateException("券支付快照不可修改");
+        amountCents = cents;
+    }
 
     /**
      * 应用确定性演示状态。
@@ -61,7 +73,7 @@ public class VoucherEntity {
      */
     public void restoreSeedStatus(VoucherStatus status) {
         this.status = status;
-        this.redeemedAt = status == VoucherStatus.REDEEMED ? LocalDateTime.now() : null;
+        this.redeemedAt = status == VoucherStatus.REDEEMED ? com.fandazi.core.time.BusinessTime.now() : null;
     }
 
     /**
@@ -81,7 +93,7 @@ public class VoucherEntity {
             throw new IllegalStateException("团购券当前不可核销");
         }
         status = VoucherStatus.REDEEMED;
-        redeemedAt = LocalDateTime.now();
+        redeemedAt = com.fandazi.core.time.BusinessTime.now();
         // 券是订单的聚合子项，首次核销完成后同步订单的部分使用或全部使用状态。
         order.refreshUsageStatus();
         return true;

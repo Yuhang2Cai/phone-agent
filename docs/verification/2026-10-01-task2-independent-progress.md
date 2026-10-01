@@ -1,0 +1,26 @@
+# Task2 独立验收进度
+
+- 身份：Task2 独立验收 Agent，仅验收，不修改实现源码，不提交，不勾选主计划。
+- 范围：Task2 契约、货币/时间/公开 ID 迁移、订单/券/退款摘要、七账号开发夹具及真实接口；不包含 Android、Maestro 或 UI13/14。
+- 结论：Task2 独立验收 PASS，阻塞项 0。完整后端 194/195，仍有一条非 Task2 文案基线失败；不宣称全量全绿。外部图片源偶发失败列为非阻塞稳定性风险。
+- 环境：手机工作区 `C:/fdz-build`（用户指定工作区的 junction）；新 Agent 工作区 `D:/project/-Demo-master`。服务保留运行，七账号业务状态不消费。
+- 初始检查：已读取双仓根目录 AGENTS.md；已确认两仓存在原有 dirty 改动，保留用户工作。
+- 需求核对：已读取 Task2 计划、spec 6.1/6.2 和货币/时间/公开 ID 约束；开发报告仅作定位参考。
+- 定向结果：21 个后端类 70/70 PASS，failures=0、errors=0、skipped=0，Maven exit 0，27.967 秒；包含新微秒测试及 Task1 四个隔离回归。
+- 离线结果：D 仓完整离线 352/352 PASS，pytest exit 0，15.79 秒；显式排除四个在线测试文件。
+- 在线首轮：Task2 两文件共 9 项，8 PASS、1 FAIL，29.14 秒，exit 1。七账号状态/归属/负面 prepare 全通过；支付/退款摘要及首返回读相等通过。唯一失败为真实图片 GET 响应体读取超时（httpx.ReadTimeout），尚不能声明图片验收通过。
+- 完整后端：195 tests，194 PASS、1 failure、0 errors、0 skipped，exit 1，1:18。唯一失败 `AgentCardEnrichmentTest.unknownCardTypeIsRejectedWithoutFallbackData`；正在用独立探针核对拒绝行为与 HEAD 原文，不能声称全量全绿。
+- 图片复测：原测试未改，单项 1/1 PASS，3.14 秒；首轮响应体超时保留为稳定性风险，继续取得图片字节证据。
+- Task3 在线回归：真实新 Agent 与 Spring 两文件 5/5 PASS，31.04 秒，exit 0。
+- MySQL 只读核对：MySQL 8.0.44、主库 Flyway 13；主库 legacy 25 单/248200 分/2482.00 元，与隔离副本完全相同。副本 29 券/6 退款/30 店/120 套餐/21 quote/45 grant、215 稳定别名；旧 ACTIVE quote 与未消费 grant 均为 0；主/副本金额差异、内部归属/引用差异、实付分摊差异、未支付金额非空均为 0。真实金额权威列均 DECIMAL(12,2)，新记录不写 legacy cents。
+- 仓库核对：V1–V11 共 11 个迁移文件逐字节与 HEAD 相同；双仓契约原始字节摘要一致且与 manifest/source.sha256 匹配；凭据/测试凭据/备份被 Git 忽略且未跟踪。
+- 当前阶段：执行独立 MySQL/HTTP 时间与快照探针、补充 prod/seed 守卫组合和错误文案分类；报告仍未给最终结论。
+- 独立补充：真实 Spring 条件容器五种守卫均 PASS；未知卡片无资源/有资源两种输入都抛 DomainException，没有 fallback 数据，错误仅优先级不同；生产类与测试类逐字节 EXACT_HEAD=True。
+- 图片字节：亲自 GET 得到 HTTP 200、image/jpeg、41914 字节、合法 JPEG 首尾，12.968 秒；同客户端第二次出现 RemoteProtocolError。保留外部图片源稳定性风险。首次补充脚本在图片阶段中断，因此后续数据库正向链路不计为已跑；已将图片与核心探针分阶段执行。
+- 最新复验：Task2 原两文件未改复跑 9/9 PASS，5.68 秒，exit 0；七夹具仍保持原状态。
+- 补充核心探针：独立随机账号 HTTP/真实 MySQL 共 40 个断言 PASS，exit 0；七夹具业务状态写入数 0。验证 3334/3334/3333、订单/券/退款上海转 UTC 与微秒精确一致、新订单 UTC 实际时钟、首返回读一致、真实 DECIMAL 实体绑定及公开旧 alias 拒绝。
+- 补充 Java 探针：10 个独立检查 PASS，exit 0；包含五种守卫、两种未知卡片拒绝、有实付且券有效期仍在未来的 CANCELLED/EXPIRED 拒绝，以及支付快照禁止改写。
+- 最终判定：Task2 PASS。完整报告 `docs/verification/2026-10-01-task2-independent-acceptance.md`；证据 test-results.md、mysql-readonly.sql、mysql-and-repository-results.md 已写入指定目录。
+- 收尾：Spring 公共目录 HTTP 200；新 Agent health HTTP 200、正确 sourceRoot/entryPoint。服务未重启/未终止，七夹具业务状态未消费，原有 dirty 保留；未提交、未勾主计划、不宣称 Android/Maestro/UI 通过。
+- 证据目录：`docs/verification/task2-independent-20261001-evidence/`；临时验收脚本位于 `D:/project/-Demo-master/.scratch/task2-independent/`。
+- 安全约束：不输出夹具凭据、备份内容、环境密钥或用户敏感数据；报告只保存匿名统计、类型、状态和断言结果。

@@ -39,4 +39,11 @@ public class DealPackageService {
         if (!deal.isActive() || deal.getInventory() <= 0) throw new DomainException("套餐暂不可购买");
         return deal;
     }
+
+    /** 在只读事务内构造套餐页面响应，门店公开 ID 和图片读取完成后才离开持久化会话；不存在时抛出领域异常。 */
+    @Transactional(readOnly = true)
+    public DealPackageResponse detail(String publicId) {
+        // require 返回的关联可能是懒加载代理；页面 DTO 必须在此读取真实门店信息，避免 Controller 中触发无会话异常。
+        return DealPackageResponse.from(require(publicId));
+    }
 }

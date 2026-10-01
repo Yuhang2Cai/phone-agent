@@ -28,7 +28,9 @@ public class ConfirmationGrantEntity {
     @Column(name = "session_id", nullable = false, length = 100) private String sessionId;
     @Column(nullable = false, length = 80) private String action;
     @Column(name = "resource_id", nullable = false, length = 80) private String resourceId;
-    @Column(name = "amount_cents") private Integer amountCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "amount", precision = 12, scale = 2) private Integer amountCents;
     @Column(name = "rule_version", nullable = false, length = 40) private String ruleVersion;
     @Column(name = "expires_at", nullable = false) private Instant expiresAt;
     @Column(nullable = false) private boolean consumed;

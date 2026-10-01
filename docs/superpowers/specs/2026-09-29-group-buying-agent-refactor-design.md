@@ -23,7 +23,7 @@
 
 ### 1.2 当前偏差，不能当作已完成事实
 
-2026-10-01 核查发现：本地启动脚本仍运行手机项目 `agent-service`，新 Agent 的 `service/` 入口尚未在当前目标工作区确认；协议缺少售后等待补充状态；Task8 页面实现和独立验收仍未完成。实施计划必须先纠正服务接入与协议，再以新服务验证 AI 功能。
+2026-10-01 初次核查发现旧启动入口和等待输入协议差异。现 Task1/3 已补正并独立验收 PASS，实际入口为新项目 `service.app:create_app`、协议 1.1、Spring 调用 8091；旧 `agent-service` 保留但不运行。完整证据见手机 `docs/verification/2026-10-01-task3-independent-acceptance.md`。Task2 于 2026-10-02 独立验收 PASS，真实 V13 的金额、编号、时间、页面字段与夹具已核查；完整后端仍有一项旧卡片文案失败，外部餐图有偶发超时，交由 Task8 处理。Task8 页面验收尚未完成，不能以新入口或字段测试通过代替它。
 
 ## 2. 产品目标与业务闭环
 
@@ -124,9 +124,11 @@ flowchart LR
 
 核心实体：品牌、门店、固定套餐、套餐适用门店、购买报价、团购订单、券、退款申请、评价、优惠券与用户优惠券、投诉、确认凭证、Agent 消息。
 
-业务资源对外使用不可枚举 UUID `publicId`，内部主键不下发。现有演示目录的 store-001 等可枚举编号属于待迁移差异，Task2 必须明确映射并同步夹具与引用，不能把现状默认为已达到目标；任何编号格式都不能代替归属授权。
+业务资源对外使用不可枚举 UUID `publicId`，内部主键不下发。Task2 的 V13 将原 store-001 等非随机编号映射到随机第四版 UUID，持久化 legacy 别名供迁移和种子内部引用，不对公开目录 API 开放别名入口；内部数值外键和归属保持不变。旧报价/确认失效后须重新取得明确授权，历史 JSON 只按明确资源字段转换，不替换用户正文。该实现已独立验收 PASS；任何编号格式都不能代替归属授权。
 
-金额继续采用已确认的边界：数据库使用 `DECIMAL`，协议使用整数分，由 Spring 严格转换，禁止浮点金额参与校验；当前整数分存储实现与该目标的差异由 Task2 核对并制定迁移，不在本次文档修订中执行数据转换。时间目标为带时区的 UTC ISO-8601，Android 转换为 Asia/Shanghai；现有无时区本地时间属于待纠正协议差异，不能靠截断字符串完成时区转换。
+金额继续采用已确认的边界：数据库使用 `DECIMAL`，协议使用整数分，由 Spring 严格转换，禁止浮点金额参与校验。Task2 的 V12 新列由实体实际读写，原整数分列保留历史值且放宽可空，不做双写，不作为新记录金额权威；破坏性清理留到 Task11。订单支付快照、券稳定商加余数分摊和退款申请快照保持精确，未支付券金额为 null；历史实付可由既有支付状态证明时回填，但没有实际支付时间则保留 null，不伪造。
+
+时间目标为带时区的 UTC ISO-8601，Android 转换为 Asia/Shanghai。旧 LocalDateTime 按明确上海业务时区转为 UTC 瞬间，不直接补 Z 或截断字符串；新创建时间在业务边界对齐数据库微秒精度，保证首返与回读一致。Task2 开发记录见 `docs/verification/2026-10-01-task2-contract-development.md`；独立 PASS 证据见 `docs/verification/2026-10-01-task2-independent-acceptance.md`，包含实际 MySQL 与 HTTP 时间核对，不代表 Android 展示已验收。
 
 ### 6.1 页面必需字段
 
@@ -134,7 +136,7 @@ flowchart LR
 |---|---|---|
 | 订单列表与详情 | orderId、storeName、dealTitle、quantity、totalCents、createdAt、status、vouchers、canReview | 核心字段缺失按协议错误处理，可原地重试 |
 | 退款申请 | voucherId、orderId、storeName、dealTitle、可退款金额、canRefund、有效期 | 无资格关闭入口；无金额不得确认 |
-| 退款进度 | requestId、订单/套餐摘要、申请金额、原因、createdAt、status | 不把 PENDING 展示为已到账 |
+| 退款进度 | requestId、订单/套餐摘要、申请金额、原因、createdAt、status | 不把 REQUESTED（待处理）展示为已到账 |
 | 发布评价 | orderId、门店/套餐摘要、createdAt、canReview | 资格不满足时关闭提交入口 |
 | FAQ/投诉 | FAQ 分类、问题和答案；投诉类型目录、可选本人订单、提交结果 | 读取失败显示重试，不补静态业务答案或假订单 |
 | 售后聊天卡 | 候选券公开摘要；确认动作、资源、金额、原因、过期时间 | 缺少确认关键字段时不能执行写操作 |
@@ -148,7 +150,7 @@ flowchart LR
 
 订单 API 使用 `PENDING_PAYMENT/PAID/PARTIALLY_USED/USED/REFUNDED/EXPIRED/CANCELLED`；UI 将 `USED` 显示为“已完成”，不混用另一个 `COMPLETED` 协议值。
 
-券 API 当前使用 `UNUSED/REDEEMED/REFUNDED/EXPIRED`。退款申请本期只返回 `PENDING`；申请后禁止重复申请，不能伪造已退款、审核失败或到账。后续审核与 `REFUNDING` 状态另立迁移和契约变更。
+券 API 当前使用 `UNUSED/REDEEMED/REFUNDED/EXPIRED`。退款申请本期返回实际领域与工具契约一致的 `REQUESTED`，界面显示“申请已提交、待处理”；申请后禁止重复申请，不能伪造已退款、审核失败或到账。原草案中的 `PENDING` 是待处理语义描述，不再作为协议状态使用。后续审核与 `REFUNDING` 状态另立迁移和契约变更。
 
 退款要求本人已支付订单中的未核销券、未有重复申请及其他后端资格；评价要求本人订单至少一张已核销券且每订单只能评价一次。
 

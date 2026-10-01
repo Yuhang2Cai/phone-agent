@@ -73,20 +73,7 @@ public class VoucherService {
 
     /** 构造不包含数据库内部 ID、二维码密钥的安全响应。 */
     private Map<String, Object> summary(VoucherEntity voucher) {
-        // 不能使用 Map.of，因为未核销券的 redeemedAt 为 null；有序可变 Map 同时保证 JSON 字段稳定。
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("publicId", voucher.getPublicId());
-        data.put("orderId", voucher.getOrder().getPublicId());
-        data.put("dealId", voucher.getDeal().getPublicId());
-        data.put("dealTitle", voucher.getDeal().getTitle());
-        data.put("storeId", voucher.getDeal().getStore().getPublicId());
-        data.put("storeName", voucher.getDeal().getStore().getName());
-        data.put("status", voucher.getStatus().name());
-        // 售后入口资格由服务端统一计算，Android 不应把 `UNUSED` 直接等同于可以退款。
-        data.put("canRefund", refunds.canRefund(voucher));
-        // 券摘要同时用于工具审计，统一用 ISO 时间字符串，避免持久化转换器无法序列化 Java 时间对象。
-        data.put("expiresAt", voucher.getExpiresAt().toString());
-        data.put("redeemedAt", voucher.getRedeemedAt() == null ? null : voucher.getRedeemedAt().toString());
-        return data;
+        // 与订单内嵌券共用同一投影，避免退款金额、UTC 时间和图片字段在两种读取路径中漂移。
+        return VoucherSummary.from(voucher, refunds.canRefund(voucher));
     }
 }

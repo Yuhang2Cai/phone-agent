@@ -21,14 +21,21 @@ public class DealPackageEntity {
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "store_id", nullable = false) private StoreEntity store;
     @Column(nullable = false) private String title;
     @Column(nullable = false, length = 2000) private String description;
-    @Column(name = "price_cents", nullable = false) private int priceCents;
-    @Column(name = "original_price_cents", nullable = false) private int originalPriceCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "price_amount", nullable = false, precision = 12, scale = 2) private int priceCents;
+    // Java 保留整数分接口，数据库权威列使用 DECIMAL 元，显式转换防止误改其他整数。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "original_price_amount", nullable = false, precision = 12, scale = 2) private int originalPriceCents;
     @Column(nullable = false) private int inventory;
     @Column(name = "valid_from", nullable = false) private LocalDate validFrom;
     @Column(name = "valid_to", nullable = false) private LocalDate validTo;
     @Column(nullable = false) private boolean active;
     @Column(name = "purchase_limit", nullable = false) private int purchaseLimit;
     @Column(nullable = false) private int version;
+    // 图片只来自该套餐自身审核过的资源；没有照片时保留 null，不能使用通用餐图假装真实套餐。
+    @Column(name = "image_url", length = 1000) private String imageUrl;
+    @Column(name = "image_alt", length = 255) private String imageAlt;
 
     protected DealPackageEntity() {}
 
@@ -55,4 +62,21 @@ public class DealPackageEntity {
     public boolean isActive() { return active; }
     public int getPurchaseLimit() { return purchaseLimit; }
     public int getVersion() { return version; }
+
+    /** 返回该套餐真实图片 URL，未提供图片返回 null；不执行网络请求。 */
+    public String getImageUrl() { return imageUrl; }
+    /** 返回图片内容的替代文本，缺图或未标注时返回 null。 */
+    public String getImageAlt() { return imageAlt; }
+
+    /** 装载明确属于本套餐的图片；两个输入都允许 null，空白 URL 规范化为缺图。 */
+    public void replaceImage(String imageUrl, String imageAlt) {
+        // 配图必须是可加载的 HTTP(S) 资源，非法格式不能被种子或后台静默下发到页面。
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            var uri = java.net.URI.create(imageUrl);
+            if (!("https".equals(uri.getScheme()) || "http".equals(uri.getScheme())) || uri.getHost() == null)
+                throw new IllegalArgumentException("套餐图片地址必须为 HTTP(S) URL");
+        }
+        this.imageUrl = imageUrl == null || imageUrl.isBlank() ? null : imageUrl;
+        this.imageAlt = this.imageUrl == null || imageAlt == null || imageAlt.isBlank() ? null : imageAlt;
+    }
 }

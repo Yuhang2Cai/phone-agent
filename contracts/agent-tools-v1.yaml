@@ -88,6 +88,8 @@ definitions:
       openingHours: *text
       phone: {type: [string, "null"]}
       imageUrl: {type: [string, "null"], format: uri}
+      # 图片缺失允许空值；替代文本来自目录事实，不由客户端拿其他餐品照片补齐。
+      imageAlt: {type: [string, "null"]}
   deal:
     type: object
     additionalProperties: false
@@ -106,6 +108,7 @@ definitions:
       purchaseLimit: {type: integer, minimum: 1}
       active: {type: boolean}
       imageUrl: {type: [string, "null"], format: uri}
+      imageAlt: {type: [string, "null"]}
   review:
     type: object
     additionalProperties: false
@@ -132,6 +135,10 @@ definitions:
       expiresAt: *timestamp
       redeemedAt: {type: [string, "null"], format: date-time}
       imageUrl: {type: [string, "null"], format: uri}
+      imageAlt: {type: [string, "null"]}
+      # 支付快照按券分摊；待支付券没有已付金额，不能把现价或零元当作可退款金额。
+      amountCents: {type: [integer, "null"], minimum: 0}
+      createdAt: *timestamp
   order:
     type: object
     additionalProperties: false
@@ -150,6 +157,7 @@ definitions:
       storeName: *text
       dealTitle: *text
       imageUrl: {type: [string, "null"], format: uri}
+      imageAlt: {type: [string, "null"]}
       # 只有 create_group_buy_order 成功输出签发以下内部支付字段；列表、详情、支付结果不补造凭证。
       # Agent 保存后另起明确支付确认；该凭证绑定 PAY_MOCK_ORDER、真实新订单与金额，购买凭证不能复用。
       paymentConfirmationGrantId: *text
@@ -263,6 +271,13 @@ definitions:
       orderId: *publicId
       dealTitle: *text
       amountCents: *cents
+      # 申请页展示同一后端资源，不拼接静态门店、图片或退款资格。
+      storeId: *publicId
+      dealId: *publicId
+      storeName: *text
+      canRefund: {type: boolean}
+      imageUrl: {type: [string, "null"], format: uri}
+      imageAlt: {type: [string, "null"]}
       # 此处保留资格 API 的券有效期含义；确认凭证有效期由 Spring 内部记录，不能混用。
       expiresAt: *timestamp
       confirmationGrantId: *text
@@ -292,6 +307,15 @@ definitions:
       reason: *reason
       createdAt: *timestamp
       amountCents: *cents
+      # 进度摘要保留申请时关联与真实金额，REQUESTED 只是待处理，不表示到账。
+      orderId: *publicId
+      storeId: *publicId
+      dealId: *publicId
+      storeName: *text
+      dealTitle: *text
+      expiresAt: *timestamp
+      imageUrl: {type: [string, "null"], format: uri}
+      imageAlt: {type: [string, "null"]}
   complaint_ticket:
     type: object
     additionalProperties: false

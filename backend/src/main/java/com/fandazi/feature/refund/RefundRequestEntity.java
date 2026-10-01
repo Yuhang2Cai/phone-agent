@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 
 /** 尚未核销团购券的退款申请。 */
 @Entity
-@Table(name = "refund_requests")
+@Table(name = "refund_requests", uniqueConstraints = @jakarta.persistence.UniqueConstraint(name = "uk_refund_requests_voucher", columnNames = "voucher_id"))
 public class RefundRequestEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Column(name = "public_id", nullable = false, unique = true, length = 80) private String publicId;
@@ -27,13 +27,18 @@ public class RefundRequestEntity {
     @Column(nullable = false, length = 500) private String reason;
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 40) private RefundStatus status;
     @Column(name = "created_at", nullable = false) private LocalDateTime createdAt;
+    // 申请时保存已支付券金额，历史申请详情不依赖随后变化的套餐价格或券展示逻辑。
+    @jakarta.persistence.Convert(converter = com.fandazi.core.money.CentsDecimalConverter.class)
+    @Column(name = "amount", nullable = false, precision = 12, scale = 2) private int amountCents;
 
     protected RefundRequestEntity() {}
 
     /** 创建一条待处理退款申请。 */
     public RefundRequestEntity(String publicId, VoucherEntity voucher, UserEntity user, String reason) {
         this.publicId = publicId; this.voucher = voucher; this.user = user; this.reason = reason;
-        this.status = RefundStatus.REQUESTED; this.createdAt = LocalDateTime.now();
+        if (voucher.getAmountCents() == null) throw new IllegalArgumentException("未付款券不能建立退款金额快照");
+        this.amountCents = voucher.getAmountCents();
+        this.status = RefundStatus.REQUESTED; this.createdAt = com.fandazi.core.time.BusinessTime.now();
     }
 
     public Long getId() { return id; }
@@ -43,4 +48,6 @@ public class RefundRequestEntity {
     public String getReason() { return reason; }
     public RefundStatus getStatus() { return status; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+    /** 返回申请建立时的真实整数分金额，不查询现价。 */
+    public int getAmountCents() { return amountCents; }
 }
