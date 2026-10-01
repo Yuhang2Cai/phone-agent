@@ -1,63 +1,396 @@
-# 手机项目与独立 Agent 服务之间的基础运行协议；Agent 仓库保存该文件的受控副本。
-schemaVersion: "1.0"
+# 团购跨服务运行协议：手机 contracts 为权威来源，新 Agent 保存逐字节受控副本。
+# 字段 schema 使用 JSON Schema Draft 7；本文件中的文档内引用可交给标准验证器解析。
+schemaVersion: "1.1"
 protocolName: "fandazi-agent-protocol"
+$schema: "http://json-schema.org/draft-07/schema#"
+
+# 输入身份与会话归属由 Spring 校验；用户补充和确认只开启新一轮链路，不新建任务。
+runIdentity:
+  runId:
+    allocatedBy: SPRING
+    reusedOn: [input_resume, confirmation_resume]
+  traceId:
+    allocatedBy: SPRING
+    newOnEveryInput: true
+transport:
+  request: "POST /internal/v1/agent/runs"
+  internalAuthentication: SHORT_LIVED_JWT
+  upstreamStream: NDJSON
+  clientStream: SSE
+  invalidStructure: ERROR_FAILED
+  interruptedStream: ERROR_FAILED
+  # 时间点以 UTC 传输，套餐适用日期为 date；展示端按 Asia/Shanghai 转换时间点。
+  timestampTimezone: UTC
+  displayTimezone: Asia/Shanghai
+
+# 复用类型仅约束传输格式；资源存在、金额与可执行动作仍由 Spring 根据业务事实重查。
+fieldTypes:
+  nonEmptyString: &text {type: string, minLength: 1}
+  publicId: &publicId {type: string, minLength: 1, description: "后端签发的公开资源标识，不是数据库主键"}
+  cents: &cents {type: integer, minimum: 0, description: "整数分，不接受浮点金额"}
+  timestamp: &timestamp {type: string, format: date-time}
+  date: &date {type: string, format: date}
 
 agentRunRequest:
+  type: object
+  additionalProperties: false
   required: [schemaVersion, userId, sessionId, traceId, runId, query, context]
   properties:
-    schemaVersion: {type: string, const: "1.0"}
-    userId: {type: string, description: "已登录用户的公开标识"}
-    sessionId: {type: string, description: "长期聊天会话标识"}
-    traceId: {type: string, description: "本次用户请求的端到端链路标识"}
-    runId: {type: string, description: "可暂停和恢复的 Agent 任务标识"}
-    query: {type: string, description: "用户当前输入"}
-    context: {type: object, description: "Spring 重建后的可信上下文，不接受模型自行伪造"}
+    schemaVersion: {type: string, const: "1.1"}
+    userId: *publicId
+    sessionId: *publicId
+    traceId: *text
+    runId: *text
+    query: {type: string, minLength: 1, description: "本轮用户输入；旧 text 只能在集中适配器转换"}
+    context:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        page: *text
+        cityCode: *text
+        timezone: {type: string, const: "Asia/Shanghai"}
+        selectedStoreId: {type: [string, "null"], minLength: 1}
+        selectedDealId: {type: [string, "null"], minLength: 1}
+        mode: {type: string, enum: [confirm, this_task_auto, recommend]}
+        # 只能由可信 Spring 根据本轮明确确认计算；端上自报或模型输出均不能决定该值。
+        # 它仅传递流程状态，不能替代写工具的 confirmationGrantId、动作、金额、归属和有效期校验。
+        confirmationAccepted: {type: boolean}
+        clientCapabilities: {type: array, uniqueItems: true, items: {type: string, enum: [TEXT, CARD_V1, CONFIRMATION_V1]}}
+        # 坐标只接受 Spring 校验并降精度后的值，不能将模型位置当作身份或权限依据。
+        latitude: {type: [number, "null"], minimum: -90, maximum: 90}
+        longitude: {type: [number, "null"], minimum: -180, maximum: 180}
+
+# terminal 表示任务终态；等待输入/确认只是本轮暂停，必须允许原 runId 恢复。
+runLifecycle:
+  running: {terminal: false, stopActivity: false}
+  waiting_input: {terminal: false, stopActivity: true}
+  waiting_confirmation: {terminal: false, stopActivity: true}
+  succeeded: {terminal: true, stopActivity: true}
+  failed: {terminal: true, stopActivity: true}
+  cancelled: {terminal: true, stopActivity: true}
+eventSemantics:
+  input_required: {status: waiting_input, endsRound: true, endsRun: false, roundDisposition: paused}
+  confirmation_required: {status: waiting_confirmation, endsRound: true, endsRun: false, roundDisposition: paused}
+  run_completed: {statuses: [succeeded, cancelled], endsRound: true, endsRun: true, roundDisposition: completed}
+  error: {status: failed, endsRound: true, endsRun: true, roundDisposition: failed}
 
 agentEvent:
-  required: [schemaVersion, eventId, eventType, traceId, runId, sequence, status]
-  eventTypes: [run_started, intent_decided, progress, text_delta, card, confirmation_required, tool_result, run_completed, error]
+  type: object
+  additionalProperties: false
+  required: [schemaVersion, eventId, eventType, traceId, runId, sequence, status, payload]
+  eventTypes: [run_started, intent_decided, progress, text_delta, card, input_required, confirmation_required, tool_result, run_completed, error]
   properties:
-    schemaVersion: {type: string, const: "1.0"}
-    eventId: {type: string}
-    eventType: {type: string}
-    traceId: {type: string}
-    runId: {type: string}
-    planId: {type: string, nullable: true, description: "仅复合任务存在的 DAG 计划标识"}
+    schemaVersion: {type: string, const: "1.1"}
+    eventId: *text
+    eventType: {type: string, enum: [run_started, intent_decided, progress, text_delta, card, input_required, confirmation_required, tool_result, run_completed, error]}
+    traceId: *text
+    runId: *text
+    planId: {type: [string, "null"], minLength: 1, description: "仅复合任务包含 DAG 计划标识"}
+    # 顺序按本轮 traceId 单调递增；进度按 runId 与 stepId 合并，不能用数组位置识别步骤。
     sequence: {type: integer, minimum: 0}
-    status: {type: string, enum: [running, waiting_confirmation, succeeded, failed, cancelled]}
+    status: {type: string, enum: [running, waiting_input, waiting_confirmation, succeeded, failed, cancelled]}
     payload: {type: object}
+  # 状态与载荷同时约束，禁止仅改事件名字而留下 completed 或 failed 等错误状态。
+  allOf:
+    - if: {properties: {eventType: {const: input_required}}}
+      then: {properties: {status: {const: waiting_input}, payload: {$ref: "#/inputRequiredPayload"}}}
+    - if: {properties: {eventType: {const: confirmation_required}}}
+      then: {properties: {status: {const: waiting_confirmation}, payload: {$ref: "#/confirmationRequiredPayload"}}}
+    - if: {properties: {eventType: {const: run_completed}}}
+      then: {properties: {status: {enum: [succeeded, cancelled]}, payload: {$ref: "#/completionPayload"}}}
+    - if: {properties: {eventType: {const: error}}}
+      then: {properties: {status: {const: failed}, payload: {$ref: "#/errorPayload"}}}
+    - if: {properties: {eventType: {const: run_started}}}
+      then: {properties: {status: {const: running}, payload: {$ref: "#/startPayload"}}}
+    - if: {properties: {eventType: {const: intent_decided}}}
+      then: {properties: {status: {const: running}, payload: {$ref: "#/intentPayload"}}}
+    - if: {properties: {eventType: {const: progress}}}
+      then: {properties: {status: {const: running}, payload: {$ref: "#/progressPayload"}}}
+    - if: {properties: {eventType: {const: text_delta}}}
+      then: {properties: {status: {const: running}, payload: {$ref: "#/textPayload"}}}
+    - if: {properties: {eventType: {const: card}}}
+      then: {properties: {status: {const: running}, payload: {$ref: "#/cardPayload"}}}
+    - if: {properties: {eventType: {const: tool_result}}}
+      then: {properties: {status: {const: running}, payload: {$ref: "#/toolResultPayload"}}}
 
 agentRunResult:
+  type: object
+  additionalProperties: false
   required: [schemaVersion, traceId, runId, status, isComposite, events]
   properties:
-    schemaVersion: {type: string, const: "1.0"}
-    traceId: {type: string}
-    runId: {type: string}
-    planId: {type: string, nullable: true}
-    status: {type: string, enum: [succeeded, failed, waiting_confirmation, cancelled]}
-    isComposite: {type: boolean, description: "是否包含多个可独立成立的用户目标"}
-    intent: {type: string, nullable: true}
-    events: {type: array, items: {type: object}}
-    error: {type: object, nullable: true}
+    schemaVersion: {type: string, const: "1.1"}
+    traceId: *text
+    runId: *text
+    planId: {type: [string, "null"], minLength: 1}
+    status: {type: string, enum: [waiting_input, waiting_confirmation, succeeded, failed, cancelled]}
+    isComposite: {type: boolean, description: "是否包含多个可以独立成立的用户目标"}
+    intent: {type: [string, "null"], minLength: 1}
+    events: {type: array, minItems: 1, items: {$ref: "#/agentEvent"}}
+    error: {oneOf: [{$ref: "#/errorPayload"}, {type: "null"}]}
+  # 失败必须有可定位错误；其他状态不能携带任务终态错误，工具可恢复失败另走 tool_result。
+  allOf:
+    - if: {properties: {status: {const: failed}}}
+      then: {required: [error], properties: {error: {$ref: "#/errorPayload"}}}
+      else: {properties: {error: {type: "null"}}}
 
+# 公开卡片与内部凭证分离；展示数据由 Spring 补全，模型只引用已公开的资源。
 agentCard:
-  required: [schemaVersion, cardType, resourceId, actions]
+  type: object
+  additionalProperties: false
+  required: [schemaVersion, cardType, resourceId, data, actions]
   cardTypes: [store, deal, order, voucher, coupon, review, confirmation, error]
   properties:
-    schemaVersion: {type: string, const: "1.0"}
-    cardType: {type: string}
-    resourceId: {type: string, description: "业务公开资源标识，不能由模型生成业务字段"}
-    actions: {type: array, items: {type: object}}
+    schemaVersion: {type: string, const: "1.1"}
+    cardType: {type: string, enum: [store, deal, order, voucher, coupon, review, confirmation, error]}
+    resourceId: *publicId
+    data: {type: object}
+    actions: {type: array, items: {$ref: "#/cardAction"}}
+  allOf:
+    - if: {properties: {cardType: {const: store}}}
+      then: {properties: {data: {$ref: "#/storeCardData"}}}
+    - if: {properties: {cardType: {const: deal}}}
+      then: {properties: {data: {$ref: "#/dealCardData"}}}
+    - if: {properties: {cardType: {const: order}}}
+      then: {properties: {data: {$ref: "#/orderCardData"}}}
+    - if: {properties: {cardType: {const: voucher}}}
+      then: {properties: {data: {$ref: "#/voucherCardData"}}}
+    - if: {properties: {cardType: {const: coupon}}}
+      then: {properties: {data: {$ref: "#/couponCardData"}}}
+    - if: {properties: {cardType: {const: review}}}
+      then: {properties: {data: {$ref: "#/reviewCardData"}}}
+    - if: {properties: {cardType: {const: confirmation}}}
+      then: {properties: {data: {$ref: "#/confirmationSummary"}}}
+    - if: {properties: {cardType: {const: error}}}
+      then: {properties: {data: {$ref: "#/errorPayload"}}}
 
-confirmationGrant:
-  required: [grantId, userId, sessionId, action, resourceId, expiresAt, consumed]
+cardAction:
+  type: object
+  additionalProperties: false
+  required: [actionId, actionType, label, resourceId, enabled]
   properties:
-    grantId: {type: string}
-    userId: {type: string}
-    sessionId: {type: string}
+    actionId: *text
+    actionType: {type: string, enum: [open_store, open_deal, open_order, open_voucher, select_voucher, create_group_buy_order, pay_mock_order, request_refund, submit_complaint, cancel, retry]}
+    label: *text
+    resourceId: *publicId
+    enabled: {type: boolean, description: "后端权威资格决定是否可点击"}
+    payload:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        # 动作只能回传资源引用和用户输入，服务端保存并消费确认凭证，不在卡片中暴露它。
+        query: *text
+        storeId: *publicId
+        dealId: *publicId
+        orderId: *publicId
+        voucherId: *publicId
+
+inputRequiredPayload:
+  type: object
+  additionalProperties: false
+  required: [question, inputKey, candidates]
+  properties:
+    question: *text
+    # 找店先补城市、找套餐先选门店；明确字段让恢复流程保存真实业务槽位而非泛化 query。
+    inputKey: {type: string, enum: [cityCode, storeId, voucherId, orderId, reason, subject, description, dealId, quantity, query]}
+    # 自由文本追问时为空数组；选券使用公开 voucher 卡与 select_voucher 动作。
+    candidates: {type: array, items: {$ref: "#/agentCard"}}
+
+confirmationRequiredPayload:
+  type: object
+  additionalProperties: false
+  required: [summary, actions]
+  properties:
+    summary: {$ref: "#/confirmationSummary"}
+    actions: {type: array, minItems: 1, items: {$ref: "#/cardAction"}}
+
+confirmationSummary:
+  type: object
+  additionalProperties: false
+  required: [action, resourceId, title, amountCents, ruleVersion]
+  properties:
     action: {type: string, enum: [create_group_buy_order, pay_mock_order, request_refund, submit_complaint]}
-    resourceId: {type: string}
-    amountCents: {type: integer, nullable: true}
-    ruleVersion: {type: string}
-    expiresAt: {type: string, format: date-time}
+    resourceId: *publicId
+    title: *text
+    amountCents: *cents
+    ruleVersion: *text
+    dealTitle: *text
+    storeName: *text
+    quantity: {type: integer, minimum: 1}
+    reason: {type: string, minLength: 1, maxLength: 500}
+    subject: {type: string, minLength: 1, maxLength: 255}
+    description: {type: string, minLength: 1, maxLength: 2000}
+    # 公开的是确认摘要的有效截止时间，不是可用于提交操作的凭证 ID。
+    expiresAt: *timestamp
+  # 等待确认时资料必须完整，不能只给金额而遗漏退款原因或投诉正文。
+  allOf:
+    - if: {properties: {action: {const: create_group_buy_order}}}
+      then: {required: [dealTitle, quantity]}
+    - if: {properties: {action: {const: request_refund}}}
+      then: {required: [dealTitle, reason]}
+    - if: {properties: {action: {const: submit_complaint}}}
+      then: {required: [subject, description]}
+
+# 内部记录只允许 confirmationGrantId 一个权威名字；动作、金额及版本绑定后一次性消费。
+confirmationGrant:
+  type: object
+  additionalProperties: false
+  required: [confirmationGrantId, userId, sessionId, action, resourceId, amountCents, ruleVersion, expiresAt, consumed]
+  properties:
+    confirmationGrantId: *text
+    userId: *publicId
+    sessionId: *publicId
+    action: {type: string, enum: [create_group_buy_order, pay_mock_order, request_refund, submit_complaint]}
+    resourceId: *publicId
+    amountCents: *cents
+    ruleVersion: *text
+    expiresAt: *timestamp
     consumed: {type: boolean}
+
+# 各事件公开载荷；不包含内部推理、密钥、数据库主键或确认凭证。
+startPayload:
+  type: object
+  additionalProperties: false
+  required: []
+  properties: {}
+intentPayload:
+  type: object
+  additionalProperties: false
+  required: [intent, isComposite]
+  properties:
+    intent: *text
+    isComposite: {type: boolean}
+progressPayload:
+  type: object
+  additionalProperties: false
+  required: [stepId, label, stepStatus]
+  properties:
+    stepId: *text
+    label: *text
+    stepStatus: {type: string, enum: [running, succeeded, failed]}
+textPayload:
+  type: object
+  additionalProperties: false
+  required: [delta]
+  properties:
+    delta: *text
+cardPayload:
+  type: object
+  additionalProperties: false
+  required: [card]
+  properties:
+    card: {$ref: "#/agentCard"}
+toolResultPayload:
+  type: object
+  additionalProperties: false
+  required: [toolName, ok, data, error]
+  properties:
+    toolName: *text
+    ok: {type: boolean}
+    # 这里只发送已脱敏的公开结果摘要，完整内部工具数据不能直接穿透到客户端。
+    data:
+      type: object
+      additionalProperties: {type: [string, integer, boolean, "null"]}
+      # 摘要是公开通道，必须禁止把准备工具返回的凭证或核销令牌原样透传。
+      propertyNames: {not: {enum: [confirmationGrantId, confirmationGrant, grantId, token]}}
+    error: {oneOf: [{$ref: "#/errorPayload"}, {type: "null"}]}
+completionPayload:
+  type: object
+  additionalProperties: false
+  required: []
+  properties:
+    message: *text
+errorPayload:
+  type: object
+  additionalProperties: false
+  required: [code, message, retryable]
+  properties:
+    code: {type: string, enum: [VALIDATION_ERROR, NOT_FOUND, FORBIDDEN, CONFLICT, EXPIRED, RATE_LIMITED, DEPENDENCY_UNAVAILABLE, INTERNAL_ERROR]}
+    message: *text
+    retryable: {type: boolean}
+
+# 卡片字段使用公开协议名称；publicId/storePublicId 等业务 DTO 名称由集中适配器转换。
+storeCardData:
+  type: object
+  additionalProperties: false
+  required: [storeId, name, address, category, averageSpendCents, open, openingHours]
+  properties:
+    storeId: *publicId
+    name: *text
+    address: *text
+    category: *text
+    averageSpendCents: *cents
+    open: {type: boolean}
+    openingHours: *text
+    imageUrl: {type: [string, "null"], format: uri}
+dealCardData:
+  type: object
+  additionalProperties: false
+  required: [dealId, storeId, title, priceCents, originalPriceCents, inventory, validFrom, validTo, purchaseLimit]
+  properties:
+    dealId: *publicId
+    storeId: *publicId
+    title: *text
+    description: {type: string}
+    priceCents: *cents
+    originalPriceCents: *cents
+    inventory: {type: integer, minimum: 0}
+    validFrom: *date
+    validTo: *date
+    purchaseLimit: {type: integer, minimum: 1}
+    imageUrl: {type: [string, "null"], format: uri}
+orderCardData:
+  type: object
+  additionalProperties: false
+  required: [orderId, dealId, storeId, quantity, totalCents, status, createdAt, canReview]
+  properties:
+    orderId: *publicId
+    dealId: *publicId
+    storeId: *publicId
+    quantity: {type: integer, minimum: 1}
+    totalCents: *cents
+    status: {type: string, enum: [PENDING_PAYMENT, PAID, PARTIALLY_USED, USED, REFUNDED, EXPIRED, CANCELLED]}
+    createdAt: *timestamp
+    canReview: {type: boolean}
+voucherCardData:
+  type: object
+  additionalProperties: false
+  required: [voucherId, orderId, dealTitle, storeName, status, canRefund, expiresAt]
+  properties:
+    voucherId: *publicId
+    orderId: *publicId
+    dealTitle: *text
+    storeName: *text
+    status: {type: string, enum: [UNUSED, REDEEMED, EXPIRED, REFUNDED]}
+    canRefund: {type: boolean}
+    expiresAt: *timestamp
+    redeemedAt: {type: [string, "null"], format: date-time}
+couponCardData:
+  type: object
+  additionalProperties: false
+  required: [couponId, name, status, thresholdCents, discountCents, validTo, scopeDescription]
+  properties:
+    couponId: *publicId
+    name: *text
+    status: *text
+    thresholdCents: *cents
+    discountCents: *cents
+    validTo: *timestamp
+    scopeDescription: *text
+reviewCardData:
+  type: object
+  additionalProperties: false
+  required: [storeId, reviewerName, rating, content, createdAt]
+  properties:
+    storeId: *publicId
+    reviewerName: *text
+    rating: {type: number, minimum: 1, maximum: 5}
+    content: *text
+    createdAt: *timestamp
+
+# 这里只登记集中兼容边界；权威 schema 不接受别名，转换实现与测试由运行时任务负责。
+compatibility:
+  adapterOnly: true
+  canonicalFields: {query: query, cardType: cardType, confirmationGrantId: confirmationGrantId}
+  legacyAliases: {text: query, type: cardType, confirmationGrant: confirmationGrantId, grantId: confirmationGrantId}

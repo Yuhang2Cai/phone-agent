@@ -13,8 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 // 初始化对象依赖与默认状态。
     private final AgentEventRepository events; public AgentEventService(AgentEventRepository events) { this.events=events; }
     private final Map<SubscriptionKey, CopyOnWriteArrayList<SseEmitter>> subscribers = new ConcurrentHashMap<>();
-// 处理 `record` 相关逻辑。
-    @Transactional public AgentEventEntity record(Long userId,String sessionId,String type,String summary,String toolName,String status,Map<String,Object> payload) { AgentEventEntity event=events.save(new AgentEventEntity(userId,sessionId,type,summary,toolName,status,payload)); publish(event); return event; }
+    /** 记录可重放的公开事件；入库前移除内部凭证，避免历史查询与实时 SSE 泄漏授权信息。 */
+    @Transactional public AgentEventEntity record(Long userId,String sessionId,String type,String summary,String toolName,String status,Map<String,Object> payload) {
+        Map<String, Object> publicPayload = AgentContractCompatibility.publicEventPayload(payload);
+        AgentEventEntity event = events.save(new AgentEventEntity(userId, sessionId, type, summary, toolName, status, publicPayload));
+        publish(event);
+        return event;
+    }
 // 处理 `after` 相关逻辑。
     @Transactional(readOnly=true) public List<AgentEventEntity> after(Long userId,String sessionId,Long lastId) { return lastId == null ? events.findByUserIdAndSessionIdOrderByIdAsc(userId,sessionId) : events.findByUserIdAndSessionIdAndIdGreaterThanOrderByIdAsc(userId,sessionId,lastId); }
 // 处理 `subscribe` 相关逻辑。

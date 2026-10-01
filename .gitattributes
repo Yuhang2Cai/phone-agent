@@ -1,0 +1,2 @@
+# 跨仓库契约采用原始字节摘要，固定 LF 防止 Windows 自动换行转换改变校验值。
+contracts/*.yaml text eol=lf

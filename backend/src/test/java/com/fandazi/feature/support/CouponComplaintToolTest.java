@@ -1,0 +1,105 @@
+// 售后工具测试：验证优惠券按用户隔离，投诉必须关联本人订单和一次性确认。
+package com.fandazi.feature.support;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import com.fandazi.feature.DomainException;
+import com.fandazi.feature.agent.ConfirmationGrantService;
+import com.fandazi.feature.agent.AgentMode;
+import com.fandazi.feature.agent.AgentSessionService;
+import com.fandazi.feature.agent.AgentToolService;
+import com.fandazi.feature.agent.ToolRequest;
+import com.fandazi.feature.auth.UserEntity;
+import com.fandazi.feature.auth.UserRepository;
+import com.fandazi.feature.coupon.CouponEntity;
+import com.fandazi.feature.coupon.CouponRepository;
+import com.fandazi.feature.coupon.CouponService;
+import com.fandazi.feature.coupon.UserCouponEntity;
+import com.fandazi.feature.coupon.UserCouponRepository;
+import java.time.LocalDate;
+import java.util.UUID;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
+
+/** 只读与写入工具必须遵守不同的身份、确认和数据边界。 */
+// 读写工具测试不与旧配送/鉴权测试共享 H2 种子，保证全量套件可重复。
+@SpringBootTest(properties = {"seed.enabled=true", "group.seed.enabled=true",
+        "spring.datasource.url=jdbc:h2:mem:task8-support;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE"})
+@ActiveProfiles("test")
+@Transactional
+class CouponComplaintToolTest {
+    @Autowired private CouponService coupons;
+    @Autowired private ComplaintService complaints;
+    @Autowired private CouponRepository couponRepository;
+    @Autowired private UserCouponRepository userCoupons;
+    @Autowired private UserRepository users;
+    @Autowired private ConfirmationGrantService grants;
+    @Autowired private AgentSessionService sessions;
+    @Autowired private AgentToolService tools;
+
+    /** 只返回当前用户领过的券，不把平台全量券误认为个人优惠券。 */
+    @Test
+    void couponsAreScopedToCurrentUser() {
+        var alice = users.findByUsername("seed_alice").orElseThrow();
+        var stranger = users.save(new UserEntity("coupon-stranger-" + UUID.randomUUID(), "coupon-stranger@example.com", "hash"));
+        CouponEntity coupon = couponRepository.save(new CouponEntity("coupon-test-" + UUID.randomUUID(), "团购立减", 5000, 500,
+                LocalDate.now().minusDays(1), LocalDate.now().plusDays(1), "指定团购", true));
+        userCoupons.save(new UserCouponEntity(UUID.randomUUID().toString(), alice, coupon));
+
+        assertThat(coupons.list(alice.getId())).anySatisfy(item -> assertThat(item.get("couponId")).isEqualTo(coupon.getPublicId()));
+        assertThat(coupons.list(stranger.getId())).noneSatisfy(item -> assertThat(item.get("couponId")).isEqualTo(coupon.getPublicId()));
+    }
+
+    /** 不能以陌生人的订单号提交投诉，也不能拿购买确认凭证冒充投诉确认。 */
+    @Test
+    void complaintRequiresOwnedOrderAndMatchingGrantAction() {
+        var stranger = users.save(new UserEntity("complaint-stranger-" + UUID.randomUUID(), "complaint-stranger@example.com", "hash"));
+        String sessionId = "complaint-" + UUID.randomUUID();
+        assertThatThrownBy(() -> complaints.prepare(stranger.getId(), sessionId, "group-order-paid"))
+                .isInstanceOf(DomainException.class).hasMessageContaining("订单不存在");
+
+        var alice = users.findByUsername("seed_alice").orElseThrow();
+        String wrongAction = grants.issue(alice.getId(), sessionId, "group-order-paid", 0, "complaint-v1").getGrantId();
+        assertThatThrownBy(() -> complaints.submit(alice.getId(), sessionId, "group-order-paid", "门店服务", "到店体验问题", wrongAction))
+                .isInstanceOf(DomainException.class).hasMessageContaining("动作不匹配");
+        String grant = complaints.prepare(alice.getId(), sessionId, "group-order-paid").get("confirmationGrant").toString();
+        var submitted = complaints.submit(alice.getId(), sessionId, "group-order-paid", "门店服务", "到店体验问题", grant);
+        assertThat(submitted.get("status")).isEqualTo("OPEN");
+    }
+
+    /** 模型能准备凭证不等于用户授权，写工具必须再检查会话确认状态。 */
+    @Test
+    void agentComplaintWriteWaitsForExplicitSessionConfirmation() {
+        var alice = users.findByUsername("seed_alice").orElseThrow();
+        String sessionId = "complaint-agent-" + UUID.randomUUID();
+        sessions.start(alice.getId(), sessionId, AgentMode.CONFIRM, "trace");
+        String grant = complaints.prepare(alice.getId(), sessionId, "group-order-paid").get("confirmationGrant").toString();
+        ToolRequest request = new ToolRequest(alice.getId().toString(), sessionId, "trace", "complaint-1", "workflow",
+                java.util.Map.of("orderId", "group-order-paid", "subject", "门店服务", "description", "到店体验问题",
+                        "confirmationGrant", grant));
+        assertThatThrownBy(() -> tools.execute("submit_complaint", request))
+                .isInstanceOf(DomainException.class).hasMessageContaining("用户确认");
+        sessions.confirm(alice.getId(), sessionId);
+        assertThat(tools.execute("submit_complaint", request).ok()).isTrue();
+        assertThatThrownBy(() -> tools.execute("submit_complaint", request))
+                .isInstanceOf(DomainException.class);
+    }
+
+    /** 只读工具返回值必须可写入审计 JSON，不能因 Java 时间对象导致查询失败。 */
+    @Test
+    void afterSaleReadToolsProduceAuditableResults() {
+        var alice = users.findByUsername("seed_alice").orElseThrow();
+        String sessionId = "after-sale-read-" + UUID.randomUUID();
+        sessions.start(alice.getId(), sessionId, AgentMode.CONFIRM, "trace");
+        for (String name : java.util.List.of("list_user_orders", "list_user_vouchers", "query_coupon", "query_faq", "get_order_detail")) {
+            java.util.Map<String, Object> payload = name.equals("get_order_detail")
+                    ? java.util.Map.of("orderId", "group-order-paid") : java.util.Map.of();
+            var request = new ToolRequest(alice.getId().toString(), sessionId, "trace", name, "workflow", payload);
+            assertThat(tools.execute(name, request).ok()).isTrue();
+        }
+    }
+}

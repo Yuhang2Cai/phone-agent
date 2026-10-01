@@ -28,6 +28,13 @@ import com.fandazi.feature.order.OrderRepository;
 import com.fandazi.feature.order.OrderResponse;
 import com.fandazi.feature.order.OrderService;
 import com.fandazi.feature.payment.PaymentService;
+import com.fandazi.feature.purchase.PurchaseQuoteService;
+import com.fandazi.feature.grouporder.GroupBuyOrderService;
+import com.fandazi.feature.voucher.VoucherService;
+import com.fandazi.feature.refund.RefundService;
+import com.fandazi.feature.coupon.CouponService;
+import com.fandazi.feature.support.FaqService;
+import com.fandazi.feature.support.ComplaintService;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,22 +43,48 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service public class AgentToolService {
-    private static final java.util.Set<String> ALLOWED=java.util.Set.of("search_stores","get_store_detail","list_deal_packages","get_deal_detail","search_reviews","search_merchants","list_dishes","get_last_order","create_cart_draft","validate_cart","get_addresses","create_order","pay_mock_order");
-    private final AgentSessionService sessions; private final AgentEventService events; private final MerchantRepository merchants; private final DishRepository dishes; private final DishOptionRepository options; private final AddressService addresses; private final CartService carts; private final OrderAuthorizationService authorizations; private final AutomationPolicyService policies; private final OrderService orders; private final OrderRepository orderRepository; private final PaymentService payments; private final StoreService stores; private final DealPackageService deals; private final StoreReviewRepository storeReviews;
+    private static final java.util.Set<String> ALLOWED=java.util.Set.of("search_stores","get_store_detail","list_deal_packages","get_deal_detail","search_reviews","search_merchants","list_dishes","get_last_order","list_user_vouchers","list_user_orders","get_order_detail","prepare_refund","request_refund","query_coupon","query_faq","prepare_complaint","submit_complaint","create_cart_draft","validate_cart","get_addresses","create_order","pay_mock_order","create_purchase_quote","create_group_buy_order");
+    private final AgentSessionService sessions; private final AgentEventService events; private final MerchantRepository merchants; private final DishRepository dishes; private final DishOptionRepository options; private final AddressService addresses; private final CartService carts; private final OrderAuthorizationService authorizations; private final AutomationPolicyService policies; private final OrderService orders; private final OrderRepository orderRepository; private final PaymentService payments; private final StoreService stores; private final DealPackageService deals; private final StoreReviewRepository storeReviews; private final PurchaseQuoteService purchaseQuotes; private final GroupBuyOrderService groupBuyOrders; private final VoucherService vouchers; private final RefundService refunds; private final CouponService coupons; private final FaqService faqs; private final ComplaintService complaints;
 // 初始化对象依赖与默认状态。
-    public AgentToolService(AgentSessionService sessions,AgentEventService events,MerchantRepository merchants,DishRepository dishes,DishOptionRepository options,AddressService addresses,CartService carts,OrderAuthorizationService authorizations,AutomationPolicyService policies,OrderService orders,OrderRepository orderRepository,PaymentService payments,StoreService stores,DealPackageService deals,StoreReviewRepository storeReviews){this.sessions=sessions;this.events=events;this.merchants=merchants;this.dishes=dishes;this.options=options;this.addresses=addresses;this.carts=carts;this.authorizations=authorizations;this.policies=policies;this.orders=orders;this.orderRepository=orderRepository;this.payments=payments;this.stores=stores;this.deals=deals;this.storeReviews=storeReviews;}
+    public AgentToolService(AgentSessionService sessions,AgentEventService events,MerchantRepository merchants,DishRepository dishes,DishOptionRepository options,AddressService addresses,CartService carts,OrderAuthorizationService authorizations,AutomationPolicyService policies,OrderService orders,OrderRepository orderRepository,PaymentService payments,StoreService stores,DealPackageService deals,StoreReviewRepository storeReviews,PurchaseQuoteService purchaseQuotes,GroupBuyOrderService groupBuyOrders,VoucherService vouchers,RefundService refunds,CouponService coupons,FaqService faqs,ComplaintService complaints){this.sessions=sessions;this.events=events;this.merchants=merchants;this.dishes=dishes;this.options=options;this.addresses=addresses;this.carts=carts;this.authorizations=authorizations;this.policies=policies;this.orders=orders;this.orderRepository=orderRepository;this.payments=payments;this.stores=stores;this.deals=deals;this.storeReviews=storeReviews;this.purchaseQuotes=purchaseQuotes;this.groupBuyOrders=groupBuyOrders;this.vouchers=vouchers;this.refunds=refunds;this.coupons=coupons;this.faqs=faqs;this.complaints=complaints;}
 // 判断allowed。
     public boolean isAllowed(String name){return ALLOWED.contains(name);}
 // 处理 `execute` 相关逻辑。
     @Transactional public ToolResult execute(String name,ToolRequest request){
         if(!isAllowed(name))throw new DomainException("工具不在白名单中");
+        // 旧字段兼容仅在进入工具时发生一次，各业务分支只读取权威字段。
+        request = new ToolRequest(request.userId(), request.sessionId(), request.traceId(), request.idempotencyKey(),
+                request.workflowId(), AgentContractCompatibility.toolPayload(name, request.payload()));
         AgentSession session=sessions.trustedForUpdate(request.sessionId()); Long userId=session.getUser().getId();
+        // 售后写工具不继承自动下单授权；即使模型已取得准备凭证，仍须本轮会话有明确用户确认。
+        boolean afterSaleWrite = name.equals("request_refund") || name.equals("submit_complaint");
+        if (afterSaleWrite && (session.getMode() != AgentMode.CONFIRM || !session.isConfirmed())) {
+            throw new DomainException("售后操作需要用户确认");
+        }
         events.record(userId,session.getSessionId(),"tool","正在执行工具",name,"running",Map.of());
         ToolResult result=switch(name){
             case "search_stores" -> searchStores(request.payload()); case "get_store_detail" -> storeDetail(request.payload()); case "list_deal_packages" -> listDeals(request.payload()); case "get_deal_detail" -> dealDetail(request.payload()); case "search_reviews" -> searchReviews(request.payload());
             case "search_merchants" -> search(request.payload()); case "list_dishes" -> listDishes(request.payload()); case "get_last_order" -> lastOrder(userId);
+            // 团购券查询只返回服务端已确认的公开摘要，Agent 不接触二维码展示令牌。
+            case "list_user_vouchers" -> ToolResult.ok(Map.of("vouchers", vouchers.list(userId)));
+            // 售后读工具只访问当前会话用户；写工具必须额外消费动作绑定的一次性确认凭证。
+            case "list_user_orders" -> ToolResult.ok(Map.of("orders", groupBuyOrders.list(userId)));
+            case "get_order_detail" -> ToolResult.ok(Map.of("order", groupBuyOrders.detail(userId, String.valueOf(request.payload().getOrDefault("orderId", "")))));
+            case "prepare_refund" -> ToolResult.ok(refunds.prepare(userId, session.getSessionId(), String.valueOf(request.payload().getOrDefault("voucherId", ""))));
+            case "request_refund" -> ToolResult.ok(refunds.request(userId, session.getSessionId(), String.valueOf(request.payload().getOrDefault("voucherId", "")), String.valueOf(request.payload().getOrDefault("reason", "")), String.valueOf(request.payload().getOrDefault("confirmationGrantId", ""))));
+            case "query_coupon" -> ToolResult.ok(Map.of("coupons", coupons.list(userId)));
+            case "query_faq" -> ToolResult.ok(Map.of("faqs", faqs.query(String.valueOf(request.payload().getOrDefault("question", "")))));
+            case "prepare_complaint" -> ToolResult.ok(complaints.prepare(userId, session.getSessionId(), String.valueOf(request.payload().getOrDefault("orderId", ""))));
+            case "submit_complaint" -> ToolResult.ok(complaints.submit(userId, session.getSessionId(), String.valueOf(request.payload().getOrDefault("orderId", "")), String.valueOf(request.payload().getOrDefault("subject", "")), String.valueOf(request.payload().getOrDefault("description", "")), String.valueOf(request.payload().getOrDefault("confirmationGrantId", ""))));
             case "create_cart_draft" -> createDraft(userId,request.payload()); case "validate_cart" -> validate(userId,request.payload()); case "get_addresses" -> getAddresses(userId);
-            case "create_order" -> createOrder(userId,session,request); case "pay_mock_order" -> pay(userId,session,request); default -> throw new DomainException("工具不在白名单中");};
+            case "create_order" -> createOrder(userId,session,request); case "pay_mock_order" -> pay(userId,session,request);
+            case "create_purchase_quote" -> ToolResult.ok(purchaseQuotes.create(userId, request.sessionId(), String.valueOf(request.payload().get("dealId")), integer(request.payload().get("quantity")) == null ? 1 : integer(request.payload().get("quantity"))));
+            case "create_group_buy_order" -> ToolResult.ok(groupBuyOrders.create(userId, request.sessionId(), String.valueOf(request.payload().get("dealId")), integer(request.payload().get("quantity")) == null ? 1 : integer(request.payload().get("quantity")), String.valueOf(request.payload().get("confirmationGrantId")), request.idempotencyKey()));
+            default -> throw new DomainException("工具不在白名单中");};
+        // 写操作成功后消费会话确认，防止同一轮确认被重复用于另一笔退款或投诉。
+        if (afterSaleWrite) sessions.consumeConfirmation(session);
+        // 对 Agent 的返回值不再扩散旧凭证字段；领域服务与普通页面 DTO 保持兼容。
+        result = new ToolResult(result.ok(), AgentContractCompatibility.toolData(result.data()), result.error(), result.errorKind());
         events.record(userId,session.getSessionId(),"tool","工具执行完成",name,"ok",result.data()); return result;
     }
     // 以下五个只读工具都基于 Spring 查询结果构造返回值，模型不能自行生成门店、价格或库存字段。

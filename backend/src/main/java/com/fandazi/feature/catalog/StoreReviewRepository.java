@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 /** 门店评价仓储。 */
 public interface StoreReviewRepository extends JpaRepository<StoreReviewEntity, Long> {
     boolean existsByStoreIdAndReviewerNameAndCreatedAt(Long storeId, String reviewerName, Instant createdAt);
+    /** 同一团购订单最多一条用户评价。 */
+    boolean existsByOrderId(Long orderId);
 }

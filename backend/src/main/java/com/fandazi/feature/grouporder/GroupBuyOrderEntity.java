@@ -65,12 +65,18 @@ public class GroupBuyOrderEntity {
      */
     public GroupBuyOrderEntity(String publicId, UserEntity user, StoreEntity store, DealPackageEntity deal,
                                int quantity, int totalCents, GroupBuyOrderStatus status, LocalDateTime expiresAt) {
+        this(publicId, user, store, deal, publicId, quantity, totalCents, status, expiresAt, "seed-or-domain");
+    }
+
+    /** 创建带业务幂等键和请求指纹的订单，供真实购买写流程使用。 */
+    public GroupBuyOrderEntity(String publicId, UserEntity user, StoreEntity store, DealPackageEntity deal, String idempotencyKey,
+                               int quantity, int totalCents, GroupBuyOrderStatus status, LocalDateTime expiresAt, String requestFingerprint) {
         if (quantity <= 0) throw new IllegalArgumentException("团购数量必须大于零");
         if (totalCents < 0) throw new IllegalArgumentException("团购金额不能为负数");
         this.publicId = publicId; this.user = user; this.store = store; this.deal = deal;
-        this.idempotencyKey = publicId; this.quantity = quantity; this.totalCents = totalCents;
+        this.idempotencyKey = idempotencyKey; this.quantity = quantity; this.totalCents = totalCents;
         this.status = status; this.createdAt = LocalDateTime.now(); this.expiresAt = expiresAt;
-        this.requestFingerprint = "seed-or-domain";
+        this.requestFingerprint = requestFingerprint;
 
         // 每一个购买数量都生成一张独立团购券，后续可以分别核销或退款。
         for (int index = 0; index < quantity; index++) {
@@ -91,4 +97,21 @@ public class GroupBuyOrderEntity {
     public LocalDateTime getExpiresAt() { return expiresAt; }
     public String getRequestFingerprint() { return requestFingerprint; }
     public List<VoucherEntity> getVouchers() { return List.copyOf(vouchers); }
+
+    /** 将待支付订单推进为已支付，重复调用保持幂等。 */
+    public void markPaid() {
+        if (status == GroupBuyOrderStatus.PAID) return;
+        if (status != GroupBuyOrderStatus.PENDING_PAYMENT) throw new IllegalStateException("订单当前不可支付");
+        status = GroupBuyOrderStatus.PAID;
+    }
+
+    /**
+     * 根据当前券集合刷新订单使用状态。
+     * 核销发生在券粒度，订单状态只是聚合展示，因此必须由订单实体统一计算，不能由客户端传入。
+     */
+    public void refreshUsageStatus() {
+        long redeemed = vouchers.stream().filter(voucher -> voucher.getStatus() == com.fandazi.feature.voucher.VoucherStatus.REDEEMED).count();
+        if (redeemed == 0) return;
+        status = redeemed == vouchers.size() ? GroupBuyOrderStatus.USED : GroupBuyOrderStatus.PARTIALLY_USED;
+    }
 }

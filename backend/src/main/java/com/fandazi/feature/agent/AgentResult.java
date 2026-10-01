@@ -6,7 +6,14 @@ import java.util.Map;
 
 public record AgentResult(Status status, String message, String nextAction, Map<String, Object> candidateCart,
                           List<Event> events, List<Map<String, Object>> cards, String error, boolean eventsRecorded) {
-    public enum Status { COMPLETED, NEEDS_INPUT, AWAITING_CONFIRMATION, FAILED }
+    /** 网关内部状态；取消保留独立语义，公开旧 DTO 暂映射为已结束以兼容现有 Android。 */
+    public enum Status {
+        COMPLETED, NEEDS_INPUT, AWAITING_CONFIRMATION, FAILED, CANCELLED;
+
+        /** 兼容旧客户端状态集合；nextAction=cancelled 仍区分用户取消与业务成功。 */
+        @com.fasterxml.jackson.annotation.JsonValue
+        public String publicValue() { return this == CANCELLED ? "COMPLETED" : name(); }
+    }
     public record Event(String type, String summary, String toolName, String status, Map<String, Object> payload) {}
 
     /** 兼容旧测试替身和旧业务代码，默认认为事件尚未由客户端写入审计。 */

@@ -12,8 +12,14 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController @RequestMapping("/api/agent/sessions") public class AgentGatewayController {
     public record MessageRequest(@NotBlank String text,@NotNull AgentMode mode) {}
-// 处理 `from` 相关逻辑。
-    public record EventResponse(Long id,String type,String summary,String toolName,String status,java.util.Map<String,Object> payload) { static EventResponse from(AgentEventEntity e){return new EventResponse(e.getId(),e.getType(),e.getSummary(),e.getToolName(),e.getStatus(),e.getPayload());} }
+    /** Android 公开事件 DTO；历史事件同样经过脱敏，避免部署前的旧数据在重连时泄漏凭证。 */
+    public record EventResponse(Long id,String type,String summary,String toolName,String status,java.util.Map<String,Object> payload) {
+        /** 实时发送与历史重放使用同一出口，不把数据库载荷直接暴露给客户端。 */
+        static EventResponse from(AgentEventEntity event) {
+            return new EventResponse(event.getId(), event.getType(), event.getSummary(), event.getToolName(), event.getStatus(),
+                    AgentContractCompatibility.publicEventPayload(event.getPayload()));
+        }
+    }
     private final AgentGatewayService gateway; private final AgentSessionService sessions; private final AgentEventService events;
 // 初始化对象依赖与默认状态。
     public AgentGatewayController(AgentGatewayService gateway,AgentSessionService sessions,AgentEventService events){this.gateway=gateway;this.sessions=sessions;this.events=events;}

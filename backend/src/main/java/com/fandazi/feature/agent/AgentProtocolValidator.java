@@ -1,0 +1,66 @@
+// Agent 协议校验模块：加载随 Spring 打包的权威 YAML，并执行标准 Draft 7 结构约束。
+package com.fandazi.feature.agent;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.networknt.schema.JsonSchema;
+import com.networknt.schema.JsonSchemaFactory;
+import com.networknt.schema.SpecVersion;
+import java.io.InputStream;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import org.yaml.snakeyaml.LoaderOptions;
+import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.constructor.SafeConstructor;
+
+/** 只校验传输结构；任务身份、事件次序和资源授权由调用方与领域服务另外检查。 */
+final class AgentProtocolValidator {
+    private final ObjectMapper mapper;
+    private final JsonSchema eventSchema;
+    private final JsonSchema requestSchema;
+
+    /** 启动时完整加载契约；配置缺失或不合法必须阻止启动，不能以部分规则继续接收事件。 */
+    AgentProtocolValidator(ObjectMapper mapper) {
+        this.mapper = mapper;
+        try (InputStream input = getClass().getResourceAsStream("/contracts/agent-protocol-v1.yaml")) {
+            if (input == null) throw new IllegalStateException("缺少权威 Agent 协议配置");
+            LoaderOptions options = new LoaderOptions();
+            options.setAllowDuplicateKeys(false);
+            // 受控契约复用大量字段类型，适当提高默认 50 的别名上限，但不取消防膨胀限制。
+            options.setMaxAliasesForCollections(500);
+            // 安全构造器只允许普通数据；所有文档内引用保留在同一根对象中交给标准解析器。
+            Object loaded = new Yaml(new SafeConstructor(options)).load(input);
+            if (!(loaded instanceof Map<?, ?> source)) throw new IllegalStateException("Agent 契约必须为对象");
+            Map<String, Object> document = new LinkedHashMap<>();
+            source.forEach((key, value) -> document.put(String.valueOf(key), value));
+            JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+            eventSchema = schema(factory, document, "agentEvent");
+            requestSchema = schema(factory, document, "agentRunRequest");
+        } catch (Exception exception) {
+            throw new IllegalStateException("无法加载 Agent 权威契约", exception);
+        }
+    }
+
+    /** 保留文档内的引用目标，仅指定本次需要执行的请求或事件入口。 */
+    private JsonSchema schema(JsonSchemaFactory factory, Map<String, Object> source, String entry) {
+        Map<String, Object> document = new LinkedHashMap<>(source);
+        document.put("$ref", "#/" + entry);
+        return factory.getSchema(mapper.valueToTree(document));
+    }
+
+    /** 请求发送前检查可信网关字段，防止错误版本或不支持的上下文到达新服务。 */
+    void validateRequest(Map<String, Object> request) { validate(requestSchema, request); }
+
+    /** 事件进入审计和展示之前检查嵌套载荷、金额和动作，不静默丢弃未知字段。 */
+    void validateEvent(Map<String, Object> event) { validate(eventSchema, event); }
+
+    /** 日志只保留校验路径与规则名称，不把可能包含隐私的完整载荷放入错误消息。 */
+    private void validate(JsonSchema schema, Map<String, Object> value) {
+        var violations = schema.validate(mapper.valueToTree(value));
+        if (!violations.isEmpty()) {
+            String paths = violations.stream().limit(5)
+                    .map(item -> item.getInstanceLocation() + ":" + item.getType())
+                    .sorted().collect(java.util.stream.Collectors.joining(", "));
+            throw new AgentServiceUnavailableException("Agent 协议结构不合法：" + paths);
+        }
+    }
+}

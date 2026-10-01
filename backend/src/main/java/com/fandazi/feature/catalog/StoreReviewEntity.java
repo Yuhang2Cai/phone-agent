@@ -19,6 +19,7 @@ import java.time.Instant;
 public class StoreReviewEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @ManyToOne(fetch = FetchType.LAZY, optional = false) @JoinColumn(name = "store_id", nullable = false) private StoreEntity store;
+    @Column(name = "order_id", unique = true) private Long orderId;
     @Column(name = "reviewer_name", nullable = false, length = 80) private String reviewerName;
     @Column(nullable = false, precision = 2, scale = 1) private BigDecimal rating;
     @Column(nullable = false, length = 1000) private String content;
@@ -31,8 +32,15 @@ public class StoreReviewEntity {
         this.store = store; this.reviewerName = reviewerName; this.rating = rating; this.content = content; this.createdAt = createdAt;
     }
 
+    /** 用户评价额外绑定团购订单；历史种子评价不关联订单，仍保持原构造方式。 */
+    public StoreReviewEntity(StoreEntity store, Long orderId, String reviewerName, BigDecimal rating, String content, Instant createdAt) {
+        this(store, reviewerName, rating, content, createdAt);
+        this.orderId = orderId;
+    }
+
     public Long getId() { return id; }
     public StoreEntity getStore() { return store; }
+    public Long getOrderId() { return orderId; }
     public String getReviewerName() { return reviewerName; }
     public BigDecimal getRating() { return rating; }
     public String getContent() { return content; }

@@ -63,4 +63,27 @@ public class VoucherEntity {
         this.status = status;
         this.redeemedAt = status == VoucherStatus.REDEEMED ? LocalDateTime.now() : null;
     }
+
+    /**
+     * 在门店核对通过后完成核销。
+     *
+     * @param storePublicId 当前核销门店的公开标识
+     * @return 是否发生了首次核销；重复提交返回 false，保证演示接口幂等
+     * @throws IllegalStateException 券不属于该门店或当前状态不可核销
+     */
+    public boolean redeem(String storePublicId) {
+        if (!deal.getStore().getPublicId().equals(storePublicId)) {
+            throw new IllegalStateException("核销门店与团购券不匹配");
+        }
+        // 已核销请求重复到达时直接返回幂等结果，不重复修改时间和订单统计。
+        if (status == VoucherStatus.REDEEMED) return false;
+        if (status != VoucherStatus.UNUSED) {
+            throw new IllegalStateException("团购券当前不可核销");
+        }
+        status = VoucherStatus.REDEEMED;
+        redeemedAt = LocalDateTime.now();
+        // 券是订单的聚合子项，首次核销完成后同步订单的部分使用或全部使用状态。
+        order.refreshUsageStatus();
+        return true;
+    }
 }

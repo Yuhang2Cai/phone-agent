@@ -18,32 +18,49 @@ import org.springframework.stereotype.Service;
 // 处理当前数据。
     public AgentResult handle(Long userId,String sessionId,String text,AgentMode mode) {
         String traceId=UUID.randomUUID().toString(); AgentSession session=sessions.start(userId,sessionId,mode,traceId);
+        // 会话实体可能被交错请求更新，必须在外部调用前冻结本轮身份，不能返回后再读取实体。
+        String runId = session.getActiveRunId();
         if (mode == AgentMode.CONFIRM && isConfirmation(text)) sessions.confirm(userId, sessionId);
-        events.record(userId, sessionId, "parsed", "已接收点餐请求", null, "running", java.util.Map.of());
+        events.record(userId, sessionId, "parsed", "已接收团购助手请求", null, "running", java.util.Map.of());
         try {
             // 将用户身份、会话和模式作为 Spring 已校验的上下文传给独立 Agent，模型不能自行伪造这些字段。
-            AgentResult result=client.run(new AgentRunRequest(userId.toString(),sessionId,text,mode == AgentMode.THIS_TASK_AUTO ? "auto_order" : "order",traceId));
+            AgentResult result=client.run(new AgentRunRequest(userId.toString(),sessionId,text,
+                    mode == AgentMode.THIS_TASK_AUTO ? "this_task_auto" : "confirm",traceId,
+                    runId, Map.of("confirmationAccepted", mode == AgentMode.CONFIRM && isConfirmation(text))));
             // 模型只提交公开 ID；网关在返回 Android 前重新查询真实资源，防止客户端展示过期或伪造字段。
-            result = enrichCards(result);
+            result = enrichCards(userId, sessionId, result);
             result=completeConfirmation(userId, mode, result);
             bindAuthorizedCandidate(userId, sessionId, result);
+            // 将最终公开且已重查的摘要绑定待确认动作，泛化“确认”只能授权该资源与输入正文。
+            if (result.status() == AgentResult.Status.AWAITING_CONFIRMATION && result.candidateCart().containsKey("action"))
+                sessions.bindPendingConfirmation(userId, sessionId, runId, result.candidateCart());
+            // 先保存暂停/终态，下一次补充或确认才能继续使用同一任务标识。
+            sessions.finishRun(userId, sessionId, runId, result.status());
             // 旧替身返回的事件仍由网关写入；V1 客户端已经逐行记录，避免同一事件重复审计。
             if (!result.eventsRecorded()) for (AgentResult.Event event: result.events()) events.record(userId,sessionId,event.type(),event.summary(),event.toolName(),event.status(),event.payload());
-            events.record(userId,sessionId,result.status() == AgentResult.Status.FAILED ? "failed" : "completed",result.message(),null,result.status().name().toLowerCase(),result.candidateCart());
+            String outcome = switch (result.status()) {
+                case NEEDS_INPUT -> "input_required";
+                case AWAITING_CONFIRMATION -> "confirmation_required";
+                case FAILED -> "failed";
+                case COMPLETED, CANCELLED -> "completed";
+            };
+            events.record(userId,sessionId,outcome,result.message(),null,result.status().name().toLowerCase(),result.candidateCart());
             return result;
         } catch (AgentServiceUnavailableException exception) {
+            sessions.finishRun(userId, sessionId, runId, AgentResult.Status.FAILED);
             events.record(userId,sessionId,"failed",exception.getMessage(),null,"retryable",java.util.Map.of()); return AgentResult.failed(exception.getMessage());
         }
     }
 
     /** 逐张校验并补全 Agent 卡片；任何非法卡片都作为明确失败返回，禁止静态兜底。 */
-    private AgentResult enrichCards(AgentResult result) {
-        if (result.cards().isEmpty()) return result;
+    private AgentResult enrichCards(Long userId, String sessionId, AgentResult result) {
         try {
-            List<Map<String, Object>> enriched = result.cards().stream().map(cards::enrich).toList();
-            return new AgentResult(result.status(), result.message(), result.nextAction(), result.candidateCart(), result.events(), enriched, result.error(), result.eventsRecorded());
+            // 卡片和确认摘要均重查本人事实，Agent 金额不能直接进入公开 DTO。
+            List<Map<String, Object>> enriched = result.cards().stream().map(reference -> cards.enrich(userId, sessionId, reference)).toList();
+            Map<String, Object> summary = cards.enrichSummary(userId, sessionId, result.candidateCart());
+            return new AgentResult(result.status(), result.message(), result.nextAction(), summary, result.events(), enriched, result.error(), result.eventsRecorded());
         } catch (com.fandazi.feature.DomainException exception) {
-            return AgentResult.failed(exception.getMessage());
+            return AgentResult.failed("卡片或确认资源已失效，请重新查询");
         }
     }
 // 处理 `completeConfirmation` 相关逻辑。
@@ -68,5 +85,6 @@ import org.springframework.stereotype.Service;
 // 处理 `decimal` 相关逻辑。
     private BigDecimal decimal(Object value){if(value instanceof BigDecimal b)return b;if(value instanceof Number n)return new BigDecimal(n.toString());try{return value==null?null:new BigDecimal(String.valueOf(value));}catch(NumberFormatException ignored){return null;}}
 // 判断confirmation。
-    private boolean isConfirmation(String text) { String normal=text == null ? "" : text.replace(" ", ""); return normal.equals("确认") || normal.equals("确认下单") || normal.equals("确定") || normal.equals("确定下单"); }
+    // 本轮确认使用整句匹配；支付必须是单独输入，不能从订单创建成功推断。
+    private boolean isConfirmation(String text) { String normal=text == null ? "" : text.trim(); return normal.equals("确认") || normal.equals("确认下单") || normal.equals("确定") || normal.equals("确定下单") || normal.equals("确认退款") || normal.equals("确认投诉") || normal.equals("确认支付") || normal.equals("确认模拟支付"); }
 }

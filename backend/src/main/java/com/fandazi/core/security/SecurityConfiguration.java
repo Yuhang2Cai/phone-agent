@@ -35,6 +35,8 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/internal/tools/**").permitAll()
+                        // V1 入口由专用短时内部 JWT 校验器保护，不能由用户 JWT 过滤器代替其身份绑定。
+                        .requestMatchers("/internal/v1/tools/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/merchants/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/stores/**", "/api/deals/**").permitAll()
                         .anyRequest().authenticated())

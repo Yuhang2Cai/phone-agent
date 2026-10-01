@@ -17,7 +17,10 @@ public class AgentEventEntity {
     protected AgentEventEntity() {}
 // 初始化对象依赖与默认状态。
     AgentEventEntity(Long userId, String sessionId, String type, String summary, String toolName, String status, Map<String, Object> payload) {
-        this.userId=userId; this.sessionId=sessionId; this.type=type; this.summary=summary; this.toolName=toolName; this.status=status; this.payload=payload == null ? Map.of() : Map.copyOf(payload); this.createdAt=Instant.now();
+        this.userId=userId; this.sessionId=sessionId; this.type=type; this.summary=summary; this.toolName=toolName; this.status=status;
+        // JSON 空值表示成功工具无错误，必须原样持久化；Map.copyOf 会因 null 抛异常。
+        this.payload = payload == null ? Map.of() : new java.util.LinkedHashMap<>(payload);
+        this.createdAt=Instant.now();
     }
 // 获取id。
     // 获取用户、id。
@@ -28,5 +31,8 @@ public class AgentEventEntity {
     // 获取status。
     // 获取payload。
     // 获取created、at。
-    public Long getId(){return id;} public Long getUserId(){return userId;} public String getSessionId(){return sessionId;} public String getType(){return type;} public String getSummary(){return summary;} public String getToolName(){return toolName;} public String getStatus(){return status;} public Map<String,Object> getPayload(){return Map.copyOf(payload);} public Instant getCreatedAt(){return createdAt;}
+    public Long getId(){return id;} public Long getUserId(){return userId;} public String getSessionId(){return sessionId;} public String getType(){return type;} public String getSummary(){return summary;} public String getToolName(){return toolName;} public String getStatus(){return status;}
+    /** 返回保留合法空值的只读副本，调用方不能修改托管实体的事件载荷。 */
+    public Map<String,Object> getPayload(){return java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(payload));}
+    public Instant getCreatedAt(){return createdAt;}
 }

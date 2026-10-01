@@ -13,8 +13,8 @@ class AgentGatewayV1ContractTest {
         // 这些字段必须由 Spring 网关生成或传递，不能依赖 Agent 模型自行补全。
         AgentRunRequest request = new AgentRunRequest("42", "session-1", "推荐附近套餐", "recommend", "trace-1");
 
-        assertThat(request.schemaVersion()).isEqualTo("1.0");
-        assertThat(request.runId()).isEqualTo("run-trace-1");
+        assertThat(request.schemaVersion()).isEqualTo("1.1");
+        assertThat(java.util.UUID.fromString(request.runId())).isNotNull();
         assertThat(request.context()).containsEntry("mode", "recommend");
     }
 
@@ -24,5 +24,18 @@ class AgentGatewayV1ContractTest {
         AgentRunRequest request = new AgentRunRequest("42", "session-1", "查订单", "order", "trace-2");
 
         assertThat(request.context()).isEqualTo(Map.of("mode", "order"));
+    }
+
+    @Test
+    void waitingInputIsNotMappedToFailure() {
+        // 选券与填写退款原因是正常对话阶段，不能在 Spring 网关被改写成失败终态。
+        assertThat(HttpAgentServiceClient.statusFromV1("waiting_input"))
+                .isEqualTo(AgentResult.Status.NEEDS_INPUT);
+    }
+
+    @Test
+    void cancellationIsNotMappedToTransportFailure() {
+        // 用户取消是正常终态，不能触发错误重试或在下一轮继续消费确认凭证。
+        assertThat(HttpAgentServiceClient.statusFromV1("cancelled").name()).isEqualTo("CANCELLED");
     }
 }

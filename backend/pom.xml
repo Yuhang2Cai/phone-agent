@@ -22,6 +22,12 @@
     </properties>
 
     <dependencies>
+        <!-- 直接执行权威 Draft 7 契约，避免手工字段检查与 YAML 定义逐渐偏离。 -->
+        <dependency>
+            <groupId>com.networknt</groupId>
+            <artifactId>json-schema-validator</artifactId>
+            <version>1.5.9</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -86,6 +92,18 @@
     </dependencies>
 
     <build>
+        <!-- 将手机仓库唯一权威契约随服务打包，不建立另一份人工维护的后端副本。 -->
+        <resources>
+            <resource><directory>src/main/resources</directory></resource>
+            <resource>
+                <directory>${project.basedir}/../contracts</directory>
+                <targetPath>contracts</targetPath>
+                <includes>
+                    <include>agent-protocol-v1.yaml</include>
+                    <include>agent-tools-v1.yaml</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

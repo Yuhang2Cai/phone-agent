@@ -1,0 +1,76 @@
+{
+  "databases": {
+    "business": "fandazi_groupbuy_dev",
+    "agent": "dianping_intent",
+    "mysqlVersion": "8.0.44"
+  },
+  "authority": {
+    "health": {
+      "status": "ok",
+      "schemaVersion": "1.1",
+      "service": "group-buying-agent",
+      "sourceRoot": "D:\\project\\-Demo-master",
+      "entryPoint": "service.app:create_app",
+      "buildVersion": "878c109-working-tree"
+    },
+    "sha256": {
+      "agent-protocol-v1.yaml": "a6f6a9f4544c37105b77bee3b9dac357febec0a1a91e010717870bc592cff2d5",
+      "agent-tools-v1.yaml": "a17702e36789e05ba1dd1c62d7c1a7ff923b019e69d0741cbde3d269aa35b954"
+    },
+    "tools": 17,
+    "intents": 12,
+    "exactPhrases": 27,
+    "threshold": 0.8
+  },
+  "jwt_ndjson": {
+    "rejections": {
+      "expired": 401,
+      "long": 401,
+      "missing_exp": 401,
+      "wrong_algorithm": 401
+    },
+    "identity": "403/403/403",
+    "events": 5,
+    "sequences": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ]
+  },
+  "purchase_cancel": {
+    "beforeCreateOrders": 0,
+    "afterCreateOrders": 1,
+    "toolsAtCreate": [
+      "create_group_buy_order"
+    ],
+    "afterCancel": "PENDING_PAYMENT",
+    "precreatedVouchers": 1,
+    "unpaidCanRefund": false,
+    "sseReplayEvents": 36
+  },
+  "restart": {
+    "oldPids": [
+      45796,
+      47468
+    ],
+    "bothServicesRestarted": true,
+    "inputResumeRunPreserved": true,
+    "confirmationResumeRunPreserved": true,
+    "traceChanged": true,
+    "paidOrders": 1,
+    "vouchers": 1,
+    "complaintsAfterCancel": 0,
+    "paymentTools": [
+      "pay_mock_order"
+    ]
+  },
+  "public_isolation": {
+    "forgedConfirmationExecuted": false,
+    "otherUserResume": 400,
+    "otherUserSse": 400,
+    "otherUserOrders": 0,
+    "createdOrders": 0
+  }
+}

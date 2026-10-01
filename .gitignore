@@ -10,6 +10,8 @@ local.properties
 *.apk
 *.log
 .env
+# 本地生成的内部 JWT 与共享服务密钥只留在开发机，禁止提交。
+.runtime/
 *.onnx.zip
 # Keep model files that are packaged into the Android APK.
 !android-app/app/src/main/assets/

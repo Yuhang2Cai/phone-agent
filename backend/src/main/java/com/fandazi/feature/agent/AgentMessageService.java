@@ -12,10 +12,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class AgentMessageService {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(AgentMessageService.class);
     private final AgentEventService events;
+    private final AgentCardEnrichmentService cards;
 
     /** 注入已有事件持久化服务，避免重复建立一套消息写入事务。 */
-    public AgentMessageService(AgentEventService events) { this.events = events; }
+    public AgentMessageService(AgentEventService events) { this.events = events; this.cards = null; }
+
+    /** 生产路径在实时审计前重查资源和确认金额；历史纯协议测试构造器不依赖业务数据库。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    public AgentMessageService(AgentEventService events, AgentCardEnrichmentService cards) { this.events = events; this.cards = cards; }
 
     /**
      * 记录一条独立 Agent 事件。
@@ -23,23 +29,56 @@ public class AgentMessageService {
      * @param request 当前 Spring 网关请求
      * @param event V1 协议事件
      */
-    public void record(AgentRunRequest request, Map<String, Object> event) {
+    public Map<String, Object> record(AgentRunRequest request, Map<String, Object> event) {
         Long userId = parseUserId(request.userId());
-        if (userId == null) return;
+        if (userId == null) return event;
+        // 数据规范化必须先于实时 SSE 发布，最终网关才重查会使伪造金额已进入事件历史。
+        Map<String, Object> normalized = new java.util.LinkedHashMap<>(event);
+        Map<String, Object> publicPayload = payload(event);
+        if (cards != null) {
+            if (publicPayload.get("summary") instanceof Map<?, ?> source) {
+                Map<String, Object> summary = new java.util.LinkedHashMap<>(); source.forEach((key, value) -> summary.put(String.valueOf(key), value));
+                publicPayload.put("summary", cards.enrichSummary(userId, request.sessionId(), summary));
+            }
+            if (publicPayload.get("card") instanceof Map<?, ?> source) {
+                Map<String, Object> card = new java.util.LinkedHashMap<>(); source.forEach((key, value) -> card.put(String.valueOf(key), value));
+                publicPayload.put("card", cards.enrich(userId, request.sessionId(), card));
+            }
+            if (publicPayload.get("candidates") instanceof java.util.List<?> candidates) {
+                publicPayload.put("candidates", candidates.stream().map(value -> {
+                    Map<String, Object> card = new java.util.LinkedHashMap<>();
+                    if (value instanceof Map<?, ?> source) source.forEach((key, field) -> card.put(String.valueOf(key), field));
+                    return cards.enrich(userId, request.sessionId(), card);
+                }).toList());
+            }
+        }
+        normalized.put("payload", publicPayload);
+        event = normalized;
         String type = text(event.get("eventType"), "progress");
-        String summary = text(payload(event).get("message"), "Agent 运行进度已更新");
+        String summary = AgentContractCompatibility.summary(payload(event));
         String toolName = textOrNull(payload(event).get("toolName"));
-        String status = text(event.get("status"), "running");
-        events.record(userId, request.sessionId(), type, summary, toolName, status, payload(event));
+        String status = text(payload(event).getOrDefault("stepStatus", event.get("status")), "running");
+        // 公开进度携带任务标识供端上去重；审计故障不能把正常暂停或业务成功改为失败。
+        Map<String, Object> content = new java.util.LinkedHashMap<>(payload(event));
+        content.put("runId", request.runId());
+        content.put("traceId", request.traceId());
+        try {
+            events.record(userId, request.sessionId(), type, summary, toolName, status, content);
+        } catch (RuntimeException exception) {
+            log.error("Agent 事件审计失败 runId={} traceId={} eventType={}", request.runId(), request.traceId(), type, exception);
+        }
+        // HTTP 客户端使用同一份事实结果组装返回事件，避免审计已正确但最终响应仍带模型伪金额。
+        return normalized;
     }
 
     /** 提取协议 payload，避免把顶层链路字段重复写入业务摘要。 */
-    @SuppressWarnings("unchecked")
     private Map<String, Object> payload(Map<String, Object> event) {
         Object value = event.get("payload");
-        return value instanceof Map<?, ?> raw ? raw.entrySet().stream()
-                .collect(java.util.stream.Collectors.toMap(item -> String.valueOf(item.getKey()), Map.Entry::getValue,
-                        (left, right) -> right, java.util.LinkedHashMap::new)) : Map.of();
+        if (!(value instanceof Map<?, ?> raw)) return Map.of();
+        // 成功工具事件合法包含 error=null；Collectors.toMap 的非空限制不适合 JSON 对象。
+        Map<String, Object> result = new java.util.LinkedHashMap<>();
+        raw.forEach((key, item) -> result.put(String.valueOf(key), item));
+        return result;
     }
 
     /** 只接受数字用户标识，拒绝把公开字符串误当成数据库主键。 */

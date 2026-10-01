@@ -59,4 +59,6 @@ public class PurchaseQuote {
     public Instant getCreatedAt() { return createdAt; }
     public String getStatus() { return status; }
     public String getRequestFingerprint() { return requestFingerprint; }
+    /** 订单实际创建后关闭报价，不能用另一个动作键重复购买同一已确认快照。 */
+    public void consume() { this.status = "CONSUMED"; }
 }

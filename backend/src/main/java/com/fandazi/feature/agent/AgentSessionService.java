@@ -54,4 +54,17 @@ public class AgentSessionService {
     @Transactional public void consumeConfirmation(AgentSession session) { session.consumeConfirmation(); }
 // 处理 `settleCreatedOrder` 相关逻辑。
     @Transactional public void settleCreatedOrder(AgentSession session) { session.settleCreatedOrder(); }
+
+    /** 保存暂停或终态；归属与行锁校验保证任务标识在跨输入和服务重启后可恢复。 */
+    @Transactional public void finishRun(Long userId, String sessionId, String runId, AgentResult.Status status) {
+        sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId)
+                .orElseThrow(() -> new DomainException("会话不存在")).finishRun(runId, status);
+    }
+
+    /** 把 Spring 已重查的待确认摘要绑定当前任务，下一次明确确认只能消费该动作和正文。 */
+    @Transactional public void bindPendingConfirmation(Long userId, String sessionId, String runId, java.util.Map<String, Object> summary) {
+        var session = sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在"));
+        if (!runId.equals(session.getActiveRunId())) throw new DomainException("任务已经变化");
+        session.awaitConfirmation(summary);
+    }
 }

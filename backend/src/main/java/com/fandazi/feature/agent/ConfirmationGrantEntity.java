@@ -53,4 +53,7 @@ public class ConfirmationGrantEntity {
     public String getRuleVersion() { return ruleVersion; }
     public Instant getExpiresAt() { return expiresAt; }
     public boolean isConsumed() { return consumed; }
+
+    /** 将凭证标记为已消费，防止同一确认结果被重复用于写操作。 */
+    public void consume() { this.consumed = true; }
 }
