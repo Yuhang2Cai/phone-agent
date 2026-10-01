@@ -50,6 +50,9 @@ object DealPackagePayloadParser {
         validTo = string("validTo"),
         active = bool("active"),
         purchaseLimit = int("purchaseLimit"),
+        // 保留服务器缺图语义，供目录及套餐页面加载真实原图或明确占位。
+        imageUrl = get("imageUrl")?.takeUnless { it.isJsonNull }?.asString,
+        imageAlt = get("imageAlt")?.takeUnless { it.isJsonNull }?.asString,
     )
 
     private fun JsonObject.string(name: String): String = get(name)?.takeUnless { it.isJsonNull }?.asString.orEmpty()

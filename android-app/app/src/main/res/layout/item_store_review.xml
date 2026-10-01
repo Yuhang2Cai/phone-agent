@@ -4,8 +4,9 @@
     <ImageView android:id="@+id/review_avatar" android:layout_width="44dp" android:layout_height="44dp" android:contentDescription="用户头像" android:scaleType="centerCrop" />
     <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:layout_weight="1" android:orientation="vertical">
         <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
-            <TextView android:id="@+id/review_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/group_buy_text" android:textSize="14sp" android:textStyle="bold" />
-            <TextView android:id="@+id/review_stars" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="★★★★★" android:textColor="@color/group_buy_orange" android:textSize="11sp" />
+            <!-- 长昵称约束到剩余宽度，评分和日期不能被挤出屏幕。 -->
+            <TextView android:id="@+id/review_name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:ellipsize="end" android:maxLines="1" android:textColor="@color/group_buy_text" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:id="@+id/review_stars" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textColor="@color/group_buy_orange" android:textSize="11sp" />
             <TextView android:id="@+id/review_date" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:textColor="@color/group_buy_muted" android:textSize="9sp" />
         </LinearLayout>
         <TextView android:id="@+id/review_content" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:ellipsize="end" android:maxLines="2" android:textColor="@color/group_buy_muted" android:textSize="11sp" />

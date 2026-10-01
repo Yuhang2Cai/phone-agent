@@ -1,10 +1,13 @@
-// 门店详情：在同一导航目的地内渲染优惠、菜品和评价三种完整内容状态。
+// 门店详情模块：按 UI03/UI04/UI05 查询并展示真实优惠、菜单、评价，依赖统一目录与套餐仓库。
 package com.fandazi.app.feature.store
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -12,166 +15,167 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.R
+import com.fandazi.app.core.image.AfterSaleImageLoader
 import com.fandazi.app.core.network.ApiResult
-import com.fandazi.app.feature.deal.DealPackage
 import com.fandazi.app.databinding.FragmentStoreBinding
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
-/**
- * 到店团购门店详情页。
- *
- * 三个 Tab 只切换内容，不创建重复导航页面；套餐点击进入独立套餐详情。
- */
+/** 三 Tab 留在同一门店路由，服务失败可原地重试，所有内容保持当前完整公开 UUID。 */
 class StoreFragment : Fragment(R.layout.fragment_store) {
-    private var selectedTab = StoreTab.DEALS
-    private var currentDeals: List<DealPackage> = emptyList()
+    private var selectedTab = "优惠"
+    private var summary: CatalogStore? = null
+    private var contentJob: Job? = null
+    private val application get() = requireActivity().application as FandaziApplication
+    private val storeId get() = arguments?.getString("storePublicId").orEmpty()
+    private val query get() = CatalogQuery(latitude = arguments?.takeIf { it.containsKey("latitude") }?.getDouble("latitude"),
+        longitude = arguments?.takeIf { it.containsKey("longitude") }?.getDouble("longitude"))
 
-    /** 绑定返回、Tab 切换和首屏优惠内容。 */
+    /** 首屏同步显示加载状态，再读取门店摘要和用户当前 Tab，返回仍保留选择。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentStoreBinding.bind(view)
+        selectedTab = savedInstanceState?.getString("selectedTab") ?: selectedTab
         binding.storeBack.setOnClickListener { view.findNavController().navigateUp() }
-        binding.storeTabDeals.setOnClickListener { selectedTab = StoreTab.DEALS; render(binding) }
-        binding.storeTabDishes.setOnClickListener { selectedTab = StoreTab.DISHES; render(binding) }
-        binding.storeTabReviews.setOnClickListener { selectedTab = StoreTab.REVIEWS; render(binding) }
-        render(binding)
-        loadDeals(binding)
+        listOf(binding.storeTabDeals to "优惠", binding.storeTabDishes to "菜品", binding.storeTabReviews to "评价")
+            .forEach { (tab, name) -> tab.setOnClickListener { selectedTab = name; loadTab(binding) } }
+        loadSummary(binding)
+        loadTab(binding)
     }
 
-    /**
-     * 从后端按当前门店公开 ID 查询可售套餐。
-     * 页面不再维护另一份套餐标题和价格，接口失败时明确显示错误，不用旧数据伪装成功。
-     */
-    private fun loadDeals(binding: FragmentStoreBinding) {
-        val storePublicId = arguments?.getString("storePublicId").orEmpty()
-        if (storePublicId.isBlank()) {
-            showDealLoadError(binding, "门店信息无效")
-            return
-        }
+    /** 读取服务器评分/数量/距离和图片；失败仅标出错误并保留公开 ID 的重试入口。 */
+    private fun loadSummary(binding: FragmentStoreBinding) {
+        binding.storeTitle.text = "正在加载门店"
+        binding.storeMeta.text = ""
         viewLifecycleOwner.lifecycleScope.launch {
-            when (val result = (requireActivity().application as FandaziApplication).groupBuyingRepository.loadStoreDeals(storePublicId)) {
+            when (val result = application.catalogRepository.store(storeId, query)) {
                 is ApiResult.Success -> {
-                    currentDeals = result.value
-                    render(binding)
+                    summary = result.value
+                    val store = result.value
+                    binding.storeTitle.text = store.name
+                    binding.storeMeta.text = "${store.rating?.let { "★ $it" } ?: "暂无评分"}  (${store.reviewCount}条评价)  ${CatalogRenderer.distance(store.distanceMeters)}"
+                    AfterSaleImageLoader.load(binding.storeCover, store.imageUrl, store.imageAlt) { loadSummary(binding) }
+                    binding.storeTitle.setOnClickListener(null)
+                    if (selectedTab == "评价") loadTab(binding)
                 }
-                is ApiResult.Failure -> showDealLoadError(binding, "套餐加载失败，请稍后重试")
+                is ApiResult.Failure -> {
+                    summary = null
+                    binding.storeTitle.text = "门店加载失败，点击重试"
+                    binding.storeTitle.setOnClickListener { loadSummary(binding) }
+                }
             }
         }
     }
 
-    /** 显示可定位的加载失败状态，避免空白页面让用户误以为没有套餐。 */
-    private fun showDealLoadError(binding: FragmentStoreBinding, message: String) {
-        currentDeals = emptyList()
-        binding.storeContent.removeAllViews()
-        binding.storeContent.addView(TextView(requireContext()).apply {
-            text = message
-            textSize = 15f
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.group_buy_muted))
-            setPadding(12.dp, 24.dp, 12.dp, 24.dp)
+    /** Tab 切换取消旧内容请求；每个 Tab 查询其真实公开路径，空结果与错误分别展示。 */
+    private fun loadTab(binding: FragmentStoreBinding) {
+        contentJob?.cancel()
+        listOf(binding.storeTabDeals to "优惠", binding.storeTabDishes to "菜品", binding.storeTabReviews to "评价")
+            .forEach { (tab, name) -> CatalogRenderer.selection(tab, selectedTab == name) }
+        CatalogRenderer.status(binding.storeContent, "正在加载$selectedTab")
+        contentJob = viewLifecycleOwner.lifecycleScope.launch {
+            when (selectedTab) {
+                "优惠" -> when (val result = application.groupBuyingRepository.loadStoreDeals(storeId)) {
+                    is ApiResult.Failure -> error(binding)
+                    is ApiResult.Success -> {
+                        binding.storeContent.removeAllViews()
+                        if (result.value.isEmpty()) CatalogRenderer.status(binding.storeContent, "暂无可售套餐")
+                        result.value.forEach { deal ->
+                            val row = LayoutInflater.from(requireContext()).inflate(R.layout.item_store_deal, binding.storeContent, false)
+                            row.findViewById<TextView>(R.id.deal_title).text = deal.title
+                            row.findViewById<TextView>(R.id.deal_description).text = deal.description
+                            row.findViewById<TextView>(R.id.deal_price).text = deal.priceText()
+                            row.findViewById<TextView>(R.id.deal_old_price).apply {
+                                // 原价为实际接口金额，删除线仅表示与当前团购价格的视觉对照，不改变金额。
+                                text = deal.originalPriceText()
+                                paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
+                            }
+                            row.findViewById<TextView>(R.id.deal_discount).text = CatalogRenderer.discount(deal.priceCents, deal.originalPriceCents)
+                            AfterSaleImageLoader.load(row.findViewById(R.id.deal_cover), deal.imageUrl, deal.imageAlt) { loadTab(binding) }
+                            row.contentDescription = "store-deal-${deal.publicId}"
+                            val open = View.OnClickListener {
+                                requireView().findNavController().navigate(R.id.dealDetailFragment, Bundle().apply {
+                                    putString("storePublicId", deal.storePublicId); putString("dealPublicId", deal.publicId)
+                                })
+                            }
+                            row.setOnClickListener(open); row.findViewById<View>(R.id.deal_action).setOnClickListener(open)
+                            binding.storeContent.addView(row)
+                        }
+                    }
+                }
+                "菜品" -> when (val result = application.catalogRepository.dishes(storeId)) {
+                    is ApiResult.Failure -> error(binding)
+                    is ApiResult.Success -> {
+                        binding.storeContent.removeAllViews()
+                        if (result.value.isEmpty()) CatalogRenderer.status(binding.storeContent, "暂无菜品")
+                        result.value.forEach { dish ->
+                            val row = LayoutInflater.from(requireContext()).inflate(R.layout.item_store_dish, binding.storeContent, false)
+                            row.findViewById<TextView>(R.id.dish_title).text = dish.name
+                            row.findViewById<TextView>(R.id.dish_description).text = dish.description
+                            row.findViewById<TextView>(R.id.dish_price).text = CatalogRenderer.money(dish.priceCents)
+                            AfterSaleImageLoader.load(row.findViewById(R.id.dish_cover), dish.imageUrl, dish.name) { loadTab(binding) }
+                            binding.storeContent.addView(row)
+                        }
+                    }
+                }
+                "评价" -> when (val result = application.catalogRepository.reviews(storeId)) {
+                    is ApiResult.Failure -> error(binding)
+                    is ApiResult.Success -> {
+                        binding.storeContent.removeAllViews()
+                        summary?.let { renderRating(binding.storeContent, it) }
+                        if (result.value.isEmpty()) CatalogRenderer.status(binding.storeContent, "暂无评价")
+                        result.value.forEach { review ->
+                            val row = LayoutInflater.from(requireContext()).inflate(R.layout.item_store_review, binding.storeContent, false)
+                            // 服务器没有头像字段，用户图标明确表示缺头像，不能拿餐图冒充真实用户头像。
+                            row.findViewById<ImageView>(R.id.review_avatar).setImageResource(R.drawable.ic_tab_profile)
+                            row.findViewById<TextView>(R.id.review_name).text = review.reviewerName
+                            row.findViewById<TextView>(R.id.review_stars).text = "★ ${review.rating}"
+                            row.findViewById<TextView>(R.id.review_content).text = review.content
+                            row.findViewById<TextView>(R.id.review_date).text = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                                .withZone(ZoneId.of("Asia/Shanghai")).format(Instant.parse(review.createdAt))
+                            binding.storeContent.addView(row)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    /** 评分分布仅使用全量评价摘要；柱条最大值取真实总数量，零评价不产生虚假五星。 */
+    private fun renderRating(container: LinearLayout, store: CatalogStore) {
+        val panel = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.HORIZONTAL; gravity = Gravity.CENTER_VERTICAL
+            setPadding(12.dp, 12.dp, 12.dp, 20.dp)
+        }
+        panel.addView(TextView(requireContext()).apply {
+            text = "${store.rating ?: "暂无评分"}\n${store.reviewCount}条评价"; textSize = 24f
+            setTextColor(ContextCompat.getColor(context, R.color.group_buy_orange))
+            layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
         })
+        val distribution = LinearLayout(requireContext()).apply {
+            orientation = LinearLayout.VERTICAL; layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1.5f)
+        }
+        for (stars in 5 downTo 1) {
+            val count = store.reviewDistribution.getOrElse(stars - 1) { 0 }
+            val row = LinearLayout(requireContext()).apply { gravity = Gravity.CENTER_VERTICAL }
+            row.addView(TextView(requireContext()).apply { text = "$stars 星"; textSize = 11f; layoutParams = LinearLayout.LayoutParams(32.dp, 24.dp) })
+            row.addView(ProgressBar(requireContext(), null, android.R.attr.progressBarStyleHorizontal).apply {
+                max = store.reviewCount.coerceAtLeast(1); progress = count
+                progressTintList = android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context, R.color.group_buy_orange))
+                layoutParams = LinearLayout.LayoutParams(0, 8.dp, 1f)
+            })
+            row.addView(TextView(requireContext()).apply { text = count.toString(); textSize = 11f; gravity = Gravity.END; layoutParams = LinearLayout.LayoutParams(30.dp, 24.dp) })
+            distribution.addView(row)
+        }
+        panel.addView(distribution); container.addView(panel)
     }
 
-    /** 根据当前 Tab 更新选中样式，并重建对应内容列表。 */
-    private fun render(binding: FragmentStoreBinding) {
-        val tabs = mapOf(
-            StoreTab.DEALS to binding.storeTabDeals,
-            StoreTab.DISHES to binding.storeTabDishes,
-            StoreTab.REVIEWS to binding.storeTabReviews
-        )
-        tabs.forEach { (tab, textView) ->
-            val selected = tab == selectedTab
-            textView.setTextColor(ContextCompat.getColor(requireContext(), if (selected) R.color.group_buy_orange else R.color.group_buy_text))
-            textView.setTypeface(textView.typeface, if (selected) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
-        }
-        binding.storeContent.removeAllViews()
-        when (selectedTab) {
-            StoreTab.DEALS -> renderDeals(binding)
-            StoreTab.DISHES -> renderDishes(binding)
-            StoreTab.REVIEWS -> renderReviews(binding)
-        }
-    }
-
-    /** 优惠页列出固定套餐，并把公开套餐 ID 传给套餐详情。 */
-    private fun renderDeals(binding: FragmentStoreBinding) {
-        val inflater = LayoutInflater.from(requireContext())
-        currentDeals.forEachIndexed { index, deal ->
-            val row = inflater.inflate(R.layout.item_store_deal, binding.storeContent, false)
-            row.findViewById<ImageView>(R.id.deal_cover).setImageResource(IMAGES[index % IMAGES.size])
-            row.findViewById<TextView>(R.id.deal_title).text = deal.title
-            row.findViewById<TextView>(R.id.deal_description).text = deal.description
-            row.findViewById<TextView>(R.id.deal_price).text = deal.priceText()
-            row.findViewById<TextView>(R.id.deal_old_price).text = deal.originalPriceText()
-            row.findViewById<TextView>(R.id.deal_discount).text = discountText(deal)
-            val openDeal = View.OnClickListener {
-                val arguments = Bundle().apply {
-                    // 同时传递门店和套餐公开 ID，详情页可以从真实门店套餐列表中精确定位当前项。
-                    putString("storePublicId", this@StoreFragment.arguments?.getString("storePublicId").orEmpty())
-                    putString("dealPublicId", deal.publicId)
-                }
-                requireView().findNavController().navigate(R.id.dealDetailFragment, arguments)
-            }
-            row.setOnClickListener(openDeal)
-            row.findViewById<View>(R.id.deal_action).setOnClickListener(openDeal)
-            binding.storeContent.addView(row)
-        }
-    }
-
-    /** 根据接口金额计算折扣展示，避免把折扣文案和套餐下标绑定。 */
-    private fun discountText(deal: DealPackage): String {
-        if (deal.originalPriceCents <= 0) return ""
-        return String.format(java.util.Locale.ROOT, "%.1f折", deal.priceCents * 10.0 / deal.originalPriceCents)
-    }
-
-    /** 菜品页仅供浏览，不创建加购或购物车操作。 */
-    private fun renderDishes(binding: FragmentStoreBinding) {
-        val inflater = LayoutInflater.from(requireContext())
-        dishes.forEachIndexed { index, dish ->
-            val row = inflater.inflate(R.layout.item_store_dish, binding.storeContent, false)
-            row.findViewById<ImageView>(R.id.dish_cover).setImageResource(IMAGES[index % IMAGES.size])
-            row.findViewById<TextView>(R.id.dish_title).text = dish.title
-            row.findViewById<TextView>(R.id.dish_description).text = dish.description
-            row.findViewById<TextView>(R.id.dish_price).text = "¥${dish.price}"
-            binding.storeContent.addView(row)
-        }
-    }
-
-    /** 评价页先展示评分摘要，再展示用户评价列表。 */
-    private fun renderReviews(binding: FragmentStoreBinding) {
-        val summary = TextView(requireContext()).apply {
-            text = "4.7  ★★★★★\n326条评价    5星 238  ·  4星 62  ·  3星 18"
-            textSize = 18f
-            setTextColor(ContextCompat.getColor(requireContext(), R.color.group_buy_orange))
-            setPadding(12.dp, 12.dp, 12.dp, 16.dp)
-        }
-        binding.storeContent.addView(summary)
-        val inflater = LayoutInflater.from(requireContext())
-        reviews.forEachIndexed { index, review ->
-            val row = inflater.inflate(R.layout.item_store_review, binding.storeContent, false)
-            row.findViewById<ImageView>(R.id.review_avatar).setImageResource(IMAGES[index % IMAGES.size])
-            row.findViewById<TextView>(R.id.review_name).text = review.name
-            row.findViewById<TextView>(R.id.review_date).text = review.date
-            row.findViewById<TextView>(R.id.review_content).text = review.content
-            binding.storeContent.addView(row)
-        }
-    }
-
+    /** 失败重试只重新读取当前 Tab，不恢复任何静态菜品/评价。 */
+    private fun error(binding: FragmentStoreBinding) = CatalogRenderer.status(binding.storeContent, "$selectedTab 加载失败，点击重试") { loadTab(binding) }
+    /** 保存用户页签，配置变化不自动返回优惠页。 */
+    override fun onSaveInstanceState(outState: Bundle) { outState.putString("selectedTab", selectedTab); super.onSaveInstanceState(outState) }
+    /** 将固定布局 dp 转为实际像素，文字不随设备宽度缩放。 */
     private val Int.dp: Int get() = (this * resources.displayMetrics.density).toInt()
-
-    /** 门店页允许的三个内容状态。 */
-    private enum class StoreTab { DEALS, DISHES, REVIEWS }
-    private data class Dish(val title: String, val description: String, val price: String)
-    private data class Review(val name: String, val date: String, val content: String)
-
-    private companion object {
-        val IMAGES = listOf(R.drawable.home_merchant_1, R.drawable.home_merchant_2, R.drawable.home_merchant_3)
-        val dishes = listOf(
-            Dish("香辣巴骨肉", "遂宁经典，香辣过瘾，肉质紧实", "58"), Dish("酸辣黑猪肉刨汤", "酸辣开胃，汤鲜味浓", "42"),
-            Dish("农家小炒肉", "精选黑猪肉，香辣下饭", "36"), Dish("家常麻婆豆腐", "豆香浓郁，麻辣鲜香", "22"),
-            Dish("干煸四季豆", "外酥里嫩，咸香入味", "28"), Dish("肉末蒸蛋", "嫩滑细腻，老少皆宜", "18")
-        )
-        val reviews = listOf(
-            Review("小雨吃饭啦", "2024-12-28", "味道真的很正宗！酸辣黑猪肉太下饭了，分量也足。"),
-            Review("山野旅人", "2024-12-18", "菜品味道不错，尤其是香辣巴骨肉，辣而不燥。"),
-            Review("糖醋小丸子", "2024-12-08", "家庭聚餐选的这家店，菜的口味很棒，价格也实惠。")
-        )
-    }
 }

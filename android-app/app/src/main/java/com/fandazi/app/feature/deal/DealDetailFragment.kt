@@ -1,3 +1,4 @@
+// 套餐详情模块：UI-06 读取实际详情和同店选项，依赖统一套餐仓库及真实图片加载器。
 package com.fandazi.app.feature.deal
 
 import android.graphics.Typeface
@@ -6,6 +7,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -14,6 +16,8 @@ import androidx.navigation.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiResult
+import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.feature.store.CatalogImages
 import kotlinx.coroutines.launch
 
 /**
@@ -28,14 +32,18 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
 
     /** 当前页面由导航传入的公开套餐 ID。 */
     private val dealPublicId: String
-        get() = arguments?.getString("dealPublicId").orEmpty()
+        get() = selectedDeal?.publicId ?: arguments?.getString("dealPublicId").orEmpty()
 
+    /** 绑定当前套餐的返回、门店与购买入口；加载完成前购买禁用，防止旧金额或旧 ID 被使用。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         // 套餐详情页只保留返回操作，不重新引入已从设计稿移除的顶部功能按钮。
         view.findViewById<View>(R.id.deal_back).setOnClickListener {
             view.findNavController().navigateUp()
+        }
+        view.findViewById<View>(R.id.deal_store).setOnClickListener {
+            selectedDeal?.let { deal -> view.findNavController().navigate(R.id.storeFragment, Bundle().apply { putString("storePublicId", deal.storePublicId) }) }
         }
         view.findViewById<View>(R.id.deal_purchase).setOnClickListener {
             if (selectedDeal == null) {
@@ -57,13 +65,22 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
             showLoadError(view, "套餐信息无效")
             return
         }
+        view.findViewById<View>(R.id.deal_purchase_bar).isEnabled = false
+        view.findViewById<TextView>(R.id.deal_title).text = "正在加载套餐"
         viewLifecycleOwner.lifecycleScope.launch {
             val repository = (requireActivity().application as FandaziApplication).groupBuyingRepository
+            // 输入校验：先查询具体套餐取得服务器门店 ID；无导航门店时也不能回退成默认门店。
+            val detail = repository.loadDeal(dealPublicId)
+            if (detail is ApiResult.Failure) { showLoadError(view, "套餐详情加载失败，点击重试"); return@launch }
+            val actual = (detail as ApiResult.Success).value
             val storePublicId = arguments?.getString("storePublicId").orEmpty()
-            when (val list = repository.loadStoreDeals(storePublicId)) {
+            if (storePublicId.isNotBlank() && storePublicId != actual.storePublicId) {
+                showLoadError(view, "套餐与门店不匹配"); return@launch
+            }
+            when (val list = repository.loadStoreDeals(actual.storePublicId)) {
                 is ApiResult.Success -> {
                     availableDeals = list.value
-                    selectedDeal = availableDeals.firstOrNull { it.publicId == dealPublicId }
+                    selectedDeal = actual.takeIf { target -> availableDeals.any { it.publicId == target.publicId } }
                     if (selectedDeal == null) {
                         showLoadError(view, "未找到当前套餐")
                     } else {
@@ -71,7 +88,7 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
                         renderDealOptions(view)
                     }
                 }
-                is ApiResult.Failure -> showLoadError(view, "套餐详情加载失败，请稍后重试")
+                is ApiResult.Failure -> showLoadError(view, "套餐详情加载失败，点击重试")
             }
         }
     }
@@ -79,10 +96,12 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
     /** 将当前接口对象渲染到标题、规则、价格和明细区域。 */
     private fun renderSelectedDeal(view: View) {
         val deal = selectedDeal ?: return
+        view.findViewById<View>(R.id.deal_purchase_bar).isEnabled = true
         view.findViewById<TextView>(R.id.deal_title).apply {
             text = deal.title
             // 使用公开 ID作为无障碍和自动化验收标识，确认当前内容确实跟随套餐切换。
             contentDescription = "selected-deal-${deal.publicId}"
+            setOnClickListener(null)
         }
         view.findViewById<TextView>(R.id.deal_meta).text = "库存${deal.inventory}份  ·  每人限购${deal.purchaseLimit}份"
         view.findViewById<TextView>(R.id.deal_rule).text = "${deal.validFrom} 至 ${deal.validTo}可用  ·  购买后请按门店规则使用"
@@ -90,6 +109,7 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
             text = deal.priceText()
             contentDescription = "deal-price-${deal.priceCents}"
         }
+        view.findViewById<TextView>(R.id.deal_purchase).text = "立即购买  ${deal.priceText()}"
         renderDealDetails(view.findViewById(R.id.deal_detail_list), deal)
     }
 
@@ -99,13 +119,15 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
         container.removeAllViews()
         availableDeals.forEach { deal ->
             val item = LinearLayout(requireContext()).apply {
-                orientation = LinearLayout.VERTICAL
+                orientation = LinearLayout.HORIZONTAL
                 gravity = Gravity.CENTER_VERTICAL
                 setPadding(12.dp, 8.dp, 12.dp, 8.dp)
-                layoutParams = LinearLayout.LayoutParams(152.dp, 84.dp).apply { marginEnd = 10.dp }
+                layoutParams = LinearLayout.LayoutParams(164.dp, 78.dp).apply { marginEnd = 10.dp }
                 contentDescription = "deal-option-${deal.publicId}"
                 setOnClickListener {
                     selectedDeal = deal
+                    // 同步当前导航资源，返回后重建仍查询用户刚选的套餐；购买永远读 selectedDeal。
+                    arguments?.putString("dealPublicId", deal.publicId)
                     renderSelectedDeal(view)
                     renderDealOptions(view)
                 }
@@ -114,8 +136,17 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
                 requireContext(),
                 if (deal.publicId == selectedDeal?.publicId) R.drawable.deal_option_selected else R.drawable.deal_option_default,
             )
-            item.addView(createOptionText(deal.title, 15f, Typeface.BOLD))
-            item.addView(createOptionText(deal.priceText(), 14f, Typeface.NORMAL))
+            item.addView(ImageView(requireContext()).apply {
+                layoutParams = LinearLayout.LayoutParams(44.dp, 48.dp)
+                scaleType = ImageView.ScaleType.CENTER_CROP
+                CatalogImages.thumbnail(this, deal.imageUrl, deal.imageAlt) { loadDeal(view) }
+            })
+            item.addView(LinearLayout(requireContext()).apply {
+                orientation = LinearLayout.VERTICAL
+                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f).apply { marginStart = 6.dp }
+                addView(createOptionText(deal.title, 12f, Typeface.BOLD).apply { maxLines = 2; ellipsize = android.text.TextUtils.TruncateAt.END })
+                addView(createOptionText(deal.priceText(), 14f, Typeface.NORMAL))
+            })
             container.addView(item)
         }
     }
@@ -152,14 +183,15 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
     /** 创建套餐详情的一行标签和值。 */
     private fun createDetailRow(label: String, value: String): LinearLayout =
         LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.HORIZONTAL
+            // 描述与有效期可能较长，采用上下排列避免实际内容挤出固定宽度。
+            orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(0, 8.dp, 0, 8.dp)
             addView(TextView(context).apply {
                 text = "•  $label"
                 textSize = 15f
                 setTextColor(ContextCompat.getColor(context, R.color.group_buy_text))
-                layoutParams = LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f)
+                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             })
             addView(TextView(context).apply {
                 text = value
@@ -180,7 +212,13 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
 
     /** 请求失败时明确展示状态，不把经典套餐作为错误兜底。 */
     private fun showLoadError(view: View, message: String) {
+        // 清除当前业务对象和金额，错误状态不能点击购买；重试仍使用完整导航 UUID。
+        selectedDeal = null
+        view.findViewById<View>(R.id.deal_purchase_bar).isEnabled = false
+        view.findViewById<TextView>(R.id.deal_price).text = ""
+        view.findViewById<TextView>(R.id.deal_purchase).text = "立即购买"
         view.findViewById<TextView>(R.id.deal_title).text = message
+        view.findViewById<TextView>(R.id.deal_title).setOnClickListener { loadDeal(view) }
         view.findViewById<TextView>(R.id.deal_meta).text = ""
         view.findViewById<TextView>(R.id.deal_rule).text = ""
         view.findViewById<LinearLayout>(R.id.deal_option_list).removeAllViews()

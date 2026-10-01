@@ -25,8 +25,8 @@ public class DealPackageService {
                 ? Comparator.comparingInt(DealPackageEntity::getPriceCents).thenComparing(DealPackageEntity::getPublicId)
                 : Comparator.comparing(DealPackageEntity::getPublicId);
         LocalDate today = LocalDate.now();
-        return deals.findAll().stream()
-                .filter(deal -> deal.getStore().getId().equals(store.getId()))
+        // 查询范围在数据库先缩到当前门店，再执行可售期判断与稳定排序。
+        return deals.findByStoreId(store.getId()).stream()
                 .filter(deal -> deal.isActive() && deal.getInventory() > 0 && !today.isBefore(deal.getValidFrom()) && !today.isAfter(deal.getValidTo()))
                 .sorted(comparator)
                 .toList();

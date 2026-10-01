@@ -19,7 +19,8 @@
 
         <LinearLayout android:id="@+id/home_location" android:layout_width="88dp" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="vertical">
             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●  附近⌄" android:textColor="@color/surface_card" android:textSize="16sp" android:textStyle="bold" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="20dp" android:text="北京市·朝阳区" android:textColor="#D1E5DE" android:textSize="11sp" />
+            <!-- 城市从实际目录选择；初始未选择时不制造北京市或任何默认所在城市。 -->
+            <TextView android:id="@+id/home_city" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:text="选择城市" android:textColor="#D1E5DE" android:textSize="11sp" />
         </LinearLayout>
 
         <LinearLayout android:id="@+id/home_search_button" android:layout_width="0dp" android:layout_height="44dp" android:layout_marginStart="4dp" android:layout_weight="1" android:background="@drawable/group_buy_search_background" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:paddingStart="14dp" android:paddingEnd="12dp">
@@ -45,7 +46,8 @@
         <TextView android:id="@+id/open_filter" style="@style/GroupBuyFilter" android:drawableEnd="@drawable/ic_filter" android:drawablePadding="5dp" android:text="筛选" />
     </LinearLayout>
 
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingBottom="16dp">
+    <!-- 固定视图身份供返回恢复滚动状态，内容仍由真实目录绑定。 -->
+    <ScrollView android:id="@+id/home_scroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingBottom="16dp">
         <LinearLayout android:id="@+id/home_store_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
     </ScrollView>
 </LinearLayout>

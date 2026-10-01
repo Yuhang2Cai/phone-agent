@@ -4,7 +4,7 @@
 
 **Goal:** 将手机项目重构为餐饮到店团购 App，并用 `D:/project/-Demo-master` 的新 Agent 服务替换旧 Agent；核销功能本期暂缓。
 
-**Architecture:** Android 只连接 Spring Boot；Spring 提供可信身份、业务接口、确认和白名单工具；新 Agent 负责意图、确定性工作流、DAG 与记忆。当前先纠正协议和新服务运行来源，再按业务步骤收尾 Task8。
+**Architecture:** Android 只连接 Spring Boot；Spring 提供可信身份、业务接口、确认和白名单工具；新 Agent 负责意图、确定性工作流、DAG 与记忆。Task1/3/2 已完成当前轮独立验收；后续从 Task4 按编号逐项收尾，Task8 保持暂停至前置完成。端侧离线 ASR 延期，本期 AI 使用文字输入。
 
 **Tech Stack:** Android XML/MVVM/OkHttp/Gson；Spring Boot/Java 17/JPA/Flyway/MySQL；Python/LangGraph/FastAPI/MySQL/Chroma；JUnit/pytest/Robolectric/MockWebServer/Maestro。
 
@@ -14,20 +14,26 @@
 
 **Figma:** `https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN`。
 
-**修订日期:** 2026-10-01。历史记录见 `docs/verification/group-buying-refactor-history-2026-10-01.md`。
+**修订日期:** 2026-10-02。历史记录见 `docs/verification/group-buying-refactor-history-2026-10-01.md`。
+
+**暂停更新（2026-10-02）:** 用户要求暂停 Task8 并保存进度，原因是计划执行顺序需要重新讨论。实现与验收 Agent 均已停止新操作；未提交、未勾选 Task8 完成、不自动进入后续任务。本次只更新状态，未调整原任务顺序。恢复检查点：`D:/project/-Demo-master/docs/verification/2026-10-02-task8-paused.md`。
+
+**后续顺序与延期补正（2026-10-02）:** 以下按最新讨论统一为 Task4 → Task5 → Task6 → Task7 → Task8 → Task9 → Task10 → Task11 → Task12。上段暂停记录保留为当时事实，不再作为待定的后续顺序。端侧离线 ASR 按用户最新要求延期，不新增本期实施或验收步骤。本轮仅修改 spec 与计划，任务执行仍暂停，下一次须用户明确启动 Task4。
+
+**执行恢复（2026-10-02）:** 用户已明确授权从 Task4 连续依次执行至 Task12。现开始 Task4，每项独立验收并提交后自动进入下一项，不再要求重复确认“继续”。此前文档修改和 Task8 暂停仍是历史事实；Task8 依旧等 Task4–7 完成后才恢复。执行证据与检查点逐项保存，ASR 和核销仍延期。
 
 ## 1. 当前状态与推进顺序
 
 | 任务 | 当前状态 | 当前剩余工作 |
 |---|---|---|
 | Task1 契约 | 1.1 补正已独立 PASS 并提交 | 后续任务沿用严格契约，新增字段同步双仓 |
-| Task2 领域与种子 | 独立 PASS，阻塞项 0 | 提交验收文件；图片加载失败与旧卡片错误文案在 Task8 复核 |
+| Task2 领域与种子 | 独立 PASS 并提交，阻塞项 0 | 手机 d6c6441 / Agent 8265f08；图片加载失败与旧卡片错误文案在 Task8 复核 |
 | Task3 新 Agent 服务 | 新入口、12 类、DAG 与工具桥接已独立 PASS 并提交 | 后续 UI 验收使用新服务，不复用旧服务结论 |
-| Task4 浏览推荐 | 有历史局部通过记录 | 用新 Agent 验证推荐，核对本期适用页面 |
-| Task5 AI 页面 | 未完成完整独立验收 | 公共状态、卡片和多轮，按 UI 容差核验 |
+| Task4 浏览推荐 | 独立整体 PASS，准备精确提交 | Maven213、Android147、真实在线3、四条Maestro及六页Figma对照通过；原H2测试同源隔离复验1/1，不改Task2源码；历史失败和非阻塞关注保留 |
+| Task5 AI 页面 | 未完成完整独立验收；ASR 延期 | 公共文字输入、状态、卡片和多轮，按 UI 容差核验 |
 | Task6 购买支付 | 部分开发自测通过 | 新 Agent 确认恢复、完整独立验收 |
 | Task7 券查询 | 查询已实现，核销延期 | 验收 UI-10–12；UI-13/14 不计本期 |
-| Task8 售后 | 设计已人工通过，实现整改中 | 按 8.1–8.8 执行，独立验收尚未通过 |
+| Task8 售后 | 用户暂停 / 待整体验收；设计已人工通过 | Task4–7 独立通过后恢复剩余项；最新在线 FAQ 失败、Android 独立验收未完成，详见暂停检查点 |
 | Task9 意图语料 | 未开始 | 12 类完整模板、千级规则、评测 |
 | Task10 记忆 | 未开始 | 先设计确认，再记忆与用户入口 |
 | Task11 旧路径退役 | 未开始 | 新路径通过后退役，追加无冲突迁移 |
@@ -35,7 +41,7 @@
 
 以上区分历史开发进度与当前验收状态，不撤销历史证据，也不将旧服务自测换算为新服务通过。
 
-当前依次执行：Task1 协议补正 → Task3 新服务纠偏与最小团购意图迁移 → Task2 页面字段准备 → Task8 分步收尾。Task8 的 AI 子步骤依赖 Task3 已统一的目标意图与 Task5 公共聊天状态；购买与本人券查询使用 Task6/7 的现有接口作为前置，失败时归属原任务修复，不扩大 Task8 的视觉重设计范围。
+此前授权顺序：Task1 协议补正 → Task3 新服务纠偏与最小团购意图迁移 → Task2 页面字段准备 → Task8 分步收尾；前三项已独立验收并提交，Task8 现已暂停。此顺序仅为历史，不再授权跳过 Task4–7。后续依次为 Task4 → Task5 → Task6 → Task7 → Task8 → Task9 → Task10 → Task11 → Task12，每项独立通过、回写并提交后进入下一项。既有实现复用，不推倒重做；Task8 的 AI 子步骤依赖 Task5 公共聊天状态，购买与本人券查询依赖 Task6/7 的已验收路径。
 
 ## 2. 全局约束
 
@@ -52,6 +58,8 @@
 - 核销暂缓。评价使用后端开发夹具，保持资格规则，Android 不提供假核销。
 - 原计划重构阶段只修改文档；当前实际执行以任务复选框及独立报告为准，未勾选项不能视作验收完成。
 - 每次只推进一个任务或明确的前置补正；无需每个细小 UI 修改都重跑全量测试，定向自测后在收尾运行一次适用全量回归。
+- 发现其他任务缺陷先记录所属任务与影响；若阻塞当前任务，必须先与用户确认补正范围并更新计划，不得静默跨任务扩展或跳过尚未验收的前置。
+- 端侧离线 ASR 延期，不要求模型资源、录音、离线识别、语音回填或语音 Maestro 在本期通过；系统识别服务和模拟回填不能写成端侧模型已部署。以后恢复时先补 spec、Figma 和独立验收方案。
 - 所有 Agent 实验写入 `[Agent] docs/experiments/intent-routing-experiments.md`；任务证据写入手机 `docs/verification/`。
 - 实现、自测、独立验收、提交分别记录。独立 Agent 亲自运行适用检查；未运行、失败或证据不足不能勾选验收。
 - 保留已有未提交改动；提交仅包含已核对的任务文件。
@@ -120,7 +128,7 @@
 - [x] 校验金额来自订单支付快照，落实 DECIMAL 存储与整数分协议边界、UTC 时间与 UUID publicId；核对现有整数分存储和可枚举目录 ID 的差异，制定字段与引用映射，必要数据库变更仅追加迁移。
 - [x] 建立无订单、待支付、可退款、已申请、可评价、已评价、无候选券的隔离开发夹具。
 - [x] 运行 GroupOrderSummaryContractTest、GroupBuyingSeedDataTest、RefundEligibilityTest、ReviewEligibilityTest；独立核查真实 MySQL 响应。
-- [ ] 提交已验收的数据与接口补正。
+- [x] 提交已验收的数据与接口补正（手机 d6c6441、新 Agent 8265f08）。
 
 命令：`mvn -f backend/pom.xml -Dtest=GroupOrderSummaryContractTest,GroupBuyingSeedDataTest,RefundEligibilityTest,ReviewEligibilityTest test`。若历史测试名与实际类不同，先登记实际对应关系，不假称已运行不存在的测试。
 
@@ -148,23 +156,28 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 
 ### Task 4: 复核浏览、排序与套餐推荐
 
-**Files:** `[手机] backend/.../catalog/StoreController.java,StoreService.java,DealPackageController.java,DealPackageService.java`；Android `feature/home,store,deal/`；`maestro/group-buying-01-browse.yaml`；`[Agent] workflows/recommendation.py`、`dag/tool_adapters.py`、`tests/test_group_buying_read_tools.py`。
+**Files:** `[手机] backend/.../catalog/StoreController.java,StoreService.java,StoreBrowseService.java,StoreBrowseResponse.java,StoreReviewRepository.java,DealPackageRepository.java,DealPackageService.java`；Android `feature/home,search,store,deal/`、共享 `core/image/AfterSaleImageLoader.kt`；`maestro/group-buying-01-browse.yaml` 及三条 Task4 搜索/断网/恢复脚本；`[Agent] service/recommendation.py`、`service/engine.py` 的只读推荐分派、`service/providers.py`、`tests/test_group_buying_read_tools.py`、`tests/test_task4_browse_live.py`。共享图片依赖源于既有工作区，纳入不表示售后流程或 Task8 已通过。
 
 - [x] UI-01–06 设计已确认，历史浏览 Maestro 局部通过记录保留。
-- [ ] 核对分类、人均/位置排序、无定位路径、门店三 Tab、不同套餐 ID 与详情切换，全部使用真实接口。
-- [ ] 将推荐工作流接入新 Agent；单个推荐目标可多工具但 is_composite=false。
-- [ ] 运行 StoreDealApiTest、HomeSortTest、新 Agent test_group_buying_read_tools.py 与浏览 Maestro。
+- [x] 核对分类、人均/位置排序、无定位路径、门店三 Tab、不同套餐 ID 与详情切换，全部使用真实接口。
+- [x] 将推荐工作流接入新 Agent；单个推荐目标可多工具但 is_composite=false。
+- [x] 运行 StoreDealApiTest、实际 CatalogRepositoryTest/MerchantNavigationPagesTest、新 Agent 只读/城市补充/在线测试与浏览 Maestro；没有为了旧计划 HomeSortTest 名称复制实现。
 - [ ] 独立验收按 UI 容差确认结构、真实数据和操作路径；通过后提交。
+
+独立报告：`docs/verification/2026-10-02-task4-independent-acceptance.md`，Goodall 明确需求、质量及实际运行整体 PASS（非阻塞关注）。亲自运行 Maven213/213、Android147/147、Agent37通过/5跳过、真实双服务3/3、意图136/136，最新APK四条规定Maestro及当前Figma UI-01–06对照通过。一次性H2测试输出曾变化，原始失败证据保留；独立核对后撤回将其当真实夹具的范围误判，再在同源隔离快照原样复验1/1，29个原清单/元数据、252个源文件及34张真实库表均未变化。未修改Task2测试，未伪造恢复。既有完整工具审计超过8000字符时缺一条审计、故障注入后额外图片流程瞬态失败列后续关注，不宣称已修复。验收以冻结真实工作区为准，最终Task12须再核对完整提交后的部署。
 
 ### Task 5: 完成 AI 公共聊天状态
 
 **Files:** Android `feature/agent/AgentChatFragment.kt,AgentViewModel.kt,AgentModels.kt,AgentRepository.kt,AgentCardRenderer.kt`；`fragment_agent_chat.xml` 与 `item_agent_*.xml`；`AgentChatStateTest.kt,HttpAgentRepositoryTest.kt`；`maestro/task5-ai-chat-page.yaml`。
 
-**状态:** UI-15A–J 同一个聊天路由，设计确认与实现验收分别记录；售后具体卡片由 Task8.5 扩展。
+**状态:** UI-15A–J 同一个聊天路由，设计确认与实现验收分别记录；本期使用文字输入，ASR 延期。售后具体卡片由 Task8.5 扩展。
+
+**前置与交付边界:** Task1–3 已独立通过；Task4 必须先独立验收通过，才启动 Task5，并核对真实只读接口与 Task2 隔离夹具可用。Task5 验证公共组件和已具备接口的消息、事件与卡片，不以 Task6/8 的完整写业务作为本任务前置；购买写入闭环归 Task6，完整订单/券查询归 Task7，售后写入闭环归 Task8。共享确认/取消状态在本任务核对，但不据组件通过宣称后续业务通过。
 
 - [x] 初始消息、气泡、卡片和进度布局已有实现，历史自测保留。
 - [ ] 核对当前 AI Frame 确认记录，只补未确认状态；按 latest UI 容差实施，不重画已通过页面。
 - [ ] 完成空态、真实进度、文字、门店/套餐/订单、游客、失败重试与多轮；不显示 running 等协议状态或固定耗时。
+- [ ] 核对正式页面为文字输入，不提供误导性的可用语音入口；不将旧面板的系统 SpeechRecognizer 或回填单测当作本地 ASR 已交付。保留历史代码，不新增语音实现。
 - [ ] 按 runId/步骤标识合并进度；暂停/终态结束动画；重试不复制用户消息；历史结果可追溯。
 - [ ] 使用新 Agent 跑 HttpAgentRepositoryTest、AgentChatStateTest 和真实聊天 Maestro。
 - [ ] 独立核查所有本期可达 AI 状态、消息与卡片、错误恢复和无自动跳转。
@@ -195,17 +208,21 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 
 ### Task 8: 按步骤收尾退款、评价、帮助、投诉与售后聊天
 
-**当前状态:** UI-18A/B、19、20A/B、21A/B/C 已由用户人工确认；实现与独立验收未通过。原独立失败记录不删除，按最新视觉容差重新判定。
+**当前状态:** 用户于2026-10-02明确暂停；按更新后的顺序，Task4–7 独立验收完成后才能恢复本任务。UI-18A/B、19、20A/B、21A/B/C 已人工确认；整体验收未完成，不提交或勾选任务完成。最新新 Agent 独立离线368/368、真实 MySQL10/10，最新支持在线开发自测2通过/1失败；Android全量143/143仅为开发自测，独立 APK/Maestro/Figma 尚未接管。历史服务阶段通过仅对应当时源码，不覆盖后续改动；原失败均保留。详细暂停位置见 `D:/project/-Demo-master/docs/verification/2026-10-02-task8-paused.md`。
 
-**文件边界:** 手机后端 `refund,review,coupon,support,grouporder,voucher,agent/`；Android `refund,review,support,order,voucher,agent/` 与对应 XML；新 Agent `workflows/after_sale.py`、`dag/tool_registry.py,tool_adapters.py`；三个售后 Maestro。旧 agent-service 的现有工作流作为迁移参考，不作为本任务目标代码位置。
+**恢复门槛:** 检查 Task4–7 的独立报告与提交，重新核对源码、APK、服务来源和剩余夹具资格；已保存实现直接复用，仅补未完成项及受前置修改影响的回归，不重画已确认设计或重置已有业务事实。
+
+**文件边界:** 手机后端 `refund,review,coupon,support,grouporder,voucher,agent/`；Android `refund,review,support,order,voucher,agent/` 与对应 XML；新 Agent 已接入的 `service/engine.py,dag_runtime.py`、`dag/tool_registry.py,tool_adapters.py`；售后与异常 Maestro。使用现有服务状态机，不为了文件名再复制一套工作流；旧 agent-service 仅作迁移参考。
 
 #### 8.1 接口与页面数据准备
 
 - [x] 记录已有后端资格测试 14/14 与原独立失败基线；完整证据见历史归档。
-- [ ] 确认 Task1/3 新服务、协议与最小团购意图迁移前置；普通 UI 与 AI 路径分别标明运行来源。
-- [ ] 按 spec 6.1 补齐订单摘要、createdAt、退款金额、图片/缺图、申请进度、投诉类型目录与本人订单。
-- [ ] 明确客户端只做格式化，资格与金额不在 Android 推断；HTTP/协议错误展示重试。
-- [ ] 定向接口测试和真实 MySQL 响应验证；数据满足页面绑定后进入 8.2。
+- [x] 确认 Task1/3 新服务、协议与最小团购意图迁移前置；普通 UI 与 AI 路径分别标明运行来源。
+- [x] 按 spec 6.1 补齐订单摘要、createdAt、退款金额、图片/缺图、申请进度、投诉类型目录与本人订单。
+- [x] 明确客户端只做格式化，资格与金额不在 Android 推断；HTTP/协议错误展示重试。
+- [x] 定向接口测试和真实 MySQL 响应验证；数据满足页面绑定后进入 8.2。
+
+8.1 开发证据：后端定向33/33、真实目录/本人订单503→200检查1/1；Task2支付快照与真实MySQL证据复用。具体见 `docs/verification/2026-10-02-task8-service-development.md`，这些步骤勾选不表示 Task8 已独立验收。
 
 相关手机文件：GroupBuyOrderService、VoucherService、RefundService、ComplaintService/Controller、FaqService、DealPackageEntity/Response、VoucherModels/Repository、AfterSaleRepository；必要变更回写 Task2。
 
@@ -214,7 +231,7 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 - [ ] 绑定本人券、订单、套餐、真实金额、原因和补充说明；金额/资格未取得时禁止提交。
 - [ ] 用户显式提交时走后端准备/确认；重复点击不重复申请，已核销/未付款/已申请券拒绝。
 - [ ] 进度显示后端 REQUESTED（待处理）、申请时间和摘要；不伪造审核完成、到账或处理时限。
-- [ ] 保持返回路径，输入错误保留所填内容；轻微布局/色值差异记录为建议。
+- [ ] 保持返回路径，输入错误保留所填内容；已申请券退出/重新进入后，使用本人按券查询真实申请重进进度，不能只依赖首次回执；轻微布局/色值差异记录为建议。
 - [ ] 开发运行退款 API/资格测试、最新 APK 对应 Maestro 并保存两页截图。
 
 文件：RefundRequestFragment、RefundProgressFragment、fragment_refund_request.xml、fragment_refund_progress.xml、RefundService/Controller、RefundEligibilityTest。
@@ -251,7 +268,7 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 - [ ] 补登记必要售后聊天派生状态；复用已确认聊天框结构，新增交互才补设计确认。
 - [ ] 运行新 Agent tests/test_after_sale_workflow.py、test_agent_service_api.py；手机 AgentGatewayV1ContractTest、HttpAgentRepositoryTest；group-buying-05-agent-refund.yaml 与投诉确认场景。
 
-文件：新 Agent workflows/after_sale.py、工具适配和服务模型；手机 HttpAgentServiceClient、AgentRepository、AgentCardRenderer、AgentChatFragment。售后数据从旧 CandidateCart 分离，集中兼容而不继续扩散外卖字段。
+文件：新 Agent service/engine.py、service/dag_runtime.py、工具适配和服务模型；手机 HttpAgentServiceClient、AgentRepository、AgentCardRenderer、AgentChatFragment。售后数据从旧 CandidateCart 分离，集中兼容而不继续扩散外卖字段。
 
 #### 8.6 空态、加载失败与网络异常：UI-21A/B/C
 
@@ -334,6 +351,7 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 - [ ] 实现版本化 ScenarioCase/EvaluationResult/Scorer，评分器替换不改 Agent 主流程。
 - [ ] 建立业务 MySQL、新 Agent/MySQL/Chroma 与 Spring 集成部署、健康标识和故障降级。
 - [ ] 建立活动验收状态清单：Frame/nodeId、确认依据、页面入口、所需数据、Maestro、截图、结果；标记 UI-13/14 延期，登记新派生状态与记忆页。
+- [ ] 最终报告明确端侧离线 ASR 延期、不算本期缺陷，也不宣称本地语音模型已部署；历史语音方案仅保留后续入口。
 - [ ] 运行后端全量测试、新 Agent pytest、Android testDebugUnitTest/lintDebug/assembleDebug；本期有效测试全通过。
 - [ ] 运行真实场景评测，记录意图、composite、DAG、工具、确认、记忆、卡片、任务成功和 P50/P95；没有实测不宣称达标。
 - [ ] 独立 Agent 使用最新 APK 跑本期全量 Maestro，按 UI 容差逐屏确认，覆盖浏览/登录/聊天/购买/券查询/售后/异常/记忆。
@@ -353,6 +371,8 @@ Task8 独立通过 → Task9 意图评测 → Task10 长期记忆
 UI-13/14 与核销流程：延期分支，不阻塞本期 Task8–12
 ```
 
-用户要求依次执行 Task，文件边界允许时仅将独立验收作为单独 Agent 工作，不同时启动多个未完成的业务任务。Task8 子步骤可分别自测和记录完成，整个任务通过一次独立综合验收后才标记完成。
+以上图只说明依赖，不作为跳过任务的调度顺序。唯一后续执行顺序为 Task4 → Task5 → Task6 → Task7 → Task8 → Task9 → Task10 → Task11 → Task12；Task1/3/2 保留已通过记录，不重做。核销与端侧离线 ASR 均延期，不阻塞本期完成，也不能写成已实现。
+
+用户要求依次执行 Task，文件边界允许时仅将独立验收作为单独 Agent 工作，不同时启动多个未完成的业务任务。每项按实现、开发自测、独立验收、回写并提交完成后进入下一项；Task8 子步骤可分别自测和记录完成，整个任务通过一次独立综合验收后才标记完成。文档修订不自动恢复任何暂停的开发或验收。
 
 文档修订只改变执行依据，不把未运行检查勾成通过；当前代码改动与旧服务结果需要后续实际验证。

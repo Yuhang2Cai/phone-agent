@@ -5,7 +5,8 @@
         <ImageButton android:id="@+id/search_back" android:layout_width="38dp" android:layout_height="44dp" android:background="@android:color/transparent" android:contentDescription="返回" android:padding="9dp" android:src="@drawable/ic_back" android:tint="@color/surface_card" />
         <LinearLayout android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/group_buy_search_background" android:gravity="center_vertical" android:paddingStart="12dp">
             <ImageView android:layout_width="21dp" android:layout_height="21dp" android:contentDescription="搜索" android:src="@drawable/ic_home_search" />
-            <EditText android:id="@+id/search_input" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="7dp" android:layout_weight="1" android:background="@android:color/transparent" android:hint="搜索餐厅、菜品或商家" android:inputType="text" android:singleLine="true" android:textColor="@color/group_buy_text" android:textColorHint="@color/group_buy_muted" android:textSize="14sp" />
+            <!-- 搜索提交采用系统键盘搜索动作，避免每次输入字符都发真实业务请求。 -->
+            <EditText android:id="@+id/search_input" android:layout_width="0dp" android:layout_height="match_parent" android:layout_marginStart="7dp" android:layout_weight="1" android:background="@android:color/transparent" android:hint="搜索餐厅、菜品或商家" android:imeOptions="actionSearch" android:inputType="text" android:singleLine="true" android:textColor="@color/group_buy_text" android:textColorHint="@color/group_buy_muted" android:textSize="14sp" />
             <TextView android:id="@+id/clear_search" android:layout_width="36dp" android:layout_height="match_parent" android:gravity="center" android:text="×" android:textColor="@color/group_buy_muted" android:textSize="22sp" />
         </LinearLayout>
         <TextView android:id="@+id/search_button" android:layout_width="58dp" android:layout_height="44dp" android:layout_marginStart="7dp" android:background="@drawable/group_buy_primary_button" android:gravity="center" android:text="搜索" android:textColor="@color/surface_card" android:textSize="14sp" android:textStyle="bold" />
@@ -17,7 +18,8 @@
     <LinearLayout android:id="@+id/filter_row" android:layout_width="match_parent" android:layout_height="44dp" android:gravity="end|center_vertical" android:orientation="horizontal" android:paddingEnd="14dp" />
     <TextView android:id="@+id/result_count" android:layout_width="match_parent" android:layout_height="32dp" android:gravity="center_vertical" android:paddingStart="14dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" />
     <TextView android:id="@+id/search_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="14dp" android:paddingEnd="14dp" android:textColor="@color/group_buy_muted" android:textSize="11sp" />
-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="16dp">
+    <!-- 固定视图身份配合页面状态保存偏移，详情返回不丢失原局部浏览位置。 -->
+    <ScrollView android:id="@+id/search_scroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="16dp">
         <LinearLayout android:id="@+id/search_results" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
     </ScrollView>
 </LinearLayout>

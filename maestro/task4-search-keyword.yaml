@@ -1,0 +1,36 @@
+# Task4 真实正向关键词补充自测；数字1来自当前套餐真实标题，完整UUID由运行器提供。
+appId: com.fandazi.app
+---
+- launchApp:
+    permissions:
+      location: deny
+- tapOn:
+    id: "com.fandazi.app:id/category_hotpot"
+- extendedWaitUntil:
+    visible: "store-card-${HOTPOT_ID}"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "1"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible: "store-card-${HOTPOT_ID}"
+    timeout: 30000
+- takeScreenshot: "search-keyword-hit"
+- tapOn: "store-card-${HOTPOT_ID}"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/deal_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/store_back"
+- assertVisible:
+    id: "com.fandazi.app:id/search_input"
+    text: "1"
+- assertVisible: "store-card-${HOTPOT_ID}"
+- takeScreenshot: "search-keyword-returned"
+- tapOn:
+    id: "com.fandazi.app:id/search_back"

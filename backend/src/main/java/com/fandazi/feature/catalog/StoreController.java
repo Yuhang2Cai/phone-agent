@@ -16,35 +16,47 @@ public class StoreController {
     private final StoreService stores;
     private final DealPackageService deals;
     private final StoreReviewRepository reviews;
+    private final StoreBrowseService browse;
 
     /** 注入门店、套餐和评价查询服务。 */
-    public StoreController(StoreService stores, DealPackageService deals, StoreReviewRepository reviews) {
-        this.stores = stores; this.deals = deals; this.reviews = reviews;
+    public StoreController(StoreService stores, DealPackageService deals, StoreReviewRepository reviews, StoreBrowseService browse) {
+        this.stores = stores; this.deals = deals; this.reviews = reviews; this.browse = browse;
     }
 
     /** 按城市、品类、人均和排序方式查询门店。 */
     @GetMapping
-    public List<StoreResponse> list(@RequestParam(required = false) String cityCode,
+    public List<StoreBrowseResponse> list(@RequestParam(required = false) String cityCode,
                                     @RequestParam(defaultValue = "RECOMMENDED") String sort,
                                     @RequestParam(required = false) BigDecimal latitude,
                                     @RequestParam(required = false) BigDecimal longitude,
                                     @RequestParam(required = false) String category,
                                     @RequestParam(required = false) Integer minPrice,
-                                    @RequestParam(required = false) Integer maxPrice) {
-        return stores.search(cityCode, sort, latitude, longitude, category, minPrice, maxPrice).stream().map(StoreResponse::from).toList();
+                                    @RequestParam(required = false) Integer maxPrice,
+                                    @RequestParam(required = false) String keyword) {
+        // 所有参数分别传入服务端查询；响应摘要与顺序都由服务器权威计算。
+        return browse.search(cityCode, sort, latitude, longitude, category, minPrice, maxPrice, keyword);
     }
 
     /** 查询门店详情和可售套餐摘要。 */
     @GetMapping("/{publicId}")
-    public StoreResponse detail(@PathVariable String publicId) { return StoreResponse.from(stores.require(publicId)); }
+    public StoreBrowseResponse detail(@PathVariable String publicId,
+            @RequestParam(required = false) BigDecimal latitude, @RequestParam(required = false) BigDecimal longitude) {
+        return browse.detail(publicId, latitude, longitude);
+    }
+
+    /** 读取当前真实目录的城市选项；游客无需登录，不提供虚构城市。 */
+    @GetMapping("/cities")
+    public List<StoreBrowseService.City> cities() { return browse.cities(); }
+
+    /** 门店菜品仅供公开浏览；无关联数据时返回空列表，不回退到固定菜单。 */
+    @GetMapping("/{publicId}/dishes")
+    public List<StoreBrowseService.Dish> dishes(@PathVariable String publicId) { return browse.dishes(publicId); }
 
     /** 查询门店公开评价，首版返回最新评价摘要。 */
     @GetMapping("/{publicId}/reviews")
     public List<StoreReviewResponse> reviews(@PathVariable String publicId) {
-        StoreEntity store = stores.require(publicId);
-        return reviews.findAll().stream().filter(item -> item.getStore().getId().equals(store.getId()))
-                .sorted(java.util.Comparator.comparing(StoreReviewEntity::getCreatedAt).reversed())
-                .limit(20).map(StoreReviewResponse::from).toList();
+        // 关联门店公开 ID 的读取必须留在服务事务中，不能依赖已关闭的会话。
+        return browse.reviews(publicId);
     }
 
     /** 查询门店当前可售套餐。 */

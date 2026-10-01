@@ -1,68 +1,124 @@
+# Task4 真实游客浏览自测；所有 UUID/城市/菜品值由运行器实时读取 Spring，禁止写死演示身份。
 appId: com.fandazi.app
 ---
-# 清理应用状态，确保验收从登录页开始，不依赖开发机残留会话。
 - launchApp:
     clearState: true
-- assertVisible:
-    id: "com.fandazi.app:id/skip_login_button"
+    # Maestro 默认授予全部权限；显式重置定位权限，才能验证用户真正点击拒绝的路径。
+    permissions:
+      location: unset
 - tapOn:
     id: "com.fandazi.app:id/skip_login_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/store_name"
+    timeout: 30000
+- takeScreenshot: "UI-01-home"
 
-# 验证 UI-01：首页具备位置、分类、排序和团购卡片，且游客可浏览。
-- assertVisible:
-    id: "com.fandazi.app:id/home_location"
-- assertVisible:
-    id: "com.fandazi.app:id/category_recommend"
-- assertVisible:
+# 分类、人均排序与缺定位保持目录路径；拒绝粗定位后不能伪造距离或把排序文案当关键词。
+- tapOn:
+    id: "com.fandazi.app:id/category_drink"
+- extendedWaitUntil:
+    visible: "store-card-${DRINK_ID}"
+    timeout: 30000
+- tapOn:
     id: "com.fandazi.app:id/sort_average"
-- assertVisible:
-    id: "com.fandazi.app:id/store_name"
+- tapOn: "人均从低到高"
+- assertVisible: "人均↑"
+- tapOn:
+    id: "com.fandazi.app:id/sort_average"
+- tapOn: "人均从高到低"
+- assertVisible: "人均↓"
+- tapOn:
+    id: "com.fandazi.app:id/sort_distance"
+- tapOn:
+    id: "com.android.permissioncontroller:id/permission_deny_button"
+- assertVisible: "人均↓"
+- assertVisible: "未定位"
+- takeScreenshot: "home-location-denied"
+- tapOn:
+    id: "com.fandazi.app:id/home_location"
+- tapOn: "${CITY_CODE}"
+- assertVisible: "${CITY_CODE}"
+- tapOn:
+    id: "com.fandazi.app:id/open_filter"
+- tapOn: "分类"
+- tapOn: "火锅"
+- extendedWaitUntil:
+    visible: "store-card-${HOTPOT_ID}"
+    timeout: 30000
 
-# 验证 UI-02：从首页进入搜索页，分类和筛选状态仍位于同一个浏览链路。
+# 搜索继承独立分类/排序，空结果能清空并恢复真实结果，返回不会丢失首页状态。
 - tapOn:
     id: "com.fandazi.app:id/home_search_button"
-- assertVisible:
+- tapOn:
     id: "com.fandazi.app:id/search_input"
-- assertVisible:
-    id: "com.fandazi.app:id/search_categories"
-- assertVisible:
-    id: "com.fandazi.app:id/filter_row"
+- inputText: "task4-no-match"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible: "没有符合条件的门店"
+    timeout: 30000
+- takeScreenshot: "search-empty"
+- tapOn:
+    id: "com.fandazi.app:id/clear_search"
+- extendedWaitUntil:
+    visible: "store-card-${HOTPOT_ID}"
+    timeout: 30000
+- takeScreenshot: "UI-02-search"
+- tapOn: "快餐小吃"
+- scrollUntilVisible:
+    element:
+      text: "store-card-${STORE_ID}"
+    direction: DOWN
+    timeout: 30000
+- tapOn: "store-card-${STORE_ID}"
+
+# 三个 Tab 的图片、菜单、评分、评价都来自当前同一门店；只读，不进入外卖加购。
+- extendedWaitUntil:
+    visible: "store-deal-${DEAL_A}"
+    timeout: 30000
+- assertVisible: "${STORE_NAME}"
+- takeScreenshot: "UI-03-store-deals"
+- tapOn:
+    id: "com.fandazi.app:id/store_tab_dishes"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/dish_title"
+    timeout: 30000
+- takeScreenshot: "UI-04-store-dishes"
+- tapOn:
+    id: "com.fandazi.app:id/store_tab_reviews"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/review_content"
+    timeout: 30000
+- takeScreenshot: "UI-05-store-reviews"
+- tapOn:
+    id: "com.fandazi.app:id/store_tab_deals"
+- tapOn: "store-deal-${DEAL_A}"
+
+# 首个详情与横向切换必须跟随不同实际 UUID；核对后端金额，并逐级返回原搜索/首页。
+- extendedWaitUntil:
+    visible: "selected-deal-${DEAL_A}"
+    timeout: 30000
+- assertVisible: "deal-price-${PRICE_A}"
+- takeScreenshot: "UI-06-deal-A"
+- tapOn: "deal-option-${DEAL_B}"
+- assertVisible: "selected-deal-${DEAL_B}"
+- assertVisible: "deal-price-${PRICE_B}"
+- takeScreenshot: "UI-06-deal-B"
+- tapOn:
+    id: "com.fandazi.app:id/deal_back"
+- tapOn: "store-deal-${DEAL_B}"
+- assertVisible: "selected-deal-${DEAL_B}"
+- tapOn:
+    id: "com.fandazi.app:id/deal_back"
+- tapOn:
+    id: "com.fandazi.app:id/store_back"
+- assertVisible: "store-card-${STORE_ID}"
 - tapOn:
     id: "com.fandazi.app:id/search_back"
-
-# 验证 UI-03 至 UI-05：门店详情只提供优惠、菜品、评价三个内容页签。
-- tapOn:
-    id: "com.fandazi.app:id/store_name"
-    index: 0
-- assertVisible:
-    id: "com.fandazi.app:id/store_tab_deals"
-- assertVisible:
-    id: "com.fandazi.app:id/store_tab_dishes"
-- assertVisible:
-    id: "com.fandazi.app:id/store_tab_reviews"
-- assertVisible:
-    id: "com.fandazi.app:id/deal_title"
-- tapOn:
-    id: "com.fandazi.app:id/store_tab_dishes"
-- assertVisible:
-    id: "com.fandazi.app:id/dish_title"
-- tapOn:
-    id: "com.fandazi.app:id/store_tab_reviews"
-- assertVisible:
-    id: "com.fandazi.app:id/review_content"
-- tapOn:
-    id: "com.fandazi.app:id/store_tab_deals"
-
-# 验证 UI-06：套餐详情存在规则、明细和固定购买入口，不出现旧外卖加购入口。
-- tapOn:
-    id: "com.fandazi.app:id/deal_title"
-    index: 0
-- assertVisible:
-    id: "com.fandazi.app:id/deal_detail_list"
-- assertVisible:
-    id: "com.fandazi.app:id/deal_rule"
-- assertVisible:
-    id: "com.fandazi.app:id/deal_purchase"
-- assertVisible: "selected-deal-deal-001-1"
-- tapOn: "deal-option-deal-001-2"
-- assertVisible: "selected-deal-deal-001-2"
+- assertVisible: "store-card-${HOTPOT_ID}"
+- assertVisible: "人均↓"
+- assertVisible: "${CITY_CODE}"
+- takeScreenshot: "home-returned"

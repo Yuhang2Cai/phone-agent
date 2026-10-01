@@ -20,6 +20,49 @@ class StoreDealApiTest {
     // 仅测试装载器解析旧夹具别名，公开请求发送随机 UUID，不把旧别名暴露成目录入口。
     @Autowired private com.fandazi.core.identity.PublicIdAliases publicIds;
 
+    /** 搜索词与分类必须同时约束真实数据；不存在的词不能因默认推荐而返回整个目录。 */
+    @Test
+    void keywordAndCategoryAreIndependentConstraints() throws Exception {
+        mockMvc.perform(get("/api/stores").param("keyword", "不存在的门店词Task4"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(0));
+        mockMvc.perform(get("/api/stores").param("category", "奶茶咖啡"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.length()").value(3))
+                .andExpect(jsonPath("$[0].category").value("饮品"));
+    }
+
+    /** 首屏摘要、城市选项与菜品必须由服务器生成，菜品响应不能泄漏旧外卖数据库主键。 */
+    @Test
+    void browseSummaryCitiesAndDishesComeFromCatalog() throws Exception {
+        String storeId = publicIds.require("store", "store-001");
+        mockMvc.perform(get("/api/stores/{id}", storeId))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.reviewCount").isNumber())
+                .andExpect(jsonPath("$.reviewDistribution").isArray())
+                .andExpect(jsonPath("$.featuredDeal.storePublicId").value(storeId))
+                .andExpect(jsonPath("$.distanceMeters").value(org.hamcrest.Matchers.nullValue()));
+        mockMvc.perform(get("/api/stores/cities"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].cityCode").value("demo"));
+        mockMvc.perform(get("/api/stores/{id}/dishes", storeId))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].name").isNotEmpty())
+                .andExpect(jsonPath("$[0].priceCents").isNumber())
+                .andExpect(jsonPath("$[0].id").doesNotExist());
+    }
+
+    /** 禁用跨请求会话后评价仍能转换门店公开 ID，防止真实 MySQL 出现懒加载 500。 */
+    @Test
+    void reviewsRemainReadableOutsideRepositoryTransaction() throws Exception {
+        mockMvc.perform(get("/api/stores/{id}/reviews", publicIds.require("store", "store-001")))
+                .andExpect(status().isOk()).andExpect(jsonPath("$[0].storePublicId").isNotEmpty())
+                .andExpect(jsonPath("$[0].createdAt").isNotEmpty());
+    }
+
+    /** 非法人均范围必须拒绝，不允许无效条件退化为未筛选目录。 */
+    @Test
+    void rejectsInvalidAverageSpendRange() throws Exception {
+        mockMvc.perform(get("/api/stores").param("minPrice", "-1")).andExpect(status().isBadRequest());
+        mockMvc.perform(get("/api/stores").param("minPrice", "10000").param("maxPrice", "5000"))
+                .andExpect(status().isBadRequest());
+    }
+
     @Test
     void distanceSortRequiresUsableLocation() throws Exception {
         // 距离排序没有用户坐标时无法得到可信结果，必须返回明确的参数错误。

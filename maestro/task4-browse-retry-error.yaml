@@ -1,0 +1,15 @@
+# Task4 实际服务不可达时不得构造门店兜底；配合受控运行器暂时停止且随后恢复同一Spring。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+    permissions:
+      location: deny
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- extendedWaitUntil:
+    visible: "门店加载失败，点击重试"
+    timeout: 30000
+- assertNotVisible:
+    id: "com.fandazi.app:id/store_name"
+- takeScreenshot: "browse-network-error"

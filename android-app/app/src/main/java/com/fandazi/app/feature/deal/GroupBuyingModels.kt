@@ -16,6 +16,9 @@ data class DealPackage(
     val validTo: String,
     val active: Boolean,
     val purchaseLimit: Int,
+    // 图片字段可空；无图不能替换成其他套餐的固定餐图。
+    val imageUrl: String? = null,
+    val imageAlt: String? = null,
 ) {
     /** 将分转换为页面展示金额，统一保留两位以内的小数。 */
     fun priceText(): String = formatCents(priceCents)

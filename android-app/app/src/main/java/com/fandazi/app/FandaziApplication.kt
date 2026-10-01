@@ -17,6 +17,9 @@ import com.fandazi.app.feature.deal.GroupBuyingRepository
 import com.fandazi.app.feature.deal.HttpGroupBuyingRepository
 
 class FandaziApplication : Application() {
+    /** 首页、搜索及门店公开浏览共享网络仓库，所有业务事实来自同一 Spring 目录。 */
+    lateinit var catalogRepository: com.fandazi.app.feature.store.CatalogRepository
+        private set
     lateinit var apiClient: ApiClient
         private set
     lateinit var sessionRepository: SessionRepository
@@ -44,6 +47,8 @@ class FandaziApplication : Application() {
         cartStateStore = PreferencesCartStateStore(this)
         automationSettingsRepository = HttpAutomationSettingsRepository(apiClient)
         groupBuyingRepository = HttpGroupBuyingRepository(apiClient)
+        // 复用同一 ApiClient，保留游客公开读取和已登录用户的统一认证处理。
+        catalogRepository = com.fandazi.app.feature.store.HttpCatalogRepository(apiClient)
         agentRepository = HttpAgentRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenProvider = { sessionRepository.tokenOrNull() }
