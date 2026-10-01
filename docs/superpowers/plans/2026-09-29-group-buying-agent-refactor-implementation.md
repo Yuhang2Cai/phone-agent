@@ -187,7 +187,7 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 - [x] 按 runId/步骤标识合并进度；暂停/终态结束动画；重试不复制用户消息；历史结果可追溯。
 - [x] 使用新 Agent 跑 HttpAgentRepositoryTest、AgentChatStateTest 和真实聊天 Maestro。
 - [x] 独立核查所有本期可达 AI 状态、消息与卡片、错误恢复和无自动跳转。
-- [ ] 通过后提交；售后新增交互由 Task8 验收，不把一个空态测试算全部 AI 通过。
+- [x] 通过后提交；售后新增交互由 Task8 验收，不把一个空态测试算全部 AI 通过（手机3a3bafe、Agent文档f5a33db）。
 
 2026-10-02 Task5独立R1整体PASS：`docs/verification/2026-10-02-task5-independent-acceptance.md`。原R0实测旧数量1卡误取消新数量2任务，需求/质量/运行FAIL完整保留；修复绑定原run/trace/确认事件及摘要，Jason亲跑64/64、最新APK11个Maestro执行单元、真实HTTP/SSE11/11、旧卡实际点击无效而当前取消有效、游客禁发与设备全离线恢复后独立关闭P1。APK840D115471CE8BE02ADE51B2CB3E5CF6D3D913EE4D1CA74375DF9250A130A724。Task5只验收公共展示/状态，真实购买确认写入留Task6；F聊天跳现有订单页的只读原dirty依赖按冻结SHA登记、完整订单页面交Task7收尾，不把当前工作区验收冒称干净BASE整应用可编译。
 
