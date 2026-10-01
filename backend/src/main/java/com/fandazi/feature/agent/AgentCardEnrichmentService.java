@@ -26,6 +26,12 @@ public class AgentCardEnrichmentService {
     private final PurchaseQuoteService quotes;
     private final ConfirmationGrantService grants;
     private final StoreReviewRepository reviews;
+    /** 仅复用已有真实浏览摘要补齐聊天门店展示，不改变工具参数或领域写入。 */
+    private StoreBrowseService browse;
+
+    /** 生产路径注入 Task4 既有浏览查询；历史纯领域构造器仍可使用原公开事实。 */
+    @Autowired
+    void attachBrowse(StoreBrowseService browse) { this.browse = browse; }
 
     /** 注入完整领域依赖，复杂卡片重新校验资源归属，不从模型复制业务事实。 */
     @Autowired
@@ -55,17 +61,37 @@ public class AgentCardEnrichmentService {
             return enrich(userId, sessionId, canonical);
         }
         String type = text(reference, reference.containsKey("cardType") ? "cardType" : "type");
+        // 先校验类型白名单再读取资源，确保未知类型稳定拒绝且不会触发领域查询或模拟兜底。
+        if (!Set.of("store", "deal", "order", "voucher", "coupon", "review", "confirmation", "error").contains(type)) {
+            throw new DomainException("VALIDATION_ERROR:不支持的 Agent 卡片类型");
+        }
         String resource = reference.containsKey("cardType") ? required(reference, "resourceId") : required(reference, switch (type) {
             case "store" -> "storePublicId"; case "deal" -> "dealPublicId"; case "order" -> "orderPublicId"; default -> "resourceId"; });
         Map<String, Object> facts;
         String legacyType = type;
         switch (type) {
-            case "store" -> facts = AgentDomainProjection.store(stores.require(resource));
+            case "store" -> {
+                facts = AgentDomainProjection.store(stores.require(resource));
+                // 图片、评分、评价数及团购摘要来自同一 Spring 目录查询，缺图/缺评分仍保持空值。
+                if (browse != null) {
+                    var detail = browse.detail(resource, null, null);
+                    facts.put("imageUrl", detail.imageUrl()); facts.put("imageAlt", detail.imageAlt());
+                    facts.put("rating", detail.rating()); facts.put("reviewCount", detail.reviewCount());
+                    if (detail.featuredDeal() != null) facts.put("dealSummary", detail.featuredDeal().title());
+                }
+            }
             case "deal" -> {
                 var deal = deals.require(resource); facts = AgentDomainProjection.deal(deal);
                 facts.put("storeName", deal.getStore().getName());
             }
-            case "order" -> { requireUser(userId); facts = orders.detail(userId, resource); }
+            case "order" -> {
+                requireUser(userId); facts = orders.detail(userId, resource);
+                // 卡片有效期取本人订单真实券集合的最早截止；没有券事实时保持缺值，不读设备时间推测。
+                if (facts.get("vouchers") instanceof List<?> orderVouchers) {
+                    orderVouchers.stream().filter(value -> value instanceof Map<?, ?>).map(value -> ((Map<?, ?>) value).get("expiresAt"))
+                        .filter(Objects::nonNull).map(String::valueOf).min(String::compareTo).ifPresent(value -> facts.put("expiresAt", value));
+                }
+            }
             case "voucher" -> {
                 requireUser(userId); facts = vouchers.detail(userId, resource); facts.put("voucherId", facts.get("publicId"));
                 // 动作只决定界面用途，资源与资格仍来自本人的真实券。

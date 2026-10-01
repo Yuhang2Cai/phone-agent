@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 错误状态：保留当前会话内容，并提供重试按钮，不因异常自动跳转。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/agent_error_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    android:background="@drawable/agent_chat_bot_bubble"
+    android:minHeight="172dp"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="22dp">
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" android:gravity="center" android:text="暂时无法完成请求"
+        android:textSize="19sp" android:textStyle="bold" android:textColor="@color/group_buy_green" />
+    <TextView
+        android:id="@+id/agent_error_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:gravity="center"
+        android:textColor="@color/group_buy_muted"
+        android:textSize="13sp" />
+    <TextView
+        android:id="@+id/agent_error_retry"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:paddingHorizontal="18dp"
+        android:text="重新尝试"
+        android:textColor="@color/group_buy_orange"
+        android:textSize="14sp" />
+</LinearLayout>

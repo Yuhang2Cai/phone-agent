@@ -25,9 +25,22 @@ sealed interface AgentNavigationRequest : Serializable {
 
     /** 用户点击套餐卡后，请求打开指定套餐。 */
     data class Deal(val storePublicId: String, val dealPublicId: String) : AgentNavigationRequest
+
+    /** 用户主动点击后以服务端本人订单 ID 打开现有订单详情，不创建第二条路由。 */
+    data class Order(val orderPublicId: String) : AgentNavigationRequest
+
+    /** 卡片动作携带原公开摘要供状态入口校验；旧售后特定语句保持原默认调用兼容。 */
+    data class AgentReply(val text: String, val sourceCard: AgentCardPayload? = null) : AgentNavigationRequest
 }
 
-data class ChatMessage(val text: String, val fromUser: Boolean) : Serializable
+/** 一条消息及其服务端结果；历史卡片与进度固定在对应回复之后，不串到后续轮次。 */
+data class ChatMessage(
+    val text: String,
+    val fromUser: Boolean,
+    val cards: List<AgentCardPayload> = emptyList(),
+    val events: List<AgentEvent> = emptyList(),
+    val streaming: Boolean = false
+) : Serializable
 
 data class AgentEvent(
     val id: Long?,
@@ -37,7 +50,13 @@ data class AgentEvent(
     val status: String? = null,
     /** 事件附带的后端字段，例如工具进度或卡片引用；客户端不自行补造业务值。 */
     val payload: Map<String, String> = emptyMap()
-) : Serializable
+) : Serializable {
+    /** 原 Agent 事件身份不同于 id（数据库 SSE 游标）；HTTP 重放不推进数据库游标。 */
+    val eventId: String? get() = payload["eventId"]
+    val runId: String? get() = payload["runId"]
+    val traceId: String? get() = payload["traceId"]
+    val sequence: Long? get() = payload["sequence"]?.toLongOrNull()
+}
 
 /**
  * 后端返回的卡片引用与补全字段。
@@ -49,8 +68,13 @@ data class AgentCardPayload(
     val storePublicId: String? = null,
     val dealPublicId: String? = null,
     val orderPublicId: String? = null,
-    val fields: Map<String, String> = emptyMap()
+    val fields: Map<String, String> = emptyMap(),
+    /** 原待确认事件身份只用于客户端归属校验，不是授权凭证，不改变服务端工具参数。 */
+    val confirmationIdentity: AgentConfirmationIdentity? = null
 ) : Serializable
+
+/** 同run重新准备仍产生新事件版本；trace与eventId共同约束原卡所属摘要，不以runId单独放行。 */
+data class AgentConfirmationIdentity(val runId: String, val traceId: String, val eventId: String, val sequence: Long?) : Serializable
 
 data class CandidateCartItem(
     val name: String,
@@ -132,7 +156,11 @@ data class AgentUiState(
     val isSending: Boolean = false,
     val inputState: AgentInputState = AgentInputState.IDLE,
     val createdOrderId: Long? = null,
-    val navigation: AgentNavigationRequest? = null
+    val navigation: AgentNavigationRequest? = null,
+    /** 用户最后明确查看的公开卡片，只用于历史摘要，不作为服务端授权或自动写入参数。 */
+    val viewedCard: AgentCardPayload? = null,
+    /** 仅真实waiting_confirmation期间保留当前版本；历史消息卡继续显示，但不能因此获得可执行状态。 */
+    val pendingConfirmationCard: AgentCardPayload? = null
 )
 
 data class ThisTaskAutoRequest(

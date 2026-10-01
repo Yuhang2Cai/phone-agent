@@ -1,20 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    AI 助手全屏聊天页：只定义页面结构和静态交互控件，门店、套餐、订单等业务内容全部由后端卡片填充。
+    AI 助手完整聊天页：固定页面骨架，消息、进度和业务卡片由 Agent 服务状态动态填充。
+    页面不保存门店、套餐、订单等业务样例，避免 Android 端与后端数据产生分叉。
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/home_background"
+    android:background="@color/group_buy_background"
     android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
-        android:paddingHorizontal="20dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="12dp">
+        android:paddingHorizontal="24dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="10dp">
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -25,22 +26,22 @@
                 android:layout_height="wrap_content"
                 android:text="AI助手"
                 android:textColor="@color/group_buy_green"
-                android:textSize="27sp"
+                android:textSize="26sp"
                 android:textStyle="bold" />
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="帮你发现更好的餐厅"
                 android:textColor="@color/group_buy_muted"
-                android:textSize="14sp" />
+                android:textSize="13sp" />
         </LinearLayout>
         <TextView
             android:id="@+id/agent_chat_close"
             android:layout_width="44dp"
             android:layout_height="44dp"
-            android:contentDescription="关闭 AI 助手"
+            android:contentDescription="更多选项"
             android:gravity="center"
-            android:text="×"
+            android:text="⋮"
             android:textColor="@color/group_buy_text"
             android:textSize="28sp" />
     </LinearLayout>
@@ -53,42 +54,48 @@
         android:clipToPadding="false"
         android:fillViewport="true"
         android:paddingHorizontal="16dp"
+        android:paddingTop="4dp"
         android:paddingBottom="16dp">
         <LinearLayout
             android:id="@+id/agent_chat_content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clipToPadding="false"
             android:orientation="vertical" />
     </ScrollView>
 
     <LinearLayout
+        android:id="@+id/agent_chat_composer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:paddingHorizontal="16dp"
-        android:paddingVertical="10dp">
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp">
+        <!-- 正式文字输入没有附件或语音入口，避免展示未实现能力。 -->
         <EditText
             android:id="@+id/agent_chat_input"
             android:layout_width="0dp"
-            android:layout_height="52dp"
+            android:layout_height="48dp"
             android:layout_weight="1"
-            android:background="@drawable/agent_composer_background"
+            android:background="@drawable/agent_chat_input_background"
             android:hint="有任何美食需求都可以问我…"
             android:inputType="textMultiLine"
             android:maxLines="2"
+            android:textSize="14sp"
             android:paddingHorizontal="16dp"
             android:textColor="@color/group_buy_text"
             android:textColorHint="@color/group_buy_muted" />
         <TextView
             android:id="@+id/agent_chat_send"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
-            android:layout_marginStart="10dp"
-            android:background="@drawable/search_button_background"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="14dp"
+            android:background="@drawable/agent_send_background"
             android:contentDescription="发送消息"
             android:gravity="center"
-            android:text="➤"
-            android:textColor="@color/surface_card"
-            android:textSize="22sp" />
+            android:text="›"
+            android:textColor="@color/group_buy_muted"
+            android:textSize="24sp" />
     </LinearLayout>
 </LinearLayout>

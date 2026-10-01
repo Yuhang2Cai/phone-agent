@@ -21,7 +21,8 @@ import org.springframework.stereotype.Service;
         // 会话实体可能被交错请求更新，必须在外部调用前冻结本轮身份，不能返回后再读取实体。
         String runId = session.getActiveRunId();
         if (mode == AgentMode.CONFIRM && isConfirmation(text)) sessions.confirm(userId, sessionId);
-        events.record(userId, sessionId, "parsed", "已接收团购助手请求", null, "running", java.util.Map.of());
+        // 网关兼容事件也绑定真实输入链路，防止迟到的上一轮兼容终态停止当前轮动画；不伪造原事件身份。
+        events.record(userId, sessionId, "parsed", "已接收团购助手请求", null, "running", Map.of("runId", runId, "traceId", traceId));
         try {
             // 将用户身份、会话和模式作为 Spring 已校验的上下文传给独立 Agent，模型不能自行伪造这些字段。
             AgentResult result=client.run(new AgentRunRequest(userId.toString(),sessionId,text,
@@ -44,11 +45,13 @@ import org.springframework.stereotype.Service;
                 case FAILED -> "failed";
                 case COMPLETED, CANCELLED -> "completed";
             };
-            events.record(userId,sessionId,outcome,result.message(),null,result.status().name().toLowerCase(),result.candidateCart());
+            var outcomePayload = new java.util.LinkedHashMap<>(result.candidateCart());
+            outcomePayload.put("runId", runId); outcomePayload.put("traceId", traceId);
+            events.record(userId,sessionId,outcome,result.message(),null,result.status().name().toLowerCase(),outcomePayload);
             return result;
         } catch (AgentServiceUnavailableException exception) {
             sessions.finishRun(userId, sessionId, runId, AgentResult.Status.FAILED);
-            events.record(userId,sessionId,"failed",exception.getMessage(),null,"retryable",java.util.Map.of()); return AgentResult.failed(exception.getMessage());
+            events.record(userId,sessionId,"failed",exception.getMessage(),null,"retryable",Map.of("runId", runId, "traceId", traceId)); return AgentResult.failed(exception.getMessage());
         }
     }
 

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 正式聊天输入框独立资源，避免改动历史半屏助手的输入框样式。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/surface_card" />
+    <corners android:radius="24dp" />
+</shape>

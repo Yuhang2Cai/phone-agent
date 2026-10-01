@@ -74,15 +74,20 @@ class HttpAgentRepository(
 
 // 处理 `streamEvents` 相关逻辑。
     override fun streamEvents(sessionId: String, afterEventId: Long?): Flow<AgentEvent> = callbackFlow {
+        // 取消页面订阅时同时取消阻塞中的 OkHttp 调用，避免旧连接继续占用线程和推送历史事件。
+        val activeCall = java.util.concurrent.atomic.AtomicReference<okhttp3.Call?>()
         val streamJob = launch(Dispatchers.IO) {
             var cursor = afterEventId
+            var consecutiveFailures = 0
             while (currentCoroutineContext().isActive) {
                 val request = Request.Builder().url(url("agent/sessions/$sessionId/events")).apply {
                     if (cursor != null) header("Last-Event-ID", cursor.toString())
                     header("Accept", "text/event-stream")
                 }.build()
                 try {
-                    client.newCall(request).execute().use { response ->
+                    val call = client.newCall(request)
+                    activeCall.set(call)
+                    call.execute().use { response ->
                         if (!response.isSuccessful) throw AgentStreamException(response.code, errorMessage(response.body?.string().orEmpty(), response.message))
                         var id: Long? = null
                         val data = StringBuilder()
@@ -93,6 +98,7 @@ class HttpAgentRepository(
                                     line.startsWith("data:") -> data.append(line.removePrefix("data:").trim())
                                     line.isBlank() && data.isNotBlank() -> {
                                         parseEvent(id, data.toString())?.let { event ->
+                                            consecutiveFailures = 0
                                             cursor = event.id ?: cursor
                                             trySend(event)
                                         }
@@ -115,13 +121,16 @@ class HttpAgentRepository(
                         close(failure)
                         return@launch
                     }
+                    // 会话创建前的 404 可短暂重连；连续失败超过预算后通知状态层，不能永久转圈。
+                    if (++consecutiveFailures >= 3) { close(failure); return@launch }
                     if (currentCoroutineContext().isActive) delay(reconnectDelayMillis)
-                } catch (_: IOException) {
+                } catch (failure: IOException) {
+                    if (++consecutiveFailures >= 3) { close(failure); return@launch }
                     if (currentCoroutineContext().isActive) delay(reconnectDelayMillis)
                 }
             }
         }
-        awaitClose { streamJob.cancel() }
+        awaitClose { activeCall.getAndSet(null)?.cancel(); streamJob.cancel() }
     }
 
 // 处理 `grantThisTaskAuto` 相关逻辑。
@@ -146,7 +155,8 @@ class HttpAgentRepository(
 
     private suspend fun <T> executeJson(request: Request, parser: (String) -> T): ApiResult<T> = withContext(ioDispatcher) {
         try {
-            client.newCall(request).execute().use { response ->
+            // 普通 HTTP 请求与长连接分开限制等待；SSE 可长期空闲，消息请求不能永久挂起。
+            client.newBuilder().callTimeout(120, TimeUnit.SECONDS).build().newCall(request).execute().use { response ->
                 val body = response.body?.string().orEmpty()
                 if (response.isSuccessful) ApiResult.Success(parser(body))
                 else ApiResult.Failure(ApiError.Http(response.code, errorMessage(body, response.message)))
@@ -169,7 +179,8 @@ class HttpAgentRepository(
             nextAction = value.string("nextAction"),
             candidateCart = value.objectOrNull("candidateCart")?.toCandidateCart(),
             events = value.array("events").mapNotNull { it.asJsonObjectOrNull()?.toEvent() },
-            cards = value.array("cards").mapNotNull { it.asJsonObjectOrNull()?.toCard() },
+            // 售后摘要不是旧外卖购物车；转换为独立确认卡后交给聊天页显式确认。
+            cards = value.publicCards(),
             error = value.string("error")
         )
     }
@@ -187,16 +198,67 @@ class HttpAgentRepository(
         toolName = string("toolName"),
         status = string("status"),
         payload = get("payload")?.asJsonObjectOrNull()?.entrySet()
-            ?.associate { entry -> entry.key to entry.value.toString().trim('"') }.orEmpty()
+            ?.filter { isPublicField(it.key) }
+            ?.associate { entry -> entry.key to entry.value.publicValue() }.orEmpty()
     )
 
-    /** 解析后端卡片字段，未知字段保留为字符串供通用渲染器展示。 */
+    /** 解析公开卡片并过滤私有授权字段；字符串正常解码，嵌套对象递归过滤后保留结构。 */
     private fun JsonObject.toCard(): AgentCardPayload? {
-        val type = string("type")?.takeIf(String::isNotBlank) ?: return null
-        val fields = entrySet().asSequence()
-            .filter { it.key !in setOf("type", "storePublicId", "dealPublicId", "orderPublicId") }
-            .associate { it.key to it.value.toString().trim('"') }
-        return AgentCardPayload(type, string("storePublicId"), string("dealPublicId"), string("orderPublicId"), fields)
+        return AgentPublicCards.decode(this)
+    }
+
+    /** 已有补全卡优先；仅为未提供的售后类型构造白名单兼容卡，避免重复券/确认按钮。 */
+    private fun JsonObject.publicCards(): List<AgentCardPayload> {
+        val cards = array("cards").mapNotNull { it.asJsonObjectOrNull()?.toCard() }
+        val confirmation = if (string("nextAction") == "confirmation_required")
+            objectOrNull("candidateCart")?.let(AgentPublicCards::confirmation) else null
+        return cards + (toAfterSaleCards() + listOfNotNull(confirmation)).filter { fallback -> cards.none { it.type == fallback.type } }
+    }
+
+    /** 私有字段既不能显示，也不能随聊天状态持久化；大小写和下划线差异不改变边界。 */
+    private fun isPublicField(key: String): Boolean {
+        return AgentPublicCards.isPublicField(key)
+    }
+
+    /** 结构化递归过滤避免私有凭证藏在嵌套负载；不使用字符串替换篡改业务文案。 */
+    private fun JsonElement.publicJson(): JsonElement = AgentPublicCards.publicJson(this)
+
+    /** 基本字段直接解码，数组/对象保留过滤后的JSON；空值不产生字面量null。 */
+    private fun JsonElement.publicValue(): String = when {
+        isJsonNull -> ""
+        isJsonPrimitive -> asString
+        else -> publicJson().toString()
+    }
+
+    /** 从待选券结果提取可点击卡片，并从待确认结果提取安全摘要。 */
+    private fun JsonObject.toAfterSaleCards(): List<AgentCardPayload> {
+        val action = string("nextAction")
+        if (action == "select_voucher") {
+            // 券列表来自服务端归属查询；端上只保留公开字段，不把私有状态带入聊天卡。
+            return objectOrNull("candidateCart")?.array("vouchers")?.mapNotNull { element ->
+                val choice = element.asJsonObjectOrNull() ?: return@mapNotNull null
+                val voucherId = choice.string("voucherId")?.takeIf(String::isNotBlank) ?: return@mapNotNull null
+                AgentCardPayload(type = "after_sale_voucher_choice", fields = mapOf(
+                    "voucherId" to voucherId,
+                    "dealTitle" to choice.string("dealTitle").orEmpty(),
+                    "storeName" to choice.string("storeName").orEmpty(),
+                    "expiresAt" to choice.string("expiresAt").orEmpty(),
+                    "amountCents" to choice.string("amountCents").orEmpty(),
+                    "canRefund" to choice.string("canRefund").orEmpty()
+                ))
+            }.orEmpty()
+        }
+        val type = when (action) {
+            "confirm_refund" -> "after_sale_refund"
+            "confirm_complaint" -> "after_sale_complaint"
+            else -> return emptyList()
+        }
+        val summary = objectOrNull("candidateCart") ?: return emptyList()
+        val allowed = if (type == "after_sale_refund")
+            setOf("resourceId", "voucherId", "orderId", "dealTitle", "storeName", "amountCents", "expiresAt", "reason")
+        else setOf("orderId", "subject", "description", "expiresAt")
+        val fields = allowed.mapNotNull { key -> summary.string(key)?.let { key to it } }.toMap()
+        return listOf(AgentCardPayload(type = type, fields = fields))
     }
 
     private fun JsonObject.toCandidateCart(): CandidateCart? {

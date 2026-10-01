@@ -20,6 +20,23 @@ class AgentProtocolBoundaryTest {
     private final ObjectMapper mapper = new ObjectMapper();
 
     @Test
+    void publicHttpAndSsePreserveCanonicalIdentityAndRunStatus() throws Exception {
+        // HTTP 与实时审计使用同一原事件身份；步骤完成不能覆盖任务仍运行的状态。
+        String identity = UUID.randomUUID().toString();
+        AgentResult result = invoke(request -> {
+            Map<String, Object> progress = new java.util.LinkedHashMap<>(event(request, "progress", "running", 1,
+                    Map.of("stepId", "lookup", "label", "查询已完成", "stepStatus", "succeeded")));
+            progress.put("eventId", identity);
+            return List.of(progress, event(request, "run_completed", "succeeded", 2, Map.of("message", "完成")));
+        });
+        assertThat(result.events().get(0).status()).isEqualTo("running");
+        assertThat(result.events().get(0).payload()).containsEntry("eventId", identity)
+                .containsEntry("sequence", 1).containsEntry("stepStatus", "succeeded");
+        assertThat(result.events().get(0).payload().get("runId")).isNotNull();
+        assertThat(result.events().get(0).payload().get("traceId")).isNotNull();
+    }
+
+    @Test
     void inputRequiredEndsRequestWithoutReportingInterruptedStream() throws Exception {
         // 等待补充输入合法结束本轮 HTTP 流，任务本身仍暂停而非失败。
         AgentResult result = invoke(request -> List.of(event(request, "input_required", "waiting_input", 1,

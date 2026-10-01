@@ -1,0 +1,18 @@
+# 原地恢复不能 launchApp，否则会另建内存会话，掩盖同一问题重复气泡缺陷。
+appId: com.fandazi.app
+---
+- assertVisible:
+    id: "com.fandazi.app:id/agent_error_retry"
+- tapOn:
+    id: "com.fandazi.app:id/agent_error_retry"
+- extendedWaitUntil:
+    notVisible:
+      id: "com.fandazi.app:id/agent_error_card"
+    timeout: 90000
+- extendedWaitUntil:
+    visible:
+      text: "${TASK5_EXPECTED}"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: "task5-I-recovered"

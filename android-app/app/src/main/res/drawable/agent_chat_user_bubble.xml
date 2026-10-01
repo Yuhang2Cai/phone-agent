@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma 用户浅珊瑚气泡，不沿用旧助手的实心橙色背景。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFEDE5" />
+    <corners android:radius="16dp" />
+</shape>

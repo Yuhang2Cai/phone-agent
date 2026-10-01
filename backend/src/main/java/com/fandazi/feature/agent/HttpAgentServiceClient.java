@@ -151,7 +151,8 @@ class HttpAgentServiceClient implements AgentServiceClient {
         Map<String, Object> payload = map(raw.get("payload"));
         return new AgentResult.Event(String.valueOf(raw.getOrDefault("eventType", "progress")),
                 AgentContractCompatibility.summary(payload),
-                string(payload.get("toolName")), String.valueOf(payload.getOrDefault("stepStatus", raw.get("status"))), payload);
+                // 保留任务原状态；stepStatus 已在公开 payload 中供单项进度显示。
+                string(payload.get("toolName")), String.valueOf(raw.get("status")), payload);
     }
 
     /** 将终态事件转换成旧网关结果，保证 Android 暂不需要理解内部协议细节。 */

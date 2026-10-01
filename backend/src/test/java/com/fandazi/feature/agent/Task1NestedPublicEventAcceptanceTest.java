@@ -52,6 +52,24 @@ class Task1NestedPublicEventAcceptanceTest {
     @Autowired private MockMvc mockMvc;
 
     @Test
+    void canonicalIdentitySurvivesPersistenceAndPublicReplayWithoutReplacingCursor() throws Exception {
+        // 真实审计入库与公开 DTO 都保留原身份；数据库自增游标必须不同于原 sequence。
+        String originalId = UUID.randomUUID().toString();
+        String runId = UUID.randomUUID().toString();
+        AgentRunRequest run = new AgentRunRequest("42", "task5-identity-session", "查询帮助", "confirm", "task5-trace", runId, Map.of());
+        messages.record(run, Map.of("schemaVersion", "1.1", "eventId", originalId, "sequence", 97,
+                "runId", runId, "traceId", "task5-trace", "eventType", "progress", "status", "running",
+                "payload", Map.of("stepId", "lookup", "label", "已完成查询", "stepStatus", "succeeded")));
+        entityManager.flush(); entityManager.clear();
+        var loaded = events.after(42L, "task5-identity-session", null).get(0);
+        var dto = AgentGatewayController.EventResponse.from(loaded);
+        assertThat(dto.status()).isEqualTo("running");
+        assertThat(dto.payload()).containsEntry("eventId", originalId).containsEntry("sequence", 97)
+                .containsEntry("runId", runId).containsEntry("traceId", "task5-trace").containsEntry("stepStatus", "succeeded");
+        assertThat(dto.id()).isEqualTo(loaded.getId()).isNotEqualTo(97L);
+    }
+
+    @Test
     void legalNullErrorSurvivesRealDatabaseRoundTrip() throws Exception {
         // 使用真实消息审计入口，强制刷新并清空持久化上下文，排除只读内存对象造成的假通过。
         Map<String, Object> payload = new LinkedHashMap<>();

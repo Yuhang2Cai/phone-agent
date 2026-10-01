@@ -1,4 +1,112 @@
-# Task5 开发报告：设计确认前只读审计
+# Task5 开发报告
+
+## Fix Round1（开发修复自测结束，冻结待独立复验）
+
+**DONE_FIXROUND1，2026-10-02 07:04已释放环境**。64/64受影响定向（专项9），最新APK主聊天及原P1三段Maestro退出0，旧数量1取消点击后数量2run仍waiting_confirmation/quantity2/18000，当前数量2合法取消后同run cancelled。真实确认未执行；待Jason独立复验及额外全离线/游客禁发点击，不声称独立通过。
+
+完整覆盖/未覆盖/精确行号/实际命令/失败边界：[fixround1/coverage-and-commands.md](C:/fdz-build/docs/verification/task5-evidence/fixround1/coverage-and-commands.md)。冻结写集[write-set.txt](C:/fdz-build/docs/verification/task5-evidence/fixround1/write-set.txt)、[freeze-manifest.json](C:/fdz-build/docs/verification/task5-evidence/fixround1/freeze-manifest.json)、[fixround1.patch](C:/fdz-build/docs/verification/task5-evidence/fixround1/fixround1.patch)。累计51文件源码/运行器SHA：079B60CBF024247094C70D26867303862797BBE20837A78A10CB0FC407A23303；设备回拉与最新构建APK均840D115471CE8BE02ADE51B2CB3E5CF6D3D913EE4D1CA74375DF9250A130A724。
+
+新准备run原11条HTTP/SSE身份全部一致，4条网关兼容另列；原9条及false/P1均保留。四产品新增修复hunk外，一个专项测试+六运行器/流程为本轮新增；共享导航无本轮hunk，原Task8夹具7文件和D70源/测试/契约SHA不变。无产品待修项；待独立验收。Spring44776/D8091 54004健康留接管，无测试/Gradle占用。下方R0及只读检查点均为历史过程。
+
+独立报告 `2026-10-02-task5-independent-acceptance.md` 精确指向 Fragment110/117/158、ViewModel258/271、Renderer169–184。已确认根因：历史共享confirmation卡只发送泛化语句，新暂停任务接管后旧卡仍可操作它。数量1→取消→数量2准备→旧数量1取消已被Jason真实复现；确认风险未真实执行交易，不改写独立报告或原失败证据。
+
+本轮仅修此P1及修复引起的兼容问题。实施前四个产品文件字节副本 `.runtime/task5-fixround1-before`，上一冻结manifest另存fixround1/previous-freeze-manifest.json；原Task8/source/夹具保留。先新增状态回归与可执行动作入口，随后验证旧卡行为红，再以原runId/traceId/confirmation_required.eventId+完整公开摘要绑定按钮；当前等待阶段、终态/新输入/替换/账号切换均在ViewModel入口复核。UI复用已确认卡，不重画Figma，不改17工具/交易流程。
+
+### Fix Round1 构建前进度
+
+- API编译红与6项行为红分别保存在fixround1/api-red.log和behavior-red.log；绑定修正后6/6通过。追加同摘要仅换eventId、SSE替换/重放/终态和SavedState恢复，共9项专项通过；受影响聊天/身份/仓库/售后兼容共64/64通过，targeted-final.log实际退出0。扩展测试一次参数位置编译失败也保留targeted.log，随后改为命名参数，不隐去失败。
+- 最新APK构建安装成功，SHA256为840D115471CE8BE02ADE51B2CB3E5CF6D3D913EE4D1CA74375DF9250A130A724。四个产品文件外只增加专项测试；不修改XML、Figma、后端交易或17工具。正执行主聊天Maestro与数量1→取消→数量2→旧取消→当前取消设备/服务端快照验证。
+- 健康探针首次误用actuator/health与/health得到401/404，不代表服务停机；已改用既定/api/stores/cities与/internal/v1/health，均响应正常。PID8080=44776、8091=54004，未重启服务。
+
+## 当前实施检查点（2026-10-02）
+
+- 状态：**DONE_WITH_CONCERNS（开发自测结束，冻结待独立验收）**。控制端已传递人类确认并更新 brief，历史 NEEDS_CONTEXT 已解除；以下只读审计记录保留为当时事实，不代表当前门槛。
+- 实施 BASE：手机 c614bd57218dd315e4ce03a60537023526cd6d49；新 Agent ee04c2cd0fa0232e857da915c4ca2773842afb28。仅 Task5，不执行 Task6。
+- Figma 已修复：56:356（H 卡片恢复 x=16/y=294）；56:218（E 卡片高度184）；171:2/171:3（原价/折扣缺值明确显示未取得）；56:176（D 移除人均字段）。H/E 截图已检查，无越界。G 保持原图，实施按真实 isComposite，不按工具数推测。
+- 已用 figma-design-to-code 技能取得 A–J 的 get_design_context 与截图：56:2、56:46、56:95、56:134、56:180、56:225、56:269、56:318、56:363、56:404。页面 6:8，文件 FxsWKGs10z7BL1MhFAOqFN。
+- 05:54 实施记录：真实问候/缺城市/补充恢复/多轮/门店查询均跑通，12 套餐与29门店来自 Spring；首轮服务冷启动失败保留。两版聊天 Maestro 通过，最新版修复圆形头像与白色/浅珊瑚气泡；D/F 卡片及显式点击详情返回通过。真实待支付订单是本任务随机用户的隔离展示夹具，来源见 order-fixture-provenance.json，不是购买/付款闭环证据。
+- Android 全量153项通过（最终公共确认/delta补正再定向复验）；Spring 同源隔离全量215项中1项因旧 Python 探针运行器依赖缺失报错，补探针依赖及解释器后相关20项通过。没有启动旧 Agent 服务，没有 SKIP 冒称 PASS。源码修改前副本位于忽略目录 .runtime/task5-source-before。
+- 上述05:54检查点当时尚在补delta/确认、断线恢复和收尾；当前均由下方最终记录更新，仅独立验收未运行。未 stage/commit/创建 Agent，未修改主 plan/spec/UI 确认文档。
+
+### 05:58 恢复实施追加记录
+
+- 最终 APK 已安装并完成 `maestro-final` 聊天全流程：H 游客拦截、稍后返回首页、登录返回 AI、A 空态、C 真问候、缺城市与补充恢复、E 真套餐、显式详情点击及 J 多轮；不是沿用旧 APK。
+- 新 Agent 不可达：`unreachable-recovery.json` 中 errorExit/retryExit 均为0，真实服务停机后错误卡出现，恢复服务原地重试成功；用户问题数量前后均1。正在执行连接已经建立后的真实中断测试，不以此替代断线测试。
+- 原 `sse-identity-check.json` 的 false 文件保留，不能笼统算全量身份通过。原因不只是旧会话重放：SSE 还包含 Spring 网关生成的 parsed/tool_result/completed 兼容记录，它们没有原 Agent eventId/sequence，不能伪造。
+- 新 run 本人订单查询的 `sse-identity-check-r2.json`：HTTP9条原始事件与 SSE 中9条对应事件的 eventId/sequence/runId/traceId/status 逐条一致；数据库游标2022–2031独立于sequence0–8。另有3条网关兼容记录，只有真实runId/traceId，不声称原始身份完整。追加实际状态模型 HTTP/SSE 同身份合并定向测试。
+
+## 最终覆盖与冻结交接（2026-10-02 06:16，已释放环境）
+
+- 最终APK SHA-256：`8F5FF97EB6FD42B88022B168C2E8547665D18CBE6EBC33C4A8C800BA09B4F7F9`，06:13:57卸载旧com.fandazi.app并确认com.dirror.music不存在后安装，详见apk-install-release.json。
+- 最后必要兼容状态补正后49项定向及构建退出0；当前最新APK主聊天Maestro06:15:48退出0，真实推荐双工具→卡片链路及登录返回、多轮正常。按控制端要求取消后续尚未启动的重复套件，批次shell退出1仅为主动交接取消，不算产品测试失败或未跑流程通过。
+- 环境已释放：本应用force-stop关闭SSE；Gradle1个本轮daemon停止，无活动Maestro test或Gradle daemon；已有5个Maestro MCP工具服务未泛杀。Spring8080 PID44776、新Agent8091 PID44320健康保留供独立接管；新Agent入口/来源确认是D service.app:create_app，不是旧服务。release-environment.json保存原始字段。
+- 新Agent service/tests/config/contracts70文件总摘要与旧审计完全相同（C977E9…），new-agent-source-freeze.json有逐文件SHA；原真实夹具7文件不变。源码冻结、运行器临时交接阻挡标记已清理，无新增产品操作或后台测试任务。
+- 可复核正式运行：Gradle15次（9退出0、6红/回归失败留存），Maven4次（2退出0、2原非0留存），Maestro16次均退出0；公开API成功场景请求11次，另保留首轮冷启动6次FAILED。未执行条件分支/主动取消批次另列，不混入通过数。冻结写集最终逐文件数量以freeze-validation.json为准，源码/运行器44项SHA一致；设备安装APK与本地最终APK SHA完全相同，见installed-apk-identity.json。
+
+### 产品与设计
+
+仅Task5正式文字聊天，复用既有路由/Repository/ViewModel/ApiClient与真实Spring。九页基线批准来自更新brief的人类y确认，不再将下方旧NEEDS_CONTEXT视作当前状态。Figma先修复并逐页取上下文再转XML，保留A–J全部可编辑图层：H56:356坐标修复；E56:218高度184和171:2/171:3字段；D56:176移除人均；G不按工具数量伪造复合。
+
+产品增量：游客正式聊天页拦截/登录原入口返回；空态与三个快捷问题；文字气泡和每轮历史卡片；公开progress按runId+stepId合并、暂停终态停止动画；delta即时文本/卡片；HTTP与SSE原身份去重；失败原地重试不复制问题；真实门店/套餐/订单与点击上下文；公共准备摘要/确认/取消展示但测试仅取消。Activity级历史按认证账号隔离，旧账号请求取消/会话换新，不改服务端归属。
+
+最后一个必要补正来自实际SSE中的网关 `tool_result/status=succeeded`：这是工具成功，不是任务成功。Android只对“tool_result且没有原eventId”排除其状态对忙碌终态的影响，保留原始状态/审计/游标。新增测试先10项中1FAIL，再修正后最终相关49/49（0FAIL/ERROR/SKIP）及assembleDebug退出0。未修改Spring事件状态造假来规避问题。
+
+### A–J 实际开发对照
+
+设计图全在 `task5-evidence/figma/56-*.png`。设备截图1080×2400包含系统栏，采用393dp逻辑宽度完整页面；不是与852px设计做整图像素相等判断。开发者已实际查看A/H/C/E/D/F/G/I/J截图以及设计图，检查区块、文字换行、点击入口和四Tab；容许系统栏、轻微尺寸与真实多卡滚动差异，不把固定示例店名/示例步骤移植成产品数据。
+
+| Frame | 设计节点 | 实际证据及检查 |
+| --- | --- | --- |
+| A空态 |56:2|maestro-release/task5-A-empty.png；圆形AI头像、欢迎/描述、三快捷问题，登录后直达AI |
+| B处理中 |56:46|task5-B-running-1/2.png；真实NDJSON连接后采样，正在理解请求/进行中，352像素差异仅在[87,551,128,586]旋转区域；不是固定耗时或静态假进度 |
+| C文字 |56:95|maestro-release/task5-C-text.png；真问候，白助手/浅珊瑚用户气泡，文字输入，无语音入口 |
+| D门店 |56:134|maestro-read-cards-freeze/task5-D-store.png；真29门店、评分/评价/团购摘要，缺图沿用占位；点击才进真实详情再返回 |
+| E套餐 |56:180|maestro-release/task5-E-deals.png；真12套餐、现价/真实原价与计算折扣；详情仅点击跳转 |
+| F订单 |56:225|maestro-read-cards-freeze/task5-F-order.png；本任务本人待支付隔离订单，合计90.00/真实有效期；点击打开既存详情，不做支付 |
+| G复合 |56:269|maestro-composite-prepare-final/task5-G-composite-paused.png及result；服务isComposite=true才显示任务进度，缺城市暂停，补城市返回真订单/门店/套餐 |
+| H游客 |56:318|maestro-release/task5-H-guest.png；完整登录卡、禁用真实输入发送、无结果；稍后返回首页，立即登录后回AI空态 |
+| I错误 |56:363|maestro-unreachable-freeze-error、maestro-interrupted-freeze-error/task5-I-error.png；真实不可达/连接已建后中断，重试恢复截图单独保留 |
+| J多轮 |56:404|maestro-release/task5-J-multi-turn.png；旧卡保留，摘要只取真实显式点击的卡，不虚构已购买或默认选中 |
+
+上述D/F/G/I及运行中像素证据对应APK6F8EB161…；最后的兼容工具终态补正不改布局，最新APK8F5FF97E…只再验证受影响的真实推荐链及已经运行的主聊天流程，遵从控制端不重跑已完整通过全套。`maestro-release` 退出0，不把取消的后续计划算通过。共享准备摘要实际出现完整门店/套餐/数量/金额/规则/截止时间，点“取消本次操作”后已取消，无业务写确认。
+
+### 原始身份与兼容事件边界
+
+原 `sse-identity-check.json` allHaveIdentity=false/sampleOriginalIdentity={} **保留不覆盖**。不能只解释成旧会话重放：Spring还生成parsed/tool_result/completed兼容审计，天然没有原Agent eventId/sequence。最小补正仅给兼容记录真实runId/traceId，不伪造原身份。
+
+新本轮订单run `98e602ed-dba8-4c9b-8e25-6a02105e2500` / trace `e5054e2e-947c-4f14-8e23-020bb316f06f` 的9条HTTP原事件，与同会话SSE对应9条eventId、sequence0–8、runId、traceId及status全部一致（`sse-identity-check-r2.json` / `new-run-identity-sse.txt`）。SSE数据库游标2022–2031独立传递，兼容3条记录另列，不声称12/12原身份完整。原Agent的工具完成仍taskstatus=running，最终run_completed=succeeded。
+
+实际状态模型测试覆盖：同原eventId的HTTP/SSE双交付只保留一次、数据库游标2031不由sequence8替代、暂停后相同run新trace允许sequence归零、网关兼容回放不重复回复/卡片/导航、兼容工具succeeded不结束任务。实时文本用协议delta字段，HTTP最终回答替换临时流气泡；历史卡与对应回复绑定，SavedState恢复不丢原卡。测试使用隔离替身验证合并规则，与上面真实9条配对分别标识，未把替身算真实网络故障。
+
+### 真实数据与故障
+
+公开业务均Android→Spring8080→D8091 `service.app:create_app`；随机注册隔离账号凭据仅.runtime，城市从GET目录取得，目前真实目录只有demo，不硬编码业务到Android。公开API11次成功场景有完整响应/单请求墙钟：6次问候/缺城市/补充/多轮/门店及5次订单/复合/准备/取消/复合恢复。单目标推荐多工具isComposite=false；真实DAG恢复34卡45事件，实际list_user_orders/search_stores/list_deal_packages，不调用禁止写工具。
+
+订单展示夹具是本任务随机用户独立待支付订单ecf6fcbb-e079-4d7d-b73b-d516d42e3a09，套餐/金额从真实Spring取，见order-fixture-provenance.json。只插隔离待支付展示订单及未支付券，不扣库存、不付款、无核销/售后，不能当作Task6购买闭环。原夹具文件7项SHA未变，包括Task8券/评价相关清单；不清库、不覆盖八券/七场景。
+
+故障首次及6F版本复验均真实：8091进程来源核验后停机制造不可达；中断则观察POST200/NDJSON连接已建，350ms后只停该新Agent；错误卡出现，恢复同入口后在原页点重试，两类error/retry均退出0，问题数before/after均1。原 `unreachable/interrupted-recovery.json` 与 `*-freeze-recovery.json` 各自保留；不把冷启动失败或状态替身算本测试。首轮6次实际冷启动失败保留readonly-chat-api-startup-failure.json，健康等待后复跑成功。
+
+### 命令与回归
+
+详见command-results.json，正式运行计数以可复核日志/结果为准；旧审计67+6次仅是历史只读命令，不等于实施工具总调用数。未能从终端精确重建全部探索/读取调用，不编造总数。
+
+- Android完整适用回归：153/153，0FAIL/ERROR/SKIP，android-final-regression.log/summary。之后新delta/确认/身份/账号/兼容状态补正逐步定向复验，最终49/49、构建0；不是把两次测试数相加声称202项独立覆盖。
+- Spring同源隔离完整215项：214PASS/1ERROR，失败仅SpringBootToolHttpContractTest缺旧Python客户端探针解释器，原失败JSON保留。补快照agent-service/src库及PYTHON_EXECUTABLE后相关4类20/20，backend-final-directed.json；没有启动旧Agent服务、没有回原真实目录跑会写H2清单的全量测试，也没有重写失败断言。
+- 红绿与修复保留：初始聊天3FAIL；即时流卡1FAIL；43项兼容回归2FAIL（新HTTP事件历史期望及流故障后HTTP成功恢复）；17项真实delta/准备卡2FAIL；账号绑定测试首次编译红；兼容工具终态10项1FAIL。各red日志独立留存，最终定向0失败。账号绑定红是缺方法的编译失败，不冒称运行时失败。
+- 非产品命令问题保留：Figma大base64首次命令行超长，改忽略目录分段导出；curl参数错误后改--noproxy；一次SSE WebRequest无限等待被终止，改curl最大窗口，exit28为主动截取窗口不是网络业务PASS；一次PowerShell rg通配路径失败，改-g过滤。具体原文件保留。
+- Maestro条件operation补槽分支未触发显示SKIPPED，明确不是运行过该分支；主流程/已必跑断言按各result.json退出码判定，不写全分支全绿。
+
+### 冻结归属、依赖与未覆盖
+
+完整逐文件写集 `task5-write-set.txt`，前像SHA/当前SHA `task5-freeze-manifest.json`，本人增量 `task5-own-source.patch`，明确边界 `scope-boundary.md`。源码31项=修改22项（含7个原未跟踪布局）+真正新增9项；运行器/流程13项另列。原先dirty的Task8分支保留前像，只按本轮差异交接，不整文件归Task5。
+
+MainActivity只有游客AI路由与本地账号隔离两个Task5 hunk；nav_graph **本任务零改动**，仅F显式点击需要已有groupOrderDetailFragment+orderId三行注册；其余购买/支付/券/退款/评价/帮助/投诉路由属后续。SessionRouteCoordinator没有相对BASE内容差异，不列本轮产品修改。FandaziApplication只有已有voucherRepository初始化是F读取依赖，purchase/afterSale变更不归本任务。其余原未跟踪订单页/模型/仓库/布局用确切SHA指认，无已提交最低版本就不编造提交号；详见scope-boundary，不承诺脱离原脏依赖可直接从干净BASE编译整应用。
+
+未覆盖/非阻塞：独立验收未运行；完整买/支付Task6、本人订单/券全套Task7、售后/FAQ/优惠券/评价Task8未本轮验收；ASR/核销延期；大审计payload8000容量缺陷仍可能丢审计，留Task12关注，9条小订单事件配对不证明所有大DAG审计完整；未做意图12类准确率/消融/并发/P95，EXP-016只是本轮11次墙钟与聊天状态。现有Task7详情“实付”与券状态等遗留页面不以F聊天卡正确为其背书。SavedState仅本地会话恢复，不宣称无限历史持久化。最新版本未泛化重跑全部已过场景，独立验收须按冻结源码/最新APK亲跑适用项。
+
+最终不stage/commit/创建Agent、不更改主plan/spec/UI确认状态、不进入Task6。已停止Maestro/Gradle占用并关闭本应用SSE，健康Spring/新Agent保留供接管，释放记录已落盘。控制端已有独立brief，可直接安排独立验收；本报告只给开发自测证据，不重复等待下一次验收指令。
+
+## 历史只读审计检查点（下方第1–8节均为04:31–04:42当时事实）
 
 - 状态：**NEEDS_CONTEXT**。仅完成本轮设计与源码审计；Task5 产品实现、开发自测和独立验收均未完成。
 - 记录日期：2026-10-02（Asia/Shanghai）；本轮现场核查时间约 04:31–04:38，收尾文件一致性核查另记于证据文件。

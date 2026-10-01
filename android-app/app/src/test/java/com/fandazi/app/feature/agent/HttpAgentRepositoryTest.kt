@@ -18,10 +18,94 @@ import org.junit.Test
 class HttpAgentRepositoryTest {
     private lateinit var server: MockWebServer
 
+    @Test
+    /** 通用准备确认使用公开摘要形成唯一卡片，不要求旧外卖地址，也不保存内部准备凭证。 */
+    fun publicPurchasePreparationBecomesSafeConfirmationCard() = runBlocking {
+        server.enqueue(MockResponse().setBody("""
+            {"status":"AWAITING_CONFIRMATION","message":"确认创建团购订单","nextAction":"confirmation_required",
+             "candidateCart":{"action":"create_group_buy_order","resourceId":"isolated-quote","title":"确认创建团购订单",
+             "amountCents":1200,"quantity":1,"ruleVersion":"deal-v1","expiresAt":"2030-01-01T00:00:00Z","confirmationGrantId":"hidden"},
+             "events":[],"cards":[]}
+        """.trimIndent()))
+        val result = HttpAgentRepository(server.url("/api/").toString(), { null })
+            .sendMessage("isolated", "准备购买", AgentMode.CONFIRM) as ApiResult.Success
+        assertEquals("confirmation", result.value.cards.single().type)
+        assertEquals("isolated-quote", result.value.cards.single().fields["resourceId"])
+        assertTrue(result.value.cards.single().fields.values.none { it.contains("hidden") })
+        assertNull(result.value.candidateCart)
+    }
+
 // 为测试准备依赖、替身和初始状态。
     @Before fun setUp() { server = MockWebServer().also { it.start() } }
 // 清理测试创建的资源与状态。
     @After fun tearDown() { server.shutdown() }
+
+    @Test
+    /** 同一公开确认卡已有完整补全时不得重复追加候选卡；私有字段不能进入页面模型。 */
+    fun enrichedConfirmationIsSingleAndDropsPrivateFields() = runBlocking {
+        server.enqueue(MockResponse().setBody("""
+            {"status":"AWAITING_CONFIRMATION","message":"核对","nextAction":"confirm_refund",
+             "candidateCart":{"voucherId":"voucher-x","reason":"行程变更","confirmationGrant":"hidden"},
+             "cards":[{"type":"after_sale_refund","voucherId":"voucher-x","storeName":"真实门店",
+             "dealTitle":"真实套餐","amountCents":3333,"confirmationGrant":"hidden","privateToken":"hidden"}]}
+        """.trimIndent()))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { null })
+        val result = repository.sendMessage("safe-session", "原因", AgentMode.CONFIRM) as ApiResult.Success
+        assertEquals(1, result.value.cards.size)
+        assertEquals("真实门店", result.value.cards.single().fields["storeName"])
+        assertTrue(result.value.cards.single().fields.keys.none { it in setOf("confirmationGrant", "privateToken") })
+    }
+
+    @Test
+    /** SSE原文字符串应正确解码，私有嵌套负载必须过滤，而待输入类型和状态仍完整保留。 */
+    fun waitingEventPreservesPublicTextAndRemovesPrivatePayload() = runBlocking {
+        server.enqueue(MockResponse().setHeader("Content-Type", "text/event-stream").setBody(
+            "id: 6\ndata: {\"type\":\"input_required\",\"summary\":\"请补充原因\",\"status\":\"waiting_input\",\"payload\":{\"reason\":\"a\\nb\",\"confirmationGrant\":\"hidden\",\"nested\":{\"privateToken\":\"hidden\"}}}\n\n"
+        ))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { null })
+        val event = withTimeout(2000) { repository.streamEvents("safe-session", 0).take(1).toList().single() }
+        assertEquals("input_required", event.type)
+        assertEquals("waiting_input", event.status)
+        assertEquals("a\nb", event.payload["reason"])
+        assertTrue(event.payload.values.none { it.contains("hidden") })
+    }
+
+    @Test
+    /** 售后确认摘要应进入独立卡片，且绝不能把一次性确认凭证或旧外卖购物车传给页面。 */
+    fun refundConfirmationUsesSafeCardWithoutLegacyCart() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody("""
+            {"status":"AWAITING_CONFIRMATION","message":"请核对退款","nextAction":"confirm_refund",
+             "candidateCart":{"voucherId":"voucher-7","orderId":"order-3","dealTitle":"双人餐",
+             "amountCents":8800,"expiresAt":"2026-12-31","reason":"行程变更","confirmationGrant":"should-not-render"},
+             "events":[],"cards":[]}
+        """.trimIndent()))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { "session-jwt" })
+
+        val result = repository.sendMessage("session-1", "行程变更", AgentMode.CONFIRM) as ApiResult.Success
+
+        assertNull(result.value.candidateCart)
+        assertEquals("after_sale_refund", result.value.cards.single().type)
+        assertEquals("行程变更", result.value.cards.single().fields["reason"])
+        assertTrue("confirmationGrant" !in result.value.cards.single().fields)
+    }
+
+    @Test
+    /** 后端待选券结果必须产生可点击的本人券卡，私有字段不进入页面模型。 */
+    fun voucherSelectionCreatesSafeChoiceCard() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(200).setBody("""
+            {"status":"NEEDS_INPUT","message":"请选择团购券","nextAction":"select_voucher",
+             "candidateCart":{"vouchers":[{"voucherId":"voucher-1","dealTitle":"双人餐",
+             "storeName":"川味小馆","expiresAt":"2026-12-31","privateToken":"secret"}]},"events":[]}
+        """.trimIndent()))
+        val repository = HttpAgentRepository(server.url("/api/").toString(), { "session-jwt" })
+
+        val result = repository.sendMessage("session-1", "我想申请退款", AgentMode.CONFIRM) as ApiResult.Success
+
+        assertEquals(AgentStatus.NEEDS_INPUT, result.value.status)
+        assertEquals("after_sale_voucher_choice", result.value.cards.single().type)
+        assertEquals("voucher-1", result.value.cards.single().fields["voucherId"])
+        assertTrue("privateToken" !in result.value.cards.single().fields)
+    }
 
     @Test
 // 验证 `sendsOnlyBearerTokenToPublicAgentMessageApi` 覆盖场景的预期行为与边界。

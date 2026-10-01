@@ -5,12 +5,14 @@ import androidx.lifecycle.SavedStateHandle
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.runCurrent
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -18,6 +20,102 @@ import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class AgentViewModelTest {
+    @Test
+    /** 选券只在用户气泡显示末8位，网络和重试仍传完整服务端券ID，不把展示摘要当作操作资源。 */
+    fun selectedVoucherBubbleUsesSuffixButRequestKeepsFullPublicId() = runTest {
+        val id = "f56983f3-bd37-4e01-aed2-00b775244693"
+        val repository = FakeAgentRepository(result = ApiResult.Success(AgentMessageResult(
+            AgentStatus.NEEDS_INPUT, "请选择团购券", "choose_voucher", null, emptyList(), cards = listOf(
+                AgentCardPayload("after_sale_voucher_choice", fields = mapOf("voucherId" to id, "canRefund" to "true"))
+            ))))
+        val vm = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        vm.sendText("申请退款")
+        advanceUntilIdle()
+        repository.result = ApiResult.Success(AgentMessageResult(AgentStatus.NEEDS_INPUT, "请补充原因", "collect_refund_reason", null, emptyList()))
+        vm.sendText(id)
+        assertEquals("选择券号末8位：75244693", vm.uiState.value.messages.last().text)
+        advanceUntilIdle()
+        assertEquals(id, repository.lastText)
+        vm.retry()
+        advanceUntilIdle()
+        assertEquals(id, repository.lastText)
+        // 重试沿用同一用户气泡，但两次网络请求仍使用完整服务端券 ID。
+        assertEquals(1, vm.uiState.value.messages.count { it.fromUser && it.text == "选择券号末8位：75244693" })
+    }
+
+    @Test
+    /** SSE待输入必须停止活动指示并恢复输入，不等待尚未返回的HTTP回答，也不能自动导航。 */
+    fun waitingInputEventStopsProgressWithoutFailureOrNavigation() = runTest {
+        val pending = CompletableDeferred<ApiResult<AgentMessageResult>>()
+        val repository = object : AgentRepository by FakeAgentRepository() {
+            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode) = pending.await()
+        }
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.openAssistant()
+        viewModel.sendText("我要申请退款")
+        runCurrent()
+        assertTrue(viewModel.uiState.value.isSending)
+        viewModel.onAgentEvent(AgentEvent(8, "input_required", "请补充退款原因", status = "waiting_input"))
+        assertFalse(viewModel.uiState.value.isSending)
+        assertEquals(null, viewModel.uiState.value.error)
+        assertEquals(null, viewModel.uiState.value.navigation)
+        pending.complete(ApiResult.Success(AgentMessageResult(AgentStatus.NEEDS_INPUT, "请补充退款原因", "collect_refund_reason", null, emptyList())))
+        advanceUntilIdle()
+    }
+
+    @Test
+    /** 忙碌中双击只发送一次；待输入后新轮回答不能被上一轮迟到HTTP覆盖。 */
+    fun duplicateSendIsBlockedAndLatePreviousReplyDoesNotReplaceNewTurn() = runTest {
+        val replies = listOf(CompletableDeferred<ApiResult<AgentMessageResult>>(), CompletableDeferred())
+        var calls = 0
+        val repository = object : AgentRepository by FakeAgentRepository() {
+            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode) = replies[calls++].await()
+        }
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.sendText("退款")
+        viewModel.sendText("退款")
+        runCurrent()
+        assertEquals(1, calls)
+        viewModel.onAgentEvent(AgentEvent(1, "input_required", "原因", status = "waiting_input"))
+        viewModel.sendText("行程变更")
+        runCurrent()
+        replies[1].complete(ApiResult.Success(AgentMessageResult(AgentStatus.AWAITING_CONFIRMATION, "新轮确认", "confirm_refund", null, emptyList())))
+        runCurrent()
+        replies[0].complete(ApiResult.Success(AgentMessageResult(AgentStatus.NEEDS_INPUT, "旧轮待输入", "collect_refund_reason", null, emptyList())))
+        advanceUntilIdle()
+        assertEquals("新轮确认", viewModel.uiState.value.messages.last().text)
+        assertEquals(null, viewModel.uiState.value.error)
+    }
+
+    @Test
+    /** 重连重放旧事件不能倒退游标，确认事件也是暂停而非失败。 */
+    fun repeatedOldEventKeepsCursorAndConfirmationStopsProgress() = runTest {
+        val viewModel = AgentViewModel(FakeAgentRepository(), SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.onAgentEvent(AgentEvent(20, "confirmation_required", "核对后确认", status = "awaiting_confirmation"))
+        viewModel.onAgentEvent(AgentEvent(12, "tool", "旧进度", status = "running"))
+        assertEquals(20L, viewModel.uiState.value.lastEventId)
+        assertFalse(viewModel.uiState.value.isSending)
+        assertEquals(null, viewModel.uiState.value.error)
+    }
+
+    @Test
+    /** 版本化waiting_confirmation即使由通用progress承载，也必须暂停，不依赖某个兼容事件名。 */
+    fun versionedWaitingConfirmationPausesEvenBeforeHttpCompletes() = runTest {
+        val pending = CompletableDeferred<ApiResult<AgentMessageResult>>()
+        val repository = object : AgentRepository by FakeAgentRepository() {
+            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode) = pending.await()
+        }
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.sendText("申请退款")
+        runCurrent()
+        viewModel.onAgentEvent(AgentEvent(21, "progress", "核对后确认", status = "waiting_confirmation"))
+        assertFalse(viewModel.uiState.value.isSending)
+        assertEquals(null, viewModel.uiState.value.error)
+        assertEquals(null, viewModel.uiState.value.navigation)
+        pending.complete(ApiResult.Success(AgentMessageResult(AgentStatus.AWAITING_CONFIRMATION, "核对后确认", "confirm_refund", null, emptyList())))
+        advanceUntilIdle()
+        assertEquals(null, viewModel.uiState.value.confirmation)
+    }
     @Test
 // 验证 `floatingAssistantIsLimitedToOrderingSurfaces` 覆盖场景的预期行为与边界。
     fun floatingAssistantIsLimitedToOrderingSurfaces() {
@@ -242,6 +340,73 @@ class AgentViewModelTest {
     }
 
     @Test
+// 验证 `firstMessageStartsProgressStreamBeforeSendingRequest` 覆盖场景的预期行为与边界。
+    fun firstMessageStartsProgressStreamBeforeSendingRequest() = runTest {
+        val repository = FakeAgentRepository(result = confirmationResult())
+        val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
+        viewModel.openAssistant()
+
+        viewModel.sendText("帮我点午餐")
+        advanceUntilIdle()
+
+        assertTrue(repository.streamWasStartedWhenMessageSent)
+    }
+
+    @Test
+    /** HTTP 事件作为 SSE 缺失时的历史回补保留；任务已结束，不能启动批量假进度动画。 */
+    fun responseEventsAreRetainedWithoutStartingBulkProgressAnimation() = runTest {
+        val responseEvents = listOf(
+            AgentEvent(null, "parsed", "已识别请求意图。"),
+            AgentEvent(null, "tool", "工具调用完成。", "search_merchants", "tool"),
+            AgentEvent(null, "tool", "工具调用完成。", "create_cart_draft", "tool")
+        )
+        val result = AgentMessageResult(AgentStatus.COMPLETED, "已完成", null, null, responseEvents)
+        val viewModel = AgentViewModel(
+            FakeAgentRepository(result = ApiResult.Success(result)),
+            SavedStateHandle(),
+            StandardTestDispatcher(testScheduler)
+        )
+        viewModel.openAssistant()
+
+        viewModel.sendText("帮我点午餐")
+        advanceUntilIdle()
+
+        assertEquals(responseEvents, viewModel.uiState.value.events)
+        assertFalse(viewModel.uiState.value.isSending)
+    }
+
+    @Test
+// 验证 `successfulResponseClearsAnEarlyProgressStreamFailure` 覆盖场景的预期行为与边界。
+    fun successfulResponseClearsAnEarlyProgressStreamFailure() = runTest {
+        val repository = FakeAgentRepository(streamFailure = true)
+        val viewModel = AgentViewModel(
+            repository,
+            SavedStateHandle(),
+            StandardTestDispatcher(testScheduler)
+        )
+        viewModel.openAssistant()
+
+        viewModel.sendText("30 元以内")
+        advanceUntilIdle()
+
+        assertEquals(null, viewModel.uiState.value.error)
+        assertEquals("好的", viewModel.uiState.value.messages.last().text)
+    }
+
+    @Test
+// 验证 `progressPresentationShowsOnlyLatestStepWhileRequestIsRunning` 覆盖场景的预期行为与边界。
+    fun progressPresentationShowsOnlyLatestStepWhileRequestIsRunning() {
+        val events = listOf(
+            AgentEvent(1L, "parsed", "已识别请求意图。"),
+            AgentEvent(2L, "tool", "正在执行工具", "search_merchants", "running"),
+            AgentEvent(3L, "tool", "正在执行工具", "create_cart_draft", "running")
+        )
+
+        assertEquals("📋  正在准备订单", AgentProgressPresentation.current(events, isSending = true))
+        assertEquals(null, AgentProgressPresentation.current(events, isSending = false))
+    }
+
+    @Test
 // 验证 `failedGatewayResultShowsRetryableErrorAndClearsConfirmation` 覆盖场景的预期行为与边界。
     fun failedGatewayResultShowsRetryableErrorAndClearsConfirmation() = runTest {
         val repository = FakeAgentRepository(result = confirmationResult())
@@ -316,17 +481,21 @@ class AgentViewModelTest {
         var result: ApiResult<AgentMessageResult> = ApiResult.Success(
             AgentMessageResult(AgentStatus.COMPLETED, "好的", null, null, emptyList())
         ),
-        private val events: List<AgentEvent> = emptyList()
+        private val events: List<AgentEvent> = emptyList(),
+        private val streamFailure: Boolean = false
     ) : AgentRepository {
         var lastText: String? = null
         var lastMode: AgentMode? = null
         var streamStartCursor: Long? = null
+        var streamWasStartedWhenMessageSent = false
+        private var streamStarted = false
         var grantRequests = 0
         var revokeRequests = 0
         var lastGrantAmount: java.math.BigDecimal? = null
 
 // 验证 `sendMessage` 覆盖场景的预期行为与边界。
         override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult> {
+            streamWasStartedWhenMessageSent = streamStarted
             lastText = text
             lastMode = mode
             return result
@@ -334,8 +503,12 @@ class AgentViewModelTest {
 
 // 验证 `streamEvents` 覆盖场景的预期行为与边界。
         override fun streamEvents(sessionId: String, afterEventId: Long?): Flow<AgentEvent> {
+            streamStarted = true
             streamStartCursor = afterEventId
-            return kotlinx.coroutines.flow.flow { events.forEach { event -> emit(event) } }
+            return kotlinx.coroutines.flow.flow {
+                if (streamFailure) error("session is not established yet")
+                events.forEach { event -> emit(event) }
+            }
         }
 
 // 验证 `grantThisTaskAuto` 覆盖场景的预期行为与边界。

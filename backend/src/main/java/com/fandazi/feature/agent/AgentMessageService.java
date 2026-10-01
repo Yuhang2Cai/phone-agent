@@ -52,16 +52,22 @@ public class AgentMessageService {
                 }).toList());
             }
         }
+        // 原事件身份供 HTTP/SSE 双交付去重，数据库事件主键仍独立作为 Last-Event-ID 游标。
+        // 从已校验的顶层复制，不使用业务 payload 中可能存在的同名值覆盖权威链路。
+        for (String key : java.util.List.of("schemaVersion", "eventId", "sequence", "runId", "traceId", "status")) {
+            if (event.get(key) != null) publicPayload.put(key, event.get(key));
+        }
         normalized.put("payload", publicPayload);
         event = normalized;
         String type = text(event.get("eventType"), "progress");
         String summary = AgentContractCompatibility.summary(payload(event));
         String toolName = textOrNull(payload(event).get("toolName"));
-        String status = text(payload(event).getOrDefault("stepStatus", event.get("status")), "running");
+        // 任务状态与步骤状态分别保存；步骤完成不意味着整个任务已经结束。
+        String status = text(event.get("status"), "running");
         // 公开进度携带任务标识供端上去重；审计故障不能把正常暂停或业务成功改为失败。
         Map<String, Object> content = new java.util.LinkedHashMap<>(payload(event));
-        content.put("runId", request.runId());
-        content.put("traceId", request.traceId());
+        content.putIfAbsent("runId", request.runId());
+        content.putIfAbsent("traceId", request.traceId());
         try {
             events.record(userId, request.sessionId(), type, summary, toolName, status, content);
         } catch (RuntimeException exception) {

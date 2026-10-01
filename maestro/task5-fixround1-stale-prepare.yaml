@@ -1,0 +1,40 @@
+# Task5 P1复现前置：只准备与取消，不执行确认交易，资源由本任务运行器动态提供。
+appId: com.fandazi.app
+---
+- launchApp
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "buy group buying deal ${TASK5_DEAL_ID} quantity 1"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: "取消本次操作"
+    timeout: 90000
+- takeScreenshot: "task5-fixround1-quantity1-prepared"
+- tapOn: "取消本次操作"
+- extendedWaitUntil:
+    visible: ".*已取消.*"
+    timeout: 90000
+- takeScreenshot: "task5-fixround1-quantity1-cancelled"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "buy group buying deal ${TASK5_DEAL_ID} quantity 2"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_order_meta"
+      text: "(?s).*数量：2.*"
+    timeout: 90000
+- takeScreenshot: "task5-fixround1-quantity2-prepared"
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/agent_order_meta"
+      text: "(?s).*数量：1.*"
+    direction: UP
+    timeout: 15000
+- takeScreenshot: "task5-fixround1-old-actions"

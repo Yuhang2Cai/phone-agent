@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-15 正式助手白色气泡与进度卡，独立于历史半屏助手配色。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/surface_card" />
+    <corners android:radius="16dp" />
+</shape>

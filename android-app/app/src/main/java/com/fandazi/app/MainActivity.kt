@@ -32,14 +32,10 @@ class MainActivity : AppCompatActivity() {
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         bottomNavigation = findViewById(R.id.bottom_navigation)
         bottomNavigation.setOnItemSelectedListener { item: MenuItem ->
-            // AI 助手使用正式导航页面；游客点击时先进入登录页，避免绕过 Agent 的认证门槛。
+            // 游客也进入唯一聊天路由，由 H 登录拦截卡禁用发送；仅点击立即登录才打开认证页。
             if (item.itemId == R.id.agentAssistantTab) {
-                if (applicationSession().state.value is SessionState.Authenticated) {
+                if (navHost.navController.currentDestination?.id != R.id.agentChatFragment)
                     navHost.navController.navigate(R.id.agentChatFragment)
-                } else {
-                    pendingProtectedDestination = R.id.agentChatFragment
-                    openLogin()
-                }
                 return@setOnItemSelectedListener false
             }
             if (navHost.navController.currentDestination?.id == item.itemId) return@setOnItemSelectedListener true
@@ -80,6 +76,12 @@ class MainActivity : AppCompatActivity() {
 
 // 处理 `navigateForSession` 相关逻辑。
     private fun navigateForSession(state: SessionState) {
+        // 认证切换时隔离 Activity 级聊天历史；游客与不同账号不复用旧消息、卡片或 SSE 游标。
+        ViewModelProvider(this, com.fandazi.app.feature.agent.AgentViewModelFactory(
+            (application as FandaziApplication).agentRepository
+        ))[com.fandazi.app.feature.agent.AgentViewModel::class.java].bindAuthenticatedOwner(
+            (state as? SessionState.Authenticated)?.user?.username
+        )
         ViewModelProvider(
             this,
             com.fandazi.app.feature.ordering.OrderingViewModelFactory(orderingRepository(), cartStateStore(), cartOwner())
