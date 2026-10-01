@@ -1,0 +1,366 @@
+[
+  {
+    "tests": 2,
+    "suite": "com.fandazi.core.money.CentsDecimalConverterTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.core.time.BusinessTimeTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.development.DevelopmentOrderFailureTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.address.AddressConcurrencyTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 2,
+    "suite": "com.fandazi.feature.agent.AgentAuthorizationConcurrencyTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.feature.agent.AgentCardEnrichmentTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 5,
+    "suite": "com.fandazi.feature.agent.AgentContractSchemaTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 6,
+    "suite": "com.fandazi.feature.agent.AgentGatewayTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 4,
+    "suite": "com.fandazi.feature.agent.AgentGatewayV1ContractTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 10,
+    "suite": "com.fandazi.feature.agent.AgentProtocolBoundaryTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.feature.agent.AgentRunIdentityTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 15,
+    "suite": "com.fandazi.feature.agent.AgentToolAuthorizationTest",
+    "failures": 15,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.feature.agent.AgentToolFieldBoundaryTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 2,
+    "suite": "com.fandazi.feature.agent.AutomationControllerTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 2,
+    "suite": "com.fandazi.feature.agent.AutomationDefaultAddressTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 2,
+    "suite": "com.fandazi.feature.agent.AutomationPolicyTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.agent.FlywayAgentSchemaValidationTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 9,
+    "suite": "com.fandazi.feature.agent.InternalV1ToolIntegrationTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.agent.SpringBootToolHttpContractTest",
+    "failures": 1,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 9,
+    "suite": "com.fandazi.feature.agent.Task1IndependentAcceptanceTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 4,
+    "suite": "com.fandazi.feature.agent.Task1NestedPublicEventAcceptanceTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.agent.Task1PublicToolAuditAcceptanceTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.feature.agent.Task3StreamInterruptionAcceptanceTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.feature.auth.AuthConflictIntegrationTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.auth.AuthControllerConflictMappingTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 6,
+    "suite": "com.fandazi.feature.auth.AuthControllerTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 9,
+    "suite": "com.fandazi.feature.cart.CartServiceTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 5,
+    "suite": "com.fandazi.feature.catalog.MerchantCatalogControllerTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 7,
+    "suite": "com.fandazi.feature.catalog.StoreDealApiTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 8,
+    "suite": "com.fandazi.feature.coupon.CouponAvailabilityTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 2,
+    "suite": "com.fandazi.feature.groupbuy.GroupBuyingSchemaTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.grouporder.GroupBuyingMigrationTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.grouporder.GroupBuyOrderIdempotencyTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.feature.grouporder.GroupOrderSummaryContractTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.order.CrossLayerOrderingFlowTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 10,
+    "suite": "com.fandazi.feature.order.DomainControllerTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.feature.order.OrderIdempotencyConcurrencyTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.order.OrderInventoryRollbackTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 9,
+    "suite": "com.fandazi.feature.order.OrderServiceTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 2,
+    "suite": "com.fandazi.feature.purchase.PurchaseConfirmationTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 8,
+    "suite": "com.fandazi.feature.refund.RefundEligibilityTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 4,
+    "suite": "com.fandazi.feature.review.ReviewEligibilityTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 4,
+    "suite": "com.fandazi.feature.support.CouponComplaintToolTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 5,
+    "suite": "com.fandazi.feature.support.FaqServiceTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.voucher.VoucherLifecycleTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.feature.voucher.VoucherTokenSecurityTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 3,
+    "suite": "com.fandazi.seed.GroupBuyingSeedDataTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 17,
+    "suite": "com.fandazi.seed.SeedDataLoaderTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.seed.SeedDisabledTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.seed.Task2DevelopmentFixtureTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.seed.Task2FixturesDisabledTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  {
+    "tests": 1,
+    "suite": "com.fandazi.seed.Task2FixturesProductionGuardTest",
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+]

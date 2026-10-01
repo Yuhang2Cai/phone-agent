@@ -1,0 +1,9 @@
+{
+  "exitCode": 0,
+  "skipped": 0,
+  "failures": 0,
+  "xml": "C:/fdz-build/.runtime/task4-independent/recheck-b99ea2882b0c4ace9d1a53bf9a48c144/snapshot/backend/target/surefire-reports/TEST-com.fandazi.seed.Task2DevelopmentFixtureTest.xml",
+  "suite": "com.fandazi.seed.Task2DevelopmentFixtureTest",
+  "tests": 1,
+  "errors": 0
+}
