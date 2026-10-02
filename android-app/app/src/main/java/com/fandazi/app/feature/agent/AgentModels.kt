@@ -32,7 +32,7 @@ sealed interface AgentNavigationRequest : Serializable {
     /** 只读券卡的显式点击打开该券详情；不发送退款确认或请求展示令牌。 */
     data class Voucher(val voucherPublicId: String) : AgentNavigationRequest
 
-    /** 卡片动作携带原公开摘要供状态入口校验；旧售后特定语句保持原默认调用兼容。 */
+    /** 卡片动作必须携带原公开摘要；默认空来源仅便于拒绝不完整调用，不赋予任何执行权限。 */
     data class AgentReply(val text: String, val sourceCard: AgentCardPayload? = null) : AgentNavigationRequest
 }
 
@@ -163,7 +163,9 @@ data class AgentUiState(
     /** 用户最后明确查看的公开卡片，只用于历史摘要，不作为服务端授权或自动写入参数。 */
     val viewedCard: AgentCardPayload? = null,
     /** 仅真实waiting_confirmation期间保留当前版本；历史消息卡继续显示，但不能因此获得可执行状态。 */
-    val pendingConfirmationCard: AgentCardPayload? = null
+    val pendingConfirmationCard: AgentCardPayload? = null,
+    /** 当前售后待输入候选或待确认摘要；历史卡片另存消息，不能凭历史可见性继续执行。 */
+    val pendingAfterSaleCards: List<AgentCardPayload> = emptyList()
 )
 
 data class ThisTaskAutoRequest(

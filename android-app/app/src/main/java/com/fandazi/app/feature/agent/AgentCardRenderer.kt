@@ -27,7 +27,7 @@ object AgentCardRenderer {
         onNavigate: (AgentNavigationRequest) -> Unit
     ) = render(fragment, container, cards, { false }, onNavigate)
 
-    /** 正式聊天传入当前摘要校验；未提供校验的旧调用共享确认默认关闭，其他卡片兼容原行为。 */
+    /** 正式聊天传入当前动作摘要校验；未提供校验的调用不能开放确认、取消或选券。 */
     fun render(
         fragment: Fragment,
         container: LinearLayout,
@@ -44,8 +44,8 @@ object AgentCardRenderer {
                 "voucher" -> renderVoucher(inflater, container, card, onNavigate)
                 "confirmation" -> renderConfirmation(inflater, container, card, isCurrentConfirmation, onNavigate)
                 "coupon" -> renderCoupon(inflater, container, card)
-                "after_sale_voucher_choice" -> renderVoucherChoice(inflater, container, card, onNavigate)
-                "after_sale_refund", "after_sale_complaint" -> renderAfterSale(inflater, container, card, onNavigate)
+                "after_sale_voucher_choice" -> renderVoucherChoice(inflater, container, card, isCurrentConfirmation, onNavigate)
+                "after_sale_refund", "after_sale_complaint" -> renderAfterSale(inflater, container, card, isCurrentConfirmation, onNavigate)
                 else -> renderUnknown(inflater, container, card)
             }
         }
@@ -75,6 +75,7 @@ object AgentCardRenderer {
 
     /** 待选券卡展示本人券事实；只有后端明确canRefund=true时用户才能点击完整公开券号。 */
     private fun renderVoucherChoice(inflater: LayoutInflater, container: LinearLayout, card: AgentCardPayload,
+                                    isCurrent: (AgentCardPayload) -> Boolean,
                                     onNavigate: (AgentNavigationRequest) -> Unit) {
         val voucherId = card.fields["voucherId"]?.takeIf(String::isNotBlank) ?: return
         val view = inflater.inflate(R.layout.item_agent_order_card, container, false)
@@ -88,8 +89,9 @@ object AgentCardRenderer {
         ).joinToString("\n")
         view.findViewById<TextView>(R.id.agent_order_action).apply {
             text = "选择此券"
-            isEnabled = card.fields["canRefund"] == "true"
-            setOnClickListener { onNavigate(AgentNavigationRequest.AgentReply(voucherId)) }
+            isEnabled = card.fields["canRefund"] == "true" && isCurrent(card)
+            // 点击时再次检查，避免页面重绘之前当前任务已被后端事件替换。
+            setOnClickListener { if (isCurrent(card)) onNavigate(AgentNavigationRequest.AgentReply(voucherId, card)) }
         }
         container.addView(view)
     }
@@ -255,6 +257,7 @@ object AgentCardRenderer {
 
     /** 售后确认卡只展示 Agent 公开摘要；用户点击按钮才发送确认语句。 */
     private fun renderAfterSale(inflater: LayoutInflater, container: LinearLayout, card: AgentCardPayload,
+                                isCurrent: (AgentCardPayload) -> Boolean,
                                 onNavigate: (AgentNavigationRequest) -> Unit) {
         val view = inflater.inflate(R.layout.item_agent_order_card, container, false)
         val refund = card.type.lowercase() == "after_sale_refund"
@@ -281,13 +284,14 @@ object AgentCardRenderer {
         }
         view.findViewById<TextView>(R.id.agent_order_action).apply {
             text = if (refund) "确认退款" else "确认投诉"
-            isEnabled = complete
+            isEnabled = complete && isCurrent(card)
             if (!complete) text = "摘要不完整，请重新查询"
-            setOnClickListener { onNavigate(AgentNavigationRequest.AgentReply(text.toString())) }
+            setOnClickListener { if (complete && isCurrent(card)) onNavigate(AgentNavigationRequest.AgentReply(if (refund) "确认退款" else "确认投诉", card)) }
         }
         view.findViewById<TextView>(R.id.agent_after_sale_cancel).apply {
             visibility = View.VISIBLE
-            setOnClickListener { onNavigate(AgentNavigationRequest.AgentReply(if (refund) "取消退款" else "取消投诉")) }
+            isEnabled = isCurrent(card)
+            setOnClickListener { if (isCurrent(card)) onNavigate(AgentNavigationRequest.AgentReply(if (refund) "取消退款" else "取消投诉", card)) }
         }
         container.addView(view)
     }

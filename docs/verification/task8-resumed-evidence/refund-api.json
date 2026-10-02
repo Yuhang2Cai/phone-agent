@@ -1,0 +1,110 @@
+[
+  {
+    "name": "本人按券读取真实已有申请",
+    "actual": 200,
+    "expected": 200,
+    "passed": true
+  },
+  {
+    "name": "申请身份与夹具领域服务写入一致",
+    "actual": "637d9416-c937-4a4e-a423-e4f34ce908c0",
+    "expected": "637d9416-c937-4a4e-a423-e4f34ce908c0",
+    "passed": true
+  },
+  {
+    "name": "真实待处理而非到账",
+    "actual": "REQUESTED",
+    "expected": "REQUESTED",
+    "passed": true
+  },
+  {
+    "name": "按申请编号与按券读取相同结果",
+    "actual": {
+      "voucherId": "8a1142d3-4d42-4be8-abf5-d634c385460c",
+      "orderId": "65383dde-c774-423d-895d-e99a8dfef388",
+      "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "dealId": "74a011ae-518a-4cfc-bcfe-d2ee6d537b7d",
+      "storeName": "山海食集春风店",
+      "dealTitle": "双人招牌盖饭套餐 1",
+      "expiresAt": "2026-11-01T12:02:23.482411Z",
+      "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "requestId": "637d9416-c937-4a4e-a423-e4f34ce908c0",
+      "amountCents": 10001,
+      "status": "REQUESTED",
+      "reason": "开发隔离场景：行程变化",
+      "createdAt": "2026-10-02T12:02:23.513392Z"
+    },
+    "expected": {
+      "voucherId": "8a1142d3-4d42-4be8-abf5-d634c385460c",
+      "orderId": "65383dde-c774-423d-895d-e99a8dfef388",
+      "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "dealId": "74a011ae-518a-4cfc-bcfe-d2ee6d537b7d",
+      "storeName": "山海食集春风店",
+      "dealTitle": "双人招牌盖饭套餐 1",
+      "expiresAt": "2026-11-01T12:02:23.482411Z",
+      "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "requestId": "637d9416-c937-4a4e-a423-e4f34ce908c0",
+      "amountCents": 10001,
+      "status": "REQUESTED",
+      "reason": "开发隔离场景：行程变化",
+      "createdAt": "2026-10-02T12:02:23.513392Z"
+    },
+    "passed": true
+  },
+  {
+    "name": "pending_payment资格拒绝",
+    "actual": 400,
+    "expected": 400,
+    "passed": true
+  },
+  {
+    "name": "reviewable资格拒绝",
+    "actual": 400,
+    "expected": 400,
+    "passed": true
+  },
+  {
+    "name": "refund_requested资格拒绝",
+    "actual": 400,
+    "expected": 400,
+    "passed": true
+  },
+  {
+    "name": "no_candidates资格拒绝",
+    "actual": 400,
+    "expected": 400,
+    "passed": true
+  },
+  {
+    "name": "他人不可读取申请",
+    "actual": 400,
+    "expected": 400,
+    "passed": true
+  },
+  {
+    "name": "游客不可读取申请",
+    "actual": 401,
+    "expected": 401,
+    "passed": true
+  },
+  {
+    "name": "Maestro 提交后申请持久化",
+    "actual": 200,
+    "expected": 200,
+    "passed": true
+  },
+  {
+    "name": "单券精确分摊金额",
+    "actual": 3334,
+    "expected": 3334,
+    "passed": true
+  },
+  {
+    "name": "界面选择原因与说明已保存",
+    "actual": "行程变更：Task8 schedule change",
+    "expected": "行程变更：Task8 schedule change",
+    "passed": true
+  }
+]

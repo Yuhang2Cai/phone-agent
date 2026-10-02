@@ -1,0 +1,135 @@
+"""Task8 当前购买契约下的独立边界验收：隔离注册账号并核实真实 MySQL 写入。
+
+从历史独立测试复制，仅补 Task6 必填 quoteId；原失败与售后断言全部保留。
+
+依赖现有 8080、8091 与共享环境；不重置七夹具，不修改数据库事实来取得通过，不记录密码或 JWT。
+测试创建的订单、付款、退款和投诉均通过公开业务接口完成；数据库连接仅执行参数化只读查询。
+"""
+
+import os
+import uuid
+from datetime import datetime, timezone
+from urllib.parse import urlsplit
+
+import httpx
+import jwt
+import pytest
+from sqlalchemy import URL, create_engine, text
+
+
+@pytest.fixture
+def backend():
+    """注册独立合成账号，并从共享环境连接业务 MySQL；凭据只在进程内传递。"""
+    parsed = urlsplit(os.environ["DB_URL"].removeprefix("jdbc:"))
+    engine = create_engine(URL.create("mysql+pymysql", username=os.environ["DB_USERNAME"], password=os.environ["DB_PASSWORD"],
+                                     host=parsed.hostname, port=parsed.port or 3306, database=parsed.path.lstrip("/"),
+                                     query={"charset": "utf8mb4"}), pool_pre_ping=True)
+    with engine.connect() as connection:
+        assert connection.execute(text("select database()")).scalar_one() == "fandazi_groupbuy_dev"
+    with httpx.Client(base_url="http://127.0.0.1:8080", trust_env=False, timeout=120) as client:
+        registered = client.post("/api/auth/register", json={"username": "ind8_" + uuid.uuid4().hex[:16], "password": uuid.uuid4().hex})
+        assert registered.status_code == 201
+        token = registered.json()["token"]
+        client.headers["Authorization"] = "Bearer " + token
+        # 解码只用于对本测试账号限定只读计数；真实 API 认证仍由 Spring 验证原始签名，不能以此冒充身份。
+        user_id = int(jwt.decode(token, options={"verify_signature": False})["sub"])
+        try:
+            yield client, user_id, engine
+        finally:
+            engine.dispose()
+
+
+def count_owned(engine, table, user_id):
+    """只允许两张售后表，使用参数化用户 ID 统计合成账号的实际记录，不读取其他用户正文。"""
+    assert table in {"refund_requests", "complaint_tickets"}
+    with engine.connect() as connection:
+        return connection.execute(text(f"select count(*) from {table} where user_id=:owner"), {"owner": user_id}).scalar_one()
+
+
+def purchase_paid_voucher(client):
+    """读取真实目录、报价、创建和模拟支付；不硬编码门店、套餐、金额、资格或资源编号。"""
+    stores = client.get("/api/stores")
+    assert stores.status_code == 200 and stores.json()
+    deals = client.get(f"/api/stores/{stores.json()[0]['publicId']}/deals")
+    assert deals.status_code == 200 and deals.json()
+    session = str(uuid.uuid4())
+    quote = client.post("/api/purchases/quotes", json={"dealId": deals.json()[0]["publicId"], "quantity": 1, "sessionId": session})
+    assert quote.status_code == 200
+    facts = quote.json()
+    # 当前购买入口绑定刚获取的报价身份，不能沿用历史省略 quoteId 的请求格式。
+    order = client.post("/api/group-orders", json={"quoteId": facts["quoteId"], "dealId": facts["dealId"], "quantity": 1, "sessionId": session,
+                        "confirmationGrant": facts["confirmationGrant"], "idempotencyKey": str(uuid.uuid4())})
+    assert order.status_code == 200
+    paid = client.post(f"/api/group-orders/{order.json()['orderId']}/mock-pay", json={"idempotencyKey": str(uuid.uuid4())})
+    assert paid.status_code == 200
+    return paid.json()
+
+
+def test_live_refund_validation_grant_binding_and_persisted_progress(backend):
+    """无申请、准备、非法原因、错误会话和越权均不写；合法 500 字原因只写一次并可按券重读。"""
+    client, owner, engine = backend
+    paid = purchase_paid_voucher(client)
+    voucher = paid["vouchers"][0]["publicId"]
+    session = str(uuid.uuid4())
+    assert count_owned(engine, "refund_requests", owner) == 0
+    assert client.get(f"/api/refunds/by-voucher/{voucher}").status_code == 404
+    prepared = client.post("/api/refunds/prepare", json={"sessionId": session, "voucherId": voucher})
+    assert prepared.status_code == 200
+    facts = prepared.json()
+    assert facts["amountCents"] == paid["totalCents"]
+    assert count_owned(engine, "refund_requests", owner) == 0
+    payload = {"sessionId": session, "voucherId": voucher, "reason": "验" * 500, "confirmationGrant": facts["confirmationGrant"]}
+    # 输入校验先于凭证消费：两次非法输入应都拒绝，随后原凭证仍能授权用户修正后的合法请求。
+    for reason in ["   ", "验" * 501]:
+        rejected = client.post("/api/refunds", json={**payload, "reason": reason})
+        assert rejected.status_code == 400
+        assert count_owned(engine, "refund_requests", owner) == 0
+    assert client.post("/api/refunds", json={**payload, "sessionId": str(uuid.uuid4())}).status_code == 400
+    assert count_owned(engine, "refund_requests", owner) == 0
+    submitted = client.post("/api/refunds", json=payload)
+    assert submitted.status_code == 200
+    result = submitted.json()
+    assert result["status"] == "REQUESTED" and result["amountCents"] == paid["totalCents"]
+    assert result["reason"] == payload["reason"]
+    assert datetime.fromisoformat(result["createdAt"].replace("Z", "+00:00")).tzinfo == timezone.utc
+    assert count_owned(engine, "refund_requests", owner) == 1
+    assert client.get(f"/api/refunds/by-voucher/{voucher}").json() == result
+    assert client.get(f"/api/refunds/{result['requestId']}").json() == result
+    assert client.post("/api/refunds", json=payload).status_code == 400
+    assert count_owned(engine, "refund_requests", owner) == 1
+    # 归属校验：第二账号只用于横向越权请求，不保存账号、令牌或资源完整响应。
+    other = client.post("/api/auth/register", json={"username": "ind8_" + uuid.uuid4().hex[:16], "password": uuid.uuid4().hex})
+    assert other.status_code == 201
+    headers = {"Authorization": "Bearer " + other.json()["token"]}
+    for path in [f"/api/refunds/by-voucher/{voucher}", f"/api/refunds/{result['requestId']}"]:
+        assert client.get(path, headers=headers).status_code == 400
+        assert client.get(path, headers={"Authorization": ""}).status_code == 401
+    assert client.post("/api/refunds/prepare", json={"sessionId": str(uuid.uuid4()), "voucherId": voucher}, headers=headers).status_code == 400
+    assert count_owned(engine, "refund_requests", owner) == 1
+
+
+def test_live_complaint_validation_prepare_and_exactly_one_ticket(backend):
+    """准备不生成工单；空白/超长/错会话拒绝，合法上限正文提交 OPEN 一次且重复不能再写。"""
+    client, owner, engine = backend
+    session = str(uuid.uuid4())
+    assert count_owned(engine, "complaint_tickets", owner) == 0
+    prepared = client.post("/api/complaints/prepare", json={"sessionId": session})
+    assert prepared.status_code == 200
+    assert count_owned(engine, "complaint_tickets", owner) == 0
+    payload = {"sessionId": session, "subject": "验" * 255, "description": "验" * 2000,
+               "confirmationGrant": prepared.json()["confirmationGrant"]}
+    # 四个独立输入拒绝都保持零工单，不能消耗合法准备授权导致后续修正不可继续。
+    for update in [{"subject": " "}, {"subject": "验" * 256}, {"description": " "}, {"description": "验" * 2001}]:
+        assert client.post("/api/complaints", json={**payload, **update}).status_code == 400
+        assert count_owned(engine, "complaint_tickets", owner) == 0
+    assert client.post("/api/complaints", json={**payload, "sessionId": str(uuid.uuid4())}).status_code == 400
+    assert count_owned(engine, "complaint_tickets", owner) == 0
+    submitted = client.post("/api/complaints", json=payload)
+    assert submitted.status_code == 200
+    result = submitted.json()
+    assert result["status"] == "OPEN"
+    assert result["subject"] == payload["subject"]
+    assert datetime.fromisoformat(result["createdAt"].replace("Z", "+00:00")).tzinfo == timezone.utc
+    assert count_owned(engine, "complaint_tickets", owner) == 1
+    assert client.post("/api/complaints", json=payload).status_code == 400
+    assert count_owned(engine, "complaint_tickets", owner) == 1

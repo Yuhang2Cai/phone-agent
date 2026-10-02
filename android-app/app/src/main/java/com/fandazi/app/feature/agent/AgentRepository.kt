@@ -254,9 +254,10 @@ class HttpAgentRepository(
             else -> return emptyList()
         }
         val summary = objectOrNull("candidateCart") ?: return emptyList()
+        // 规则版本随公开摘要透传供当前确认校验；缺失时仍拒绝，绝不在端侧猜测版本。
         val allowed = if (type == "after_sale_refund")
-            setOf("resourceId", "voucherId", "orderId", "dealTitle", "storeName", "amountCents", "expiresAt", "reason")
-        else setOf("orderId", "subject", "description", "expiresAt")
+            setOf("resourceId", "voucherId", "orderId", "dealTitle", "storeName", "amountCents", "expiresAt", "reason", "ruleVersion")
+        else setOf("orderId", "subject", "description", "expiresAt", "ruleVersion")
         val fields = allowed.mapNotNull { key -> summary.string(key)?.let { key to it } }.toMap()
         return listOf(AgentCardPayload(type = type, fields = fields))
     }

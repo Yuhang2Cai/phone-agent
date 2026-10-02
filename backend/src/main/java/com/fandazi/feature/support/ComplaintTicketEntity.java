@@ -36,7 +36,8 @@ public class ComplaintTicketEntity {
                                  String subject, String description) {
         this.publicId = publicId; this.user = user; this.orderId = orderId; this.voucherId = voucherId;
         this.subject = subject; this.description = description; this.status = ComplaintStatus.OPEN;
-        this.createdAt = LocalDateTime.now();
+        // 与订单/退款保持同一上海业务时区与微秒精度；API 再统一转换 UTC，不依赖操作系统默认时区。
+        this.createdAt = com.fandazi.core.time.BusinessTime.now();
     }
 
     public Long getId() { return id; }

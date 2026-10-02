@@ -38,7 +38,8 @@ class AgentViewModel(
         lastEventId = savedState[LAST_EVENT_ID] ?: 0L,
         createdOrderId = savedState[CREATED_ORDER_ID],
         viewedCard = savedState[VIEWED_CARD],
-        pendingConfirmationCard = savedState[PENDING_CONFIRMATION_CARD]
+        pendingConfirmationCard = savedState[PENDING_CONFIRMATION_CARD],
+        pendingAfterSaleCards = savedState.get<ArrayList<AgentCardPayload>>(PENDING_AFTER_SALE_CARDS)?.toList().orEmpty()
     ))
     val uiState = _uiState.asStateFlow()
     /**
@@ -121,15 +122,39 @@ class AgentViewModel(
      * 拒绝旧卡不追加问题、不发网络请求、不清当前摘要；普通输入仍由sendText处理。
      */
     fun replyToCard(request: AgentNavigationRequest.AgentReply): Boolean {
-        if (_uiState.value.isSending) return false
-        // 共享确认语句无绑定时必须拒绝；旧售后的“确认退款/取消退款”等特定通道不在此冒领。
-        if (request.sourceCard?.type == "confirmation" || request.text in setOf("确认", "确认支付", "取消")) {
-            if (!isCurrentConfirmation(request.sourceCard)) return false
-            val expected = if (request.sourceCard?.fields?.get("action") == "pay_mock_order") "确认支付" else "确认"
-            if (request.text != expected && request.text != "取消") return false
+        val card = request.sourceCard ?: return false
+        if (!isCurrentReplyCard(card)) return false
+        // 按卡片种类限定按钮语句，避免用退款摘要发送投诉命令或替换所选公开券号。
+        val allowed = when (card.type) {
+            "confirmation" -> setOf(if(card.fields["action"] == "pay_mock_order") "确认支付" else "确认", "取消")
+            "after_sale_refund" -> setOf("确认退款", "取消退款")
+            "after_sale_complaint" -> setOf("确认投诉", "取消投诉")
+            "after_sale_voucher_choice" -> setOf(card.fields["voucherId"])
+            else -> emptySet()
         }
+        if (request.text !in allowed) return false
         sendText(request.text)
         return true
+    }
+
+    /** 所有回复按钮共用当前版本检查；售后候选允许多张，但每张必须属于同一最新等待事件。 */
+    fun isCurrentReplyCard(card: AgentCardPayload?): Boolean {
+        if (card?.type == "confirmation") return isCurrentConfirmation(card)
+        val state = _uiState.value
+        if (card == null || card.confirmationIdentity == null || state.isSending || state.error != null ||
+            card !in state.pendingAfterSaleCards) return false
+        val fields = card.fields
+        // 选券只接受服务端明确资格；确认还要求完整摘要及真实截止时间，不以客户端推算替代。
+        if (card.type == "after_sale_voucher_choice") return fields["canRefund"] == "true" && !fields["voucherId"].isNullOrBlank()
+        val expiry = runCatching { java.time.OffsetDateTime.parse(fields["expiresAt"]).toInstant() }.getOrNull()
+        if (expiry?.isAfter(Instant.now()) != true || fields["ruleVersion"].isNullOrBlank()) return false
+        return when (card.type) {
+            "after_sale_refund" -> (!fields["resourceId"].isNullOrBlank() || !fields["voucherId"].isNullOrBlank()) &&
+                !fields["dealTitle"].isNullOrBlank() && !fields["reason"].isNullOrBlank() &&
+                fields["amountCents"]?.toLongOrNull()?.let { it >= 0 } == true
+            "after_sale_complaint" -> !fields["subject"].isNullOrBlank() && !fields["description"].isNullOrBlank()
+            else -> false
+        }
     }
 
     /** 判断按钮此刻是否仍属于有效等待摘要；完整字段相等防止同事件被替换金额/资源后误确认。 */
@@ -147,10 +172,18 @@ class AgentViewModel(
 
     /** 从现有公开事件给准备卡绑定原版本；缺任何身份时保留展示但不开放共享确认动作。 */
     private fun bindConfirmationCards(cards: List<AgentCardPayload>, events: List<AgentEvent>): List<AgentCardPayload> {
-        val event = events.lastOrNull { it.type == "confirmation_required" && !it.runId.isNullOrBlank() &&
-            !it.traceId.isNullOrBlank() && !it.eventId.isNullOrBlank() }
-        val identity = event?.let { AgentConfirmationIdentity(requireNotNull(it.runId), requireNotNull(it.traceId), requireNotNull(it.eventId), it.sequence) }
-        return cards.map { if (it.type == "confirmation") it.copy(confirmationIdentity = identity) else it }
+        return cards.map { card ->
+            // 普通只读卡不绑定动作身份；选券绑定待输入事件，确认绑定待确认事件。
+            val eventType = when(card.type) {
+                "after_sale_voucher_choice" -> "input_required"
+                "confirmation", "after_sale_refund", "after_sale_complaint" -> "confirmation_required"
+                else -> return@map card
+            }
+            val event = events.lastOrNull { it.type == eventType && !it.runId.isNullOrBlank() &&
+                !it.traceId.isNullOrBlank() && !it.eventId.isNullOrBlank() }
+            val identity = event?.let { AgentConfirmationIdentity(requireNotNull(it.runId), requireNotNull(it.traceId), requireNotNull(it.eventId), it.sequence) }
+            card.copy(confirmationIdentity = identity)
+        }
     }
 
     /** 同一失败轮重试沿用原问题气泡；正常新轮仍追加用户输入并清空当前临时进度。 */
@@ -174,6 +207,7 @@ class AgentViewModel(
                 cards = emptyList(),
                 // 新输入/重试立即撤销旧版本的客户端可执行状态，哪怕服务端沿用相同runId重新准备。
                 pendingConfirmationCard = null,
+                pendingAfterSaleCards = emptyList(),
                 events = emptyList(),
                 error = null,
                 isSending = true
@@ -293,6 +327,7 @@ class AgentViewModel(
                     candidateCart = null,
                     cards = cards,
                     pendingConfirmationCard = null,
+                    pendingAfterSaleCards = emptyList(),
                     error = AgentError.Server(userFacingFailure(result.error ?: result.message))
                 )
                 AgentStatus.AWAITING_CONFIRMATION -> state.copy(
@@ -303,6 +338,7 @@ class AgentViewModel(
                     candidateCart = cart,
                     cards = cards,
                     pendingConfirmationCard = cards.lastOrNull { it.type == "confirmation" && it.confirmationIdentity != null },
+                    pendingAfterSaleCards = cards.filter { it.type in setOf("after_sale_refund", "after_sale_complaint") && it.confirmationIdentity != null },
                     confirmation = cart?.takeIf(CandidateCart::isCompleteForConfirmation)?.toConfirmation(),
                     // 售后确认不用外卖购物车字段；其公开摘要已转成独立卡片，凭证留在 Agent 会话内。
                     error = if (result.cards.any { it.type == "confirmation" } || result.nextAction in setOf("confirm_refund", "confirm_complaint") ||
@@ -318,6 +354,8 @@ class AgentViewModel(
                     candidateCart = null,
                     cards = cards,
                     pendingConfirmationCard = null,
+                    pendingAfterSaleCards = if (result.status == AgentStatus.NEEDS_INPUT)
+                        cards.filter { it.type == "after_sale_voucher_choice" && it.confirmationIdentity != null } else emptyList(),
                     createdOrderId = cart?.orderId.takeIf { result.nextAction == "payment_followup" },
                     error = null
                 )
@@ -328,17 +366,18 @@ class AgentViewModel(
     /** 按单调游标接收公开事件；待输入和待确认都是正常暂停，不是失败或自动导航指令。 */
     private fun appendEvent(event: AgentEvent) = updateState { state ->
         if (event.id != null && event.id <= (state.lastEventId ?: 0L)) return@updateState state
-        val identity = state.pendingConfirmationCard?.confirmationIdentity
+        val identity = state.pendingConfirmationCard?.confirmationIdentity ?: state.pendingAfterSaleCards.firstOrNull()?.confirmationIdentity
         val samePendingTrace = identity != null && identity.runId == event.runId && identity.traceId == event.traceId
         // 已归档的等待回复仍可能收到真正终态；只撤销其自身版本，不用旧run终态关闭另一个当前摘要。
         val closesPending = samePendingTrace && event.type != "tool_result" &&
             (event.status?.lowercase() in setOf("succeeded", "completed", "failed", "cancelled") || event.type in setOf("error", "failed"))
-        val replacesPending = samePendingTrace && event.type == "confirmation_required" && event.eventId != identity?.eventId &&
+        val replacesPending = samePendingTrace && event.type in setOf("confirmation_required", "input_required") && event.eventId != identity?.eventId &&
             event.sequence != null && identity?.sequence != null && event.sequence!! > identity.sequence
         // 已归档回复的迟到/重放事件只推进数据库游标，不得被挪到正在输入的新轮。
         if (!replacesPending && event.traceId != null && state.messages.any { message -> message.events.any { it.traceId == event.traceId } })
             return@updateState state.copy(lastEventId = event.id ?: state.lastEventId,
-                pendingConfirmationCard = if (closesPending) null else state.pendingConfirmationCard)
+                pendingConfirmationCard = if (closesPending) null else state.pendingConfirmationCard,
+                pendingAfterSaleCards = if (closesPending) emptyList() else state.pendingAfterSaleCards)
         val updated = state.events.addIfNew(event)
         // SSE 游标可推进，但重复的原事件不能再次追加文本或卡片。
         if (updated.size == state.events.size) return@updateState state.copy(lastEventId = event.id ?: state.lastEventId)
@@ -367,6 +406,13 @@ class AgentViewModel(
             // 实时卡片与最终 HTTP 使用同一解码和脱敏规则；仅展示，不自动触发导航。
             cards = (state.cards + eventCards).distinct(),
             pendingConfirmationCard = pending,
+            // 新暂停摘要覆盖旧版本；终态/新任务撤销售后按钮，不清除历史消息中的展示内容。
+            pendingAfterSaleCards = when {
+                event.type in setOf("confirmation_required", "input_required") -> eventCards.filter { it.type.startsWith("after_sale_") && it.confirmationIdentity != null }
+                // 未归档的其他任务也可能迟到；只有本次摘要所属任务的终态才能撤销操作资格。
+                closesPending || (terminal && samePendingTrace) || event.type == "run_started" -> emptyList()
+                else -> state.pendingAfterSaleCards
+            },
             lastEventId = event.id ?: state.lastEventId,
             isSending = state.isSending && !paused && !terminal,
             // 等待HTTP期间也立即展示服务端补充提示；相同最终回答不会再次追加同一气泡。
@@ -483,6 +529,7 @@ class AgentViewModel(
         savedState[CREATED_ORDER_ID] = state.createdOrderId
         savedState[VIEWED_CARD] = state.viewedCard
         savedState[PENDING_CONFIRMATION_CARD] = state.pendingConfirmationCard
+        savedState[PENDING_AFTER_SALE_CARDS] = ArrayList(state.pendingAfterSaleCards)
     }
 
 // 更新状态。
@@ -511,5 +558,7 @@ class AgentViewModel(
         const val VIEWED_CARD = "agent_viewed_card"
         /** 本地当前等待摘要与原身份；历史卡另存messages，不能用历史存在替代等待阶段。 */
         const val PENDING_CONFIRMATION_CARD = "agent_pending_confirmation_card"
+        /** 售后原版本公开摘要，配置重建不使旧卡重新获得操作权。 */
+        const val PENDING_AFTER_SALE_CARDS = "agent_pending_after_sale_cards"
     }
 }

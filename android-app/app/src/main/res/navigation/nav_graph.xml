@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<navigation xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph"
-    app:startDestination="@id/authFragment">
+<navigation xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph" app:startDestination="@id/authFragment">
 
-    <fragment
-        android:id="@+id/authFragment"
-        android:name="com.fandazi.app.feature.auth.AuthFragment"
-        android:label="@string/login" />
+    <fragment android:id="@+id/authFragment" android:name="com.fandazi.app.feature.auth.AuthFragment" android:label="@string/login" />
 
-    <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.fandazi.app.feature.home.HomeFragment"
-        android:label="@string/home" />
+    <fragment android:id="@+id/homeFragment" android:name="com.fandazi.app.feature.home.HomeFragment" android:label="@string/home" />
 
-    <fragment
-        android:id="@+id/agentChatFragment"
-        android:name="com.fandazi.app.feature.agent.AgentChatFragment"
-        android:label="AI 助手" />
+    <fragment android:id="@+id/agentChatFragment" android:name="com.fandazi.app.feature.agent.AgentChatFragment" android:label="AI 助手" />
 
     <fragment android:id="@+id/searchFragment" android:name="com.fandazi.app.feature.search.SearchFragment" android:label="@string/search_page" />
     <fragment android:id="@+id/merchantFragment" android:name="com.fandazi.app.feature.merchant.MerchantFragment" android:label="@string/merchant_page">
@@ -51,5 +39,20 @@
     </fragment>
     <fragment android:id="@+id/voucherDetailFragment" android:name="com.fandazi.app.feature.voucher.VoucherDetailFragment" android:label="团购券详情">
         <argument android:name="voucherId" app:argType="string" />
+    </fragment>
+    <!-- 售后页面使用公开订单或券 ID，绝不把后端内部主键放入导航参数。 -->
+    <fragment android:id="@+id/refundRequestFragment" android:name="com.fandazi.app.feature.refund.RefundRequestFragment" android:label="申请退款">
+        <argument android:name="voucherId" app:argType="string" />
+    </fragment>
+    <fragment android:id="@+id/refundProgressFragment" android:name="com.fandazi.app.feature.refund.RefundProgressFragment" android:label="退款进度">
+        <argument android:name="requestId" app:argType="string" />
+        <argument android:name="dealTitle" app:argType="string" android:defaultValue="" />
+    </fragment>
+    <fragment android:id="@+id/reviewFragment" android:name="com.fandazi.app.feature.review.ReviewFragment" android:label="发布评价">
+        <argument android:name="orderId" app:argType="string" />
+    </fragment>
+    <fragment android:id="@+id/helpFaqFragment" android:name="com.fandazi.app.feature.support.HelpFaqFragment" android:label="帮助与客服" />
+    <fragment android:id="@+id/complaintFragment" android:name="com.fandazi.app.feature.support.ComplaintFragment" android:label="投诉与反馈">
+        <argument android:name="orderId" app:argType="string" android:defaultValue="" />
     </fragment>
 </navigation>

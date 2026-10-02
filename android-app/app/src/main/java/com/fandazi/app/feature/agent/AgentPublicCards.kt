@@ -54,11 +54,16 @@ internal object AgentPublicCards {
         return cards + listOfNotNull(confirmation)
     }
 
-    /** 只适配当前公共交易准备动作，售后保留原专用路径；所有摘要值原样复制并递归脱敏。 */
+    /** 根据公开动作生成同一种业务卡片；SSE 与 HTTP 的售后确认不再使用不同身份通道。 */
     fun confirmation(summary: JsonObject): AgentCardPayload? {
         val action = summary.get("action")?.takeIf { it.isJsonPrimitive }?.asString
-        if (action !in setOf("create_group_buy_order", "pay_mock_order")) return null
-        val card = summary.deepCopy().apply { addProperty("type", "confirmation") }
+        val type = when(action) {
+            "create_group_buy_order", "pay_mock_order" -> "confirmation"
+            "request_refund" -> "after_sale_refund"
+            "submit_complaint" -> "after_sale_complaint"
+            else -> return null
+        }
+        val card = summary.deepCopy().apply { addProperty("type", type) }
         return decode(card)
     }
 }

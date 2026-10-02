@@ -1,0 +1,50 @@
+{
+  "originalBytesUnchanged": true,
+  "requests": [
+    {
+      "path": "/meal.jpg",
+      "status": 503,
+      "bytes": 29
+    },
+    {
+      "path": "/meal.jpg",
+      "status": 503,
+      "bytes": 29
+    },
+    {
+      "path": "/meal.jpg",
+      "status": 503,
+      "bytes": 29
+    },
+    {
+      "path": "/meal.jpg",
+      "status": 200,
+      "bytes": 41914
+    },
+    {
+      "path": "/meal.jpg",
+      "status": 200,
+      "bytes": 41914
+    },
+    {
+      "path": "/meal.jpg",
+      "status": 200,
+      "bytes": 41914
+    }
+  ],
+  "stages": [
+    {
+      "stage": "same-url-503",
+      "exitCode": 0
+    },
+    {
+      "stage": "same-url-200",
+      "exitCode": 0
+    },
+    {
+      "stage": "null-refresh",
+      "exitCode": 0
+    }
+  ],
+  "markerRestored": true
+}

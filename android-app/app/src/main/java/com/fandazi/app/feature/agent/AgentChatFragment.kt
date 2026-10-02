@@ -135,7 +135,7 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
 
     /** 只在显式卡片点击时使用既有路由；文本和进度从不触发导航。 */
     private fun renderCards(cards: List<AgentCardPayload>) {
-        AgentCardRenderer.render(this, content, cards, viewModel::isCurrentConfirmation) { request ->
+        AgentCardRenderer.render(this, content, cards, viewModel::isCurrentReplyCard) { request ->
             cards.firstOrNull { card -> when (request) {
                 is AgentNavigationRequest.Store -> card.storePublicId == request.storePublicId
                 is AgentNavigationRequest.Deal -> card.dealPublicId == request.dealPublicId

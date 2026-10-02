@@ -1,0 +1,34 @@
+appId: com.fandazi.app
+---
+# 新隔离套餐的图片服务返回真实503，验证同一URL失败与点击重试；不发布评价、不修改已有套餐或资格。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/group_order_title"
+- tapOn:
+    id: "com.fandazi.app:id/group_order_review"
+- extendedWaitUntil:
+    visible: "图片加载失败，点击重试"
+    timeout: 30000
+- takeScreenshot: review-real-url-failed
+- tapOn:
+    id: "com.fandazi.app:id/review_star_5"
+- tapOn:
+    id: "com.fandazi.app:id/review_content"
+- inputText: "Image retry must keep my review text."
+- hideKeyboard
+- tapOn: "图片加载失败，点击重试"
+- extendedWaitUntil:
+    visible: "图片加载失败，点击重试"
+    timeout: 30000
+- assertVisible: "Image retry must keep my review text."
+- assertVisible: "非常满意"
+- assertVisible:
+    id: "com.fandazi.app:id/review_submit"
+    enabled: true
+- takeScreenshot: review-original-url-retried-input-kept

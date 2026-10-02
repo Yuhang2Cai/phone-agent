@@ -76,7 +76,7 @@ class HttpAgentRepositoryTest {
         server.enqueue(MockResponse().setResponseCode(200).setBody("""
             {"status":"AWAITING_CONFIRMATION","message":"请核对退款","nextAction":"confirm_refund",
              "candidateCart":{"voucherId":"voucher-7","orderId":"order-3","dealTitle":"双人餐",
-             "amountCents":8800,"expiresAt":"2026-12-31","reason":"行程变更","confirmationGrant":"should-not-render"},
+             "amountCents":8800,"expiresAt":"2026-12-31","ruleVersion":"refund-v1","reason":"行程变更","confirmationGrant":"should-not-render"},
              "events":[],"cards":[]}
         """.trimIndent()))
         val repository = HttpAgentRepository(server.url("/api/").toString(), { "session-jwt" })
@@ -86,6 +86,8 @@ class HttpAgentRepositoryTest {
         assertNull(result.value.candidateCart)
         assertEquals("after_sale_refund", result.value.cards.single().type)
         assertEquals("行程变更", result.value.cards.single().fields["reason"])
+        // 后端的公开规则版本是确认必要事实；兼容投影不能丢弃，也不能在客户端补默认值。
+        assertEquals("refund-v1", result.value.cards.single().fields["ruleVersion"])
         assertTrue("confirmationGrant" !in result.value.cards.single().fields)
     }
 

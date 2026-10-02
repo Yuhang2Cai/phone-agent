@@ -139,8 +139,8 @@ class AgentV1ToolBridge {
                 if (input.containsKey("dealId")) deals.require(text(input, "dealId"));
                 yield Map.of("coupons", coupons.list(userId).stream().map(AgentDomainProjection::coupon).toList());
             }
-            case "query_faq" -> Map.of("faqs", faqs.query(text(input, "question")).stream()
-                    .filter(value -> !input.containsKey("topic") || value.get("id").contains(text(input, "topic"))).toList());
+            // 模型传来完整问句而非页面搜索词；由后端知识目录召回，回答仍是原始审核内容。
+            case "query_faq" -> Map.of("faqs", faqs.queryForAgent(text(input, "question"), text(input, "topic")));
             case "submit_complaint" -> complaints.submit(userId, request.sessionId(), text(input, "orderId"), text(input, "subject"), text(input, "description"), text(input, "confirmationGrantId"));
             default -> throw new ToolBoundaryException("NOT_FOUND", "工具不存在");
         };

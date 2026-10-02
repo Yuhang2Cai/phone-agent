@@ -1,0 +1,81 @@
+appId: com.fandazi.app
+---
+# 独立历史动作实测：接续本次聊天退款成功页，不重装，不清登录或会话。
+# 新任务仅准备第三张券并取消，历史按钮必须禁用，不能替当前摘要执行写入。
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "我想申请退款"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      text: "选择此券"
+      enabled: true
+    timeout: 60000
+- tapOn:
+    text: "选择此券"
+    enabled: true
+- extendedWaitUntil:
+    visible: ".*退款原因.*"
+    timeout: 60000
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "独立验收历史动作边界"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      text: "确认退款"
+      enabled: true
+    timeout: 60000
+- takeScreenshot: history-current-confirmation
+# 已选过的历史券按钮即便仍显示，也不能重新选择或清除当前确认摘要。
+- scrollUntilVisible:
+    element:
+      text: "选择此券"
+      enabled: false
+    direction: UP
+    timeout: 30000
+- tapOn:
+    text: "选择此券"
+    enabled: false
+- assertNotVisible: "进行中"
+- takeScreenshot: history-voucher-disabled
+# 再向上找上一笔已经完成的确认，两种旧动作都必须保持禁用。
+- scrollUntilVisible:
+    element:
+      text: "确认退款"
+      enabled: false
+    direction: UP
+    timeout: 30000
+- tapOn:
+    text: "确认退款"
+    enabled: false
+- tapOn:
+    text: "取消本次申请"
+    enabled: false
+- assertNotVisible: "进行中"
+- takeScreenshot: history-confirm-cancel-disabled
+# 返回最新摘要仍可正常取消；第三张券只经过准备，不提交退款。
+- scrollUntilVisible:
+    element:
+      text: "确认退款"
+      enabled: true
+    direction: DOWN
+    timeout: 30000
+- assertVisible: ".*独立验收历史动作边界.*"
+- takeScreenshot: history-current-still-valid
+- tapOn:
+    text: "取消本次申请"
+    enabled: true
+- extendedWaitUntil:
+    visible: "已取消本次操作"
+    timeout: 60000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_order_action"
+    enabled: true
+- takeScreenshot: history-current-cancelled

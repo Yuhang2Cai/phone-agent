@@ -1,0 +1,636 @@
+{
+  "frozenAt": "2026-10-02T23:19:08.4551376+08:00",
+  "oldPrivateJsonCount": 775,
+  "oldPrivateJsonUnchanged": true,
+  "repositories": [
+    {
+      "repository": "C:/fdz-build",
+      "head": "f2f08035ed23676c88269d083b3536e200741ac0",
+      "indexTree": "1cc8fff9b0077672fd87d26a460a0fda5b7b7996",
+      "files": [
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/FandaziApplication.kt",
+          "indexBlob": "0bdaa2a3f68e521e6a021eba13f0392c7658e9c3",
+          "workingSha256": "4F8D0B3EC5F9C6E13BD4FA0808264EA8390AC8FB8ADC6970B689678AFE6A91FA"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentCardRenderer.kt",
+          "indexBlob": "f3d378d88385dcc9604be1a915ce4f52c2aabdd1",
+          "workingSha256": "33566CC45AC4606E6B41D32D1C4804863DFE40DDE1D7B33C76C7490DA0497356"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentChatFragment.kt",
+          "indexBlob": "42dc418367e81ff57ed0ce9a4dece064246f1c1f",
+          "workingSha256": "D505B476443610DFB487235E69A726AF25D95B1F233E5F024FFE4A980A22660B"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentModels.kt",
+          "indexBlob": "aea333e8938e7d1ce2fb8487b41458d8ad9a5829",
+          "workingSha256": "D25D14B9246D829E02722749CBCBC4FE1349C8609ED40D9B50FB4785DA5A471A"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentPublicCards.kt",
+          "indexBlob": "8a18fee79565109e8765676fa45743005fb144f2",
+          "workingSha256": "9C7A6CFA1CD65CA1EECD0DCBB637BA76E476A221F01F03B382795E71A149D363"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentRepository.kt",
+          "indexBlob": "5785b2aae7b59855723ee042ba53107c1ee69c1e",
+          "workingSha256": "8F465E79CD6E9592FE8A9A2CB34DD0EB2C874CBE139A4BF87A65285919C47D84"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentViewModel.kt",
+          "indexBlob": "364e2d07e365778056d71f7eee9d6e847795b8e0",
+          "workingSha256": "5C2E894EE4EC3876759F0B251386E17E2394046FE077E3AE7D1FAE3C9BEC276B"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/profile/ProfileFragment.kt",
+          "indexBlob": "68c6542bc8784fdbc865d4eb31dca3caca141daf",
+          "workingSha256": "024C1A218E808A4BA36951C7DCACAACE220BBC95816523A52D1310DC36CFB382"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/refund/RefundProgressFragment.kt",
+          "indexBlob": "547c9ec456b16bad29c306cffb9bb392bfeb64c8",
+          "workingSha256": "02ABD0625F974EBD52016B6F9509981A76119BE4B3F15800C5BBB3D4DC9A65FA"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/refund/RefundRequestFragment.kt",
+          "indexBlob": "90febfe8a35aafe0bc7198c5477b1edfb2935d19",
+          "workingSha256": "740A831B0CA9B2C72254B8A01EFB749235501ADCE48B9652608D97CFE82C2790"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/review/ReviewFragment.kt",
+          "indexBlob": "46867e4be0a0e201cf51766dc8adb92dca770dd0",
+          "workingSha256": "E2DD2EB41EA8010FBADF253E84CE9934A8612A857833EE4AAE8264EAFF7BADCF"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/support/AfterSaleRepository.kt",
+          "indexBlob": "c0686a6755b01a1b49856d89ce8420c4f68eda45",
+          "workingSha256": "875C8F3A6BD0D468BBB7E91A0971995F0609BAB45A98D9088580DED65002B802"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/support/ComplaintFragment.kt",
+          "indexBlob": "015ce3a5ae833b51ffc929afb08eaf5563b9f539",
+          "workingSha256": "D777BF13A07318FA887FC168F60272C97222DCC5FCB6287A7A89B907529C1A9A"
+        },
+        {
+          "path": "android-app/app/src/main/java/com/fandazi/app/feature/support/HelpFaqFragment.kt",
+          "indexBlob": "64a35b4a4330f0662693f38ce3ad3970ddbef8a3",
+          "workingSha256": "FA7C37180A1FF83FD775B00C958AF7F3CAD691BC462C66167D05123A3D31A3AB"
+        },
+        {
+          "path": "android-app/app/src/main/res/color/after_sale_chip_background.xml",
+          "indexBlob": "601634677c3e0aeff962f3a19b3d0daf7264b95d",
+          "workingSha256": "801F970ED0358E96BBA0CBC8F6DADED61807F7B19E32AC5CA4B0ECA38B1D20A0"
+        },
+        {
+          "path": "android-app/app/src/main/res/color/after_sale_chip_stroke.xml",
+          "indexBlob": "33d386782395247e35571633c9ea4af33e1f468c",
+          "workingSha256": "65B70998C49018DC2E8CEC820D68D513537F3580E22C13844C560274831DFCF7"
+        },
+        {
+          "path": "android-app/app/src/main/res/color/after_sale_chip_text.xml",
+          "indexBlob": "b985dd6da36905d2539b2be16e165a86257bb536",
+          "workingSha256": "22931F17F54B968A7AD5CA4E619B649A782FD64F301570A77FD820B52AC525F1"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/after_sale_image_placeholder.xml",
+          "indexBlob": "68afa93e11b4f192935e2c1b676ddc850b595db6",
+          "workingSha256": "D2BA308B9F51588E07A7CD49BC7A2CA873E6E1EE9C550C2F25F0390DFD82C2CC"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/after_sale_input.xml",
+          "indexBlob": "64b270673ae16772e038c50eac5f1a05c4cd717d",
+          "workingSha256": "1CA80AE5CDE689F37AE8D05640933E5E8F5D1AD086839DB3D9136B2A4AA27995"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/after_sale_step_active.xml",
+          "indexBlob": "20baa66f0b610a449368d9df8dad3a4b15abcff8",
+          "workingSha256": "22A3AA0970EA742E039A5F5DA92F52995F8F0291520AD92029559B41D813C489"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/after_sale_step_pending.xml",
+          "indexBlob": "2c2e61d771307b7535e26662ccee96a037cc44c1",
+          "workingSha256": "03D5BD1E91FB2BF80CE723CA08E3F8696D1A3375608771776D0A61F8201BAFE0"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/complaint_account_icon.png",
+          "indexBlob": "024cdff1a06f4d2eef8390c6c5180d16de8cbbb3",
+          "workingSha256": "27DF80644E65C3AFEFFD0444CD9A9564DFE1E9524060098843A6B4C26D2C3CF9"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/complaint_merchant_icon.png",
+          "indexBlob": "19d0f2068c33bf0ef8039edefe7b661b8121f5c1",
+          "workingSha256": "A672D3139783D898208597A17C22A46FC06FB8B0A51F3D5FB32A9737FB24D9E7"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/complaint_order_icon.png",
+          "indexBlob": "86735668657a8faaf31f225bb293f190dd463cb1",
+          "workingSha256": "D8136658A895E3DAC41BBD28176FF79807DE120EEC869FB6B8CDFDEE429ADFF5"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/complaint_other_icon.png",
+          "indexBlob": "a9812984f7461af9f538d40b0852d50ee1a00df4",
+          "workingSha256": "724E45418AF063E26D30A208F7A59A84861B0150237DE4906660FF0802094BF9"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/complaint_payment_icon.png",
+          "indexBlob": "1cc4f0a42c9365197016ea0255435c707f41d8d6",
+          "workingSha256": "BF5009E12FDF5DEA9982FF87122F275DA67E2CF19B07E22D17F9910BC7D47D6E"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/complaint_product_icon.png",
+          "indexBlob": "0af22d8e1d943ec96fccaf2f1ec78d62bcff557b",
+          "workingSha256": "EFE3595D005648EC1A28ED8FAAC75407F68122869DB06E8A935CBB0B3FCF9C14"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/faq_account.png",
+          "indexBlob": "5fa7c670fe574f354aa6a9cc9900669a6b889d13",
+          "workingSha256": "57B9696F2077C16CE4B693F747FC4B81FCCDEAE70C6AB0687540DFBC0006AADD"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/faq_complaint.png",
+          "indexBlob": "9eab2dc526178a25f1e92e3e1d178229fda6b463",
+          "workingSha256": "1B594690D9436C8F85EA8A4FC34025BF136CCEEF0354478711E0B88DA2B2E438"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/faq_contact.png",
+          "indexBlob": "d13b68c48dccfb48f6b28ac850b6256bc3b12960",
+          "workingSha256": "48F3C59F33356F7874F0CFEB31731006871220A010C8905BEE7AC25DD33E8F26"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/faq_purchase.png",
+          "indexBlob": "dd1c008af0aa81273b08e344b4de1eb1d6f1a858",
+          "workingSha256": "0BD970F6933D7A84C52D7C70D78FF5CEE57F54FA49781DC8F238D5728C3AB1E0"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/faq_refund.png",
+          "indexBlob": "bfb669e230586b463d82729efe9c4ae7a8e5854f",
+          "workingSha256": "302D554CA55D70B7AAF28CA00578E391D1E60F1BDE731A73D1B5F2843B62286C"
+        },
+        {
+          "path": "android-app/app/src/main/res/drawable/faq_voucher.png",
+          "indexBlob": "0f117e52a0a10e83b683b56bf70635718eda45c8",
+          "workingSha256": "D3C3F31127529B51AA6F2109CE232E9C13652CD98FF0A59F0363708AD32F664C"
+        },
+        {
+          "path": "android-app/app/src/main/res/layout/fragment_complaint.xml",
+          "indexBlob": "657f087615d0accd85459ad15749015f8480c5ba",
+          "workingSha256": "870A66B79D48ECA6968C1B840329808080D3A29454F7EFD2FE5CC4CB10132E0F"
+        },
+        {
+          "path": "android-app/app/src/main/res/layout/fragment_help_faq.xml",
+          "indexBlob": "cbb7df172d79b1e745ab940e287e758a157d8b94",
+          "workingSha256": "3182D575E0184E72AD2CD428B39D142B64D784C0C12651F4008214CD0941A7EB"
+        },
+        {
+          "path": "android-app/app/src/main/res/layout/fragment_profile.xml",
+          "indexBlob": "5d0a698be2b9aad3134cec18ee66d8f897b1fa4c",
+          "workingSha256": "13CA5047D391BAC561BC86708E49BA1E244D70A5DFA3824053B5272E2F17DDF7"
+        },
+        {
+          "path": "android-app/app/src/main/res/layout/fragment_refund_progress.xml",
+          "indexBlob": "52de455018e69d4be496e2e90243f50b6595a103",
+          "workingSha256": "2E03D25F71E3E624C52A6E25A60EC7F1EA0449D18F27FC81A876DE11D8E74789"
+        },
+        {
+          "path": "android-app/app/src/main/res/layout/fragment_refund_request.xml",
+          "indexBlob": "7b3b137b460525e26dbd9c496518a3f3fcfb8e2b",
+          "workingSha256": "F425866706C368A26C9C3E719AE3DBBA1AE24DEF4D40F581D1A992EC8FD73A75"
+        },
+        {
+          "path": "android-app/app/src/main/res/layout/fragment_review.xml",
+          "indexBlob": "9dc4b7ef74c69898e45454d37534d274bf17d7e1",
+          "workingSha256": "CF321343A7FAC476F6E4EE96726D4301D603E850C14FAB351F2ADB098C242943"
+        },
+        {
+          "path": "android-app/app/src/main/res/layout/item_faq_row.xml",
+          "indexBlob": "cd5ee2f7c65907f9bda630187cd4661c40226661",
+          "workingSha256": "D8F82D8BE24780D9D16B0A3D2B75CB371546D5AE4516F266F25160C47B7A3906"
+        },
+        {
+          "path": "android-app/app/src/main/res/navigation/nav_graph.xml",
+          "indexBlob": "99a7b35b88572e7f484ad0436ef77e4a9cb9e751",
+          "workingSha256": "23776E55191513CC98699493FFD6E87C4A6587B1DA4BFD930FB18B5A19B258B9"
+        },
+        {
+          "path": "android-app/app/src/main/res/values/colors.xml",
+          "indexBlob": "bd5ecb81d05d7f87d2b8f5e6e9773f046c567544",
+          "workingSha256": "28C5AE393C58B7617892616E1DAC87BA646AABAFEFB39E435C0BAEB096F824C3"
+        },
+        {
+          "path": "android-app/app/src/test/java/com/fandazi/app/core/image/AfterSaleImageLoaderTest.kt",
+          "indexBlob": "3e8906e13e1a8a52c08bd91964d70f0cfddeba9b",
+          "workingSha256": "7FB8C1254AFFEAE39BC198571D57D33F61B82811BE5111E6C368289EC2692110"
+        },
+        {
+          "path": "android-app/app/src/test/java/com/fandazi/app/feature/agent/AgentAfterSaleCardTest.kt",
+          "indexBlob": "b704992714fe935f350354f34734a095a046e07d",
+          "workingSha256": "368E5A69574C43DB0739DBB4D22270D419BF07D7DFFD9C2C1BE403BFEF9B56EC"
+        },
+        {
+          "path": "android-app/app/src/test/java/com/fandazi/app/feature/agent/HttpAgentRepositoryTest.kt",
+          "indexBlob": "0f4e98fcb78f85d1471c2baf9bab20a7e17167f9",
+          "workingSha256": "D2F38A96C8B8FDF8281C7069503B960314761764A80B61BCFA6579E6D569504E"
+        },
+        {
+          "path": "android-app/app/src/test/java/com/fandazi/app/feature/agent/Task8AfterSaleActionTest.kt",
+          "indexBlob": "2b315e51ae76d15ce9793c62dfce42a458e782f1",
+          "workingSha256": "0BE9DD254CAB28BFC465133223182867BCB600DE1DE0331EA30082A203E1815A"
+        },
+        {
+          "path": "backend/src/main/java/com/fandazi/development/DevelopmentOrderFailure.java",
+          "indexBlob": "e7abed1958548a0520c49e2454f055c2289eabc8",
+          "workingSha256": "2B6792EC7532B3F7412D52CE788F98A0A8C211C978621FCF048FC3157C794F46"
+        },
+        {
+          "path": "backend/src/main/java/com/fandazi/feature/agent/AgentV1ToolBridge.java",
+          "indexBlob": "dba290277394aceef52c6f27b938598e538638a3",
+          "workingSha256": "2CFD3640622EB7919609C7631BE6FFE164DD3C4F89146B60273D9100707322E8"
+        },
+        {
+          "path": "backend/src/main/java/com/fandazi/feature/coupon/CouponService.java",
+          "indexBlob": "b08279685258c3578d6a203c360aec7b6b419b47",
+          "workingSha256": "F66A6DDB69FA00EECB1C000B348049E1E08E1DF71A085311E0C96F82944A13CA"
+        },
+        {
+          "path": "backend/src/main/java/com/fandazi/feature/support/ComplaintController.java",
+          "indexBlob": "40970dd12b7c7c881778783a37026dfa3c467216",
+          "workingSha256": "0A5211402AAF00CC42CA739226EF6689E89753C8083D237A4953582AF0EDD606"
+        },
+        {
+          "path": "backend/src/main/java/com/fandazi/feature/support/ComplaintService.java",
+          "indexBlob": "e3c8ce458f75211449fcff9eb96fbbd73d044013",
+          "workingSha256": "89A88FFC85B79CE44404450CB334EE6429008C1FE56C2F12F8132B1FD463A303"
+        },
+        {
+          "path": "backend/src/main/java/com/fandazi/feature/support/ComplaintTicketEntity.java",
+          "indexBlob": "1800639b077e05b4056b8bc40c7f885fd903848a",
+          "workingSha256": "4CC445A7329F09DAB03EC2043FFEF1CD2F18E3C787B885642CB574DBA66CAF5B"
+        },
+        {
+          "path": "backend/src/main/java/com/fandazi/feature/support/FaqController.java",
+          "indexBlob": "bacbc437d25db3b808a8037614ab816620dbe1f4",
+          "workingSha256": "B0B48F0E56261CE08B3F0CD7786687735D0C73D1F922F5795C794C7259AE3AAE"
+        },
+        {
+          "path": "backend/src/main/java/com/fandazi/feature/support/FaqService.java",
+          "indexBlob": "874eb1a4892a9f9dee774c91a6257f754c04ed8c",
+          "workingSha256": "E0006302BA89DEB743A1D014EFF4316D3015EB12B1D01EEDEB97CEE04200B8DF"
+        },
+        {
+          "path": "backend/src/main/resources/application-development.yml",
+          "indexBlob": "07e9b2457a363074bfcb222524906aaba49c0cd0",
+          "workingSha256": "AC62326EA3B53AD16F032EECFD6C7F2AC23574AC5812EEF6E13A41832E8A6499"
+        },
+        {
+          "path": "backend/src/test/java/com/fandazi/development/DevelopmentOrderFailureTest.java",
+          "indexBlob": "683d11f3fab760d058774af8abc9da6dd4d39b76",
+          "workingSha256": "23B31727F8F789D3C061F4A87962FEC55D8567EAC816F2FB077F5B69636532FB"
+        },
+        {
+          "path": "backend/src/test/java/com/fandazi/feature/coupon/CouponAvailabilityTest.java",
+          "indexBlob": "abe3898c173e89db524d4ffe5fcab6b67015e37a",
+          "workingSha256": "F33048035FD7F162922A63D8CA8FB4A3A195EF0D6E07EBF58A445162DCAB084C"
+        },
+        {
+          "path": "backend/src/test/java/com/fandazi/feature/support/FaqServiceTest.java",
+          "indexBlob": "186419b8243c37bc5517b450f58c77723441aebf",
+          "workingSha256": "94844EF51565A598602A10190FC0C437C37AA521D83C82F3BFF2AA99C99B975E"
+        },
+        {
+          "path": "docs/superpowers/plans/2026-09-29-group-buying-agent-refactor-implementation.md",
+          "indexBlob": "8f499c80322037f7d916b4c0c93c93e99307c8df",
+          "workingSha256": "FF8E94AF93D903C50AB322B6D819BC22D9640A85ECF842C5C067BB7D77F0CBE1"
+        },
+        {
+          "path": "docs/verification/2026-10-02-task8-resumed-development.md",
+          "indexBlob": "74396bf1cc2639547677001f72d93bc45027e845",
+          "workingSha256": "BA7A219C2E049BD53DD24EB8782A2596ECAB791EE79F4AFB68443312907097CF"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/Capture-Baseline.ps1",
+          "indexBlob": "f2dcfdb40b4f3f5bf819e5b4b1fec95a142ee596",
+          "workingSha256": "33C57827C277591205EA78F976BC6649972D78B03E47EA48EDE224D85952D1E7"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/Prepare-Delivery.ps1",
+          "indexBlob": "3614e29fa77e9cd120d03f057e29460df3f37362",
+          "workingSha256": "DE02A9C5183F333593511FFC3F2D4B75CD05A7CC2A1C1FDC979F2EF558D82E06"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/Prepare-Fixtures.ps1",
+          "indexBlob": "60056f58dfa0500bc72745e25886f5cc400e6799",
+          "workingSha256": "B6CD58B721C31C7FCFECBE0D0220AF1A2B966BC753DFEC31E373520D710E1422"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/PrepareFixtures.java",
+          "indexBlob": "a3092e983bb7171a121898c589a8207eac44bb22",
+          "workingSha256": "7E8001FCF64CBE4C6B1603308BB47B1AECE7E066E72C101D49170DEBE60B427C"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/PrepareImages.java",
+          "indexBlob": "77134ba53809fc138f36a430d9054d5da978cf1d",
+          "workingSha256": "94526866D751A055D0C94ADF27B28231295C3A07BFFEE53C41BAFC20BE827E83"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/Scan-StagedSecrets.py",
+          "indexBlob": "cae58ecfebedba2526ff2f7c5b8da129e7684c07",
+          "workingSha256": "BAE5A91A2DB2EB674D26378D125FD3CAC99BB1879DA8D3DDEDD84A755418DA8C"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/baseline-summary.json",
+          "indexBlob": "3e98a287ed1ec7c905db42a0526149419f9be1d9",
+          "workingSha256": "AF8A673D5DADD0CD7CE60FB9B92E5117EDA75E97FB8E146BAF719C77C2EC473B"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/delivery-r2.json",
+          "indexBlob": "93783522360ebf394e538c1b625fcf609665f43d",
+          "workingSha256": "3BE3BFE384A394FEF1968A72ED44F74C024A9DE3DA3F4FAF44D7F4C9B3608D50"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/delivery-r3.json",
+          "indexBlob": "2d73ad402a85a1b212f28e8f51847f09c2c4dc22",
+          "workingSha256": "AA0A88A0510A80493D51269703AA31377B75C40CFAD196A1324738732FDA1645"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/delivery-r4.json",
+          "indexBlob": "0e5e34bee227709e6449c293cebc8f9264eb2c64",
+          "workingSha256": "F3657B3C525992B8275ED8CDAA8FEACDF3367751F3B6CEA94E245C5B9AAC6DC4"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/delivery-r5.json",
+          "indexBlob": "ed093146f10a2b816dfea1965e0b0e943cf6c966",
+          "workingSha256": "DA7A2CCFAAA11CFA7395AF4250E6801D643E004F05CC1D210E5193789364268D"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/facts-after86.json",
+          "indexBlob": "3c2f83ec2e9455afe7f06136152534be5d61ace1",
+          "workingSha256": "FFBD21A252C3BFA15F27293C7CA735E84BD20286FB8CDFF30892A0A2388C34CB"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/facts-fixtures.json",
+          "indexBlob": "7d9837ee7e3dc41069c9bb73d1414ae0e54fbb76",
+          "workingSha256": "866611FABA6DCADCE6DD9F56D70C64D1246523E5AE5C3AE772A2C96979900216"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/facts-preacceptance.json",
+          "indexBlob": "21fcda04f3375bdbca5f005e893ae0621ad34cf0",
+          "workingSha256": "E0A2A91B99ABABE588FFEDEA801DD7240FF44769DDE711E3B7E796320C5C2EEF"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/facts-start.json",
+          "indexBlob": "a14e54408d4eef8163c4c8b79fb4e3c3159a472b",
+          "workingSha256": "3F965C8F6E654BBE2ABEE5371A360925EE76D25DD218AED354E771D367D7F596"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/guard_facts.py",
+          "indexBlob": "4fa5b322d7633eb22025e8d18193c8fd07100f23",
+          "workingSha256": "FD16AF008A06BAE1A95EA664BB13ADC1977E6803F5D3012C59A9F1D29ACC7713"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/image_server.py",
+          "indexBlob": "8b47dcb207be7093c722666e7862ca6ce2b12a20",
+          "workingSha256": "5010AA311C9A5A52D405BA368BF8C1F15E9BEF553805FE42B3CACAC5FFEDF8F6"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/prepare_coupon.py",
+          "indexBlob": "35e5b63b432c972310371b3eafaa21c1a4a6972c",
+          "workingSha256": "4008B064D6AFFFA8552914399FF7A84B20BD47D258EACD3EC7CA78799900AC84"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/refund-api.json",
+          "indexBlob": "ab8047436bf6217d6a54b3258dec270b6ee733c7",
+          "workingSha256": "5ACA1F87CD13D62B33E93A316B1027BE7C722CA1FCE6AE12D0BE95F5024AEA95"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/resource-edges-r2.json",
+          "indexBlob": "46b8716b28f563b5efd730881c453b16bdc35e2b",
+          "workingSha256": "8A66A96E8511644E54F96F9677791C85DD2DA7E5B10F6E4EC8CD1DF1868FAC64"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/resource-edges-r3.json",
+          "indexBlob": "2f971799d2b1584ffcec5bcdec56ac1fa4a44037",
+          "workingSha256": "113CC044557A5E2242716FA9E137FB3D6CB1DB604CA78EE61B277AB7BBFE26A8"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/resource-edges-r4.json",
+          "indexBlob": "46b8716b28f563b5efd730881c453b16bdc35e2b",
+          "workingSha256": "8A66A96E8511644E54F96F9677791C85DD2DA7E5B10F6E4EC8CD1DF1868FAC64"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/resource-edges-r5.json",
+          "indexBlob": "2f971799d2b1584ffcec5bcdec56ac1fa4a44037",
+          "workingSha256": "113CC044557A5E2242716FA9E137FB3D6CB1DB604CA78EE61B277AB7BBFE26A8"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/source-start.json",
+          "indexBlob": "4b30270dc6ca67192304947433d7a91090bda88e",
+          "workingSha256": "6E48BEAAFBA352274F5AEED0F94C2614C98B7C7AC87120FC7EC89BB9942936F7"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/staged-secret-scan.json",
+          "indexBlob": "b26a179f767322b821dcdc2303a81d2aed08c9ff",
+          "workingSha256": "3B207BEC09F6CB0AA1D49FADF3110160E3EE49DB08867C8FBA1E16A0BA3D272B"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/task8-write-set.txt",
+          "indexBlob": "43648913b49152e184e71a5353af036cb447789c",
+          "workingSha256": "9E5C6EDD63AFF5DC5145B3A1BE6E9BF5BFBB182FF00B10D2C861779D2DAECF2D"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/ui-writes.json",
+          "indexBlob": "2c6c76ee10472a971389352813261dcf78745b53",
+          "workingSha256": "61422CB4AABA0C7D50737BD2EB27FA26A25A91370693F367B0D88A980F85929D"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/verify_refund.py",
+          "indexBlob": "ed2b2586e224fb586e21e43d1720c80f8977e314",
+          "workingSha256": "8DBC5FAE5050509C7E33868872E5227F1D7359B80A98EF2C3ADCC733B56584C5"
+        },
+        {
+          "path": "docs/verification/task8-resumed-evidence/verify_ui_writes.py",
+          "indexBlob": "9aabfa68e5b47d5fcbaf1ffe60fb41f79910c71d",
+          "workingSha256": "356FB8083F30A17EE4011FE222226423434E8C66520D4BBDFDEA03A529A5E817"
+        },
+        {
+          "path": "docs/verification/task8-service-evidence/create_coupon_ui_fixture.py",
+          "indexBlob": "d9064678681f9e912d0501ff4437816b16ddb841",
+          "workingSha256": "D9E3EE78B30A38BEDCC38CC3D85182438034CF75A73EC92D32DE98A86B133639"
+        },
+        {
+          "path": "docs/verification/task8-service-evidence/test_agent_mysql_acceptance.py",
+          "indexBlob": "6abc209e2aea483caf8c9ac2573edf4afd78daf9",
+          "workingSha256": "700C9268431312977405A01BAAB5DEA87B6DBB197BB9B48241386A601443DB6E"
+        },
+        {
+          "path": "docs/verification/task8-service-evidence/test_coupon_ui_fixture_guards.py",
+          "indexBlob": "a83519417db891423ce29b468dc8889ecbdacb3b",
+          "workingSha256": "E78D8FD40C22DB17EB69DC5B3DE3EE679816DFE351CC19C90F30CAC1617F368F"
+        },
+        {
+          "path": "docs/verification/task8-service-evidence/test_live_coupon_projection.py",
+          "indexBlob": "b4bdb56e026592b6d0d3f52248056e07c274e915",
+          "workingSha256": "54DBCFE3460332BED803E2F8A462B903735EC3B296288D3692F03D770105DA9F"
+        },
+        {
+          "path": "docs/verification/task8-service-evidence/test_live_write_boundaries.py",
+          "indexBlob": "34e0e242e534b98db2cc5f5cc6f83ff656714cc3",
+          "workingSha256": "16EBAA2E740A22A6C0C4858258EBAD556637DD7C67B7DCACEDE7E2CC6DD34968"
+        },
+        {
+          "path": "maestro/group-buying-05-after-sale.yaml",
+          "indexBlob": "e1f39d5f2e32180e97da1399ffa59bba82f88774",
+          "workingSha256": "9AD9CEE93D23F47AFFA2F77A3EAA9A3FD51F16784E3FB99BB70A49313FADF551"
+        },
+        {
+          "path": "maestro/group-buying-05-agent-composite-result.yaml",
+          "indexBlob": "92ef4376188b73a83a956a4e764cb35213507721",
+          "workingSha256": "66E60E7322DFB5C91406A3A4E9C8ABD7B857034B17F581B5B22C104A117C8D14"
+        },
+        {
+          "path": "maestro/group-buying-05-agent-composite.yaml",
+          "indexBlob": "5b3339f995e72f216355200bc5740878e2696e93",
+          "workingSha256": "DC0E3CBF6A9F2499F205A51007F8E60E5902C75240E2C1794CEDC6D868457363"
+        },
+        {
+          "path": "maestro/group-buying-05-agent-coupon.yaml",
+          "indexBlob": "20167b9b8d28df0f2fa32707d8f4122e41be6287",
+          "workingSha256": "44323A644C4361B07A933A38D0611046A94EEC457965227C0B17F3A3A19E53D0"
+        },
+        {
+          "path": "maestro/group-buying-05-agent-refund.yaml",
+          "indexBlob": "e859641671799161ffed8d343dd34d75c684eec5",
+          "workingSha256": "059803CF05D8346F11223100217A2915DCE53CC48BCE348E400A345FF649E0B8"
+        },
+        {
+          "path": "maestro/group-buying-05-agent-support.yaml",
+          "indexBlob": "21832befa384224bf12c19878e07702b8ffc2506",
+          "workingSha256": "3F767D8BC1FC3644FFE32A670DA10ED6FA31854036CBC678715A483A5EAC18FC"
+        },
+        {
+          "path": "maestro/group-buying-05-exceptions-run.ps1",
+          "indexBlob": "75c523986454a80db5c0d46da759c5f24f19f60c",
+          "workingSha256": "7243C0E21E565E93373C03166BB34333DC2845875DCF723EB333418A3D414E3F"
+        },
+        {
+          "path": "maestro/group-buying-05-image-null.yaml",
+          "indexBlob": "debcc66ba84fc2b375ebe0a6d6d9923ed9216cd0",
+          "workingSha256": "F2E0F47E03307F39BE33B2E57F6BC46CF16C3663237A5E1D1C28DC90C408294F"
+        },
+        {
+          "path": "maestro/group-buying-05-image-retry-recover.yaml",
+          "indexBlob": "d7fd4979df21dd4fd8663ca9a10329492a3ad5dc",
+          "workingSha256": "2C864C26E3C056B4E120D8850190EFA4EB907F276812E210D21185A1B0B7DB48"
+        },
+        {
+          "path": "maestro/group-buying-05-image-retry.yaml",
+          "indexBlob": "10b7fd8ea500e4d6185612d74703b63268cdeac4",
+          "workingSha256": "9E76530325B9459BD7B7B7D92CFC663CC55ED9EF788DB5EB39753116615BF3B4"
+        },
+        {
+          "path": "maestro/group-buying-05-login.yaml",
+          "indexBlob": "df8607713e33568de03fa633ab56dfb5019cd386",
+          "workingSha256": "691738EF1E168268ADD2D440923FCB3CE41CE96982431269CBD7CB367ACF79E6"
+        },
+        {
+          "path": "maestro/group-buying-05-orders-empty.yaml",
+          "indexBlob": "51b6c6d98f3dcc38936417f11faab4056495629b",
+          "workingSha256": "FADC471C155AB951693F07FE0A25E17FC4F9182664DF69DCF2C0E8A92C250C88"
+        },
+        {
+          "path": "maestro/group-buying-05-orders-error.yaml",
+          "indexBlob": "40cb7634871bd80f371beb1cd2132441cd461522",
+          "workingSha256": "59805096F813A0FAD7F50C407FBE6D19C8EF499F4EB61DD7BAE6E990485A1B6D"
+        },
+        {
+          "path": "maestro/group-buying-05-orders-network-recover.yaml",
+          "indexBlob": "3dfb875d12df591f093f59d4d253bffe1c834583",
+          "workingSha256": "0445C6925FEEC4A43BA246B17C47E436FF9E7B7070F272E2B6503AEE7236ADC9"
+        },
+        {
+          "path": "maestro/group-buying-05-orders-network.yaml",
+          "indexBlob": "d0e71ecc5bc32d1ec7d0ab0838fe154fc729f8bf",
+          "workingSha256": "5C652CE2921DFF7BFB08A0097B6AF7A5092BD4613577E04F74414C5FE0D42270"
+        },
+        {
+          "path": "maestro/group-buying-05-refund-reentry.yaml",
+          "indexBlob": "bffd9dc2ac8bba5833d68e189af3d44a2c9c1799",
+          "workingSha256": "EB4FD3C41C2C5A4FA43B9C4E169125ECF25CC99F1514BF6730E7F157A3C45BE4"
+        },
+        {
+          "path": "maestro/group-buying-05-refund.yaml",
+          "indexBlob": "8aca115f1cd93913fc443964902fd7f77b34cee2",
+          "workingSha256": "D101840152F82FD526C0E427D5D8976906EE67AB1A05F20020BBD3B5ECBF1F6A"
+        },
+        {
+          "path": "maestro/group-buying-05-review.yaml",
+          "indexBlob": "23f5131cb8018fe81c61b8ac5cbf831a635b62c7",
+          "workingSha256": "75414BC2F156F25754320A0844A2F8FD3C7C1F38D796768BEC28D4E1DD80B8DA"
+        },
+        {
+          "path": "maestro/group-buying-05-run.ps1",
+          "indexBlob": "479df361386852face9142d08a738ad73d5d5341",
+          "workingSha256": "A337064F194E397304232391FDC1A322411AB52F9F1C7BC00909F38792F6988A"
+        },
+        {
+          "path": "scripts/Start-Task8Services.ps1",
+          "indexBlob": "c7556893d0f2937a7a53b7aa6773aa6a321170de",
+          "workingSha256": "8ABEDAC2E6BF260BEA840DC4196A3AC14F75052A43A065674BD5670E9E7DB7CB"
+        }
+      ]
+    },
+    {
+      "repository": "D:/project/-Demo-master",
+      "head": "9fdc5e16146423120bab18a722090643fa0d3203",
+      "indexTree": "0d29e30b066dd0b33d8cf244fa75d71ee3d5995a",
+      "files": [
+        {
+          "path": "docs/experiments/intent-routing-experiments.md",
+          "indexBlob": "de90c2dbb8ab5a0ad2ba1a705524764aaeb467ab",
+          "workingSha256": "02B8F5A030C81956584C0D23302C9321003825F91ACC139AF4157854F9FB9C11"
+        },
+        {
+          "path": "service/dag_runtime.py",
+          "indexBlob": "f2b0a09b9b6d8f1719be83f3ac836f4cf7aebecf",
+          "workingSha256": "91025F6511910C18831C3E0C1B1460135204149E07D95A4224378EAE5F5A721C"
+        },
+        {
+          "path": "service/engine.py",
+          "indexBlob": "79b26880348e5382083c52940f4228bb5cb806f8",
+          "workingSha256": "FA980CBF47D7CBCC694890CA89E547B9D942ADFC6380F527F9787EF2C590577F"
+        },
+        {
+          "path": "tests/test_after_sale_workflow.py",
+          "indexBlob": "41a861da0429088b123e3af4b240e5ca49ca1b51",
+          "workingSha256": "21C355F9474796C652A69124BDAF344074237BAFEA8E3965D3B3C44FFEC22442"
+        },
+        {
+          "path": "tests/test_agent_service_reads.py",
+          "indexBlob": "9753aa2ceb657c3e5b0cbfd43dca001e9d0b4d99",
+          "workingSha256": "93DBFFC0F92B105E53A9F7AD72BC927F099652BB494E411CC07D0339522DA76A"
+        },
+        {
+          "path": "tests/test_task8_support_live.py",
+          "indexBlob": "f77956aebb6b7f519323ef5825a789fcf24a3eb6",
+          "workingSha256": "ADEE777602A6DE860CBA1C4EBD2DDADD3122AF49914DE347677B6C087C786753"
+        }
+      ]
+    }
+  ],
+  "services": [
+    {
+      "pid": 9932,
+      "port": 8080
+    },
+    {
+      "pid": 12632,
+      "port": 8091
+    },
+    {
+      "pid": 2464,
+      "port": 8768
+    }
+  ],
+  "note": "冻结后仅独立验收者操作设备和服务；本清单不暂存以避免自引用，待验收后归档。"
+}

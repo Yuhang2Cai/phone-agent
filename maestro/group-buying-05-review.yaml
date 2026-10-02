@@ -1,0 +1,61 @@
+appId: com.fandazi.app
+---
+# reviewable 开发夹具已有真实核销事实；完整验证必填、五种星级、发布和返回后的资格刷新。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/group_order_title"
+- tapOn:
+    id: "com.fandazi.app:id/group_order_review"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/review_submit"
+      enabled: true
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/review_submit"
+- assertVisible: "请选择评分并填写评价内容"
+- tapOn:
+    id: "com.fandazi.app:id/review_star_1"
+- assertVisible: "很不满意"
+- takeScreenshot: review-1-star
+- tapOn:
+    id: "com.fandazi.app:id/review_star_2"
+- assertVisible: "不太满意"
+- tapOn:
+    id: "com.fandazi.app:id/review_star_3"
+- assertVisible: "一般"
+- tapOn:
+    id: "com.fandazi.app:id/review_star_4"
+- assertVisible: "非常好，值得推荐"
+- tapOn:
+    id: "com.fandazi.app:id/review_star_5"
+- assertVisible: "非常满意"
+- takeScreenshot: review-5-stars
+# 空正文不会写入；填写后展示字数并使用后端资格发布。
+- tapOn:
+    id: "com.fandazi.app:id/review_submit"
+- assertVisible: "请选择评分并填写评价内容"
+- tapOn:
+    id: "com.fandazi.app:id/review_content"
+- inputText: "Task8 review: good meal and service."
+- hideKeyboard
+- assertNotVisible: "请选择评分并填写评价内容"
+- takeScreenshot: review-filled
+- tapOn:
+    id: "com.fandazi.app:id/review_submit"
+- extendedWaitUntil:
+    visible: "评价已发布"
+    timeout: 30000
+- takeScreenshot: review-submitted
+- tapOn: "返回订单"
+- extendedWaitUntil:
+    notVisible:
+      id: "com.fandazi.app:id/group_order_review"
+    timeout: 30000
+- takeScreenshot: review-eligibility-refreshed

@@ -1,0 +1,15 @@
+appId: com.fandazi.app
+---
+# 接续真实复合请求正文位置，仅滚动查看既有套餐卡；不重发请求或增加业务写入。
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/agent_deal_name"
+    direction: DOWN
+    timeout: 30000
+    centerElement: true
+- assertVisible:
+    id: "com.fandazi.app:id/agent_deal_price"
+- assertNotVisible: "进行中"
+- takeScreenshot: composite-actual-deals
+- scroll
+- takeScreenshot: composite-more-deals

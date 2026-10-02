@@ -1,0 +1,23 @@
+appId: com.fandazi.app
+---
+# 每个售后流程使用隔离的真实开发账号登录，凭据由运行器环境注入。
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+# 模拟器输入法曾重复注入一个字符；整段粘贴环境变量避免把输入工具故障误判为认证失败。
+- setClipboard: "${MAESTRO_USERNAME}"
+- pasteText
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- setClipboard: "${MAESTRO_PASSWORD}"
+- pasteText
+# 凭据仍仅在受控模拟器中使用，粘贴完成立即清空剪贴板，不写入公开证据。
+- setClipboard: ""
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/bottom_navigation"
+    timeout: 30000

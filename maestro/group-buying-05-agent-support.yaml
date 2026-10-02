@@ -1,0 +1,67 @@
+appId: com.fandazi.app
+---
+# 无券终态和投诉完整多轮走8091新服务；不借用普通表单，也不自动跳页。
+# 允许历史已完成进度展示，只检查暂停和终态不再运行。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "我想申请退款"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: "当前没有可申请退款的团购券"
+    timeout: 60000
+- assertNotVisible: "进行中"
+- takeScreenshot: agent-no-vouchers
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "我想投诉"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: ".*投诉类型.*"
+    timeout: 60000
+- assertNotVisible: "进行中"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "支付问题"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: ".*描述.*投诉.*"
+    timeout: 60000
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "Task8 agent payment display mismatch, please verify."
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      text: "确认投诉"
+      enabled: true
+    timeout: 60000
+- assertVisible: ".*问题类型：支付问题.*"
+- assertNotVisible: "进行中"
+- takeScreenshot: agent-complaint-confirmation
+- tapOn:
+    text: "确认投诉"
+    enabled: true
+- extendedWaitUntil:
+    visible: "投诉已提交，等待客服处理"
+    timeout: 60000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_order_action"
+    enabled: true
+- assertNotVisible: "进行中"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: agent-complaint-submitted

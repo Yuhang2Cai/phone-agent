@@ -20,6 +20,10 @@ public class ComplaintController {
     /** 注入投诉服务。 */
     public ComplaintController(ComplaintService complaints) { this.complaints = complaints; }
 
+    /** 仅返回反馈类型目录；不读用户订单，不提供改变工单状态的开发捷径。 */
+    @GetMapping("/types")
+    public java.util.List<Map<String, String>> types() { return ComplaintService.TYPES; }
+
     /** 校验关联订单后签发短时确认凭证。 */
     @PostMapping("/prepare")
     public Map<String, Object> prepare(@AuthenticationPrincipal Long userId, @RequestBody PrepareRequest request) {

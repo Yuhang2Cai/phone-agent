@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 输入区与 FAQ 搜索框共享低对比浅灰底，不用实体卡片代替输入控件。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/after_sale_input" />
+    <corners android:radius="8dp" />
+</shape>

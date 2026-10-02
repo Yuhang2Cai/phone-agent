@@ -1,0 +1,81 @@
+appId: com.fandazi.app
+---
+# 只读本人优惠券；账号来自忽略目录已有资源，不执行领取、抵扣或核销。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "查询我的优惠券"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: ".*状态：(可用|已使用|已过期|未生效|已停用).*"
+    timeout: 60000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_order_action"
+# 已完成进度允许留在历史消息；终态不能继续显示活动进度。
+- assertNotVisible: "进行中"
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_text"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: agent-coupon-read-only
+# 八券各自滚动到标题并留存真实规则/金额/状态；固定文案仅是控制端隔离测试夹具名称，不进入产品代码。
+- scrollUntilVisible:
+    element: "独立界面验收券 expired"
+    direction: UP
+    centerElement: true
+    timeout: 30000
+- assertVisible: ".*状态：已过期.*"
+- takeScreenshot: coupon-expired
+- scrollUntilVisible:
+    element: "独立界面验收券 future"
+    direction: UP
+    centerElement: true
+    timeout: 30000
+- assertVisible: ".*状态：未生效.*"
+- takeScreenshot: coupon-future
+- scrollUntilVisible:
+    element: "独立界面验收券 disabled"
+    direction: UP
+    centerElement: true
+    timeout: 30000
+- assertVisible: ".*状态：已停用.*"
+- takeScreenshot: coupon-disabled
+- scrollUntilVisible:
+    element: "独立界面验收券 valid"
+    direction: UP
+    centerElement: true
+    timeout: 30000
+- assertVisible: ".*状态：可用.*"
+- assertVisible: ".*满¥50.00减¥5.00.*"
+- takeScreenshot: coupon-valid
+- scrollUntilVisible:
+    element: "独立界面验收券 first_day"
+    direction: UP
+    centerElement: true
+    timeout: 30000
+- takeScreenshot: coupon-first-day
+- scrollUntilVisible:
+    element: "独立界面验收券 last_day"
+    direction: UP
+    centerElement: true
+    timeout: 30000
+- takeScreenshot: coupon-last-day
+- scrollUntilVisible:
+    element: "独立界面验收券 used"
+    direction: UP
+    centerElement: true
+    timeout: 30000
+- assertVisible: ".*状态：已使用.*"
+- takeScreenshot: coupon-used
+- scrollUntilVisible:
+    element: "独立界面验收券 persisted_expired"
+    direction: UP
+    centerElement: true
+    timeout: 30000
+- assertVisible: ".*状态：已过期.*"
+- takeScreenshot: coupon-persisted-expired

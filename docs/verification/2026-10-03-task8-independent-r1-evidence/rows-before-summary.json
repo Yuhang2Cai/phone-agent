@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-03T00:36:15.536331+08:00",
+  "purpose": "R1增量测量，不替换原事实基线",
+  "tables": {
+    "fandazi_groupbuy_dev": {
+      "addresses": 2,
+      "agent_events": 4114,
+      "agent_messages": 0,
+      "agent_sessions": 160,
+      "agent_tool_executions": 328,
+      "app_users": 184,
+      "automation_grants": 0,
+      "automation_policies": 0,
+      "cart_draft_item_options": 0,
+      "cart_draft_items": 0,
+      "cart_drafts": 0,
+      "complaint_tickets": 24,
+      "confirmation_grants": 272,
+      "coupons": 54,
+      "deal_packages": 127,
+      "dish_options": 360,
+      "dishes": 120,
+      "flyway_schema_history": 13,
+      "food_orders": 1,
+      "group_buy_orders": 113,
+      "merchant_reviews": 36,
+      "merchants": 12,
+      "order_item_options": 0,
+      "order_items": 1,
+      "order_timeline": 2,
+      "public_id_aliases": 215,
+      "purchase_quotes": 167,
+      "refund_requests": 36,
+      "seed_address_metadata": 2,
+      "seed_dish_metadata": 120,
+      "store_reviews": 310,
+      "stores": 30,
+      "user_coupons": 24,
+      "vouchers": 161
+    },
+    "dianping_intent": {
+      "agent_service_runs": 211,
+      "intent_decision_audit": 213
+    }
+  }
+}

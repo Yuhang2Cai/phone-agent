@@ -4,3 +4,7 @@ task2:
     enabled: ${TASK2_FIXTURES_ENABLED:false}
     # 随机登录凭据仅输出到 Git 忽略的 .runtime，不能指定源码或普通文档目录。
     output: ${TASK2_FIXTURES_OUTPUT:../.runtime/task2-fixtures.json}
+# 错误页故障注入默认关闭，必须另行显式开启；生产 profile 即使叠加 development 也禁用。
+task8:
+  failures:
+    enabled: ${TASK8_FAILURES_ENABLED:false}

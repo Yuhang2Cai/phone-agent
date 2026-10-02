@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 已选类型使用 Figma 浅橙色；未选项保持浅灰底。 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_checked="true" android:color="#FFF0EB" />
+    <item android:color="#F5F6F8" />
+</selector>

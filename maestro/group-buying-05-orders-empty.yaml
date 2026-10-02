@@ -1,0 +1,18 @@
+appId: com.fandazi.app
+---
+# 真实无订单账户验证UI21A；逛逛返回首页，底栏不能残留错误页面上下文。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible: "暂无订单"
+    timeout: 30000
+- assertNotVisible:
+    id: "com.fandazi.app:id/orders_error_retry"
+- assertNotVisible:
+    id: "com.fandazi.app:id/orders_network_retry"
+- takeScreenshot: orders-empty
+- tapOn: "去逛逛"
+- assertVisible:
+    id: "com.fandazi.app:id/home_search_button"
+- takeScreenshot: orders-empty-return-home

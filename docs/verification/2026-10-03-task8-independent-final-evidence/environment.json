@@ -1,0 +1,35 @@
+{
+  "agentHealth": {
+    "status": "ok",
+    "schemaVersion": "1.1",
+    "service": "group-buying-agent",
+    "sourceRoot": "D:\\project\\-Demo-master",
+    "entryPoint": "service.app:create_app",
+    "buildVersion": "9fdc5e1-task8-working-tree"
+  },
+  "imageFaultAbsent": true,
+  "listeners": [
+    {
+      "port": 8080,
+      "pid": 34804
+    },
+    {
+      "port": 8091,
+      "pid": 47544
+    },
+    {
+      "port": 8768,
+      "pid": 2464
+    }
+  ],
+  "at": "2026-10-03T01:07:54.8465652+08:00",
+  "springHealthy": true,
+  "network": {
+    "data": "1",
+    "proxy": "null",
+    "airplane": "disabled",
+    "wifi": "1"
+  },
+  "businessWritesByR2": 0,
+  "servicesRestarted": false
+}

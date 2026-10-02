@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 元数据取得前的中性图片区域；取得后由售后图片加载器显示准确状态或真实原图。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#EEF1F4" />
+    <corners android:radius="8dp" />
+</shape>

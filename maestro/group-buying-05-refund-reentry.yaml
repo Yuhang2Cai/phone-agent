@@ -1,0 +1,52 @@
+appId: com.fandazi.app
+---
+# refund_requested 夹具已有真实申请，安装后无本轮申请返回栈也必须能按券重新进入。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/group_order_title"
+# 已申请进度从详情中的真实券入口进入，不依赖旧版自动展开布局。
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- tapOn:
+    id: "com.fandazi.app:id/voucher_row_title"
+- assertNotVisible: "出示核销码"
+- extendedWaitUntil:
+    visible: "查看退款进度"
+    timeout: 30000
+- assertNotVisible:
+    id: "com.fandazi.app:id/voucher_refund"
+- tapOn: "查看退款进度"
+- extendedWaitUntil:
+    visible: "申请已提交"
+    timeout: 30000
+- assertVisible: ".*申请待处理.*"
+- takeScreenshot: refund-reentry
+# 强制停止并重新启动 app，再从实际详情恢复同一申请。
+- stopApp
+- launchApp:
+    clearState: false
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- tapOn:
+    id: "com.fandazi.app:id/group_order_title"
+# 重启后仍走同一公开入口，验证恢复不依赖上一次展开状态。
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- tapOn:
+    id: "com.fandazi.app:id/voucher_row_title"
+- assertNotVisible: "出示核销码"
+- extendedWaitUntil:
+    visible: "查看退款进度"
+    timeout: 30000
+- tapOn: "查看退款进度"
+- extendedWaitUntil:
+    visible: "申请已提交"
+    timeout: 30000
+- assertVisible: ".*申请待处理.*"
+- takeScreenshot: refund-after-app-restart

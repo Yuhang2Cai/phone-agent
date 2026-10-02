@@ -13,6 +13,11 @@ import org.springframework.transaction.annotation.Transactional;
 /** 客服投诉允许不关联订单，但指定订单时必须是当前用户的真实团购订单。 */
 @Service
 public class ComplaintService {
+    /** 已确认 UI 的六种反馈类型由后端公开维护；模型自由主题仍由内容长度与授权边界校验。 */
+    public static final java.util.List<Map<String, String>> TYPES = java.util.List.of(
+            Map.of("id", "product", "label", "商品问题"), Map.of("id", "payment", "label", "支付问题"),
+            Map.of("id", "merchant", "label", "商家服务"), Map.of("id", "order", "label", "订单问题"),
+            Map.of("id", "account", "label", "账号问题"), Map.of("id", "other", "label", "其他问题"));
     private final ComplaintTicketRepository tickets;
     private final GroupBuyOrderRepository orders;
     private final UserRepository users;
@@ -49,7 +54,7 @@ public class ComplaintService {
                 null, subject.trim(), description.trim()));
         // 工具结果会写入 JSON 审计列，时间必须先转成稳定字符串，不能直接放 Java 时间对象。
         return Map.of("ticketId", ticket.getPublicId(), "status", ticket.getStatus().name(),
-                "subject", ticket.getSubject(), "createdAt", ticket.getCreatedAt().toString());
+                "subject", ticket.getSubject(), "createdAt", com.fandazi.core.time.BusinessTime.utc(ticket.getCreatedAt()));
     }
 
     /** 可选订单一旦出现就必须验证归属，不能按客户端自报主键保存。 */

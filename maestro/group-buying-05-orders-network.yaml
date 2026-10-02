@@ -1,0 +1,13 @@
+appId: com.fandazi.app
+---
+# 运行器已真实关闭模拟器网络；只进本人订单页，不模拟页面状态。
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible: "网络连接异常"
+    timeout: 60000
+- assertVisible:
+    id: "com.fandazi.app:id/orders_network_retry"
+- assertNotVisible:
+    id: "com.fandazi.app:id/group_order_title"
+- takeScreenshot: orders-network-off

@@ -1,0 +1,1226 @@
+{
+  "collectedAt": "2026-10-03T00:05:59.4107753+08:00",
+  "tests": {
+    "android": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 177,
+      "skipped": 0,
+      "files": 33,
+      "tests": 177
+    },
+    "backend": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 220,
+      "skipped": 0,
+      "files": 53,
+      "tests": 220
+    },
+    "agent-offline": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 380,
+      "skipped": 20,
+      "files": 1,
+      "tests": 400
+    },
+    "agent-mysql": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 10,
+      "skipped": 0,
+      "files": 1,
+      "tests": 10
+    },
+    "live-boundaries-coupons": {
+      "errors": 0,
+      "failures": 1,
+      "passed": 11,
+      "skipped": 0,
+      "files": 1,
+      "tests": 12
+    },
+    "live-boundaries-r1": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 2,
+      "skipped": 0,
+      "files": 1,
+      "tests": 2
+    },
+    "support-live": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 2,
+      "skipped": 0,
+      "files": 1,
+      "tests": 2
+    },
+    "support-503": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 1,
+      "skipped": 0,
+      "files": 1,
+      "tests": 1
+    },
+    "actual-ownership": {
+      "errors": 0,
+      "failures": 0,
+      "passed": 1,
+      "skipped": 0,
+      "files": 1,
+      "tests": 1
+    }
+  },
+  "maestro": [
+    {
+      "states": {
+        "COMPLETED": 8
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\composite-deals-tail\\2026-10-02_234811\\composite-deals-tail\\commands.json"
+    },
+    {
+      "states": {
+        "FAILED": 1,
+        "COMPLETED": 27
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\history-actions-r0\\2026-10-02_233847\\history-actions\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 9
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\history-recover-r1\\2026-10-02_234238\\history-recover\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 65
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-refund-r0\\2026-10-02_233535\\group-buying-05-agent-refund\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 51
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-support-r0\\2026-10-02_234332\\group-buying-05-agent-support\\commands.json"
+    },
+    {
+      "states": {
+        "SKIPPED": 1,
+        "COMPLETED": 34
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-composite-r0\\2026-10-02_234551\\group-buying-05-agent-composite\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 50
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 23
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-empty-r0\\2026-10-02_234856\\group-buying-05-orders-empty\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 31
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-image-fail-r0\\2026-10-02_235907\\group-buying-05-image-retry\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 29
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-image-null-r0\\2026-10-03_000031\\group-buying-05-image-null\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 10
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-image-recover-r0\\2026-10-03_000010\\group-buying-05-image-retry-recover\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 13
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-network-r0\\login\\2026-10-02_235709\\group-buying-05-login\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 7
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-network-r0\\network-off\\2026-10-02_235747\\group-buying-05-orders-network\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 6
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-network-r0\\network-recover\\2026-10-02_235803\\group-buying-05-orders-network-recover\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 39
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-reentry-r0\\2026-10-02_232908\\group-buying-05-refund-reentry\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 44
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-refund-r0\\2026-10-02_232705\\group-buying-05-refund\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 47
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-review-r0\\2026-10-02_233054\\group-buying-05-review\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 11
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-server-r0\\error-and-retry\\2026-10-02_235603\\group-buying-05-orders-error\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 13
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-server-r0\\login\\2026-10-02_235518\\group-buying-05-login\\commands.json"
+    },
+    {
+      "states": {
+        "COMPLETED": 64
+      },
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-support-r0\\2026-10-02_233302\\group-buying-05-after-sale\\commands.json"
+    }
+  ],
+  "screenshots": [
+    {
+      "sha256": "52D3427D4A10495514F4BF1A645DE61C337A026C47087AEA974BE53BAA9FB634",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\composite-deals-tail\\2026-10-02_234811\\composite-deals-tail\\takeScreenshot\\composite-actual-deals.png"
+    },
+    {
+      "sha256": "A8F701B2CFF89D453A0492367F7D78E467D8EBEF654C6B0EB4622D0FAB1BDE5E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\composite-deals-tail\\2026-10-02_234811\\composite-deals-tail\\takeScreenshot\\composite-more-deals.png"
+    },
+    {
+      "sha256": "8F55E43C8F21D8FD13730D8AFD3C0DE6A92C204D103C55521D3BC81A35E02D4E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\history-actions-r0\\2026-10-02_233847\\history-actions\\screenshots\\step-028-assertCondition-独立验收历史动作边界.png"
+    },
+    {
+      "sha256": "20F3023A4D330C34275B99A725577008E686467AE62C6804958096647D6D33C4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\history-actions-r0\\2026-10-02_233847\\history-actions\\takeScreenshot\\history-confirm-cancel-disabled.png"
+    },
+    {
+      "sha256": "4D8EEB73C7194FB0377EF77DADC0298487493DE1DACF4A3F1D3EC9801FD3C9F4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\history-actions-r0\\2026-10-02_233847\\history-actions\\takeScreenshot\\history-current-confirmation.png"
+    },
+    {
+      "sha256": "B8556D86BD5EDC3306005CA497B143A9CD41B2345B8E49C837501DBA1E1CE08E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\history-actions-r0\\2026-10-02_233847\\history-actions\\takeScreenshot\\history-voucher-disabled.png"
+    },
+    {
+      "sha256": "67C3FDB70E8C2721A8B6F5A04E379E18B227CEF2B5A42B390A4A39064FBC6886",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\history-recover-r1\\2026-10-02_234238\\history-recover\\takeScreenshot\\history-current-cancelled-after-service-restart.png"
+    },
+    {
+      "sha256": "C0AECBEF535A6CC49965CF33BBC21945A3850384DBE525737F93E75E2E4427FC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\history-recover-r1\\2026-10-02_234238\\history-recover\\takeScreenshot\\history-current-valid-after-service-restart.png"
+    },
+    {
+      "sha256": "D14F0F9AD702B09600F7C3921292A37834A00598667573531FE9668F9C5B74C2",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-refund-r0\\2026-10-02_233535\\group-buying-05-agent-refund\\takeScreenshot\\agent-refund-cancelled.png"
+    },
+    {
+      "sha256": "724A16F55C2A30995EEF75E784038DD01A84B0C413940228C9B4F00E5E72C523",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-refund-r0\\2026-10-02_233535\\group-buying-05-agent-refund\\takeScreenshot\\agent-refund-requested.png"
+    },
+    {
+      "sha256": "38FDB092EF55340D645FE0403431DACDF1702A1C4F0AE8B04B57457FC9A8AF6D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-refund-r0\\2026-10-02_233535\\group-buying-05-agent-refund\\takeScreenshot\\group-buying-agent-refund-choice.png"
+    },
+    {
+      "sha256": "21CEB45655A529D29415DEB84BCB4AF77BAECB6D6A022A37AB801CFCE3F6738F",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-refund-r0\\2026-10-02_233535\\group-buying-05-agent-refund\\takeScreenshot\\group-buying-agent-refund-confirmation.png"
+    },
+    {
+      "sha256": "75BCAFA7FA9BD99CED1B0C5427379C12E8EBAF84E97864A18EEBA1FEB77897C3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-support-r0\\2026-10-02_234332\\group-buying-05-agent-support\\takeScreenshot\\agent-complaint-confirmation.png"
+    },
+    {
+      "sha256": "8CDC764168FA160DA9B5FDA8D380F55D0D6A1D2F78B6B9CFE1BF6F41BADA86AD",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-support-r0\\2026-10-02_234332\\group-buying-05-agent-support\\takeScreenshot\\agent-complaint-submitted.png"
+    },
+    {
+      "sha256": "78CCBC7F18909AB2A1ABD6ADA82FC0F7C2E5F9563AFDDD05A4FBC799F01EA897",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-agent-support-r0\\2026-10-02_234332\\group-buying-05-agent-support\\takeScreenshot\\agent-no-vouchers.png"
+    },
+    {
+      "sha256": "EA4AC4062D768FF9DCE9D9FF6BCD4EC1AC09AAFAA871BC29229B0D3459916390",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-composite-r0\\2026-10-02_234551\\group-buying-05-agent-composite\\takeScreenshot\\agent-composite-independent-read.png"
+    },
+    {
+      "sha256": "5CAEF08AA915399CEAF55677D164D9B44614AC3AC962D625DA3CFD7F2109ED15",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\agent-coupon-read-only.png"
+    },
+    {
+      "sha256": "929ACB2590C5BB63C9831B7071DE81D8E69A12A865C0C3C238315C3B8F721A0D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\coupon-disabled.png"
+    },
+    {
+      "sha256": "47ADFF483D0EC7EC5432525DD88F7A1C36BEC7D4A11F5724339FD75E5017A391",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\coupon-expired.png"
+    },
+    {
+      "sha256": "B1C68DD08FE03C047C02BA2C3C5BCE5C597DAEECA9DD16595E9F1F3D6B731ECF",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\coupon-first-day.png"
+    },
+    {
+      "sha256": "5CAEF08AA915399CEAF55677D164D9B44614AC3AC962D625DA3CFD7F2109ED15",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\coupon-future.png"
+    },
+    {
+      "sha256": "C7654942E5DCE783ADB0A2F2DBAC12036D2A02055DB6FB7BBD1416438F5BF603",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\coupon-last-day.png"
+    },
+    {
+      "sha256": "83E786108815350EF75D27919B76EA3B0A962BC4056D0C010C9838B41B4B49C5",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\coupon-persisted-expired.png"
+    },
+    {
+      "sha256": "C7654942E5DCE783ADB0A2F2DBAC12036D2A02055DB6FB7BBD1416438F5BF603",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\coupon-used.png"
+    },
+    {
+      "sha256": "B1C68DD08FE03C047C02BA2C3C5BCE5C597DAEECA9DD16595E9F1F3D6B731ECF",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-coupon-20261003-r0\\2026-10-03_000156\\group-buying-05-agent-coupon\\takeScreenshot\\coupon-valid.png"
+    },
+    {
+      "sha256": "7C65B3103E3A828FEBC35FCFD288B6522699196672CA359322BB825D8F9D5DCB",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-empty-r0\\2026-10-02_234856\\group-buying-05-orders-empty\\takeScreenshot\\orders-empty-return-home.png"
+    },
+    {
+      "sha256": "D6C1485CB836A0BA499A7BB38348B45C071C5327118B06483FEBDFC21EE91FB0",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-empty-r0\\2026-10-02_234856\\group-buying-05-orders-empty\\takeScreenshot\\orders-empty.png"
+    },
+    {
+      "sha256": "48BA8A0AD954B62B7CFEE4D9012EAB397C61A37907D5FAC728D615089F09F98C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-image-fail-r0\\2026-10-02_235907\\group-buying-05-image-retry\\takeScreenshot\\review-original-url-retried-input-kept.png"
+    },
+    {
+      "sha256": "A8010BB7A54256F92A51C72D1160B855B688E4CE3E62EBD4095C192D7EF42FE4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-image-fail-r0\\2026-10-02_235907\\group-buying-05-image-retry\\takeScreenshot\\review-real-url-failed.png"
+    },
+    {
+      "sha256": "1392509B87703D83E96D2568423293D9CC5DD76F1F5AF0CDBBB7977D4C353433",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-image-null-r0\\2026-10-03_000031\\group-buying-05-image-null\\takeScreenshot\\refund-null-image-refreshed.png"
+    },
+    {
+      "sha256": "0CBA06CA9D2FDC1ED60087AA3BF1AC97943A0F4AE627F0EE467925CB4774D6D3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-image-recover-r0\\2026-10-03_000010\\group-buying-05-image-retry-recover\\takeScreenshot\\review-original-image-recovered-input-kept.png"
+    },
+    {
+      "sha256": "619AE185E2468F1D49CDBE6F0BBB60CB04E1448917857627AFAF27E669ACFE10",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-network-r0\\network-off\\2026-10-02_235747\\group-buying-05-orders-network\\takeScreenshot\\orders-network-off.png"
+    },
+    {
+      "sha256": "73A308DEFE0A721A7E9D5F5C45A6084586E6BE86EF7F5487B688A5C79F3B41DA",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-network-r0\\network-recover\\2026-10-02_235803\\group-buying-05-orders-network-recover\\takeScreenshot\\orders-network-recovered.png"
+    },
+    {
+      "sha256": "EE6EEBC5C4721069F02EA2DE61F59A823371341C4C8488F1FAAA90B671D225C6",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-reentry-r0\\2026-10-02_232908\\group-buying-05-refund-reentry\\takeScreenshot\\refund-after-app-restart.png"
+    },
+    {
+      "sha256": "FEF99481205F579B63224B1BB104E92BD60A61D8FF091F725854578087DFA578",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-reentry-r0\\2026-10-02_232908\\group-buying-05-refund-reentry\\takeScreenshot\\refund-reentry.png"
+    },
+    {
+      "sha256": "D27B9063D348768AAD969FD4CFE4A7B1A92413DEC27FC6C2848239365863DC46",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-refund-r0\\2026-10-02_232705\\group-buying-05-refund\\takeScreenshot\\refund-confirmation.png"
+    },
+    {
+      "sha256": "01E8946E0A621A0D8A6FB5512E245731B0DB237E4DAD3B39EF8659ECF548E1F4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-refund-r0\\2026-10-02_232705\\group-buying-05-refund\\takeScreenshot\\refund-progress.png"
+    },
+    {
+      "sha256": "8A2519D332AB65FE7F0654A515750D5D3A3E51DAB76E6308486C685F090EE85B",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-refund-r0\\2026-10-02_232705\\group-buying-05-refund\\takeScreenshot\\refund-request.png"
+    },
+    {
+      "sha256": "84144753213FFB55A9CE3FE10FC5C50F60E478E289152EABB9DD7496B27C0686",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-refund-r0\\2026-10-02_232705\\group-buying-05-refund\\takeScreenshot\\voucher-deferred-redemption-refund-reachable.png"
+    },
+    {
+      "sha256": "7F6B41B7946F411478804F9D00F9DEECD8E7357BC3F8B41F29CF36F62501B8C3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-review-r0\\2026-10-02_233054\\group-buying-05-review\\takeScreenshot\\review-1-star.png"
+    },
+    {
+      "sha256": "45FA715AF03F2E5E75B73D3A8FAABC8D7EEABF08602FD390778F129AD5156823",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-review-r0\\2026-10-02_233054\\group-buying-05-review\\takeScreenshot\\review-5-stars.png"
+    },
+    {
+      "sha256": "BB91FD51F7E70C3E21520305EC77030FEF5CF44C752BE0180C1F04AE250296B4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-review-r0\\2026-10-02_233054\\group-buying-05-review\\takeScreenshot\\review-eligibility-refreshed.png"
+    },
+    {
+      "sha256": "361E8CD1385A058A3166BADBC5637BEC073DA0760BC5884B19BBD8E16AF97B48",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-review-r0\\2026-10-02_233054\\group-buying-05-review\\takeScreenshot\\review-filled.png"
+    },
+    {
+      "sha256": "046E6CCADB209F005D1CC71497166623A9601D1989E58B40A910456C34A94133",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-review-r0\\2026-10-02_233054\\group-buying-05-review\\takeScreenshot\\review-submitted.png"
+    },
+    {
+      "sha256": "53A8284EB2D09D8643C4B92DAAC64629A8FF1D2F23731B2F222AA5537791AFAB",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-server-r0\\error-and-retry\\2026-10-02_235603\\group-buying-05-orders-error\\takeScreenshot\\orders-503-retry-real-list.png"
+    },
+    {
+      "sha256": "D5AD3874D7D292B6D6F75D94AE7D2DE51741A830AE4307266AF50D963621ABB6",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-server-r0\\error-and-retry\\2026-10-02_235603\\group-buying-05-orders-error\\takeScreenshot\\orders-503.png"
+    },
+    {
+      "sha256": "8761CFF85CCFB8627B76D14AC50EAC56975C9E8239BF7977F1456001D8E99D66",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-support-r0\\2026-10-02_233302\\group-buying-05-after-sale\\takeScreenshot\\complaint-confirmation.png"
+    },
+    {
+      "sha256": "6BC4AAB4B9180A603D524764B50BADF7A08463116D5BD5879423FD2AE20B9BFC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-support-r0\\2026-10-02_233302\\group-buying-05-after-sale\\takeScreenshot\\complaint-filled.png"
+    },
+    {
+      "sha256": "32D20E3749191382057FD1F6E512A1B35B445335CEDD3436A7ADBBBA8DE766B1",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-support-r0\\2026-10-02_233302\\group-buying-05-after-sale\\takeScreenshot\\complaint-own-order-picker.png"
+    },
+    {
+      "sha256": "401F606F4B07FD218DA57FE31F94D163A85FE9AD4D2F18CA53458E8E02CBCBDD",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-support-r0\\2026-10-02_233302\\group-buying-05-after-sale\\takeScreenshot\\complaint-submitted.png"
+    },
+    {
+      "sha256": "ABC1D1D0A63FB3BF1022A02175373AF3F96C091C7FB713D684BBDFEC440012D9",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-support-r0\\2026-10-02_233302\\group-buying-05-after-sale\\takeScreenshot\\faq-category-restored.png"
+    },
+    {
+      "sha256": "4788B9C0872F057093DC02CBD72391B8F24D22CD726BA2F4180AD8E7DCB5CC67",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-support-r0\\2026-10-02_233302\\group-buying-05-after-sale\\takeScreenshot\\faq-category-search-empty.png"
+    },
+    {
+      "sha256": "3F02680CEB39C38ACF0BD206D0CFC61364673F9B5CB6F22ABE303D89DB249E55",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\.runtime\\task8\\independent-final-support-r0\\2026-10-02_233302\\group-buying-05-after-sale\\takeScreenshot\\faq-expanded.png"
+    },
+    {
+      "sha256": "5DFA6B9B227752C52D803F29E8C6ABA75E21FAF3FB44C924A5AE245CCBEFDD47",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\home-location-denied.png"
+    },
+    {
+      "sha256": "C8507D535A8205BC8BC6AFF36AF74BD66888EA0F48E16C8EBD3452AA99468FB9",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\home-returned.png"
+    },
+    {
+      "sha256": "17BC81892D01EB4D2F37474488DF11225905A98BDDF084EB1B721D42C86062FB",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\search-empty.png"
+    },
+    {
+      "sha256": "01151DF6D882E59F7D429269D26D48DE11E2FA75B6D2DC23C28D31FF7E2C7DC2",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\UI-01-home.png"
+    },
+    {
+      "sha256": "6B19DA02E88A37C5434DDB20D3E8FD2292B9D55A460710B61038CC7C6516C01E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\UI-02-search.png"
+    },
+    {
+      "sha256": "791643587F5AB8E844DA0DD542D7F3FF7772D5EE1A008E518354EEFBF165A804",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\UI-03-store-deals.png"
+    },
+    {
+      "sha256": "6F14766FD45D9F2AB23FF527D7A5195E3E60E6A26B56DA6AD37B76827E99F282",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\UI-04-store-dishes.png"
+    },
+    {
+      "sha256": "069ABB7883148C6C45C25F7DD6E41A32713D5087DF72FEA2703C4B8E50BE8522",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\UI-05-store-reviews.png"
+    },
+    {
+      "sha256": "225872DA1F1B1EF3C7228D2E1C45B2AF2589ADE01FBAF3355D9A2AB7BD38302D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\UI-06-deal-A.png"
+    },
+    {
+      "sha256": "F5D7C69EB279CCDF08870C2FDD42A74597F7D36FCA9C301AB1CDB9D092C90BA2",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-browse\\2026-10-02_033617\\group-buying-01-browse\\takeScreenshot\\UI-06-deal-B.png"
+    },
+    {
+      "sha256": "8E9381AFB0137249D63AEAE116A853B4F17560639A1B10528CAC7E7B225D2469",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-keyword\\2026-10-02_033823\\task4-search-keyword\\takeScreenshot\\search-keyword-hit.png"
+    },
+    {
+      "sha256": "6940865FFBBFAD5A943A0F432D2D2F29C006A6911E8E1AD4835D9A07EC8AE488",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-keyword\\2026-10-02_033823\\task4-search-keyword\\takeScreenshot\\search-keyword-returned.png"
+    },
+    {
+      "sha256": "BD9AA9A32263EC8EC217A173FC1F22F5B28E887F57CF4511E32A2569C58F320E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-retry\\2026-10-02_034113\\task4-browse-retry-error\\takeScreenshot\\browse-network-error.png"
+    },
+    {
+      "sha256": "F5EA171B72038058EB86020257DC4A15433194E5D44EA02756CB0CB3FA9A3E38",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-retry\\2026-10-02_034129\\task4-browse-retry-recovered\\screenshots\\step-004-assertCondition-com.fandazi.appid_store.png"
+    },
+    {
+      "sha256": "08AF02A3221D96BF74C8BDFD1912A84E577E8C262726A1B6CBD9DA373BFB11DE",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-retry\\2026-10-02_034330\\task4-browse-retry-error\\takeScreenshot\\browse-network-error.png"
+    },
+    {
+      "sha256": "C2EF7C13A57C27489CA8AFE99A76C4058AFA25900941939BE6A96211E8954BDE",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task4-independent-evidence\\maestro-retry\\2026-10-02_034345\\task4-browse-retry-recovered\\takeScreenshot\\browse-network-recovered.png"
+    },
+    {
+      "sha256": "4311BB6CD56CB9D92778D8AC6252A5C023C6075CCBC5B83F4413D9DE9298B6D7",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+    },
+    {
+      "sha256": "FDA6D5A13CCB8660E2DEB8B378CD98DFE7939CC572EDD9FCF64F484B66B4E6CC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "ABBDF959CD7681CD6D4232A74B887836B67D6104A7895E41E19CDE2133476F90",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "48559057E5101D7C8A90F30DA8B8E6DF223B08FD4AC0AB159FA56C0787DF7107",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "24E2BD8BAA23F6E941CFDD5E5D2B6CFA1ACA2C2105B346741CAC910BC20C87C6",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+    },
+    {
+      "sha256": "ED18EF3FD7F7B8DD41B01450E248A7EC09766A401D6D456BD1BAA93300B7BDA6",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\screenshots\\step-032-assertCondition-支付成功.png"
+    },
+    {
+      "sha256": "21EF5AF3201BF97A366C9F580EB35DE5BE541C2ED2C7AA7DA4B100E122072A8E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "21EF5AF3201BF97A366C9F580EB35DE5BE541C2ED2C7AA7DA4B100E122072A8E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "7244575C2B4F9678FCC9D4C19BFC053AAF74D7E180DDA27400BA9BDB1C0D21AD",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "53B5AC4D073D3814248505B38AF0E26D760DA9AD1DE42FF1097F63D678D56636",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+    },
+    {
+      "sha256": "AA05C14DD368B53463350EA189D58662BB8FD2341B822252F2A390662303B581",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "AA05C14DD368B53463350EA189D58662BB8FD2341B822252F2A390662303B581",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "0A8C3A05B1C3FD0E5D295201B1ACBE98DFFECBCEAB6E74D340F9E6340F9938CB",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "E8B1F5FEF14DE1646DC80AA3B5777FA96B862438ECE186041F3BF04E4FE9571D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+    },
+    {
+      "sha256": "AB54B3CAC82E74FEA9B1A1CCDAF608ED8597DB1409514D63C1F51BE1C1515612",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2\\2026-10-02_075133\\group-buying-03-purchase\\screenshots\\step-026-assertCondition-${TASK6_TOTAL}.png"
+    },
+    {
+      "sha256": "F3FD80E50E197E89249067564273151A7371B355E5124AB2A65584DAC0935910",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2\\2026-10-02_075133\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "87B431FE551E22E44ECE63B516CD4C407814E81FCFDFC68ACACD64815EA53E89",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+    },
+    {
+      "sha256": "9BFC6BB62EE98E90DC620361DE77A089C687D086E42560B8852DA8016A11DA38",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "3706694CCD516945EBF48E422FCAA128B0B8919BD6B45F95F9B39445142CA9A6",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "F3C6AD0C5DF3FF562243BDD593403E412367743FF15227F49952DFB3AAE3FADC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "1A4B404EEEBE70444B95C381A369C04AB93E84A3B0DB5001836ECA80E1A3CCEC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+    },
+    {
+      "sha256": "DD891B6D953A9046B80B8A5AB0E150B768E6091DAD2C0231CF8173CF9D7CCFDD",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+    },
+    {
+      "sha256": "D78449C2DB66538BCACBEDCCCCEB51F10A09D8CDBDDCEB52F09523ADA04CD80A",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "16AF00CE7181DD8AD98A96A028A063F5E8D194F91C414FD223CD71816F4CD618",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "8943C14EEA5E08DEEC0989FAD99302510595F0F2E693C67D5590486B70C713E2",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "4DB7F4A626EF720676BC7895BADCD56EF203F14AB51032A888265CFBCEC2A4EF",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-evidence\\maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+    },
+    {
+      "sha256": "68124B1C4A688808ACB584C0C6FF688B01E2E9308335810DD9E0009E2155AD38",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\maestro-quantity1\\2026-10-02_082829\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "278E9E5F4D5DE745024FEE6CAC386B520100F6904321C9815C7868AD5C4E6E29",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-expiry-recover\\2026-10-02_092633\\expiry-recover\\takeScreenshot\\device-expiry-new-summary-not-auto-create.png"
+    },
+    {
+      "sha256": "9B29C2E145FE343DDBB09FA5527A2C1A62C67FF03538F7352EEB92592403E7E3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-expiry-reject\\2026-10-02_092604\\expiry-reject\\takeScreenshot\\device-natural-expiry-rejected.png"
+    },
+    {
+      "sha256": "606D2764C22051080C0FF20BC37A0AFB78578F2BA3B26D0E1A7D788A33B690E5",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-history-current-cancel\\2026-10-02_091857\\task5-fixround1-current-cancel\\takeScreenshot\\task5-fixround1-current-actions.png"
+    },
+    {
+      "sha256": "2442DBE71996FDF9B6C7E8A1F7612334DADAEA8A61295820248C16A892C168D4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-history-current-cancel\\2026-10-02_091857\\task5-fixround1-current-cancel\\takeScreenshot\\task5-fixround1-current-cancelled.png"
+    },
+    {
+      "sha256": "9793E75660307B284351D2A47F02925B3AA480E4CE1C4D1D37F17D9FA4CF1D22",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-history-old-tap-r2\\2026-10-02_091831\\task5-fixround1-old-tap\\takeScreenshot\\task5-fixround1-old-tap-no-change.png"
+    },
+    {
+      "sha256": "2C0808CB98800C019F818A7283DA22EC089143369F87E387DB17052124FAF67F",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-history-prepare-r2\\2026-10-02_091428\\history-prepare\\takeScreenshot\\task5-fixround1-old-actions.png"
+    },
+    {
+      "sha256": "D0D0BBD3C5BFC1CCC24ACA91F1440E4A3DE66EFB83CD82A8396632C27DE03C67",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-history-prepare-r2\\2026-10-02_091428\\history-prepare\\takeScreenshot\\task5-fixround1-quantity1-cancelled.png"
+    },
+    {
+      "sha256": "94CB1EBAAF14657D19E425AA981598BF3868005C85E359C3F550B8138128AE43",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-history-prepare-r2\\2026-10-02_091428\\history-prepare\\takeScreenshot\\task5-fixround1-quantity1-prepared.png"
+    },
+    {
+      "sha256": "0138C741E36E5C89EC7992A80CF95F0B507F7DF82EEF63A5C3978E3026D89D02",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-history-prepare-r2\\2026-10-02_091428\\history-prepare\\takeScreenshot\\task5-fixround1-quantity2-prepared.png"
+    },
+    {
+      "sha256": "41A435F2D466A70BD43E09FF820D894BC84F0939B0A19AB575ECC6481B117022",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-network-create-failure\\2026-10-02_090103\\network-create-failure\\takeScreenshot\\offline-create-rejected.png"
+    },
+    {
+      "sha256": "41A435F2D466A70BD43E09FF820D894BC84F0939B0A19AB575ECC6481B117022",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-network-create-failure\\2026-10-02_090103\\network-create-failure\\takeScreenshot\\offline-create-retry-same-quote.png"
+    },
+    {
+      "sha256": "BB9F3A4D9BC32416E7AF4BF3BFC7A4D3C9E2757D2338B838493505662675BF08",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-network-create-recover\\2026-10-02_090136\\network-create-recover\\takeScreenshot\\network-create-recovered-pending.png"
+    },
+    {
+      "sha256": "553EE7DA6879B2F915EE78BB43FBB3E2731DE90ACF3DFAF7AFD0697AD2DAF4B4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-network-pay-failure\\2026-10-02_090212\\network-pay-failure\\takeScreenshot\\offline-pay-no-fake-success.png"
+    },
+    {
+      "sha256": "C68DCD576E8C94D89ACB7B28D93B2BD0D96A965443042C9FAF23DC27C6759160",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-network-pay-recover-r2\\2026-10-02_090408\\network-pay-recover-r2\\takeScreenshot\\network-pay-recovered-success.png"
+    },
+    {
+      "sha256": "B0961564BAD63889DCEEB8804A9A55A1B1CE341272E37E03A7D24C0FD16CDE45",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-network-success-failure\\2026-10-02_090452\\network-success-failure\\takeScreenshot\\offline-success-recheck-error.png"
+    },
+    {
+      "sha256": "756B6E9451DF1D885CB07A8E18D35C6F3E41E254B303EA068249F306CC74EBB2",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-network-success-recover\\2026-10-02_090528\\network-success-recover\\takeScreenshot\\network-success-recovered-facts.png"
+    },
+    {
+      "sha256": "DDD8E14E9ADE1CFDF96CD0583C805407C149947AB819B2ABEE57AE1F3BFCF834",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-price-requote\\2026-10-02_091052\\price-requote\\takeScreenshot\\device-price-new-summary-awaits-explicit-submit.png"
+    },
+    {
+      "sha256": "630B67C17377A558AC06B1B1F3A88972A66B4B4B1714B9C90F7419E95ADDA736",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity1\\2026-10-02_084702\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+    },
+    {
+      "sha256": "2C6BA3F8FBCCBCDBF23719F86284C71C933EBBD6E244307DD7ABAA9F6B99E456",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity1\\2026-10-02_084702\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "4A4B5430350B14898DCFAFF1A7DF7F8912F2C00F786FAB4508ACC2D13C15D03C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity1\\2026-10-02_084702\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "980F48B97600098F9DCE3790465692CD309749B2BDA5B425FA5268F17A27F5D8",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity1\\2026-10-02_084702\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "3D0E622D3B155B1EBC2E4939C3C26681525D9EE13BE17D5AE97488E8396B3C09",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity1\\2026-10-02_084702\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+    },
+    {
+      "sha256": "C1490A949C2065CDF233EDAFD3FB3607F049376F5BC06196A960AAA449FBE01C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity2\\2026-10-02_084844\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+    },
+    {
+      "sha256": "0176686681DDE92D513538F631ACEF1B938299318684539B6B242858411D6523",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity2\\2026-10-02_084844\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "FD1381D7B9F5DF472C2CC2ED7F727A9DA302F89D88EFA3EEC1CBB5FB2DCB4FFF",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity2\\2026-10-02_084844\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "4CC904A71C3A307E38CB154310674D1E1CCC2DA1EBDFB76E7B42E4C3F9F1F2C3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity2\\2026-10-02_084844\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "4B074493F223B7A3F33B2DDD7FC1C85A2987BAC300ADFFE024A68D4B36619F96",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quantity2\\2026-10-02_084844\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+    },
+    {
+      "sha256": "C3AF6EC888A1EDD8E99C41082A29D09BADD84FD364019347CBEC5130E656AD90",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quote-network-failure\\2026-10-02_090709\\quote-network-failure\\takeScreenshot\\offline-only-requote-not-create.png"
+    },
+    {
+      "sha256": "3E7CC7AB238625E71E93F5E85434373EEFB6139309679741131B6848FC08A631",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quote-network-recover\\2026-10-02_090800\\quote-network-recover\\takeScreenshot\\recovered-backend-max3.png"
+    },
+    {
+      "sha256": "FA85CF27E3551E512507E4881E1F26C73DF87FE5685D065512E6F4C67E1116C5",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task6-independent-evidence\\r1\\maestro-quote-network-recover\\2026-10-02_090800\\quote-network-recover\\takeScreenshot\\recovered-backend-min1.png"
+    },
+    {
+      "sha256": "CB2E5AE419BAE82D6E3391FE474192DDE6779F4BDC3069589C58199B65D4FD3D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-order-prepare\\2026-10-02_103457\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+    },
+    {
+      "sha256": "492584CFA5DD235E6B12E62FBC31DC867DCEEDA9D3750541F992664F6F610110",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-order-return\\2026-10-02_103903\\task7-401-return\\takeScreenshot\\natural401-login.png"
+    },
+    {
+      "sha256": "2B64018B7CAFE017AE319C0273981936F71F6DF1256C9A9701654271ED9567C1",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-order-return\\2026-10-02_103903\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+    },
+    {
+      "sha256": "1A03BC9A0A64507A2B9AAF41B530E3E5C04E15F3568B507F37FEDF23EF889F55",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-orders-prepare\\2026-10-02_102933\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+    },
+    {
+      "sha256": "4944DF38874D082C525820109E8C93604C4A69101516922ADEFD2B91537E19AB",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-orders-return\\2026-10-02_103340\\task7-401-return\\takeScreenshot\\natural401-login.png"
+    },
+    {
+      "sha256": "8B94784D31BE721FE96ADF48BA23F020CC7B63B5BC733F98C1646604709D87FF",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-orders-return\\2026-10-02_103340\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+    },
+    {
+      "sha256": "7DB8E70DDC9A0321F03D5AE8FDEF5DFE0CED7B70B7CA3DEA00E85BE9436533FC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-voucher-prepare\\2026-10-02_104008\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+    },
+    {
+      "sha256": "7C7313A48A0047753B5ADB2F2D491DB0002690D3AACD26266FEA7E4BB2A7AFBB",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-voucher-return\\2026-10-02_104410\\task7-401-return\\takeScreenshot\\natural401-login.png"
+    },
+    {
+      "sha256": "1F87DC839C0D41FFF27D9C0F1B6C3C30709F3E256BFC0EBC480537936BD284CB",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-401-voucher-return\\2026-10-02_104410\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+    },
+    {
+      "sha256": "354D568AFAA256B0E3B2F5A0F43060DFD60A0C191086B2FC64E9CE038F8380C4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-agent-read\\2026-10-02_101745\\task7-agent-read\\takeScreenshot\\agent-order-explicit-navigation.png"
+    },
+    {
+      "sha256": "1DDBF885E854A2EFD61AE68C26A6DC49C8B19EBFE549E4CC8AB1E618DF339AE7",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-agent-read\\2026-10-02_101745\\task7-agent-read\\takeScreenshot\\agent-orders-no-auto-navigation.png"
+    },
+    {
+      "sha256": "FEA191392885234C1DE5D3826CA6FC56F02C1C37649B69996A66E60D2257F59A",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-agent-read\\2026-10-02_101745\\task7-agent-read\\takeScreenshot\\agent-return-keeps-history.png"
+    },
+    {
+      "sha256": "A7F3628FF7B2B5D2F979F71DE0BA2A3FB2ECC9A754B105E3A432E487AC9FFF3C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-agent-read\\2026-10-02_101745\\task7-agent-read\\takeScreenshot\\agent-voucher-explicit-navigation.png"
+    },
+    {
+      "sha256": "B7669556BAE3CE87434C7417CBDA0D31A1966CA7A635D14249F01EC60526909D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-agent-read\\2026-10-02_101745\\task7-agent-read\\takeScreenshot\\agent-vouchers-no-auto-navigation.png"
+    },
+    {
+      "sha256": "BCF3D9C24B3325E513F70AEB012A02E4BD3F527FFFE2E06366F3C6D9E338DFBA",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-empty\\2026-10-02_102634\\task7-empty\\takeScreenshot\\empty-browse-return.png"
+    },
+    {
+      "sha256": "DD9A4066E1ED8A89812B47BFC446A3AB338C51640074B354835AC4E241337D55",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-empty\\2026-10-02_102634\\task7-empty\\takeScreenshot\\orders-real-empty.png"
+    },
+    {
+      "sha256": "DDCE23A076575DF9BB7FFAA60FD08AEC8D04CDC5F3AC3EB0930D0B5500CF9836",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-guest\\2026-10-02_102748\\task7-guest\\takeScreenshot\\guest-login-original-orders.png"
+    },
+    {
+      "sha256": "3BDC0C09EB947BDCFCEB323DFF9067E4B3076CC504A67C1EF0E5DE0CE1CDE72F",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-guest\\2026-10-02_102748\\task7-guest\\takeScreenshot\\guest-orders-login-intercept.png"
+    },
+    {
+      "sha256": "EB48A3A1ADC9105D378DB439114B1F8F8F010F295438D5DA16F0B491A47EE0CC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-network-error\\2026-10-02_102015\\task7-network-error\\takeScreenshot\\list-real-network-error.png"
+    },
+    {
+      "sha256": "E916FEA5820C304DD60C35F3DD64B129C4F5113F9AE53653291848ACC8064456",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-network-error\\2026-10-02_102015\\task7-network-error\\takeScreenshot\\order-real-network-error.png"
+    },
+    {
+      "sha256": "B332A87A52040F4875A3672604F66B944A12E3BC75EB9D878C3629EE0A1BA426",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-network-prepare\\2026-10-02_101918\\task7-network-prepare\\takeScreenshot\\network-before.png"
+    },
+    {
+      "sha256": "7484FF0440D5EBEE53112EC1C6C5C7ECAA1CB0F0825606BD5989EA421883397D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-network-recover\\2026-10-02_102058\\task7-network-recover\\takeScreenshot\\order-network-recovered.png"
+    },
+    {
+      "sha256": "176DF4B223930C98989865093E6EF3030F1E0938D242574013ECB09CFCFA2265",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-network-recover\\2026-10-02_102058\\task7-network-recover\\takeScreenshot\\voucher-before-network.png"
+    },
+    {
+      "sha256": "B397DD1D34152E5B4156213203D9F12A9C58A475446AEE627CDA257BDEEB8F60",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\available-segment-two.png"
+    },
+    {
+      "sha256": "D058E41AE4C986BE72F6242705EFFEBC963FA42A497B98D55AC7D9743BC14134",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\completed-segment-empty.png"
+    },
+    {
+      "sha256": "123CF55A36210274D627EEC0DF7AEAA16F06AA1B6D7B314577D3586DA44834E8",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\eligible-refund-navigation-only.png"
+    },
+    {
+      "sha256": "CCD18910CBAAD2CDBE7DBEC6A53BE8994E72FA463F5289ECACEB1D4B5BF3C5ED",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\order-different-real.png"
+    },
+    {
+      "sha256": "13A57A3817B42503016AD24D4F09A880FAA1273AC553CBFF94EFD4B43E775387",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\pending-no-payment-snapshot.png"
+    },
+    {
+      "sha256": "BC2906860F850686B0645E0183941AA70F2FD214918047D10EB00B001B6F147D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\pending-voucher-no-eligibility.png"
+    },
+    {
+      "sha256": "85140BF5197490CE34A90A645739FAFD2A2B90F6885B7669FEF6FBD3ED2B656E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\UI10-orders-three-real.png"
+    },
+    {
+      "sha256": "8243BC54758438E36F85C0D153101BA231A334D0CBB8F346BAFD3AD28A8386A8",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\UI11-order-two-vouchers.png"
+    },
+    {
+      "sha256": "1FD3A54D6D3845AC876933A6ACCC349FEE61140E4A3F0E73E081283BCFCCAE82",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\UI12-voucher-first.png"
+    },
+    {
+      "sha256": "4A21040FB7922431E9A1BA37934AB0359D6480701D92F870A1526A00017297BF",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-final\\2026-10-02_101554\\group-buying-04-voucher-query\\takeScreenshot\\voucher-second-distinct.png"
+    },
+    {
+      "sha256": "83CF5CA394CB93770E09BA994E6D1EDFB43CC2C93D7204BE0138EFB889DFB07C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-first\\2026-10-02_101129\\group-buying-04-voucher-query\\takeScreenshot\\available-segment-two.png"
+    },
+    {
+      "sha256": "DA409D17120D3C341FF587E38964A21FA0CAA3FBDBA41FEA2C4703E08A311817",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-first\\2026-10-02_101129\\group-buying-04-voucher-query\\takeScreenshot\\completed-segment-empty.png"
+    },
+    {
+      "sha256": "FFF461892B955C747A6D1D3AC42FD6CBCC6DBF59435A1251976442E7EE2B4D78",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-first\\2026-10-02_101129\\group-buying-04-voucher-query\\takeScreenshot\\UI10-orders-three-real.png"
+    },
+    {
+      "sha256": "41A141B013C58097C62F846DA3E82D024F2E0C03BB3E9DD471412E9A742F2E1E",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\available-segment-two.png"
+    },
+    {
+      "sha256": "FA4D6640BEDE82F3FF868DCF223D2C4D81BC80355AC410D2AAD01AE55D2E35CE",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\completed-segment-empty.png"
+    },
+    {
+      "sha256": "C0E62AD46C148BF34D275023FD26932021942E7A695B794499BEBEE0E1D9A11C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\eligible-refund-navigation-only.png"
+    },
+    {
+      "sha256": "AE9872624A84EB8CED010443D3ACC5CF7A830D3D9824EAF408E0AA6384B1F186",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\order-different-real.png"
+    },
+    {
+      "sha256": "C99F3FCBC9456786D2CDCA3B1E6ADFB012C6D74B0029178ABCD552AE1D44ADCC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\pending-no-payment-snapshot.png"
+    },
+    {
+      "sha256": "B17E8D06BE163418AD6B929DA811F6F7919ECEC3F231ECF40A5694C049FBDA55",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\pending-voucher-no-eligibility.png"
+    },
+    {
+      "sha256": "71A3F5AD07AA39ABBC9979C539FDB270C88F9FB058E8ABF45BCC6F2DF04CE1BE",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\UI10-orders-three-real.png"
+    },
+    {
+      "sha256": "F9D665E7DE07F3E43C99F862840612B777FE8E589DDCDB453FEBD273ACB59B1B",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\UI11-order-two-vouchers.png"
+    },
+    {
+      "sha256": "569A5C6D03FEA738462013261237FA51E82E2F818108AE1C0A05D29D9A962325",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\UI12-voucher-first.png"
+    },
+    {
+      "sha256": "DAEEF52FE624722D92EE56AD2F62061EFC1198177EF155AECBA777FF8DA4DDEE",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-query-selector-fixed\\2026-10-02_101325\\group-buying-04-voucher-query\\takeScreenshot\\voucher-second-distinct.png"
+    },
+    {
+      "sha256": "071FD69CE16905BE39D22A053480E3BA04F89B75200C2980E64445C7D2CF1ED4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\available-segment-two.png"
+    },
+    {
+      "sha256": "5EDE60D7DD3ABF9D527A6589B62D34CA88AF02860AB2120F0E0FB9ED05ABD23D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\completed-segment-empty.png"
+    },
+    {
+      "sha256": "9D933EA28A38159A8C7865DBDEA69AC12B01ED89562600D172F05BB0269239A3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\eligible-refund-navigation-only.png"
+    },
+    {
+      "sha256": "13E09143007661F4A79A5D8E58CEC4DAA3B36718057FE834FDBF9A56227EAF68",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\order-different-real.png"
+    },
+    {
+      "sha256": "9EB22ACFD8887C8CFC016F137DFC89563E509BDACB243D72364FF682ED6D1EC0",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\pending-no-payment-snapshot.png"
+    },
+    {
+      "sha256": "67BA8A2F913C50498C5B155369ECE998FC863CAC7C4BB663C6836E9EE81E65DD",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\pending-voucher-no-eligibility.png"
+    },
+    {
+      "sha256": "B43E89348DAE4930E48F8D55122DB188770534DEA12DDED16C7F636271B8F10B",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\UI10-orders-three-real.png"
+    },
+    {
+      "sha256": "0E8E5B35C4A698FFF26D2A9E2017233982B5B84F8CA1994D6E4F9D01E429A05B",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\UI11-order-two-vouchers.png"
+    },
+    {
+      "sha256": "2DE38FD83AC945D9698E7C35632EA3672DC721626FCE312EE43DFD941572D906",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\UI12-voucher-first.png"
+    },
+    {
+      "sha256": "26B3AA01474D1C91014DC1DAF61BE23D589E8ED59B462094518F6E2BFF1261B1",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-r2-main-query\\2026-10-02_123429\\group-buying-04-voucher-query\\takeScreenshot\\voucher-second-distinct.png"
+    },
+    {
+      "sha256": "59F49DE7C6BB5AEC75B99F132712821A433DD5DC6359F013C8005AEFAF51E9E9",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-success-voucher-dependency\\2026-10-02_104613\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+    },
+    {
+      "sha256": "263C2AB58DD46355680E10AB113DB08079339DFE0C223CC282EAC2FB39A501E3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-success-voucher-dependency\\2026-10-02_104613\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "263C2AB58DD46355680E10AB113DB08079339DFE0C223CC282EAC2FB39A501E3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-success-voucher-dependency\\2026-10-02_104613\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "579CB09B03B93FDC8815C6F4E3FDA41A09B512858E4855BA047924D2A9F589C4",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-success-voucher-dependency\\2026-10-02_104613\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "D42FE68A146D5BCD418E0C09B8358381F7E98EC7B94C4F9F82AD5862E00AE142",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-success-voucher-dependency\\2026-10-02_104613\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+    },
+    {
+      "sha256": "F14E353E5567960981E49E7F012BF2F83A946F6A8D63BFB0E7DD72E4279D7385",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-voucher-network-error-resume\\2026-10-02_102430\\task7-voucher-network-error\\takeScreenshot\\voucher-real-network-error.png"
+    },
+    {
+      "sha256": "367DE6929D14C884B8F86C2CD6A149A74ECDA2FA8696AE78A4C2969522CF9BFE",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-voucher-network-recover\\2026-10-02_102606\\task7-voucher-network-recover\\takeScreenshot\\voucher-network-recovered.png"
+    },
+    {
+      "sha256": "EFBCA40B9167005CA9E03AED4F4919D36DCCDB8C0116A5AFF9FEBCA39A417B04",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-evidence\\maestro-voucher-resume-prepare\\2026-10-02_102331\\task7-voucher-prepare\\takeScreenshot\\UI12-image-loaded.png"
+    },
+    {
+      "sha256": "F992F610E0CA2649B6B185109AB0286D35AEBFD1B335809D0D34C18B4017E5D5",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-401-order-prepare\\2026-10-02_113633\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+    },
+    {
+      "sha256": "842244B5DA2BEEC67850FD224793E2E48B886E70ED852761E9FF7A39F4333F88",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-401-orders-prepare\\2026-10-02_113054\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+    },
+    {
+      "sha256": "761747A2F703473EEBC6E65AF2C1208B1E97087DCF5884C6DF514D349AD99F0F",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-401-orders-return\\2026-10-02_113336\\task7-401-return\\takeScreenshot\\natural401-login.png"
+    },
+    {
+      "sha256": "64B1635792215B9AA2B4563C13947CCFD1C58E47ACEA818C6116E386F94AA9BA",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-401-orders-return\\2026-10-02_113336\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+    },
+    {
+      "sha256": "FA1CED552300900A0B03D0CADF45A4E5E5418E01CED3F882A301F0C6BEFD8873",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-order-explicit-navigation.png"
+    },
+    {
+      "sha256": "88977D90DC831598C0D0AD52EC0D0B86E3241CE93197DD493A542DEAA79D9FC3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-orders-no-auto-navigation.png"
+    },
+    {
+      "sha256": "DEB741A038E89BA11A48D29B9F737B842F70B8DC3C50ED19D2A4862620E75130",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-return-keeps-history.png"
+    },
+    {
+      "sha256": "F6CE532AEA0AC73E4913842E5432A0061B87FFF56B2E032FEC261FD940129ED3",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-voucher-explicit-navigation.png"
+    },
+    {
+      "sha256": "C88F5292E3C630C735B0D17B5D5C4082F522E1DDD273FB4D7D05EDC2A0F63B25",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-vouchers-no-auto-navigation.png"
+    },
+    {
+      "sha256": "8B1A63EA381EDBA5BDBB78362B78ABA8679F8258259D9172A05532E4B42BFE39",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-empty\\2026-10-02_112701\\task7-empty\\takeScreenshot\\empty-browse-return.png"
+    },
+    {
+      "sha256": "08D868E14F4F32D9B7434CBE078B55865BF2177E517463543A583118895E7A0C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-empty\\2026-10-02_112701\\task7-empty\\takeScreenshot\\orders-real-empty.png"
+    },
+    {
+      "sha256": "CCF52A928BFDB20A3089791508438A06FB5347416E0D7E2044E9CF0756110EB8",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-guest\\2026-10-02_112750\\task7-guest\\takeScreenshot\\guest-login-original-orders.png"
+    },
+    {
+      "sha256": "4F7657719C95FBED0B1A033A1D8E762AA4377CA28897B0798D3CA99F02016ECB",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-guest\\2026-10-02_112750\\task7-guest\\takeScreenshot\\guest-orders-login-intercept.png"
+    },
+    {
+      "sha256": "CFEB9101BA2428E6D5134D6E582818A2EE666AAA476CD64FED157DDD64E92C78",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-network-error\\2026-10-02_112251\\task7-network-error\\takeScreenshot\\list-real-network-error.png"
+    },
+    {
+      "sha256": "E026BA1853FAB980A861465EA0224CB2B93F1798DE5955D8172507285B592803",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-network-error\\2026-10-02_112251\\task7-network-error\\takeScreenshot\\order-real-network-error.png"
+    },
+    {
+      "sha256": "2C88455E761486509E895920BA094AE9FC5ADD5D1FA6EBB01AF2C5EA7ECC1B83",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-network-prepare\\2026-10-02_112208\\task7-network-prepare\\takeScreenshot\\network-before.png"
+    },
+    {
+      "sha256": "33ECA6C32C24F0923DBBDB69A0129728F11B394CE352F18BFD06CCBF7C2B6E56",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-network-recover\\2026-10-02_112342\\task7-network-recover\\takeScreenshot\\order-network-recovered.png"
+    },
+    {
+      "sha256": "59E4B2ECF09601D00CF95B7FDF76DEC64F9FE1C05694939475996B06B3771578",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-network-recover\\2026-10-02_112342\\task7-network-recover\\takeScreenshot\\voucher-before-network.png"
+    },
+    {
+      "sha256": "994AAD7C0B68979388F0B0F1E0C56E5189D1BC562983814E062121EFEBB0CF0B",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\available-segment-two.png"
+    },
+    {
+      "sha256": "5EBA8700BBA7A02C0A5421B2DAA5E3D8207C652DC0B48B859AB55AA35AC192EE",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\completed-segment-empty.png"
+    },
+    {
+      "sha256": "90EF41C9AFECC085A1DF4746658FEB00DCDFBCAEAD6F4D472D4DE912F567B2C5",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\eligible-refund-navigation-only.png"
+    },
+    {
+      "sha256": "9BFA73720B01774EB4A3A5E949E39471CFC9DBEB7F5FC94708C7D87ED9BDBAB6",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\order-different-real.png"
+    },
+    {
+      "sha256": "22502F1DE2019008F7E511A65DD74914D0C3BB0F106DDB67EA35321A992D8544",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\pending-no-payment-snapshot.png"
+    },
+    {
+      "sha256": "09CD6A43B5A6AE5E5EE62189765A46E5DA55EDC03588C08F3B3E6288BA187EDF",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\pending-voucher-no-eligibility.png"
+    },
+    {
+      "sha256": "4DAF2F06511AF1EAF2F20AFD4B76BC97B2EE6CBECC5C45F13A6DDC0102227B37",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\UI10-orders-three-real.png"
+    },
+    {
+      "sha256": "DBC3450F235A1E2C9CDB6F79DBD7EA0B444A3381B42D98E7DA2F74ADDAC18FCA",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\UI11-order-two-vouchers.png"
+    },
+    {
+      "sha256": "DB68D3863C7F77C6BF49CAF59728D2647836D78C0E624D092F0DF7D6BA0F0A5B",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\UI12-voucher-first.png"
+    },
+    {
+      "sha256": "138D565926E0D0AFF297C9E07A74C335C64B944C0E7386BBD78257913BF91DAC",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\voucher-second-distinct.png"
+    },
+    {
+      "sha256": "BE50CCA796BD2F73DB3CB503F880A304F0DD973F96C4E9E93285B1BDA3E4F118",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r1-401-order-prepare\\2026-10-02_115832\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+    },
+    {
+      "sha256": "18A3DC87A77737A25AF003846B28F0E8ED02E8396C10F76A68224C78AF28AC46",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r1-401-order-return\\2026-10-02_120151\\task7-401-return\\takeScreenshot\\natural401-login.png"
+    },
+    {
+      "sha256": "F8F359667457682B2D55D73419C4172C24A636A7B8EA6DCE003C1EB744879C86",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r1-401-order-return\\2026-10-02_120151\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+    },
+    {
+      "sha256": "E3688BA82F871739654AE87D4232C10F1AF63727FF84D1529899DF11652F2D18",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r1-401-voucher-prepare\\2026-10-02_120236\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+    },
+    {
+      "sha256": "C08D347BA107B8E39371267C5D1169FD77208AB51AB175D6300C7715D2475AAE",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r1-401-voucher-return\\2026-10-02_120525\\task7-401-return\\takeScreenshot\\natural401-login.png"
+    },
+    {
+      "sha256": "78F0E1D8F4172DAF6267E77D244EA21F8C80B7CF64007B474AEB113E91D87A23",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r1-401-voucher-return\\2026-10-02_120525\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+    },
+    {
+      "sha256": "2ADA02628B95544D622BAAB626305FF7E127D875699D993984D647F576AAF674",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-unregistered\\2026-10-02_193212\\unregistered-route\\takeScreenshot\\unregistered-explicit-unavailable.png"
+    },
+    {
+      "sha256": "2D713122584130C135CC230083E0141BB7D1485562B912EA09BB2272663C193D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-unregistered\\2026-10-02_193212\\unregistered-route\\takeScreenshot\\unregistered-still-original-voucher.png"
+    },
+    {
+      "sha256": "A3F53958DEA3196248FB0A979F0D2F3B1378AF7ED7A2CB69C4A713BB44CF9742",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\available-segment-two.png"
+    },
+    {
+      "sha256": "100CB793B525526DA073CB1FB5680E212AAD3F742764C74523D0F93CDB7D26E1",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\completed-segment-empty.png"
+    },
+    {
+      "sha256": "91C42C6DE358D70A2D1AADC65FEF9D550609B6ED0C703E9269A65989BA12C732",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\eligible-refund-navigation-only.png"
+    },
+    {
+      "sha256": "66CD3FE7568D93670D79AD1EE004BFFD322142159139A35B2664D16705945F14",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\order-different-real.png"
+    },
+    {
+      "sha256": "AB90910EB40FF8844FFF78A749598FDCBA0C9577BBA076CED9CC2F6EA4CC3BFA",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\pending-no-payment-snapshot.png"
+    },
+    {
+      "sha256": "4469CF956C101018AF04BE3B33156C71C9E947136F99B96BC5AEECFFB4081A70",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\pending-voucher-no-eligibility.png"
+    },
+    {
+      "sha256": "803AB23823ED7755DFCA7F2CE3F72880F5B651BAD13800D307EBC0160A24979C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\UI10-orders-three-real.png"
+    },
+    {
+      "sha256": "A2370C9CAFBD4C2FCA5309ED13C07996F073BE5D2C267E30232BADA9696B6D58",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\UI11-order-two-vouchers.png"
+    },
+    {
+      "sha256": "79B36458B5D825E4D9D880B8FC7BBD38F1F1899AEA2A1FBF9223E4908E6A1041",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\UI12-voucher-first.png"
+    },
+    {
+      "sha256": "E675E256E3292466C7DCBCD0D0EB4E75576B0B337FD7E8216A8BAEF29D5481C0",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-r3-workspace-query\\2026-10-02_192917\\group-buying-04-voucher-query\\takeScreenshot\\voucher-second-distinct.png"
+    },
+    {
+      "sha256": "81B5B2FC72D5B99F5AAF3AE648C77A919E328A56E50E433D771A41310D2B9BF9",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+    },
+    {
+      "sha256": "5018AC9777B9CEE154D6B1E54FBFF1CC8CE266655EF58918510C314A1B5C8788",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+    },
+    {
+      "sha256": "5018AC9777B9CEE154D6B1E54FBFF1CC8CE266655EF58918510C314A1B5C8788",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+    },
+    {
+      "sha256": "52590E66431A37D9494E28E3E92D01A0B6D80837DEF8E1FA69918814E0F0979C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+    },
+    {
+      "sha256": "8033AA5B47D071DB468BB0041D2F00848358B6AB90D691686DAE10BE726BBAE7",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+    },
+    {
+      "sha256": "F9CBD66986F29ED587B5930BB689490582628D6F860B39B66F89177F1450544C",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-voucher-network-error\\2026-10-02_112610\\task7-voucher-network-error\\takeScreenshot\\voucher-real-network-error.png"
+    },
+    {
+      "sha256": "B2245613DC35A1786E74A192AC62835A0A415A996E6C85D15A73BF0C69B9763D",
+      "path": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone\\docs\\verification\\task7-independent-evidence\\maestro-voucher-network-recover\\2026-10-02_112637\\task7-voucher-network-recover\\takeScreenshot\\voucher-network-recovered.png"
+    }
+  ],
+  "repositories": [
+    {
+      "frozenFilesUnchanged": 114,
+      "indexTree": "1cc8fff9b0077672fd87d26a460a0fda5b7b7996",
+      "head": "f2f08035ed23676c88269d083b3536e200741ac0",
+      "repository": "C:/fdz-build"
+    },
+    {
+      "frozenFilesUnchanged": 6,
+      "indexTree": "0d29e30b066dd0b33d8cf244fa75d71ee3d5995a",
+      "head": "9fdc5e16146423120bab18a722090643fa0d3203",
+      "repository": "D:/project/-Demo-master"
+    }
+  ],
+  "oldPrivateJsonUnchanged": 775,
+  "apkSha256": "5417EF91BC9D2544DC49B24EF35186E83448A98F56555840B4D121AD8756511C",
+  "listeners": [
+    {
+      "port": 8080,
+      "pid": 34804,
+      "sourceVerified": true
+    },
+    {
+      "port": 8091,
+      "pid": 47544,
+      "sourceVerified": true
+    },
+    {
+      "port": 8768,
+      "pid": 2464,
+      "sourceVerified": true
+    }
+  ],
+  "springHealthy": true,
+  "agentHealth": {
+    "status": "ok",
+    "schemaVersion": "1.1",
+    "service": "group-buying-agent",
+    "sourceRoot": "D:\\project\\-Demo-master",
+    "entryPoint": "service.app:create_app",
+    "buildVersion": "9fdc5e1-task8-working-tree"
+  },
+  "imageStatus": 200,
+  "imageFaultRestored": true,
+  "network": {
+    "wifi": "1",
+    "data": "1",
+    "airplane": "disabled",
+    "proxy": "null",
+    "connected": true
+  }
+}

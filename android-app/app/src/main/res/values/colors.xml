@@ -28,7 +28,9 @@
     <color name="group_buy_muted">#6B7585</color>
     <color name="group_buy_line">#E5E8EB</color>
     <color name="group_buy_discount">#FFEAE3</color>
-    <!-- Task7订单和团购券只读状态页的正文与次级说明共享颜色。 -->
+    <!-- 售后页面从已确认 Figma 画板提取，分别用于背景、正文和次级说明。 -->
+    <color name="after_sale_background">#FBFAF8</color>
     <color name="after_sale_ink">#091D24</color>
     <color name="after_sale_muted">#768398</color>
+    <color name="after_sale_input">#F5F6F8</color>
 </resources>

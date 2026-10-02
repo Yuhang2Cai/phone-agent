@@ -19,5 +19,10 @@ public class FaqController {
 
     /** 返回匹配的帮助条目。 */
     @GetMapping
-    public List<Map<String, String>> list(@RequestParam(required = false) String keyword) { return faqs.query(keyword); }
+    public List<Map<String, String>> list(@RequestParam(required = false) String keyword,
+                                        @RequestParam(required = false) String category) { return faqs.query(keyword, category); }
+
+    /** 分类是公开后端目录，不包含用户资源，也不由端侧编造问答分组。 */
+    @GetMapping("/categories")
+    public List<Map<String, String>> categories() { return faqs.categories(); }
 }

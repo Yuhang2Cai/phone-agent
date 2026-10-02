@@ -1,0 +1,15 @@
+appId: com.fandazi.app
+---
+# 图片服务已恢复同一URL的原图片字节，保留评价页和输入；点击重试后要求后端原图说明出现。
+- tapOn: "图片加载失败，点击重试"
+- extendedWaitUntil:
+    visible: "${MAESTRO_IMAGE_ALT}"
+    timeout: 60000
+- assertNotVisible: "图片加载失败，点击重试"
+- assertVisible: "Image retry must keep my review text."
+- assertVisible: "非常满意"
+- takeScreenshot: review-original-image-recovered-input-kept
+- tapOn:
+    id: "com.fandazi.app:id/review_back"
+- assertVisible:
+    id: "com.fandazi.app:id/group_order_review"
