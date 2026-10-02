@@ -25,12 +25,17 @@ class MainActivity : AppCompatActivity() {
     private var pendingProtectedDestination: Int? = null
     /** 购买登录返回保留资源和数量，不能在认证成功后退回首页丢失目标。 */
     private var pendingProtectedArguments: Bundle? = null
+    /** 认证清空旧栈时保留来源页面与导航参数；它们是资源引用，不是价格或授权事实。 */
+    private var pendingReturnDestination: Int? = null
+    private var pendingReturnArguments: Bundle? = null
 
 // 初始化组件与页面状态。
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pendingProtectedDestination = savedInstanceState?.getInt(KEY_PENDING_DESTINATION)?.takeIf { it != 0 }
         pendingProtectedArguments = savedInstanceState?.getBundle("pending_protected_arguments")
+        pendingReturnDestination = savedInstanceState?.getInt("pending_return_destination")?.takeIf { it != 0 }
+        pendingReturnArguments = savedInstanceState?.getBundle("pending_return_arguments")
         setContentView(R.layout.activity_main)
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         bottomNavigation = findViewById(R.id.bottom_navigation)
@@ -49,6 +54,8 @@ class MainActivity : AppCompatActivity() {
             if (destination.id != R.id.authFragment && pendingProtectedDestination != null) {
                 pendingProtectedDestination = null
                 pendingProtectedArguments = null
+                pendingReturnDestination = null
+                pendingReturnArguments = null
             }
             // 门店三个内容状态属于首页浏览链路，继续显示并选中首页 Tab；套餐详情按设计隐藏底部导航。
             bottomNavigation.isVisible = destination.id in setOf(
@@ -101,18 +108,37 @@ class MainActivity : AppCompatActivity() {
             R.id.agentChatFragment, R.id.dealDetailFragment, R.id.dealCheckoutBottomSheetFragment,
             // Task7 本人订单/券详情属于已登录业务路由，状态重新派发时不能丢失当前资源退回首页。
             R.id.groupBuyPaymentFragment, R.id.paymentSuccessFragment,
-            R.id.groupOrderDetailFragment, R.id.voucherDetailFragment -> SessionRoute.HOME
+            R.id.groupOrderDetailFragment, R.id.voucherDetailFragment, R.id.memoryFragment -> SessionRoute.HOME
             else -> null
         }
         Log.d("FandaziSession", "session navigation: state=${state::class.java.simpleName}, current=$current, desired=$desired")
         if (state is SessionState.Authenticated && pendingProtectedDestination != null) {
             val destination = pendingProtectedDestination ?: return
             val targetArguments = pendingProtectedArguments
+            val returnDestination = pendingReturnDestination
+            val returnArguments = pendingReturnArguments
             pendingProtectedDestination = null
             pendingProtectedArguments = null
-            navHost.navController.navigate(destination, targetArguments, navOptions {
-                popUpTo(R.id.authFragment) { inclusive = true }
-            })
+            pendingReturnDestination = null
+            pendingReturnArguments = null
+            // 过期退出与显式登录可能先后进入认证页。清除所有认证栈项，而非只弹出最上层，
+            // 否则资源恢复成功后按返回仍会遇到另一张旧登录页。
+            val controller = navHost.navController
+            while (runCatching { controller.getBackStackEntry(R.id.authFragment) }.isSuccess) {
+                if (!controller.popBackStack(R.id.authFragment, true)) break
+            }
+            // 旧受保护页面的失败状态不沿用：移除当前同目标，再重新创建并读取新身份的事实。
+            if (controller.currentDestination?.id == destination) controller.popBackStack(destination, true)
+            if (controller.currentDestination == null) {
+                controller.navigate(R.id.homeFragment)
+            }
+            // 注销观察者可能已清空原浏览栈；恢复“我的”或原套餐等来源，再恢复目标，
+            // 使返回仍回到正确业务入口，来源页重新向接口读取，不恢复旧身份或报价。
+            if (returnDestination != null && returnDestination != destination &&
+                controller.currentDestination?.id != returnDestination) {
+                controller.navigate(returnDestination, returnArguments, navOptions { launchSingleTop = true })
+            }
+            controller.navigate(destination, targetArguments, navOptions { launchSingleTop = true })
             return
         }
         if (!SessionRouteCoordinator.shouldNavigate(current, desired)) return
@@ -144,12 +170,22 @@ class MainActivity : AppCompatActivity() {
         } else {
             pendingProtectedDestination = destination
             pendingProtectedArguments = arguments?.let(::Bundle)
-            navHost.navController.navigate(R.id.authFragment, bundleOf("require_login" to true))
+            // Session注销的观察者也可能已经打开认证页，单实例替换避免重复认证回退栈。
+            navHost.navController.navigate(R.id.authFragment, bundleOf("require_login" to true), navOptions {
+                launchSingleTop = true
+            })
         }
     }
 
     /** 购买遇到 401 清除旧身份后登录，返回原套餐数量或原订单并重新读取服务端事实。 */
     fun openPurchaseLogin(destination: Int, arguments: Bundle, expired: Boolean = false) {
+        // 在注销清栈之前捕获合法业务来源，拒绝把认证页或导航图当成用户返回目的地。
+        navHost.navController.previousBackStackEntry?.let { entry ->
+            if (entry.destination.id != R.id.authFragment && entry.destination.id != navHost.navController.graph.id) {
+                pendingReturnDestination = entry.destination.id
+                pendingReturnArguments = entry.arguments?.let(::Bundle)
+            }
+        }
         lifecycleScope.launch {
             if (expired) applicationSession().logout()
             openProtectedDestination(destination, arguments)
@@ -165,6 +201,8 @@ class MainActivity : AppCompatActivity() {
     override fun onSaveInstanceState(outState: Bundle) {
         pendingProtectedDestination?.let { outState.putInt(KEY_PENDING_DESTINATION, it) }
         pendingProtectedArguments?.let { outState.putBundle("pending_protected_arguments", it) }
+        pendingReturnDestination?.let { outState.putInt("pending_return_destination", it) }
+        pendingReturnArguments?.let { outState.putBundle("pending_return_arguments", it) }
         super.onSaveInstanceState(outState)
     }
 

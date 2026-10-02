@@ -1,0 +1,16 @@
+# 游客不展示受保护记忆、订单或帮助入口，只保留账户引导与设置。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- assertVisible: "游客"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_settings_entry"
+- assertNotVisible: "AI记忆"
+- assertNotVisible: "我的订单"
+- assertNotVisible: "帮助与客服"
+- takeScreenshot: memory-guest-profile

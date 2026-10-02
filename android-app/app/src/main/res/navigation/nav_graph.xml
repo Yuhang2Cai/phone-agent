@@ -55,4 +55,6 @@
     <fragment android:id="@+id/complaintFragment" android:name="com.fandazi.app.feature.support.ComplaintFragment" android:label="投诉与反馈">
         <argument android:name="orderId" app:argType="string" android:defaultValue="" />
     </fragment>
+    <!-- 本人记忆正式入口；延期核销节点不纳入Task10提交。 -->
+    <fragment android:id="@+id/memoryFragment" android:name="com.fandazi.app.feature.memory.MemoryFragment" android:label="AI记忆" />
 </navigation>

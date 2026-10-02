@@ -1,0 +1,60 @@
+# Task10真实记忆管理流程：账号由私有运行器注入，所有偏好从Agent API读取。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- tapOn:
+    id: "com.fandazi.app:id/profile_memory_entry"
+- extendedWaitUntil:
+    visible: "口味偏好"
+    timeout: 30000
+- assertVisible: "川菜"
+- takeScreenshot: memory-confirmed-list
+- tapOn:
+    id: "com.fandazi.app:id/memory_edit"
+- extendedWaitUntil:
+    visible: "编辑记忆"
+    timeout: 5000
+- tapOn:
+    id: "com.fandazi.app:id/memory_dialog_value"
+- eraseText
+- setClipboard: "喜欢粤菜"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/memory_dialog_confirm"
+- extendedWaitUntil:
+    visible: "喜欢粤菜"
+    timeout: 30000
+- takeScreenshot: memory-edited
+- tapOn:
+    id: "com.fandazi.app:id/memory_delete"
+- assertVisible: "删除这条记忆？"
+- takeScreenshot: memory-delete-confirm
+- tapOn:
+    id: "com.fandazi.app:id/memory_dialog_cancel"
+- assertVisible: "喜欢粤菜"
+- tapOn:
+    id: "com.fandazi.app:id/memory_delete"
+- tapOn:
+    id: "com.fandazi.app:id/memory_dialog_confirm"
+- extendedWaitUntil:
+    notVisible: "喜欢粤菜"
+    timeout: 30000
+# 模型可合法抽取多条偏好；删除单条只要求该条消失，不误认为整个账号已空。
+- runFlow:
+    when:
+      visible: "全部清除"
+    commands:
+      - tapOn: "全部清除"
+      - tapOn:
+          id: "com.fandazi.app:id/memory_dialog_confirm"
+- extendedWaitUntil:
+    visible: ".*还没有AI记忆.*"
+    timeout: 30000
+- takeScreenshot: memory-empty-after-delete
+- tapOn:
+    id: "com.fandazi.app:id/memory_back"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_settings_entry"

@@ -1,0 +1,42 @@
+# 状态夹具由生产政策写入真实MySQL；敏感确认、普通确认与清空都是实际API操作。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- tapOn:
+    id: "com.fandazi.app:id/profile_memory_entry"
+- extendedWaitUntil:
+    visible: "确认敏感保存"
+    timeout: 30000
+- tapOn: "确认敏感保存"
+- assertVisible: "确认保存敏感信息？"
+- takeScreenshot: memory-sensitive-consent
+- tapOn:
+    id: "com.fandazi.app:id/memory_dialog_cancel"
+- assertVisible: "确认敏感保存"
+- tapOn: "确认敏感保存"
+- tapOn:
+    id: "com.fandazi.app:id/memory_dialog_confirm"
+- extendedWaitUntil:
+    notVisible: "确认敏感保存"
+    timeout: 30000
+- tapOn: "确认保存"
+- assertVisible: "确认这条记忆？"
+- tapOn:
+    id: "com.fandazi.app:id/memory_dialog_confirm"
+- extendedWaitUntil:
+    notVisible: "确认保存"
+    timeout: 30000
+- scrollUntilVisible:
+    element: "全部清除"
+    direction: DOWN
+- tapOn: "全部清除"
+- assertVisible: "清空全部AI记忆？"
+- takeScreenshot: memory-clear-confirm
+- tapOn:
+    id: "com.fandazi.app:id/memory_dialog_confirm"
+- extendedWaitUntil:
+    visible: ".*还没有AI记忆.*"
+    timeout: 30000
+- takeScreenshot: memory-cleared

@@ -23,6 +23,9 @@ import com.fandazi.app.feature.support.AfterSaleRepository
 import com.fandazi.app.feature.support.HttpAfterSaleRepository
 
 class FandaziApplication : Application() {
+    /** 记忆属于独立Agent，Android只通过Spring代理读取和管理。 */
+    lateinit var memoryRepository: com.fandazi.app.feature.memory.MemoryRepository
+        private set
     /** 首页、搜索及门店公开浏览共享网络仓库，所有业务事实来自同一 Spring 目录。 */
     lateinit var catalogRepository: com.fandazi.app.feature.store.CatalogRepository
         private set
@@ -58,6 +61,7 @@ class FandaziApplication : Application() {
             tokenProvider = { sessionRepository.tokenOrNull() }
         )
         sessionRepository = SessionRepository(ApiAuthGateway(apiClient), EncryptedSessionStorage(this))
+        memoryRepository = com.fandazi.app.feature.memory.MemoryRepository(apiClient)
         orderingRepository = HttpOrderingRepository(apiClient)
         cartStateStore = PreferencesCartStateStore(this)
         automationSettingsRepository = HttpAutomationSettingsRepository(apiClient)

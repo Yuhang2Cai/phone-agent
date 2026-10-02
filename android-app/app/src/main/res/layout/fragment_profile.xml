@@ -1,8 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/surface_background" android:fillViewport="true"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
-    <TextView android:id="@+id/profile_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/profile_page" android:textColor="@color/brand_ink" android:textSize="24sp" android:textStyle="bold" />
-    <LinearLayout android:id="@+id/profile_account_card" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:background="@drawable/bg_profile_card" android:orientation="vertical"><TextView android:id="@+id/profile_account_name" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/profile_account_name" android:textColor="@color/brand_ink" android:textSize="18sp" android:textStyle="bold" /><TextView android:id="@+id/profile_guest_hint" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="@string/profile_guest_hint" android:textColor="@color/brand_muted" android:textSize="14sp" /></LinearLayout>
-    <TextView android:id="@+id/profile_address_entry" android:layout_width="match_parent" android:layout_height="64dp" android:layout_marginTop="12dp" android:background="@drawable/bg_profile_card" android:contentDescription="@string/profile_address_entry" android:gravity="center_vertical" android:padding="16dp" android:text="@string/profile_address_entry" android:textColor="@color/brand_ink" android:textSize="16sp" android:textStyle="bold" />
-    <TextView android:id="@+id/profile_automation_entry" android:layout_width="match_parent" android:layout_height="64dp" android:layout_marginTop="12dp" android:background="@drawable/bg_profile_card" android:contentDescription="@string/profile_automation_entry" android:gravity="center_vertical" android:padding="16dp" android:text="@string/profile_automation_entry" android:textColor="@color/brand_ink" android:textSize="16sp" android:textStyle="bold" />
-    <TextView android:id="@+id/profile_logout" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:background="@drawable/bg_profile_card" android:gravity="center" android:minHeight="48dp" android:paddingVertical="12dp" android:text="@string/logout" android:textColor="@color/warning_red" android:textSize="14sp" />
-<TextView android:id="@+id/profile_help_entry" android:layout_width="match_parent" android:layout_height="64dp" android:layout_marginTop="12dp" android:background="@drawable/bg_profile_card" android:gravity="center_vertical" android:padding="16dp" android:text="帮助与客服    ›" android:textColor="@color/brand_ink" android:textSize="16sp" android:textStyle="bold" /></LinearLayout></ScrollView>
+<!-- UI16A/B：游客只保留登录与设置；登录后的用户名和业务状态从Session/API读取。 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:background="@color/group_buy_background" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+        <TextView android:id="@+id/profile_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:text="我的" android:textColor="@color/group_buy_green" android:textSize="28sp" android:textStyle="bold" />
+        <LinearLayout android:id="@+id/profile_account_card" android:layout_width="match_parent" android:layout_height="156dp" android:gravity="center_vertical" android:orientation="horizontal">
+            <TextView android:layout_width="92dp" android:layout_height="92dp" android:background="@drawable/memory_profile_avatar" android:gravity="center" android:text="◎" android:textSize="32sp" android:textColor="@color/group_buy_muted" android:contentDescription="账户头像" />
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="12dp">
+                <TextView android:id="@+id/profile_account_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/group_buy_green" android:textSize="22sp" android:textStyle="bold" />
+                <TextView android:id="@+id/profile_guest_hint" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="登录后享受更多服务" android:textColor="@color/group_buy_muted" android:textSize="14sp" />
+            </LinearLayout>
+            <TextView android:id="@+id/profile_login_entry" android:layout_width="96dp" android:layout_height="44dp" android:background="@drawable/group_buy_primary_button" android:gravity="center" android:text="登录/注册" android:textColor="@color/surface_card" android:textSize="14sp" />
+            <TextView android:id="@+id/profile_logout" android:layout_width="96dp" android:layout_height="44dp" android:background="@drawable/group_buy_primary_button" android:gravity="center" android:text="退出登录" android:textColor="@color/surface_card" android:textSize="14sp" android:visibility="gone" />
+        </LinearLayout>
+        <LinearLayout android:id="@+id/profile_business_entries" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/bg_profile_card" android:orientation="vertical">
+            <LinearLayout android:id="@+id/profile_orders_entry" android:layout_width="match_parent" android:layout_height="72dp" android:gravity="center_vertical">
+                <TextView android:layout_width="42dp" android:layout_height="42dp" android:background="@drawable/memory_profile_icon_bg" android:gravity="center" android:text="▤" android:textColor="@color/group_buy_orange" android:textSize="20sp" />
+                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:paddingStart="20dp" android:text="我的订单" android:textColor="@color/group_buy_text" android:textSize="16sp" />
+                <TextView android:layout_width="24dp" android:layout_height="48dp" android:gravity="center" android:text="›" android:textColor="@color/group_buy_muted" android:textSize="24sp" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/profile_memory_entry" android:layout_width="match_parent" android:layout_height="72dp" android:gravity="center_vertical">
+                <TextView android:layout_width="42dp" android:layout_height="42dp" android:background="@drawable/memory_profile_icon_bg" android:gravity="center" android:text="▣" android:textColor="@color/group_buy_orange" android:textSize="20sp" />
+                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:paddingStart="20dp" android:text="AI记忆" android:textColor="@color/group_buy_text" android:textSize="16sp" />
+                <TextView android:layout_width="24dp" android:layout_height="48dp" android:gravity="center" android:text="›" android:textColor="@color/group_buy_muted" android:textSize="24sp" />
+            </LinearLayout>
+            <LinearLayout android:id="@+id/profile_refund_entry" android:layout_width="match_parent" android:layout_height="72dp" android:gravity="center_vertical">
+                <TextView android:layout_width="42dp" android:layout_height="42dp" android:background="@drawable/memory_profile_icon_bg" android:gravity="center" android:text="◌" android:textColor="@color/group_buy_orange" android:textSize="20sp" />
+                <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:paddingStart="20dp" android:text="退款记录" android:textColor="@color/group_buy_text" android:textSize="16sp" />
+                <TextView android:layout_width="24dp" android:layout_height="48dp" android:gravity="center" android:text="›" android:textColor="@color/group_buy_muted" android:textSize="24sp" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:background="@drawable/bg_profile_card" android:orientation="vertical">
+            <TextView android:id="@+id/profile_help_entry" android:layout_width="match_parent" android:layout_height="64dp" android:gravity="center_vertical" android:text="帮助与客服    ›" android:textColor="@color/group_buy_text" android:textSize="16sp" />
+            <TextView android:id="@+id/profile_settings_entry" android:layout_width="match_parent" android:layout_height="64dp" android:gravity="center_vertical" android:text="设置    ›" android:textColor="@color/group_buy_text" android:textSize="16sp" />
+        </LinearLayout>
+        <!-- 保留旧视图ID兼容既有源码；运行期不显示，完整退役在Task11单独处理。 -->
+        <TextView android:id="@+id/profile_address_entry" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+        <TextView android:id="@+id/profile_automation_entry" android:layout_width="0dp" android:layout_height="0dp" android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>
