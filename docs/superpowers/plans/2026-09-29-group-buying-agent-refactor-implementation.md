@@ -200,7 +200,7 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 - [x] Android 底部确认弹窗及支付页面绑定后端金额；鉴权失败引导登录并回到原目标。
 - [x] 运行 PurchaseConfirmationTest、GroupBuyOrderIdempotencyTest、新 Agent test_purchase_workflow.py 与购买 Maestro。
 - [x] 独立验证不同套餐、数量、重复点击、凭证过期及支付成功，按 UI 容差检查。
-- [ ] 通过后提交（已独立PASS，正在精确暂存）。
+- [x] 通过后提交（手机f66d9e5，Agent c339237；仅Task6范围，原Task7/8保持工作区）。
 
 2026-10-02 Task6独立R1整体PASS：`docs/verification/2026-10-02-task6-independent-acceptance.md`。R0金额用例依赖共享门店导致217项1error，改独立H2门店/套餐后Tesla亲跑同源全量217全绿；复用其不受影响Android171与Agent378/21跳过，不能把跳过算在线结果。最新APK5F03AF43…两套餐数量1/2、三页真实401登录返回、真实断网恢复、310秒自然过期、隔离变价与旧卡守卫均实际完成，30段Maestro中27段退出0、3次环境/验证器失败及受影响复验保留，175条断言非175个独立场景。原事实与277保护文件不变；开发历史共享套餐变价审计限制不抹除。当前工作区验收与干净中间HEAD边界延续Task5，订单/券只读依赖交Task7闭合，不把Task7/8或延期核销提前算完成。
 
