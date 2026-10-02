@@ -1,0 +1,65 @@
+[
+  {
+    "repo": "phone",
+    "path": "AGENTS.md",
+    "before": "44C2899298AF9AA2033E4497A07A7A5A19D8B684EBAD899F520EBD64FBE1F20E",
+    "after": "6724E9AD8610951743E0385A59D04AB3D625693B0E3F1AD98A887F2BC7FE820D",
+    "protected": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentProgressPresentation.kt",
+    "before": "662ADBCBBBBE603B9CB449013553FF3CE7E202B2E433B1E20C6788F897B75143",
+    "after": "2683895CEB3481CE8CF509BAB0108160CA4C048A42638659281AC5CAAED27CCE",
+    "protected": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/GroupOrderDetailFragment.kt",
+    "before": "47639870A21B7A589B27D9BE3CA5D984C854C00330B96CFADFA4E4BCBC8680FB",
+    "after": "7A39C6FEE63BBD038E0412B5F9B96A24C802841D614D6F5A1215B8C2E8A97D3E",
+    "protected": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt",
+    "before": "79714D5CF86D2CD6CFCE702455083373E99788CBDB3C491A76AA248B7305E5C1",
+    "after": "0F61D123B894C126CFB77F22662B8C932375016E9F56354391A3439524AFFC77",
+    "protected": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt",
+    "before": "A5F0E73BFD5E72C35B2E7A3416B062597E722601DD4A6C26971411163CB0E70E",
+    "after": "03920C1AAE163856DBA5B2E49B036B1BB23B07DAB3A81C354A47E0CF80E9239B",
+    "protected": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherRepository.kt",
+    "before": "0AFE4491F563AE4A6657D11DBA846DD2A66DF85DB000A9CDD1144947A642211F",
+    "after": "6A3DC576A5F606AD6EA76B23428B83D6AEB421CD1FA03934CFDE532D577C9C7A",
+    "protected": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app/app/src/test/java/com/fandazi/app/feature/voucher/VoucherRepositoryTest.kt",
+    "before": "C6E3276BE31574AD320CF0158577C3009E1057760A3D14117FFFD2543C834BEA",
+    "after": "CE61DDB071E104797763354E84CDE51BFF873D671F6BF65F2B7E77B2F5BDB25C",
+    "protected": false
+  },
+  {
+    "repo": "phone",
+    "path": "docs/superpowers/plans/2026-09-29-group-buying-agent-refactor-implementation.md",
+    "before": "C64AAEEAC88E0B01D9468790FA7DB60D5C82C5A9526982B78455CC55325C2E5A",
+    "after": "BFB08515693DF64CD7D52D2C59E69AECE424E225B9035E54414A45253A8477BC",
+    "protected": true
+  },
+  {
+    "repo": "agent",
+    "path": "AGENTS.md",
+    "before": "1604C4D61E927D295ED075EE63FF0A98DBA559901FF317286FD15139FE77DA3A",
+    "after": "A3A2657789BC9F31DF6595885B1973CA0CE514B6B91A6CEDE7ECC2BD5CF38958",
+    "protected": true
+  }
+]

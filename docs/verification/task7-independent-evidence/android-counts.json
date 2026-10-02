@@ -1,0 +1,82 @@
+[
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.agent.AgentAfterSaleCardTest",
+    "timestamp": "2026-10-02T03:16:44.299Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 1,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.agent.AgentCardRendererTest",
+    "timestamp": "2026-10-02T03:16:48.550Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.agent.AgentChatStateTest",
+    "timestamp": "2026-10-02T03:16:48.552Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 3,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.agent.AgentLoginGateTest",
+    "timestamp": "2026-10-02T03:16:48.717Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 26,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.agent.AgentViewModelTest",
+    "timestamp": "2026-10-02T03:16:48.730Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 11,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.agent.HttpAgentRepositoryTest",
+    "timestamp": "2026-10-02T03:16:48.818Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 10,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.agent.Task5ChatStateTest",
+    "timestamp": "2026-10-02T03:16:49.221Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 9,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.agent.Task5ConfirmationActionTest",
+    "timestamp": "2026-10-02T03:16:49.241Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 4,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.purchase.PurchaseStateTest",
+    "timestamp": "2026-10-02T03:16:49.257Z"
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 3,
+    "failures": 0,
+    "name": "com.fandazi.app.feature.voucher.VoucherRepositoryTest",
+    "timestamp": "2026-10-02T03:16:49.294Z"
+  }
+]

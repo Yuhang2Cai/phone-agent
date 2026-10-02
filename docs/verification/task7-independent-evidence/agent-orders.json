@@ -1,0 +1,459 @@
+{
+  "status": "COMPLETED",
+  "message": "查询到 3 个团购订单",
+  "nextAction": "completed",
+  "candidateCart": {},
+  "events": [
+    {
+      "type": "run_started",
+      "summary": "本轮处理已结束",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "schemaVersion": "1.1",
+        "eventId": "a4968541-ebd5-498e-9c54-9bcc252b9f3a",
+        "sequence": 0,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "progress",
+      "summary": "正在理解请求",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "stepId": "classify",
+        "label": "正在理解请求",
+        "stepStatus": "running",
+        "schemaVersion": "1.1",
+        "eventId": "11a79f19-9f2a-4277-abc0-cbe5afeda11e",
+        "sequence": 1,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "intent_decided",
+      "summary": "本轮处理已结束",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "intent": "group_buy_order",
+        "isComposite": false,
+        "schemaVersion": "1.1",
+        "eventId": "5fa379b2-6673-40d9-ad41-b083500b8c8a",
+        "sequence": 2,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "progress",
+      "summary": "已理解请求",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "stepId": "classify",
+        "label": "已理解请求",
+        "stepStatus": "succeeded",
+        "schemaVersion": "1.1",
+        "eventId": "30bc1d13-3d97-421a-b59b-d2c98e7a783a",
+        "sequence": 3,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "progress",
+      "summary": "正在查询团购订单",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "stepId": "list_user_orders",
+        "label": "正在查询团购订单",
+        "stepStatus": "running",
+        "schemaVersion": "1.1",
+        "eventId": "8162cf9a-7c7d-4f67-b660-bb49b69703ee",
+        "sequence": 4,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "progress",
+      "summary": "正在查询团购订单",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "stepId": "list_user_orders",
+        "label": "正在查询团购订单",
+        "stepStatus": "succeeded",
+        "schemaVersion": "1.1",
+        "eventId": "e35332c0-be57-492b-b11d-1bf9589eb03a",
+        "sequence": 5,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "tool_result",
+      "summary": "本轮处理已结束",
+      "toolName": "list_user_orders",
+      "status": "running",
+      "payload": {
+        "toolName": "list_user_orders",
+        "ok": true,
+        "data": {
+          "completed": true
+        },
+        "error": null,
+        "schemaVersion": "1.1",
+        "eventId": "9d4b02e6-8125-49ab-8cee-eb9fe8c7058b",
+        "sequence": 6,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "card",
+      "summary": "本轮处理已结束",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "card": {
+          "orderId": "dff4196f-849d-40e5-a585-f93463cde60d",
+          "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+          "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+          "quantity": 1,
+          "totalCents": 7123,
+          "status": "PENDING_PAYMENT",
+          "voucherCount": 1,
+          "storeName": "山海食集春风店",
+          "dealTitle": "查询任务套餐甲",
+          "createdAt": "2026-10-02T03:15:04.940530Z",
+          "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+          "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+          "canReview": false,
+          "vouchers": [
+            {
+              "publicId": "82e82b5b-1c13-43db-9302-4fa54fd6a7ce",
+              "orderId": "dff4196f-849d-40e5-a585-f93463cde60d",
+              "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+              "dealTitle": "查询任务套餐甲",
+              "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+              "storeName": "山海食集春风店",
+              "status": "UNUSED",
+              "canRefund": false,
+              "amountCents": null,
+              "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+              "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+              "createdAt": "2026-10-02T03:15:04.941068Z",
+              "expiresAt": "2027-12-31T16:00:00Z",
+              "redeemedAt": null
+            }
+          ],
+          "expiresAt": "2027-12-31T16:00:00Z",
+          "type": "order",
+          "resourceId": "dff4196f-849d-40e5-a585-f93463cde60d",
+          "orderPublicId": "dff4196f-849d-40e5-a585-f93463cde60d",
+          "title": "查询任务套餐甲",
+          "dealName": "查询任务套餐甲",
+          "amount": "71.23"
+        },
+        "schemaVersion": "1.1",
+        "eventId": "6645004f-c1d8-4349-87d6-2d1dd05bf4b6",
+        "sequence": 7,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "card",
+      "summary": "本轮处理已结束",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "card": {
+          "orderId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+          "dealId": "afddbb90-29a6-4b31-adc2-0c67add4575d",
+          "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+          "quantity": 1,
+          "totalCents": 9647,
+          "status": "PAID",
+          "voucherCount": 1,
+          "storeName": "山海食集春风店",
+          "dealTitle": "查询任务套餐乙",
+          "createdAt": "2026-10-02T03:15:04.815863Z",
+          "imageUrl": null,
+          "imageAlt": null,
+          "canReview": false,
+          "vouchers": [
+            {
+              "publicId": "8899fdb2-d64b-42a8-adb0-127436d687e3",
+              "orderId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+              "dealId": "afddbb90-29a6-4b31-adc2-0c67add4575d",
+              "dealTitle": "查询任务套餐乙",
+              "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+              "storeName": "山海食集春风店",
+              "status": "UNUSED",
+              "canRefund": true,
+              "amountCents": 9647,
+              "imageUrl": null,
+              "imageAlt": null,
+              "createdAt": "2026-10-02T03:15:04.815863Z",
+              "expiresAt": "2027-12-31T16:00:00Z",
+              "redeemedAt": null
+            }
+          ],
+          "expiresAt": "2027-12-31T16:00:00Z",
+          "type": "order",
+          "resourceId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+          "orderPublicId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+          "title": "查询任务套餐乙",
+          "dealName": "查询任务套餐乙",
+          "amount": "96.47"
+        },
+        "schemaVersion": "1.1",
+        "eventId": "7d244dc3-9e2a-4298-a17e-8b544e30ee3f",
+        "sequence": 8,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "card",
+      "summary": "本轮处理已结束",
+      "toolName": null,
+      "status": "running",
+      "payload": {
+        "card": {
+          "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+          "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+          "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+          "quantity": 2,
+          "totalCents": 14246,
+          "status": "PAID",
+          "voucherCount": 2,
+          "storeName": "山海食集春风店",
+          "dealTitle": "查询任务套餐甲",
+          "createdAt": "2026-10-02T03:15:04.637503Z",
+          "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+          "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+          "canReview": false,
+          "vouchers": [
+            {
+              "publicId": "a81f203b-f46b-4da7-be8e-eb11b9d14108",
+              "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+              "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+              "dealTitle": "查询任务套餐甲",
+              "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+              "storeName": "山海食集春风店",
+              "status": "UNUSED",
+              "canRefund": true,
+              "amountCents": 7123,
+              "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+              "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+              "createdAt": "2026-10-02T03:15:04.639165Z",
+              "expiresAt": "2027-12-31T16:00:00Z",
+              "redeemedAt": null
+            },
+            {
+              "publicId": "8f051492-d867-43d5-bfb1-2a0969757afb",
+              "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+              "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+              "dealTitle": "查询任务套餐甲",
+              "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+              "storeName": "山海食集春风店",
+              "status": "UNUSED",
+              "canRefund": true,
+              "amountCents": 7123,
+              "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+              "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+              "createdAt": "2026-10-02T03:15:04.639165Z",
+              "expiresAt": "2027-12-31T16:00:00Z",
+              "redeemedAt": null
+            }
+          ],
+          "expiresAt": "2027-12-31T16:00:00Z",
+          "type": "order",
+          "resourceId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+          "orderPublicId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+          "title": "查询任务套餐甲",
+          "dealName": "查询任务套餐甲",
+          "amount": "142.46"
+        },
+        "schemaVersion": "1.1",
+        "eventId": "41ade16c-0422-4e00-b54c-b77d0ce88fb8",
+        "sequence": 9,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "running"
+      }
+    },
+    {
+      "type": "run_completed",
+      "summary": "查询到 3 个团购订单",
+      "toolName": null,
+      "status": "succeeded",
+      "payload": {
+        "message": "查询到 3 个团购订单",
+        "schemaVersion": "1.1",
+        "eventId": "020c81bf-5257-4ced-ba03-2a7f8a997748",
+        "sequence": 10,
+        "runId": "31006a39-b3f0-4425-a849-4b99d68e8c4a",
+        "traceId": "51c6573b-c3c6-4e05-80e1-f5de4f803b5f",
+        "status": "succeeded"
+      }
+    }
+  ],
+  "cards": [
+    {
+      "orderId": "dff4196f-849d-40e5-a585-f93463cde60d",
+      "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+      "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "quantity": 1,
+      "totalCents": 7123,
+      "status": "PENDING_PAYMENT",
+      "voucherCount": 1,
+      "storeName": "山海食集春风店",
+      "dealTitle": "查询任务套餐甲",
+      "createdAt": "2026-10-02T03:15:04.940530Z",
+      "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "canReview": false,
+      "vouchers": [
+        {
+          "publicId": "82e82b5b-1c13-43db-9302-4fa54fd6a7ce",
+          "orderId": "dff4196f-849d-40e5-a585-f93463cde60d",
+          "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+          "dealTitle": "查询任务套餐甲",
+          "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+          "storeName": "山海食集春风店",
+          "status": "UNUSED",
+          "canRefund": false,
+          "amountCents": null,
+          "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+          "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+          "createdAt": "2026-10-02T03:15:04.941068Z",
+          "expiresAt": "2027-12-31T16:00:00Z",
+          "redeemedAt": null
+        }
+      ],
+      "expiresAt": "2027-12-31T16:00:00Z",
+      "type": "order",
+      "resourceId": "dff4196f-849d-40e5-a585-f93463cde60d",
+      "orderPublicId": "dff4196f-849d-40e5-a585-f93463cde60d",
+      "title": "查询任务套餐甲",
+      "dealName": "查询任务套餐甲",
+      "amount": "71.23"
+    },
+    {
+      "orderId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+      "dealId": "afddbb90-29a6-4b31-adc2-0c67add4575d",
+      "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "quantity": 1,
+      "totalCents": 9647,
+      "status": "PAID",
+      "voucherCount": 1,
+      "storeName": "山海食集春风店",
+      "dealTitle": "查询任务套餐乙",
+      "createdAt": "2026-10-02T03:15:04.815863Z",
+      "imageUrl": null,
+      "imageAlt": null,
+      "canReview": false,
+      "vouchers": [
+        {
+          "publicId": "8899fdb2-d64b-42a8-adb0-127436d687e3",
+          "orderId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+          "dealId": "afddbb90-29a6-4b31-adc2-0c67add4575d",
+          "dealTitle": "查询任务套餐乙",
+          "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+          "storeName": "山海食集春风店",
+          "status": "UNUSED",
+          "canRefund": true,
+          "amountCents": 9647,
+          "imageUrl": null,
+          "imageAlt": null,
+          "createdAt": "2026-10-02T03:15:04.815863Z",
+          "expiresAt": "2027-12-31T16:00:00Z",
+          "redeemedAt": null
+        }
+      ],
+      "expiresAt": "2027-12-31T16:00:00Z",
+      "type": "order",
+      "resourceId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+      "orderPublicId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+      "title": "查询任务套餐乙",
+      "dealName": "查询任务套餐乙",
+      "amount": "96.47"
+    },
+    {
+      "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+      "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+      "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "quantity": 2,
+      "totalCents": 14246,
+      "status": "PAID",
+      "voucherCount": 2,
+      "storeName": "山海食集春风店",
+      "dealTitle": "查询任务套餐甲",
+      "createdAt": "2026-10-02T03:15:04.637503Z",
+      "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "canReview": false,
+      "vouchers": [
+        {
+          "publicId": "a81f203b-f46b-4da7-be8e-eb11b9d14108",
+          "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+          "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+          "dealTitle": "查询任务套餐甲",
+          "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+          "storeName": "山海食集春风店",
+          "status": "UNUSED",
+          "canRefund": true,
+          "amountCents": 7123,
+          "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+          "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+          "createdAt": "2026-10-02T03:15:04.639165Z",
+          "expiresAt": "2027-12-31T16:00:00Z",
+          "redeemedAt": null
+        },
+        {
+          "publicId": "8f051492-d867-43d5-bfb1-2a0969757afb",
+          "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+          "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+          "dealTitle": "查询任务套餐甲",
+          "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+          "storeName": "山海食集春风店",
+          "status": "UNUSED",
+          "canRefund": true,
+          "amountCents": 7123,
+          "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+          "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+          "createdAt": "2026-10-02T03:15:04.639165Z",
+          "expiresAt": "2027-12-31T16:00:00Z",
+          "redeemedAt": null
+        }
+      ],
+      "expiresAt": "2027-12-31T16:00:00Z",
+      "type": "order",
+      "resourceId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+      "orderPublicId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+      "title": "查询任务套餐甲",
+      "dealName": "查询任务套餐甲",
+      "amount": "142.46"
+    }
+  ],
+  "error": null,
+  "eventsRecorded": true
+}

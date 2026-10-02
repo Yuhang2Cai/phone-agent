@@ -1,0 +1,12 @@
+{
+  "reason": "按控制端最新停止指令结束；不计PASS",
+  "label": "401-order-return",
+  "flowExitCode": null,
+  "completeCommandCount": null,
+  "at": "2026-10-02T11:42:48.0216090+08:00",
+  "controllerExitCode": 1,
+  "status": "USER_INTERRUPTED",
+  "evidence": "登录页截图及私有maestro原日志；无完整commands.json",
+  "voucher401Started": false,
+  "originalOrderRestored": false
+}

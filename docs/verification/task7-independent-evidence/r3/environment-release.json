@@ -1,0 +1,51 @@
+{
+  "indexesUnchanged": true,
+  "activeDefaultNetwork": "Active default network: 100",
+  "at": "2026-10-02T19:38:45.0511129+08:00",
+  "released": true,
+  "appStopped": true,
+  "sourceChanges": 0,
+  "listeners": [
+    {
+      "port": 8080,
+      "pid": 4236,
+      "entryMatched": true,
+      "environment": {
+        "TASK2_FIXTURES_ENABLED": "false",
+        "TASK8_FAILURES_ENABLED": "false",
+        "SPRING_PROFILES_ACTIVE": "default",
+        "JWT_EXPIRATION_MINUTES": "60"
+      }
+    },
+    {
+      "port": 8091,
+      "pid": 20368,
+      "entryMatched": true,
+      "environment": {
+        "TASK2_FIXTURES_ENABLED": "false",
+        "TASK8_FAILURES_ENABLED": "false",
+        "SPRING_PROFILES_ACTIVE": "default",
+        "JWT_EXPIRATION_MINUTES": "60"
+      }
+    }
+  ],
+  "servicesRetainedHealthy": true,
+  "task8Executed": false,
+  "privateJsonUnchanged": 438,
+  "originalBusinessRows": 714,
+  "indexModified": false,
+  "mobileData": "1",
+  "wifi": "1",
+  "httpProxyDisabled": true,
+  "currentBusinessRows": 725,
+  "fixturesAndFaultsDisabled": true,
+  "sourceCount": 895,
+  "processes": {
+    "activeOwnTests": []
+  },
+  "airplaneMode": "0",
+  "newAcceptanceAgentStarted": false,
+  "restoredWorkspaceApk": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B",
+  "productModified": false,
+  "ordinaryJwtSeconds": 3600
+}

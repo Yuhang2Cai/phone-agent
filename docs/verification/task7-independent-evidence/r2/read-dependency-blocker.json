@@ -1,0 +1,46 @@
+{
+  "dependencies": [
+    {
+      "workspacePresent": true,
+      "snapshotPresent": false,
+      "snapshotSha256": "8E1DABE846A7DFBED3D1061DB2EE97FAEF179F108F95E06D3D716CACF6646778",
+      "path": "backend/src/main/java/com/fandazi/feature/refund/RefundController.java",
+      "inProposedDelta": false,
+      "workspaceLine": 42,
+      "symbol": "@GetMapping(\"/by-voucher/{voucherId}\")",
+      "workspaceSha256": "E55AE6E9AC4103DE91CB2A9627458F061FA974476BAA2FB53AC3C4307246AE98"
+    },
+    {
+      "workspacePresent": true,
+      "snapshotPresent": false,
+      "snapshotSha256": "10D7C76E27CDBA1515CB2B8C500323E9A31D44386C122D9004C4B2D2757D6268",
+      "path": "backend/src/main/java/com/fandazi/feature/refund/RefundService.java",
+      "inProposedDelta": false,
+      "workspaceLine": 73,
+      "symbol": "detailByVoucher",
+      "workspaceSha256": "2DEE5D1CF745D0610AF367262BAFD2712D0812763FEFF5C602A5CBC76C0EB323"
+    },
+    {
+      "workspacePresent": true,
+      "snapshotPresent": false,
+      "snapshotSha256": "5BE9BB667E8D103085B329A890E19C57F05B6BD11CF2273461149A63F434BA97",
+      "path": "backend/src/main/java/com/fandazi/feature/refund/RefundRequestRepository.java",
+      "inProposedDelta": false,
+      "workspaceLine": 14,
+      "symbol": "findByUserIdAndVoucherPublicId",
+      "workspaceSha256": "4AA73E2E7084902FFC302AFD387ADF3881CE7E00EEDD80630CFFD972B89A8C68"
+    }
+  ],
+  "clientRequiresRoute": true,
+  "liveHttpAttempted": false,
+  "at": "2026-10-02T12:46:39.0621866+08:00",
+  "clientLine": 46,
+  "snapshotBackendRouteMatches": 0,
+  "result": "FAIL",
+  "inference": "拟提交后端不存在该路由；不能把工作区Task8新增GET的200/业务404当作拟提交源支持已有申请恢复",
+  "requestMethod": "GET",
+  "businessWrites": 0,
+  "blockingFinding": "B2",
+  "consumer": "VoucherDetailFragment.kt:80/102/113",
+  "requestPath": "/api/refunds/by-voucher/{voucherId}"
+}

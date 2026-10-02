@@ -1,0 +1,117 @@
+[
+  {
+    "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+    "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+    "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+    "quantity": 2,
+    "totalCents": 14246,
+    "status": "PAID",
+    "voucherCount": 2,
+    "storeName": "山海食集春风店",
+    "dealTitle": "查询任务套餐甲",
+    "createdAt": "2026-10-02T03:15:04.637503Z",
+    "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+    "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+    "canReview": false,
+    "vouchers": [
+      {
+        "publicId": "a81f203b-f46b-4da7-be8e-eb11b9d14108",
+        "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+        "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+        "dealTitle": "查询任务套餐甲",
+        "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+        "storeName": "山海食集春风店",
+        "status": "UNUSED",
+        "canRefund": true,
+        "amountCents": 7123,
+        "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+        "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+        "createdAt": "2026-10-02T03:15:04.639165Z",
+        "expiresAt": "2027-12-31T16:00:00Z",
+        "redeemedAt": null
+      },
+      {
+        "publicId": "8f051492-d867-43d5-bfb1-2a0969757afb",
+        "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+        "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+        "dealTitle": "查询任务套餐甲",
+        "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+        "storeName": "山海食集春风店",
+        "status": "UNUSED",
+        "canRefund": true,
+        "amountCents": 7123,
+        "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+        "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+        "createdAt": "2026-10-02T03:15:04.639165Z",
+        "expiresAt": "2027-12-31T16:00:00Z",
+        "redeemedAt": null
+      }
+    ]
+  },
+  {
+    "orderId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+    "dealId": "afddbb90-29a6-4b31-adc2-0c67add4575d",
+    "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+    "quantity": 1,
+    "totalCents": 9647,
+    "status": "PAID",
+    "voucherCount": 1,
+    "storeName": "山海食集春风店",
+    "dealTitle": "查询任务套餐乙",
+    "createdAt": "2026-10-02T03:15:04.815863Z",
+    "imageUrl": null,
+    "imageAlt": null,
+    "canReview": false,
+    "vouchers": [
+      {
+        "publicId": "8899fdb2-d64b-42a8-adb0-127436d687e3",
+        "orderId": "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+        "dealId": "afddbb90-29a6-4b31-adc2-0c67add4575d",
+        "dealTitle": "查询任务套餐乙",
+        "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+        "storeName": "山海食集春风店",
+        "status": "UNUSED",
+        "canRefund": true,
+        "amountCents": 9647,
+        "imageUrl": null,
+        "imageAlt": null,
+        "createdAt": "2026-10-02T03:15:04.815863Z",
+        "expiresAt": "2027-12-31T16:00:00Z",
+        "redeemedAt": null
+      }
+    ]
+  },
+  {
+    "orderId": "dff4196f-849d-40e5-a585-f93463cde60d",
+    "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+    "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+    "quantity": 1,
+    "totalCents": 7123,
+    "status": "PENDING_PAYMENT",
+    "voucherCount": 1,
+    "storeName": "山海食集春风店",
+    "dealTitle": "查询任务套餐甲",
+    "createdAt": "2026-10-02T03:15:04.940530Z",
+    "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+    "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+    "canReview": false,
+    "vouchers": [
+      {
+        "publicId": "82e82b5b-1c13-43db-9302-4fa54fd6a7ce",
+        "orderId": "dff4196f-849d-40e5-a585-f93463cde60d",
+        "dealId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+        "dealTitle": "查询任务套餐甲",
+        "storeId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+        "storeName": "山海食集春风店",
+        "status": "UNUSED",
+        "canRefund": false,
+        "amountCents": null,
+        "imageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+        "imageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+        "createdAt": "2026-10-02T03:15:04.941068Z",
+        "expiresAt": "2027-12-31T16:00:00Z",
+        "redeemedAt": null
+      }
+    ]
+  }
+]

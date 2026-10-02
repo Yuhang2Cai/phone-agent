@@ -1,0 +1,2192 @@
+[
+  {
+    "path": "task2-fixtures.json",
+    "bytes": 3058,
+    "sha256": "7dac4f109d45aad9a626bc0f83128f3cf8dbebed16e9c56f541d31fc1a30cff3"
+  },
+  {
+    "path": "task2-test-fixtures.json",
+    "bytes": 3055,
+    "sha256": "9566215abab6170dfa6ab83a690a05611fbc75277e53ec06d1af0e1c95ad0406"
+  },
+  {
+    "path": "task5-account.json",
+    "bytes": 280,
+    "sha256": "0517b65f09ec7f6e28eeace17a4e2fc363239c0a87877335dc580ee95db7fc53"
+  },
+  {
+    "path": "task5-fixround1-after-current-cancel-raw.json",
+    "bytes": 567,
+    "sha256": "68a7e9811ed45b3be5fd35d7caf134b058e0be78b709ebbb4658c736436cfb19"
+  },
+  {
+    "path": "task5-fixround1-after-old-tap-raw.json",
+    "bytes": 578,
+    "sha256": "678320baa2a89bd4024d83ca106ce1f5d0c35028e0e344097e4a979188d6f9c4"
+  },
+  {
+    "path": "task5-fixround1-api-raw.json",
+    "bytes": 49821,
+    "sha256": "b963a953b98b5a242619c56361521d361a0d86d557bebfb33c071a690379db28"
+  },
+  {
+    "path": "task5-fixround1-before-old-tap-raw.json",
+    "bytes": 578,
+    "sha256": "678320baa2a89bd4024d83ca106ce1f5d0c35028e0e344097e4a979188d6f9c4"
+  },
+  {
+    "path": "task5-independent-r1\\account.json",
+    "bytes": 271,
+    "sha256": "de3d4c22330e20c1eabdc4cf539a6e03bc70bd49cd40999c65cbaa8ba96ca9e9"
+  },
+  {
+    "path": "task5-independent-r1\\after-current-cancel-sessions-raw.json",
+    "bytes": 1481,
+    "sha256": "f21807deea5b48fab840bc3d3b5101b78bbd353951a5b2612130ab295e6126e2"
+  },
+  {
+    "path": "task5-independent-r1\\after-old-cancel-sessions-raw.json",
+    "bytes": 1492,
+    "sha256": "face0a26dbb80fa3819cfc9631baa5351ac3467b65096fd827674fef913965fa"
+  },
+  {
+    "path": "task5-independent-r1\\after-old-confirm-sessions-raw.json",
+    "bytes": 1492,
+    "sha256": "face0a26dbb80fa3819cfc9631baa5351ac3467b65096fd827674fef913965fa"
+  },
+  {
+    "path": "task5-independent-r1\\api-raw.json",
+    "bytes": 49995,
+    "sha256": "4aff203168cd41a107448bea1e984f9c7760eac0931543969a101e93ce0af633"
+  },
+  {
+    "path": "task5-independent-r1\\before-old-tap-sessions-raw.json",
+    "bytes": 1492,
+    "sha256": "face0a26dbb80fa3819cfc9631baa5351ac3467b65096fd827674fef913965fa"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-current-cancel\\2026-10-02_071555\\task5-fixround1-current-cancel\\commands.json",
+    "bytes": 6488,
+    "sha256": "d52d95bd00aaa42b87f05127f7656b1fcf395390627fd76097b0ddb2c1f3bf43"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-current-cancel\\2026-10-02_071555\\task5-fixround1-current-cancel\\manifest.json",
+    "bytes": 687,
+    "sha256": "0b075e1d28c5aa749522048455fc17090a9f55790474824f7078d5ac873bdd50"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-current-inspect\\2026-10-02_071520\\current-card-inspect\\commands.json",
+    "bytes": 3688,
+    "sha256": "88e03ad25051ed78a27f9da0b0612c3cf831d3fcb3d6ecf18e92c0145ebaf632"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-current-inspect\\2026-10-02_071520\\current-card-inspect\\manifest.json",
+    "bytes": 686,
+    "sha256": "e5a18fe1d3d31a11339343c6230c86112958bdb49b16083be02d63a112089d98"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-guest-disabled\\2026-10-02_071014\\guest-disabled\\commands.json",
+    "bytes": 10248,
+    "sha256": "f7661ac8015b726a46594d90ee5d73ad81b03f4db278469f0378ae2e5e2ee5aa"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-guest-disabled\\2026-10-02_071014\\guest-disabled\\manifest.json",
+    "bytes": 688,
+    "sha256": "c8fec1cf5a4b82b9c8cc7ba53ccab1d10279f4f9ca5e0e51ec7ff9f77fa4a5e4"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-history-after-offline\\2026-10-02_071816\\history-after-offline\\commands.json",
+    "bytes": 5547,
+    "sha256": "33d2e9bf1fc84240a3e28315039e9cfde7582ba8d8c31cc9f7e0ebea7640a1ed"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-history-after-offline\\2026-10-02_071816\\history-after-offline\\manifest.json",
+    "bytes": 687,
+    "sha256": "c41647d73dbdf7ddebc86534cbf2372b7edd6f2547dafa379179be177b62b55a"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-main\\2026-10-02_071102\\task5-ai-chat-page\\commands.json",
+    "bytes": 38059,
+    "sha256": "bb10adb1e1d6e43e914c46179230f95f6386a7efbf9d5b594a8820dd7a24abf4"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-main\\2026-10-02_071102\\task5-ai-chat-page\\manifest.json",
+    "bytes": 690,
+    "sha256": "b54690b76245d8a7fcaeb307ab805738b379ae2ba1b78e8b8bdd6f6d7ca04ce8"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-offline-error\\2026-10-02_071653\\offline-error\\commands.json",
+    "bytes": 5603,
+    "sha256": "463d88ac5bc3b037bb5321ddc47e7c559a089d532f61a0f2610e41e1f8362197"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-offline-error\\2026-10-02_071653\\offline-error\\manifest.json",
+    "bytes": 687,
+    "sha256": "bc4d5d4806b7f2103e8d39dc3bef244c4d6f62b11a91e7eb398546bb569d3f04"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-offline-recovered\\2026-10-02_071718\\task5-ai-retry\\commands.json",
+    "bytes": 6115,
+    "sha256": "4a33a6a47d1444f76dad310d57a32c2217489d0d7c5d7c5991420e07c143050a"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-offline-recovered\\2026-10-02_071718\\task5-ai-retry\\manifest.json",
+    "bytes": 687,
+    "sha256": "ec654d6ddd4664ebc4127704026e4c8579bc07524867a4155e37a523519d309d"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-old-cancel-tap\\2026-10-02_071426\\task5-fixround1-old-tap\\commands.json",
+    "bytes": 4079,
+    "sha256": "6aa858a8aefbc80da252aff2130970c8e735e651dd8f3f0923ea11bdf13edcad"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-old-cancel-tap\\2026-10-02_071426\\task5-fixround1-old-tap\\manifest.json",
+    "bytes": 686,
+    "sha256": "9aca2a83cacbae18f79b7c74c29020abb487c07bfdd6e3f20282bdc8c79ba832"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-old-confirm-tap\\2026-10-02_071454\\old-confirm-tap\\commands.json",
+    "bytes": 4044,
+    "sha256": "04be8fac018542818dcc904d14807951db60a9e0f22b050e868b3051bbb0e3cb"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-old-confirm-tap\\2026-10-02_071454\\old-confirm-tap\\manifest.json",
+    "bytes": 686,
+    "sha256": "43376b03874ed3dd02d179be96c1ee3dab9245cb5930ab65196d688f105f019e"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-read-order\\2026-10-02_071850\\read-order\\commands.json",
+    "bytes": 9559,
+    "sha256": "6f01ae1f095f1c219956c3dcbc052be79357277dc91aa3c7056186959a9b74ce"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-read-order\\2026-10-02_071850\\read-order\\manifest.json",
+    "bytes": 688,
+    "sha256": "1e2e981986db2d6e4e2bc5d497dbc239c222bc636ab9ff56e7356a414b817256"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-stale-prepare\\2026-10-02_071302\\task5-fixround1-stale-prepare\\commands.json",
+    "bytes": 14722,
+    "sha256": "8f5a4c29cd5f76578fcc89ab5d1aa8c8becc8844e357d32351ffb3a5d67534f5"
+  },
+  {
+    "path": "task5-independent-r1\\maestro-stale-prepare\\2026-10-02_071302\\task5-fixround1-stale-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "66d72f6621ccbf3f6417e447d07cac824cc17c722b155c814fe479c1fbbbef8d"
+  },
+  {
+    "path": "task5-independent-r1\\order-fixture.json",
+    "bytes": 332,
+    "sha256": "1c2db5a0aa852eb492b288785f6df37859196487bbe9bff1293e7566dbe36bc2"
+  },
+  {
+    "path": "task5-independent-r1\\r0-evidence-before.json",
+    "bytes": 19272,
+    "sha256": "7be8d7be8f43906cc2d5f7b629756f7f70f9dc473170533887e8ef4a900ffdd9"
+  },
+  {
+    "path": "task5-independent\\account.json",
+    "bytes": 271,
+    "sha256": "493ba37fe0e03087f094ebde6c221e6f81573de6201f69a8c06b21aeb268d831"
+  },
+  {
+    "path": "task5-independent\\api-raw.json",
+    "bytes": 221948,
+    "sha256": "f4887a30c912144d75ef1e7b8038ba5bb86091be5db4de17ec57ddf860e36ce4"
+  },
+  {
+    "path": "task5-independent\\maestro-composite-prepare\\2026-10-02_063210\\task5-ai-composite-prepare\\commands.json",
+    "bytes": 22435,
+    "sha256": "c285611b699b1d4d29b10090ae02de97c30ad11cdd7d3643b36765318da536be"
+  },
+  {
+    "path": "task5-independent\\maestro-composite-prepare\\2026-10-02_063210\\task5-ai-composite-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "4edc59f648aadf40853b2acc0121be550dc04fb2c6b097b3580874042351a9cb"
+  },
+  {
+    "path": "task5-independent\\maestro-interrupted-error\\2026-10-02_063547\\task5-ai-error\\commands.json",
+    "bytes": 7565,
+    "sha256": "2062a577bcd012c916e3d1799aad4440c6964532e97991bd9a900fe0a687f4c1"
+  },
+  {
+    "path": "task5-independent\\maestro-interrupted-error\\2026-10-02_063547\\task5-ai-error\\manifest.json",
+    "bytes": 687,
+    "sha256": "03673016a72c942e68943de73b2e3a2b7cf1d163930425becdf4d98dc88bfc5d"
+  },
+  {
+    "path": "task5-independent\\maestro-interrupted-recovered\\2026-10-02_063634\\task5-ai-retry\\commands.json",
+    "bytes": 6188,
+    "sha256": "9ecc90d8df408f0a83f6a481d9603ee40af5c8146970570079b3ef8625c84f2e"
+  },
+  {
+    "path": "task5-independent\\maestro-interrupted-recovered\\2026-10-02_063634\\task5-ai-retry\\manifest.json",
+    "bytes": 687,
+    "sha256": "6f51611ff4c19475170e1bdd28673b51c7b54f221ccd62be9b4e0e0f3b2f509b"
+  },
+  {
+    "path": "task5-independent\\maestro-main\\2026-10-02_062814\\task5-ai-chat-page\\commands.json",
+    "bytes": 38062,
+    "sha256": "ec707f5b9d1674f9a0f0e4eb9fc358f65ea96db5b20776f091c412405229137b"
+  },
+  {
+    "path": "task5-independent\\maestro-main\\2026-10-02_062814\\task5-ai-chat-page\\manifest.json",
+    "bytes": 690,
+    "sha256": "a2539168c3758128666e4b5f58b713127ed40ca69ae17c3c207fd0b8c0299658"
+  },
+  {
+    "path": "task5-independent\\maestro-read-cards\\2026-10-02_063014\\task5-ai-read-cards\\commands.json",
+    "bytes": 23297,
+    "sha256": "964a5eed917d7700af0823e5813de4252fe37d3740fa26062fda310ea81b93b3"
+  },
+  {
+    "path": "task5-independent\\maestro-read-cards\\2026-10-02_063014\\task5-ai-read-cards\\manifest.json",
+    "bytes": 689,
+    "sha256": "fee5353f3a558598192aad0b9606fc10f76926adc27b200319d452eb3bd25304"
+  },
+  {
+    "path": "task5-independent\\maestro-stale-cancel\\2026-10-02_064044\\stale-cancel\\commands.json",
+    "bytes": 4102,
+    "sha256": "192a5dc4b5b2a86433b2c588b2d1ae851a3e7be3aefd495a0432ee15d6d7ae1a"
+  },
+  {
+    "path": "task5-independent\\maestro-stale-cancel\\2026-10-02_064044\\stale-cancel\\manifest.json",
+    "bytes": 686,
+    "sha256": "a10ef28b0f996a28f503fc37911ebf25a3645636df5e4d9a0013f1cbc26eb34f"
+  },
+  {
+    "path": "task5-independent\\maestro-stale-prepare\\2026-10-02_063725\\stale-prepare\\commands.json",
+    "bytes": 14578,
+    "sha256": "ba27c9eca3085f9ba80abce2b47d7d87f5f49224aaec63713c1fb273a0dabbd7"
+  },
+  {
+    "path": "task5-independent\\maestro-stale-prepare\\2026-10-02_063725\\stale-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "44fb4669f26e54f2734964d63b2266136372f000e82680909cca3952a436f3e7"
+  },
+  {
+    "path": "task5-independent\\maestro-unreachable-error\\2026-10-02_063426\\task5-ai-error\\commands.json",
+    "bytes": 7472,
+    "sha256": "6dbe7c1e195abae32ee0fa1dba64ccb3b0aaf50f173c9fe55240f4dfb973c9d8"
+  },
+  {
+    "path": "task5-independent\\maestro-unreachable-error\\2026-10-02_063426\\task5-ai-error\\manifest.json",
+    "bytes": 687,
+    "sha256": "e716c6c4fc614e67714e0c5f75e3fd303961fad15e92b61e48035052e1d6ccb8"
+  },
+  {
+    "path": "task5-independent\\maestro-unreachable-recovered\\2026-10-02_063510\\task5-ai-retry\\commands.json",
+    "bytes": 6116,
+    "sha256": "44d287ccac8adc02dc64f9193154662460818548bafedf81abede22cda44ef68"
+  },
+  {
+    "path": "task5-independent\\maestro-unreachable-recovered\\2026-10-02_063510\\task5-ai-retry\\manifest.json",
+    "bytes": 687,
+    "sha256": "0027d29bec0f8f41e46ae09fe36a195f215b61c03c119a9ed7225c23ab76b582"
+  },
+  {
+    "path": "task5-independent\\order-fixture.json",
+    "bytes": 332,
+    "sha256": "6a29e5150773bb09c1038a5e2cdb96082a6fbdeea7db60b9be522c077d6e2732"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\.runtime\\task2-test-fixtures.json",
+    "bytes": 3055,
+    "sha256": "f55d20d0e35bc31977c20d2a26d1150bd788078344745f061edaac2c2ed35538"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\addresses.json",
+    "bytes": 312,
+    "sha256": "5a20b1d349142b19855ac5d90cf817542f8c593475154883ab223803344fc0c4"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\agent-scenarios.json",
+    "bytes": 792,
+    "sha256": "0cfb01c9b61d44809edc572df2ed8ac35bf82691570256cf5179ef7498af3c3b"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\coupons.json",
+    "bytes": 224,
+    "sha256": "f6a5eef4d06aad5ae8bf812a2254196719b54da9b783710f04bf9ea60dd731a7"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\deals.json",
+    "bytes": 6346,
+    "sha256": "e0a0537cd27488caa13a550fc47fdfeba53bf911fea977f6f8159fe512f7921c"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\dishes.json",
+    "bytes": 4691,
+    "sha256": "58afd09fe307b453ac939ffe855f8a64063c5b43486ac50838ee52f1c08439a2"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\group-orders.json",
+    "bytes": 1086,
+    "sha256": "0c8aea7a65c09006746c4744272e8a8315b41f84f62389bfe1debdca82544282"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\group-reviews.json",
+    "bytes": 5169,
+    "sha256": "126af1dc7b380c0643842f90e9379ea8daef8636cf06fee681384851e1cda779"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\merchants.json",
+    "bytes": 1909,
+    "sha256": "3cbe492e54c0925a08203db0bbc20a66d3d7f35a7f9df404068511ccb47e7cf5"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\orders.json",
+    "bytes": 212,
+    "sha256": "a3a617c08143cf412da2c0eae930945ef38641faee729300985b676461533b62"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\reviews.json",
+    "bytes": 6186,
+    "sha256": "f9becbef2106d8e70a14b8c333824c647afae37d71cdf2fa40dfcbe77bc30293"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\stores.json",
+    "bytes": 9462,
+    "sha256": "57d64c9fe9605c975ba866a8ae2d843bc456c2fa51ac58b68e56a1155e800e85"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\task2-development-fixtures.json",
+    "bytes": 562,
+    "sha256": "93cebe24933890e398390c0deb77748393d4218a9a5265f7eb3d8dbebaaa5dbd"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\users.json",
+    "bytes": 143,
+    "sha256": "fbc446ccbe8581043fd9e3849967db048bd043a915178e7584171503ba3f31bd"
+  },
+  {
+    "path": "task5-independent\\spring-snapshot-816743e34f75433fa3b9caa08b3fef6c\\data\\seed\\vouchers.json",
+    "bytes": 446,
+    "sha256": "542c0c519ffdef9ecbcbf115d334eab170c16d11295abad2ab39828544e09208"
+  },
+  {
+    "path": "task5-independent\\stale-after-sessions-raw.json",
+    "bytes": 3751,
+    "sha256": "9573204bafc603385b8095aabbbe23e2bd64b917ff9b6aaf6e89e87d79b9999c"
+  },
+  {
+    "path": "task5-independent\\stale-before-sessions-raw.json",
+    "bytes": 3762,
+    "sha256": "33a4066cb98abd75f74fdbbd9361e805c5288b13178eb319a812680f022ab5fe"
+  },
+  {
+    "path": "task5-maestro-chat\\2026-10-02_054244\\task5-ai-chat-page\\commands.json",
+    "bytes": 37707,
+    "sha256": "dfa89d6872f57a7d0aa0484d902504f0b230c9a1a40b92ee41924442aeb8f50c"
+  },
+  {
+    "path": "task5-maestro-chat\\2026-10-02_054244\\task5-ai-chat-page\\manifest.json",
+    "bytes": 690,
+    "sha256": "c19c082ef631ff4a9a545f3cd9774bba4e5026acf16ce41b41118b8852e10cbe"
+  },
+  {
+    "path": "task5-maestro-composite-prepare-final\\2026-10-02_060600\\task5-ai-composite-prepare\\commands.json",
+    "bytes": 22426,
+    "sha256": "bdda4dec204d394e9dfcf8c5b7c77b802e7fd3d346dd60364af613246e6a7be4"
+  },
+  {
+    "path": "task5-maestro-composite-prepare-final\\2026-10-02_060600\\task5-ai-composite-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "ef4ca070ba7d19d2c7b81027c05afeff9a1711578a43ddeb42eea17c4c33234a"
+  },
+  {
+    "path": "task5-maestro-final\\2026-10-02_055447\\task5-ai-chat-page\\commands.json",
+    "bytes": 37912,
+    "sha256": "a5922c30ba008efd8eef877c404a3d5242d44373c918cec89429288857a952c3"
+  },
+  {
+    "path": "task5-maestro-final\\2026-10-02_055447\\task5-ai-chat-page\\manifest.json",
+    "bytes": 690,
+    "sha256": "8341b7aac81e8efdaf657d873284464fd92844974a1bf20a96b805aeb0d8a4a5"
+  },
+  {
+    "path": "task5-maestro-fixround1-current-cancel\\2026-10-02_070032\\task5-fixround1-current-cancel\\commands.json",
+    "bytes": 6480,
+    "sha256": "7effd1d8b58857a5058768e7af0ed514a39ee719da974d23e2ade204d4b05e6e"
+  },
+  {
+    "path": "task5-maestro-fixround1-current-cancel\\2026-10-02_070032\\task5-fixround1-current-cancel\\manifest.json",
+    "bytes": 687,
+    "sha256": "a966bc735c49bef788c78ce5b76e0e7ff2c73ac8755e04156a100a95f7a49e70"
+  },
+  {
+    "path": "task5-maestro-fixround1-main\\2026-10-02_065558\\task5-ai-chat-page\\commands.json",
+    "bytes": 38047,
+    "sha256": "85911de3d27003590f9742aa36ba6699b60384b753242a48bdf5d138ba3043ac"
+  },
+  {
+    "path": "task5-maestro-fixround1-main\\2026-10-02_065558\\task5-ai-chat-page\\manifest.json",
+    "bytes": 690,
+    "sha256": "f02387ad64787f5f7b4874876cf96124e610b5f7c9183a7ec045f6c6ae19e15c"
+  },
+  {
+    "path": "task5-maestro-fixround1-old-tap\\2026-10-02_070008\\task5-fixround1-old-tap\\commands.json",
+    "bytes": 4068,
+    "sha256": "99a0387d5da414c421e936f2b77c4fee60cc0099c5287c12a8fe8e3d95ece81d"
+  },
+  {
+    "path": "task5-maestro-fixround1-old-tap\\2026-10-02_070008\\task5-fixround1-old-tap\\manifest.json",
+    "bytes": 686,
+    "sha256": "4b18f09934b3d95a5fcb5d26dd028551c4df99581d5090d53c30e59a933f00c1"
+  },
+  {
+    "path": "task5-maestro-fixround1-stale-prepare\\2026-10-02_065832\\task5-fixround1-stale-prepare\\commands.json",
+    "bytes": 14713,
+    "sha256": "c5a236180cbd0453e3896546406a46784f8a146652f861bac9ef973c05490df9"
+  },
+  {
+    "path": "task5-maestro-fixround1-stale-prepare\\2026-10-02_065832\\task5-fixround1-stale-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "a970cd1b52a1b189165cb881b0b58fe9e5396ce8d1fc75782fda413b691b921b"
+  },
+  {
+    "path": "task5-maestro-freeze\\2026-10-02_060349\\task5-ai-chat-page\\commands.json",
+    "bytes": 38048,
+    "sha256": "b5153fecc9fe65ce4ff9977caa8da2c7439896b75924fe7ad845af26f8d050a0"
+  },
+  {
+    "path": "task5-maestro-freeze\\2026-10-02_060349\\task5-ai-chat-page\\manifest.json",
+    "bytes": 690,
+    "sha256": "b9797d12088f24ca691d6fe247dfd717896a4e05adcac23190931b28d3e93b0c"
+  },
+  {
+    "path": "task5-maestro-interrupted-error\\2026-10-02_060054\\task5-ai-error\\commands.json",
+    "bytes": 7418,
+    "sha256": "20ad53964232652556b6f586e45851a32d85e791c095dd6477ae0b53cf8ee81c"
+  },
+  {
+    "path": "task5-maestro-interrupted-error\\2026-10-02_060054\\task5-ai-error\\manifest.json",
+    "bytes": 687,
+    "sha256": "b74f7abc397c62e6f31db7032cf550012d51d4fc87f353ee6c6dd173b925a9df"
+  },
+  {
+    "path": "task5-maestro-interrupted-freeze-error\\2026-10-02_061138\\task5-ai-error\\commands.json",
+    "bytes": 7554,
+    "sha256": "7779e93895adb0b84b9b4659600c5819adb033df0f44aa433237b5ede400b3a7"
+  },
+  {
+    "path": "task5-maestro-interrupted-freeze-error\\2026-10-02_061138\\task5-ai-error\\manifest.json",
+    "bytes": 687,
+    "sha256": "3093e4ce2e6c611d04f273c9e7efda3a1301b385b8eacf5b68f872756c354711"
+  },
+  {
+    "path": "task5-maestro-interrupted-freeze-recovered\\2026-10-02_061223\\task5-ai-retry\\commands.json",
+    "bytes": 6180,
+    "sha256": "aaf552564b5621804c688a8bee859aa0413b67c32a2de550cc8ed0ffe84d71cf"
+  },
+  {
+    "path": "task5-maestro-interrupted-freeze-recovered\\2026-10-02_061223\\task5-ai-retry\\manifest.json",
+    "bytes": 687,
+    "sha256": "cba93b5af61742801f334d71f1f3e69e5ee21f1b345e2b40c86b81bde65a1e48"
+  },
+  {
+    "path": "task5-maestro-interrupted-recovered\\2026-10-02_060141\\task5-ai-retry\\commands.json",
+    "bytes": 6043,
+    "sha256": "7fe76a4f5e4523923b72b0eec9388aae8cab00047ca84281e281438d6da607af"
+  },
+  {
+    "path": "task5-maestro-interrupted-recovered\\2026-10-02_060141\\task5-ai-retry\\manifest.json",
+    "bytes": 687,
+    "sha256": "7e1e177a3a1b3a86c69f8a31b9d6a46b6a10706699f40a8de90a75b1e9e461d7"
+  },
+  {
+    "path": "task5-maestro-latest\\2026-10-02_055002\\task5-ai-chat-page\\commands.json",
+    "bytes": 37913,
+    "sha256": "ff1d6a5578a28b3dff345ae3490bdc78bc7e5a042f99bfba502309168b695d4e"
+  },
+  {
+    "path": "task5-maestro-latest\\2026-10-02_055002\\task5-ai-chat-page\\manifest.json",
+    "bytes": 690,
+    "sha256": "e734ce74e101dc6ee9f9f41978d2113a04b7a07e39741e5a7b8fb562e7fff6bb"
+  },
+  {
+    "path": "task5-maestro-read-cards-freeze\\2026-10-02_060900\\task5-ai-read-cards\\commands.json",
+    "bytes": 23287,
+    "sha256": "8ee44494b6fe636e817cb6c6af2f4488a20669e5f94e8859f2cbcdc917b7dec6"
+  },
+  {
+    "path": "task5-maestro-read-cards-freeze\\2026-10-02_060900\\task5-ai-read-cards\\manifest.json",
+    "bytes": 689,
+    "sha256": "f49063ed902a8b347bd73ea6c60ccaa172aae5b233ca3267c78141c69acf4bb0"
+  },
+  {
+    "path": "task5-maestro-read-cards\\2026-10-02_055210\\task5-ai-read-cards\\commands.json",
+    "bytes": 23152,
+    "sha256": "d4318c60a7f0f39c2a433d2215b0620c2bc3b4df83aa9c780ba462cb69840ae4"
+  },
+  {
+    "path": "task5-maestro-read-cards\\2026-10-02_055210\\task5-ai-read-cards\\manifest.json",
+    "bytes": 689,
+    "sha256": "813d6a3862c48b6c5fca9359bb40c2a6f222c42e00ee6779b67db8c95339d83a"
+  },
+  {
+    "path": "task5-maestro-release\\2026-10-02_061401\\task5-ai-chat-page\\commands.json",
+    "bytes": 38045,
+    "sha256": "e71a753c93080c309153b454e144db09f2ce8df0d13528d794209a8f964e8c88"
+  },
+  {
+    "path": "task5-maestro-release\\2026-10-02_061401\\task5-ai-chat-page\\manifest.json",
+    "bytes": 690,
+    "sha256": "b3a838fca747cf389d6d7332272da2991bdd046d6c28ea8e41dd7fcc9f170f6a"
+  },
+  {
+    "path": "task5-maestro-unreachable-error\\2026-10-02_055741\\task5-ai-error\\commands.json",
+    "bytes": 7325,
+    "sha256": "ff3afb0de771538f22ab91b45ea69d934363539f00d9abfc4a3f4e3a4fc72f09"
+  },
+  {
+    "path": "task5-maestro-unreachable-error\\2026-10-02_055741\\task5-ai-error\\manifest.json",
+    "bytes": 687,
+    "sha256": "87297e5c6764343edaf1d3c9fbbfaaad7fa42a06f34503492f54e554c02a4031"
+  },
+  {
+    "path": "task5-maestro-unreachable-freeze-error\\2026-10-02_061029\\task5-ai-error\\commands.json",
+    "bytes": 7461,
+    "sha256": "f3e7ecb1583d96d0ebc07eb3c39321c525d704630a2c71b63537c612d1a6b4d5"
+  },
+  {
+    "path": "task5-maestro-unreachable-freeze-error\\2026-10-02_061029\\task5-ai-error\\manifest.json",
+    "bytes": 687,
+    "sha256": "9daa8e256e5af7a373fd8c1f6ed641683b821b66f907eb161c730343d1142eea"
+  },
+  {
+    "path": "task5-maestro-unreachable-freeze-recovered\\2026-10-02_061110\\task5-ai-retry\\commands.json",
+    "bytes": 6106,
+    "sha256": "0274f06156ec0090d578101e05d3c410a33b0d4b2889928930ea12323ca24eab"
+  },
+  {
+    "path": "task5-maestro-unreachable-freeze-recovered\\2026-10-02_061110\\task5-ai-retry\\manifest.json",
+    "bytes": 686,
+    "sha256": "4f305f980a73d97ee08e8fc79f31c1c3acf91199acd308411dc195c39b5f29dd"
+  },
+  {
+    "path": "task5-maestro-unreachable-recovered\\2026-10-02_055822\\task5-ai-retry\\commands.json",
+    "bytes": 5970,
+    "sha256": "73e4965f1812c0a7a2d1034f43e8a513bd6dc6cbc5ca850bcb6e966d45ca2322"
+  },
+  {
+    "path": "task5-maestro-unreachable-recovered\\2026-10-02_055822\\task5-ai-retry\\manifest.json",
+    "bytes": 687,
+    "sha256": "158ff2bd063e85aee154e357cac014c8665c4103f1c6a799a787ba05cf5984fe"
+  },
+  {
+    "path": "task5-order-fixture.json",
+    "bytes": 384,
+    "sha256": "10121a8f098577be0977d0bdd57e38a9b59d4884d6923b46559658ae1227f78c"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\.runtime\\task2-test-fixtures.json",
+    "bytes": 3058,
+    "sha256": "e04ffb0c98d37d8ca2090b06dde194ca425eb267e614145e81b9bdc32cc6666f"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\addresses.json",
+    "bytes": 312,
+    "sha256": "5a20b1d349142b19855ac5d90cf817542f8c593475154883ab223803344fc0c4"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\agent-scenarios.json",
+    "bytes": 792,
+    "sha256": "0cfb01c9b61d44809edc572df2ed8ac35bf82691570256cf5179ef7498af3c3b"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\coupons.json",
+    "bytes": 224,
+    "sha256": "f6a5eef4d06aad5ae8bf812a2254196719b54da9b783710f04bf9ea60dd731a7"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\deals.json",
+    "bytes": 6346,
+    "sha256": "e0a0537cd27488caa13a550fc47fdfeba53bf911fea977f6f8159fe512f7921c"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\dishes.json",
+    "bytes": 4691,
+    "sha256": "58afd09fe307b453ac939ffe855f8a64063c5b43486ac50838ee52f1c08439a2"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\group-orders.json",
+    "bytes": 1086,
+    "sha256": "0c8aea7a65c09006746c4744272e8a8315b41f84f62389bfe1debdca82544282"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\group-reviews.json",
+    "bytes": 5169,
+    "sha256": "126af1dc7b380c0643842f90e9379ea8daef8636cf06fee681384851e1cda779"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\merchants.json",
+    "bytes": 1909,
+    "sha256": "3cbe492e54c0925a08203db0bbc20a66d3d7f35a7f9df404068511ccb47e7cf5"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\orders.json",
+    "bytes": 212,
+    "sha256": "a3a617c08143cf412da2c0eae930945ef38641faee729300985b676461533b62"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\reviews.json",
+    "bytes": 6186,
+    "sha256": "f9becbef2106d8e70a14b8c333824c647afae37d71cdf2fa40dfcbe77bc30293"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\stores.json",
+    "bytes": 9462,
+    "sha256": "57d64c9fe9605c975ba866a8ae2d843bc456c2fa51ac58b68e56a1155e800e85"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\task2-development-fixtures.json",
+    "bytes": 562,
+    "sha256": "93cebe24933890e398390c0deb77748393d4218a9a5265f7eb3d8dbebaaa5dbd"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\users.json",
+    "bytes": 143,
+    "sha256": "fbc446ccbe8581043fd9e3849967db048bd043a915178e7584171503ba3f31bd"
+  },
+  {
+    "path": "task5-regression-70d399645a1e40a98f32a2c451fffe59\\data\\seed\\vouchers.json",
+    "bytes": 446,
+    "sha256": "542c0c519ffdef9ecbcbf115d334eab170c16d11295abad2ab39828544e09208"
+  },
+  {
+    "path": "task6-account.json",
+    "bytes": 281,
+    "sha256": "1a7d660024a51ac1ad7d03d66fac0486c20cba7c49483cd19e47711964b62195"
+  },
+  {
+    "path": "task6-agent-cancel-prepare.json",
+    "bytes": 5622,
+    "sha256": "a0263924c3c110477cf74e6888d0b565997bf2630320174115fd19bc1fa78a9d"
+  },
+  {
+    "path": "task6-agent-cancel.json",
+    "bytes": 861,
+    "sha256": "d35ec31f57baf7ba677cffd5b103a23cb1ed2288a0cfee3e45343d50c249a5e3"
+  },
+  {
+    "path": "task6-agent-expiry.json",
+    "bytes": 80,
+    "sha256": "2fe19569e38a2b62c22bc52b1ecbd75b88284bb73ffcdd39b10a177695efdfa0"
+  },
+  {
+    "path": "task6-agent-pay-confirm.json",
+    "bytes": 5655,
+    "sha256": "da72fb73fa1b75a03b53113d1afc7350775538e0c3afb497e2190ed39e8ab11d"
+  },
+  {
+    "path": "task6-agent-purchase-confirm.json",
+    "bytes": 6658,
+    "sha256": "3848390dda2db3741f0f2e183b6dadc0b2a9cca0a249e235b3e9852da71113e8"
+  },
+  {
+    "path": "task6-agent-purchase-prepare.json",
+    "bytes": 5624,
+    "sha256": "243f671bc0513a92e0052f40956e1238d0cb7f0f75a5e79ab92875e3faa74df9"
+  },
+  {
+    "path": "task6-boundary-agent-expiry.json",
+    "bytes": 938,
+    "sha256": "b41d9817fea000b4aaa9142212387d8fea1ff33fae71540e51a1fb2dcb44cc7a"
+  },
+  {
+    "path": "task6-boundary-agent-prepare-expiry.json",
+    "bytes": 5622,
+    "sha256": "a295ec0d17bfc60ef4de96ad0e6ca56783184979238d5dd3dcd917366f62ca49"
+  },
+  {
+    "path": "task6-boundary-agent-price.json",
+    "bytes": 1810,
+    "sha256": "fefd48c1a451f3bca89f420e800523f9d5869d684269ba0caa1384f97ca38b04"
+  },
+  {
+    "path": "task6-expiry.json",
+    "bytes": 317,
+    "sha256": "5c6bbc98bdedd43bd9fc7de6db37c2b432fa12dc8e69a3346799292c154d23d6"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\.runtime\\task2-test-fixtures.json",
+    "bytes": 3058,
+    "sha256": "45e0a33a37d2e13735fb82fb6297be07cef2cf999da65585fb6fefdb425b8cd4"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\addresses.json",
+    "bytes": 312,
+    "sha256": "5a20b1d349142b19855ac5d90cf817542f8c593475154883ab223803344fc0c4"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\agent-scenarios.json",
+    "bytes": 792,
+    "sha256": "0cfb01c9b61d44809edc572df2ed8ac35bf82691570256cf5179ef7498af3c3b"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\coupons.json",
+    "bytes": 224,
+    "sha256": "f6a5eef4d06aad5ae8bf812a2254196719b54da9b783710f04bf9ea60dd731a7"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\deals.json",
+    "bytes": 6346,
+    "sha256": "e0a0537cd27488caa13a550fc47fdfeba53bf911fea977f6f8159fe512f7921c"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\dishes.json",
+    "bytes": 4691,
+    "sha256": "58afd09fe307b453ac939ffe855f8a64063c5b43486ac50838ee52f1c08439a2"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\group-orders.json",
+    "bytes": 1086,
+    "sha256": "0c8aea7a65c09006746c4744272e8a8315b41f84f62389bfe1debdca82544282"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\group-reviews.json",
+    "bytes": 5169,
+    "sha256": "126af1dc7b380c0643842f90e9379ea8daef8636cf06fee681384851e1cda779"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\merchants.json",
+    "bytes": 1909,
+    "sha256": "3cbe492e54c0925a08203db0bbc20a66d3d7f35a7f9df404068511ccb47e7cf5"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\orders.json",
+    "bytes": 212,
+    "sha256": "a3a617c08143cf412da2c0eae930945ef38641faee729300985b676461533b62"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\reviews.json",
+    "bytes": 6186,
+    "sha256": "f9becbef2106d8e70a14b8c333824c647afae37d71cdf2fa40dfcbe77bc30293"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\stores.json",
+    "bytes": 9462,
+    "sha256": "57d64c9fe9605c975ba866a8ae2d843bc456c2fa51ac58b68e56a1155e800e85"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\task2-development-fixtures.json",
+    "bytes": 562,
+    "sha256": "93cebe24933890e398390c0deb77748393d4218a9a5265f7eb3d8dbebaaa5dbd"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\users.json",
+    "bytes": 143,
+    "sha256": "fbc446ccbe8581043fd9e3849967db048bd043a915178e7584171503ba3f31bd"
+  },
+  {
+    "path": "task6-fixround1-77281d4bce8645d4b50dfc1f985af515\\data\\seed\\vouchers.json",
+    "bytes": 446,
+    "sha256": "542c0c519ffdef9ecbcbf115d334eab170c16d11295abad2ab39828544e09208"
+  },
+  {
+    "path": "task6-fixround1-state.json",
+    "bytes": 267055,
+    "sha256": "088d7518cec462831b6ad9275e713541fa266c9523ed8109d8f9f8ed238ab950"
+  },
+  {
+    "path": "task6-independent\\account.json",
+    "bytes": 310,
+    "sha256": "0b27079090491f31a99c5e6cf4e15a57167690ca8c36f9453c40f128e83558fa"
+  },
+  {
+    "path": "task6-independent\\agent-cancel-prepare.json",
+    "bytes": 7529,
+    "sha256": "e5e3f7f62c047c4af88ee49826bec5b7019fde51808309ab8958c609fb16a7ea"
+  },
+  {
+    "path": "task6-independent\\agent-cancel.json",
+    "bytes": 1122,
+    "sha256": "5e689815523ff24d0f98ceca51f55ee797766ea02440c033bc60dc06e2d9f830"
+  },
+  {
+    "path": "task6-independent\\agent-expiry-new-cancel.json",
+    "bytes": 1122,
+    "sha256": "4144e0d621dd7f5944c6353892cf556624cdb1ffa504335428b4a26c683ce6ed"
+  },
+  {
+    "path": "task6-independent\\agent-expiry-new-summary.json",
+    "bytes": 7529,
+    "sha256": "c870ef7f9b84da37e9471ecf8dd8e70b47b85d53dcae4a0ec9e0d500f86aca36"
+  },
+  {
+    "path": "task6-independent\\agent-expiry-prepare.json",
+    "bytes": 7529,
+    "sha256": "7300bf69e3a08091244711fddddf39823f192875dd26bd648e6a5c956caa6d34"
+  },
+  {
+    "path": "task6-independent\\agent-expiry.json",
+    "bytes": 516,
+    "sha256": "292bdde17ea4328fe3bbe24e3dc1c76fe1e07212ef6a317369eccbf53c9de350"
+  },
+  {
+    "path": "task6-independent\\agent-natural-expiry-rejected.json",
+    "bytes": 1217,
+    "sha256": "566c7ed6df8eafdf32df197951dc2788a1acc060beedca541fa907c2240db895"
+  },
+  {
+    "path": "task6-independent\\agent-pay-cancel-created.json",
+    "bytes": 7802,
+    "sha256": "56d708c7e2ab7242975c4d79f9953ad36bc5dc5d1288f2f79f25c4fff773a0a3"
+  },
+  {
+    "path": "task6-independent\\agent-pay-cancel-prepare.json",
+    "bytes": 7529,
+    "sha256": "864fe97ac867094b13b6bb4677def974f83eb4f73324044f286e428574f43ef7"
+  },
+  {
+    "path": "task6-independent\\agent-pay-cancel.json",
+    "bytes": 1122,
+    "sha256": "c96535473997b95f59db9cd4bcf958f29a14e0d29cf1dc02c0050d210349cdff"
+  },
+  {
+    "path": "task6-independent\\agent-pay-confirm.json",
+    "bytes": 7907,
+    "sha256": "196881bed010ff37e12b259f390545df1f277bf8f6c05e55e3c1642f8b3fc513"
+  },
+  {
+    "path": "task6-independent\\agent-price-cancel-payment.json",
+    "bytes": 1122,
+    "sha256": "26c322a64e4ee6baa0b2f6089f104e2acb9e7d8b1b594e7dd8e514855f6aef0d"
+  },
+  {
+    "path": "task6-independent\\agent-price-fresh-confirm.json",
+    "bytes": 7802,
+    "sha256": "62ec7570ad0bd4d6a3f3b552b7baa0b4650f668bb5c607c8b27b17d14c353a4b"
+  },
+  {
+    "path": "task6-independent\\agent-price-fresh.json",
+    "bytes": 7529,
+    "sha256": "d05300e9087d757fc687f372551874d7010af7a39f74942f1c906231626885f2"
+  },
+  {
+    "path": "task6-independent\\agent-price-prepare.json",
+    "bytes": 7529,
+    "sha256": "59e70a16bc4265581c9a688f989c4dbda6020517b6187a1eef989d5c704bfaad"
+  },
+  {
+    "path": "task6-independent\\agent-price-rejected.json",
+    "bytes": 2363,
+    "sha256": "cd32d7223c33f5946c4f943b8ac34b1261b813af99e782b144d8911a6f6fbb5a"
+  },
+  {
+    "path": "task6-independent\\agent-purchase-confirm.json",
+    "bytes": 9236,
+    "sha256": "c9675a4fc36083b62f9975126ec3c11a3337982ab258884686f058ab63721e64"
+  },
+  {
+    "path": "task6-independent\\agent-purchase-prepare.json",
+    "bytes": 7531,
+    "sha256": "3599b0e8e62566da561613bba3d47dcfee7cbd715e27e439d92343a1e6e7e8f9"
+  },
+  {
+    "path": "task6-independent\\expiry.json",
+    "bytes": 1041,
+    "sha256": "2cb14c0cdbb02c2c397d71c714bdb18e7c8ed5691bb9db7de22ac3efeac4e68c"
+  },
+  {
+    "path": "task6-independent\\maestro-quantity1\\2026-10-02_082829\\group-buying-03-purchase\\commands.json",
+    "bytes": 19390,
+    "sha256": "4bc2312b816264e37835e64cc1d83d82b0c4e85bfc929be1a37325d364e7453e"
+  },
+  {
+    "path": "task6-independent\\maestro-quantity1\\2026-10-02_082829\\group-buying-03-purchase\\manifest.json",
+    "bytes": 927,
+    "sha256": "c8ace9a13f9c8d014bfac31a38169899562af42c90752a23e272f7f7e71ec703"
+  },
+  {
+    "path": "task6-independent\\maestro-quantity1\\2026-10-02_082829\\group-buying-03-purchase\\screen-hierarchy\\step-024-assertCondition-${TASK6_TOTAL}.json",
+    "bytes": 65720,
+    "sha256": "5dd32d7951cd08b79d80123368622fe124fe2c4b59cc8d4390247c744c1ed475"
+  },
+  {
+    "path": "task6-independent\\original-facts.json",
+    "bytes": 188065,
+    "sha256": "821fd6e3b2c7f4d2ba188122a42544d4a52423f0e7c5ac4d7ce95c016b3758ad"
+  },
+  {
+    "path": "task6-independent\\r1\\agent-state-after-current-cancel.json",
+    "bytes": 513,
+    "sha256": "d0bf76091b539be0ce4591f908706481f150be631459e54d99bc5892921254ab"
+  },
+  {
+    "path": "task6-independent\\r1\\agent-state-after-old.json",
+    "bytes": 524,
+    "sha256": "994fe1448c3f9f48e3770b856e4186641f926d6d265212f14a6dcfa1d8ed1e3a"
+  },
+  {
+    "path": "task6-independent\\r1\\agent-state-before-old.json",
+    "bytes": 524,
+    "sha256": "994fe1448c3f9f48e3770b856e4186641f926d6d265212f14a6dcfa1d8ed1e3a"
+  },
+  {
+    "path": "task6-independent\\r1\\frontend-expiry-fresh.json",
+    "bytes": 373,
+    "sha256": "00c3786338cd2afc25bd2711efc17468912c79191316b8966d33d4c7abf1f65b"
+  },
+  {
+    "path": "task6-independent\\r1\\frontend-expiry.json",
+    "bytes": 373,
+    "sha256": "97320939186b58509cee8c1f52580d87c4384e340f5217fd879134999f100d65"
+  },
+  {
+    "path": "task6-independent\\r1\\frontend-price-old.json",
+    "bytes": 373,
+    "sha256": "1b4b18ea66ee15d3161106b69a156dc4667bfffb1142eaf14ddcd25b5fc8f82f"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-checkout401-prepare\\2026-10-02_085045\\task6-purchase-401-prepare\\commands.json",
+    "bytes": 15336,
+    "sha256": "d5dafee6755de7bec214b206c8a2ebc7f07bec904fe6b443d09911c5554b6855"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-checkout401-prepare\\2026-10-02_085045\\task6-purchase-401-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "ce58f6b7e2b1c749c0afa69871d139ce06685a78f55ee2885be267f24a3efe7c"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-checkout401-return\\2026-10-02_085305\\task6-purchase-401-return\\commands.json",
+    "bytes": 12662,
+    "sha256": "6e03c0bb6ec3eb1e67c884dfb8de7327342dfca75e14b5289ac62bc9c36eac3b"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-checkout401-return\\2026-10-02_085305\\task6-purchase-401-return\\manifest.json",
+    "bytes": 688,
+    "sha256": "96fecc7f914b5541d32d07706fdac14b7b1fcb7d64c687c0dcc2850b3f84650f"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-expiry-prepare\\2026-10-02_091943\\task6-purchase-401-prepare\\commands.json",
+    "bytes": 15471,
+    "sha256": "8bc7e6a5994c3e26b7f14923507f5fb078db10271db070abd441f2681db6d6b6"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-expiry-prepare\\2026-10-02_091943\\task6-purchase-401-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "28c6e1e87bb79c0e02345eb7f670d673b5f183562ee7d233fcbdaa2439c389e2"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-expiry-recover\\2026-10-02_092633\\expiry-recover\\commands.json",
+    "bytes": 7221,
+    "sha256": "8200a341b1742ee73ab6175b236a200de16fdddac13ec51dace2e1cdc8d3a94a"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-expiry-recover\\2026-10-02_092633\\expiry-recover\\manifest.json",
+    "bytes": 686,
+    "sha256": "1667d37adea7db423ba2d898780665ed76b3029152cbfced03114b3d5eb8ce09"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-expiry-reject\\2026-10-02_092604\\expiry-reject\\commands.json",
+    "bytes": 5610,
+    "sha256": "8a57effc92b62ef7511158469dbe667ba84f4cec16a2b8f292b398c712294f27"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-expiry-reject\\2026-10-02_092604\\expiry-reject\\manifest.json",
+    "bytes": 685,
+    "sha256": "16fe121397338ec0d2ee53eb463d0a76e5345162c4f7fa3b7aeea5cba81c8df8"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-current-cancel\\2026-10-02_091857\\task5-fixround1-current-cancel\\commands.json",
+    "bytes": 6811,
+    "sha256": "1481511117ba942f7a543c5f91201decf9bc6ca7c2275f5da6a0f938e799a43a"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-current-cancel\\2026-10-02_091857\\task5-fixround1-current-cancel\\manifest.json",
+    "bytes": 687,
+    "sha256": "9f0bba41db1594466fde3807e53ad6faa02f015d86bbea2dfc593e4f62d6d2f4"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-old-tap-r2\\2026-10-02_091831\\task5-fixround1-old-tap\\commands.json",
+    "bytes": 4400,
+    "sha256": "72d0b04a8abc98e97a7690dc38c9953e7cc98108af0ca723c309ef9b2ad8a871"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-old-tap-r2\\2026-10-02_091831\\task5-fixround1-old-tap\\manifest.json",
+    "bytes": 686,
+    "sha256": "40e6c6d0e256bdd17a73395e45fff0063e9590984277c157ac8f27f9f403a491"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-prepare-r2\\2026-10-02_091428\\history-prepare\\commands.json",
+    "bytes": 53929,
+    "sha256": "dc9be2e2b2814ea32a2865d5fafe1937f5cea822b332f65ec850f5241211b43c"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-prepare-r2\\2026-10-02_091428\\history-prepare\\manifest.json",
+    "bytes": 690,
+    "sha256": "8ff58aea4d2566b0554b3c6a65d72217ea29eae7120fcff782fd96c1ce48c56f"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-prepare\\2026-10-02_091248\\history-prepare\\commands.json",
+    "bytes": 15421,
+    "sha256": "37239aaca649b38ce23ea824eb0ce9c237e64336d92ecc4cf9a5a8cc5bc2eed2"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-prepare\\2026-10-02_091248\\history-prepare\\manifest.json",
+    "bytes": 804,
+    "sha256": "5212e275828406b7bf54e078e6f9de8368dffdc4dd3a19cc8e408432577412fd"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-history-prepare\\2026-10-02_091248\\history-prepare\\screen-hierarchy\\step-005-launchApp-com.fandazi.app.json",
+    "bytes": 63751,
+    "sha256": "91219ed733eaec80d8e7c84150a5d94a3a8156050c0cf3c21df660d549f897a0"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-create-failure\\2026-10-02_090103\\network-create-failure\\commands.json",
+    "bytes": 7907,
+    "sha256": "a7939613ccb3238699e93881d2ad40251960c64464484654ae5d0d179ccb4342"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-create-failure\\2026-10-02_090103\\network-create-failure\\manifest.json",
+    "bytes": 686,
+    "sha256": "2b989ccbac72630988726ef5da87c8c8c03c7ce2b86f59d4d45bdd787ddda1b3"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-create-recover\\2026-10-02_090136\\network-create-recover\\commands.json",
+    "bytes": 5789,
+    "sha256": "d1a1830da355263ec3a74d3acebbff58025b379d4995e57bfa7f9f21e8dd3b4f"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-create-recover\\2026-10-02_090136\\network-create-recover\\manifest.json",
+    "bytes": 685,
+    "sha256": "3961af06e2085a5d7989a499ceda1d3fd16ff66ae1591bfce7186d40e5e31591"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-pay-failure\\2026-10-02_090212\\network-pay-failure\\commands.json",
+    "bytes": 6386,
+    "sha256": "8465857959bdd9a0fc6c7f1d4ef6a5a24384ae990ef873d7ddf020a6ae841b38"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-pay-failure\\2026-10-02_090212\\network-pay-failure\\manifest.json",
+    "bytes": 686,
+    "sha256": "1ea86af7d463fa167708dfb805da1f73d02321e6a33b9b5da2c5483076191e1a"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-pay-recover-r2\\2026-10-02_090408\\network-pay-recover-r2\\commands.json",
+    "bytes": 12360,
+    "sha256": "20827a6e784df87f6cf3f27900d36729ce4fb99703b1fa67dcae4728b8668d27"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-pay-recover-r2\\2026-10-02_090408\\network-pay-recover-r2\\manifest.json",
+    "bytes": 687,
+    "sha256": "42c718afc7ff78a13d2e34613b3863444c801cd41ba53880fef52bd6242a7466"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-pay-recover\\2026-10-02_090250\\network-pay-recover\\commands.json",
+    "bytes": 4053,
+    "sha256": "f1bba6d61acbe35599b27d7e40c9161f19cda614a605d5eb054e0037cadf0ee5"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-pay-recover\\2026-10-02_090250\\network-pay-recover\\manifest.json",
+    "bytes": 803,
+    "sha256": "bcb74885a36262c23a0d7495572097a6dc209f3bd4f63589e26b5e614c299ea6"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-pay-recover\\2026-10-02_090250\\network-pay-recover\\screen-hierarchy\\step-003-tapOnElement-com.fandazi.appid_group_pay.json",
+    "bytes": 40452,
+    "sha256": "bbdfb09a4b3340ce264f2a7a919fd42055e1ba0b7e546dfa6051d6b4bda13825"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-prepare\\2026-10-02_085948\\task6-purchase-401-prepare\\commands.json",
+    "bytes": 15470,
+    "sha256": "8eb322b3f4ce01f5432e0b4d0866c3419a46c7207feac90b5d743b3180a3891e"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-prepare\\2026-10-02_085948\\task6-purchase-401-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "c6933ddf64a371029716c72d26df5000348fd48c9c3026ad50767468676cb330"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-success-failure\\2026-10-02_090452\\network-success-failure\\commands.json",
+    "bytes": 5010,
+    "sha256": "6b0ec30e004ed61cd973b3c4170da2a5def18fac875052dce3bd40c575af5f87"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-success-failure\\2026-10-02_090452\\network-success-failure\\manifest.json",
+    "bytes": 685,
+    "sha256": "d7d357b0166b8b32987c4b2dc29a69c5bf9a010258aaf036525868db40725713"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-success-recover\\2026-10-02_090528\\network-success-recover\\commands.json",
+    "bytes": 5667,
+    "sha256": "a957405ef51aa67f25598154d63f72efb38a980faa8a6422e9d6d0131ee778ea"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-network-success-recover\\2026-10-02_090528\\network-success-recover\\manifest.json",
+    "bytes": 685,
+    "sha256": "ee74e3b99b20f9e549ad61f9038b2155c2066cf31050a77a068a0ffe9ea0ccbe"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-payment401-prepare\\2026-10-02_085409\\payment401-prepare\\commands.json",
+    "bytes": 30898,
+    "sha256": "e50e2cb13b968d46d5ca511e82209a08fcd6a863a8ff21345b3c1b35063da766"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-payment401-prepare\\2026-10-02_085409\\payment401-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "d52ec1a374a0f698d52a61acb4c702c697050bfd7882f906db8bca4d05979224"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-payment401-return\\2026-10-02_085632\\payment401-return\\commands.json",
+    "bytes": 13380,
+    "sha256": "d4fb5a7d85e4234934747589fb08e4e4012a8b27e681696462bb2afa36f10d38"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-payment401-return\\2026-10-02_085632\\payment401-return\\manifest.json",
+    "bytes": 688,
+    "sha256": "cb11c3e5d43ab4a308a9934e8002398a2a5687641728fdf0dcc0f58b892592f6"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-price-confirm-pay\\2026-10-02_091141\\price-confirm-pay\\commands.json",
+    "bytes": 8693,
+    "sha256": "022ada5be624260c4248fddb88add1b36028d19f5b3d38614cea054843400a50"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-price-confirm-pay\\2026-10-02_091141\\price-confirm-pay\\manifest.json",
+    "bytes": 686,
+    "sha256": "1b4f4b4634a34b875f8f6969efab8988dcf602fd83105168f5864a362356918c"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-price-prepare\\2026-10-02_090851\\task6-purchase-401-prepare\\commands.json",
+    "bytes": 15471,
+    "sha256": "3345b402cd5594f01ed2096e0a37d42a31fdb661d1b6b9a7b244a35dbfa594c3"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-price-prepare\\2026-10-02_090851\\task6-purchase-401-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "c317cd37adad4c55c19bf009501389240e129de04fa81f7fe958694e3cab1931"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-price-reject\\2026-10-02_090959\\price-reject\\commands.json",
+    "bytes": 5633,
+    "sha256": "72d2b345561e49753d30e15e6368506d4af2ba2eed21d98efd62bea29f410d33"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-price-reject\\2026-10-02_090959\\price-reject\\manifest.json",
+    "bytes": 685,
+    "sha256": "ff26010556e561fc3f9bf61da363d1403d03449f12115fabd678aa11b78f5fa6"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-price-requote\\2026-10-02_091052\\price-requote\\commands.json",
+    "bytes": 5763,
+    "sha256": "76a9640f0b45a8b88ba8475a261ccdd1db2194d101d3e7feeaf3e0258aaf5fc1"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-price-requote\\2026-10-02_091052\\price-requote\\manifest.json",
+    "bytes": 685,
+    "sha256": "484338f9008de67c11e2594a700773147daf9d441889f97af227d6a15af25906"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quantity1\\2026-10-02_084702\\group-buying-03-purchase\\commands.json",
+    "bytes": 28396,
+    "sha256": "780c9326eea537a580b7657a17e384a5e28fa7d717161694fd0eef7dee440036"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quantity1\\2026-10-02_084702\\group-buying-03-purchase\\manifest.json",
+    "bytes": 689,
+    "sha256": "ee4104f7b62d2e58182a89ed8a03c62bc8eae1160854919a043ea412bf343d18"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quantity2\\2026-10-02_084844\\group-buying-03-purchase\\commands.json",
+    "bytes": 29897,
+    "sha256": "f5220f96918e415d6193e4f11a4cd30c90873981e97281d69f5203d68d68e53b"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quantity2\\2026-10-02_084844\\group-buying-03-purchase\\manifest.json",
+    "bytes": 689,
+    "sha256": "fcc82a3d1f5d5530fe7b1e4ba35e777edfb69183a7b3299d24c89911af2e9ed8"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quote-network-failure\\2026-10-02_090709\\quote-network-failure\\commands.json",
+    "bytes": 9144,
+    "sha256": "0e58c64d32318cdbc129bc56f4debea492f9ae1d36a2b0a7cd944d3fbf03f1ef"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quote-network-failure\\2026-10-02_090709\\quote-network-failure\\manifest.json",
+    "bytes": 687,
+    "sha256": "f782a2a8236cbae963764be811b63375af2470b0b579b529e0c9f9651ac61365"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quote-network-prepare\\2026-10-02_090602\\task6-purchase-401-prepare\\commands.json",
+    "bytes": 15472,
+    "sha256": "9a0645bf6f7a314172c2768d2944f9236832736610dfcb9bd6af0fda3c601d46"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quote-network-prepare\\2026-10-02_090602\\task6-purchase-401-prepare\\manifest.json",
+    "bytes": 689,
+    "sha256": "65be1b774eeb663984486635a8ab67f7a479e1dd76a2038536f937a90ca7455e"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quote-network-recover\\2026-10-02_090800\\quote-network-recover\\commands.json",
+    "bytes": 13102,
+    "sha256": "ad9fc34ffadbf8cac7d79b2c32ff778375dda345c17e2626639624a21dbefbb2"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-quote-network-recover\\2026-10-02_090800\\quote-network-recover\\manifest.json",
+    "bytes": 688,
+    "sha256": "de28002066b0e25aad8f2a616d6fd59c0373eb26b84617407debbafb3c2037d1"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-success401-return\\2026-10-02_085824\\success401-return\\commands.json",
+    "bytes": 9958,
+    "sha256": "45d73737714070f012a6136a47f12a4ad9f04dbb10f4b4947749230624317d9b"
+  },
+  {
+    "path": "task6-independent\\r1\\maestro-success401-return\\2026-10-02_085824\\success401-return\\manifest.json",
+    "bytes": 687,
+    "sha256": "a5cd043f1a76dadafb9c64a5434e93796ad77f30fce07b93475faed1a587ddd4"
+  },
+  {
+    "path": "task6-independent\\r1\\network-original.json",
+    "bytes": 57,
+    "sha256": "ecbff7a07367ba14db166abc2d25dd9ab67c434fc3d437030a70c8fb53e5fc95"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-checkout401-prepare.json",
+    "bytes": 11403,
+    "sha256": "4d7e1b6bbb18ce3df31c554f3f27fb80458f3abef3f214f7b89c148583ae226c"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-checkout401-return.json",
+    "bytes": 11403,
+    "sha256": "4d7e1b6bbb18ce3df31c554f3f27fb80458f3abef3f214f7b89c148583ae226c"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-expiry-prepare.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-expiry-recover.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-expiry-reject.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-history-current-cancel.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-history-old-tap-r2.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-history-old-tap.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-history-prepare-r2.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-history-prepare.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-network-create-failure.json",
+    "bytes": 13231,
+    "sha256": "789e0ecbc7f2ba9a17bc37d7038ee95b3de87c3c94d0be86991a60febb7e366e"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-network-create-recover.json",
+    "bytes": 15072,
+    "sha256": "96e1abf3fb75a5136fc306b24abf0543d65e09bd24b40262eba757c0266a8d08"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-network-pay-failure.json",
+    "bytes": 15072,
+    "sha256": "96e1abf3fb75a5136fc306b24abf0543d65e09bd24b40262eba757c0266a8d08"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-network-pay-recover-r2.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-network-pay-recover.json",
+    "bytes": 15072,
+    "sha256": "96e1abf3fb75a5136fc306b24abf0543d65e09bd24b40262eba757c0266a8d08"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-network-prepare.json",
+    "bytes": 13231,
+    "sha256": "789e0ecbc7f2ba9a17bc37d7038ee95b3de87c3c94d0be86991a60febb7e366e"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-network-success-failure.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-network-success-recover.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-payment401-prepare.json",
+    "bytes": 13244,
+    "sha256": "bf1585e488a99b1c0f836502a4b94ce7743e33be5dee42abce82df1b05cf7eab"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-payment401-return.json",
+    "bytes": 13231,
+    "sha256": "789e0ecbc7f2ba9a17bc37d7038ee95b3de87c3c94d0be86991a60febb7e366e"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-price-confirm-pay.json",
+    "bytes": 16887,
+    "sha256": "38ea0b3e0eed76aed20ffacc150fdcacc7f5aa048c4b732be27c89077f87912f"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-price-prepare.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-price-reject.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-price-requote.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-quantity1.json",
+    "bytes": 9575,
+    "sha256": "fc9354d4ba24accb2e84a4f58c31cd0b9b14911399788cdd32368207b6c9f530"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-quantity2.json",
+    "bytes": 11403,
+    "sha256": "4d7e1b6bbb18ce3df31c554f3f27fb80458f3abef3f214f7b89c148583ae226c"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-quote-network-failure.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-quote-network-prepare.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-quote-network-recover.json",
+    "bytes": 15059,
+    "sha256": "aaf8c9da8b567574ee4b78cc26e0ea3c9cffbc36a9af9f4dda31f1435a45a07a"
+  },
+  {
+    "path": "task6-independent\\r1\\orders-after-success401-return.json",
+    "bytes": 13231,
+    "sha256": "789e0ecbc7f2ba9a17bc37d7038ee95b3de87c3c94d0be86991a60febb7e366e"
+  },
+  {
+    "path": "task6-independent\\r1\\second-account.json",
+    "bytes": 304,
+    "sha256": "70af283cec796d4815933b69fd382588743eda5a096dc6bbb6a5b26da65c1bbe"
+  },
+  {
+    "path": "task6-independent\\r1\\secret-scan-candidates.json",
+    "bytes": 2102,
+    "sha256": "693feb4e187ec8d6efc921c6a603f8e039c21aec9b1185ed237eccbfbda1d53d"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\.runtime\\task2-test-fixtures.json",
+    "bytes": 3058,
+    "sha256": "7170f0e27b4eda7dfd0ca663654d20a8eeb90f90aeaad722044731491a8f8f78"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\addresses.json",
+    "bytes": 312,
+    "sha256": "5a20b1d349142b19855ac5d90cf817542f8c593475154883ab223803344fc0c4"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\agent-scenarios.json",
+    "bytes": 792,
+    "sha256": "0cfb01c9b61d44809edc572df2ed8ac35bf82691570256cf5179ef7498af3c3b"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\coupons.json",
+    "bytes": 224,
+    "sha256": "f6a5eef4d06aad5ae8bf812a2254196719b54da9b783710f04bf9ea60dd731a7"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\deals.json",
+    "bytes": 6346,
+    "sha256": "e0a0537cd27488caa13a550fc47fdfeba53bf911fea977f6f8159fe512f7921c"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\dishes.json",
+    "bytes": 4691,
+    "sha256": "58afd09fe307b453ac939ffe855f8a64063c5b43486ac50838ee52f1c08439a2"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\group-orders.json",
+    "bytes": 1086,
+    "sha256": "0c8aea7a65c09006746c4744272e8a8315b41f84f62389bfe1debdca82544282"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\group-reviews.json",
+    "bytes": 5169,
+    "sha256": "126af1dc7b380c0643842f90e9379ea8daef8636cf06fee681384851e1cda779"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\merchants.json",
+    "bytes": 1909,
+    "sha256": "3cbe492e54c0925a08203db0bbc20a66d3d7f35a7f9df404068511ccb47e7cf5"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\orders.json",
+    "bytes": 212,
+    "sha256": "a3a617c08143cf412da2c0eae930945ef38641faee729300985b676461533b62"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\reviews.json",
+    "bytes": 6186,
+    "sha256": "f9becbef2106d8e70a14b8c333824c647afae37d71cdf2fa40dfcbe77bc30293"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\stores.json",
+    "bytes": 9462,
+    "sha256": "57d64c9fe9605c975ba866a8ae2d843bc456c2fa51ac58b68e56a1155e800e85"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\task2-development-fixtures.json",
+    "bytes": 562,
+    "sha256": "93cebe24933890e398390c0deb77748393d4218a9a5265f7eb3d8dbebaaa5dbd"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\users.json",
+    "bytes": 143,
+    "sha256": "fbc446ccbe8581043fd9e3849967db048bd043a915178e7584171503ba3f31bd"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-e21a2af913a04826b66b8c4872a8019d\\data\\seed\\vouchers.json",
+    "bytes": 446,
+    "sha256": "542c0c519ffdef9ecbcbf115d334eab170c16d11295abad2ab39828544e09208"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\.runtime\\task2-test-fixtures.json",
+    "bytes": 3058,
+    "sha256": "95ebd1e85f8b392ff7699e30ad2831ac905b3147f2ea8c3ed35f2d9cc6cd0067"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\addresses.json",
+    "bytes": 312,
+    "sha256": "5a20b1d349142b19855ac5d90cf817542f8c593475154883ab223803344fc0c4"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\agent-scenarios.json",
+    "bytes": 792,
+    "sha256": "0cfb01c9b61d44809edc572df2ed8ac35bf82691570256cf5179ef7498af3c3b"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\coupons.json",
+    "bytes": 224,
+    "sha256": "f6a5eef4d06aad5ae8bf812a2254196719b54da9b783710f04bf9ea60dd731a7"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\deals.json",
+    "bytes": 6346,
+    "sha256": "e0a0537cd27488caa13a550fc47fdfeba53bf911fea977f6f8159fe512f7921c"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\dishes.json",
+    "bytes": 4691,
+    "sha256": "58afd09fe307b453ac939ffe855f8a64063c5b43486ac50838ee52f1c08439a2"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\group-orders.json",
+    "bytes": 1086,
+    "sha256": "0c8aea7a65c09006746c4744272e8a8315b41f84f62389bfe1debdca82544282"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\group-reviews.json",
+    "bytes": 5169,
+    "sha256": "126af1dc7b380c0643842f90e9379ea8daef8636cf06fee681384851e1cda779"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\merchants.json",
+    "bytes": 1909,
+    "sha256": "3cbe492e54c0925a08203db0bbc20a66d3d7f35a7f9df404068511ccb47e7cf5"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\orders.json",
+    "bytes": 212,
+    "sha256": "a3a617c08143cf412da2c0eae930945ef38641faee729300985b676461533b62"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\reviews.json",
+    "bytes": 6186,
+    "sha256": "f9becbef2106d8e70a14b8c333824c647afae37d71cdf2fa40dfcbe77bc30293"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\stores.json",
+    "bytes": 9462,
+    "sha256": "57d64c9fe9605c975ba866a8ae2d843bc456c2fa51ac58b68e56a1155e800e85"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\task2-development-fixtures.json",
+    "bytes": 562,
+    "sha256": "93cebe24933890e398390c0deb77748393d4218a9a5265f7eb3d8dbebaaa5dbd"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\users.json",
+    "bytes": 143,
+    "sha256": "fbc446ccbe8581043fd9e3849967db048bd043a915178e7584171503ba3f31bd"
+  },
+  {
+    "path": "task6-independent\\r1\\snapshot-f0c6090f8d214aa189f6f61cde75c626\\data\\seed\\vouchers.json",
+    "bytes": 446,
+    "sha256": "542c0c519ffdef9ecbcbf115d334eab170c16d11295abad2ab39828544e09208"
+  },
+  {
+    "path": "task6-independent\\resources.json",
+    "bytes": 1236,
+    "sha256": "0051bfd9e619b60307f3a05415155914c0141a8e644873c6d664b4d98aef037d"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\.runtime\\task2-test-fixtures.json",
+    "bytes": 3058,
+    "sha256": "6e9fc9a07a8c19fb294ef7ff0eb5c70c4aa7c19558c990551853b5aef9cca184"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\addresses.json",
+    "bytes": 312,
+    "sha256": "5a20b1d349142b19855ac5d90cf817542f8c593475154883ab223803344fc0c4"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\agent-scenarios.json",
+    "bytes": 792,
+    "sha256": "0cfb01c9b61d44809edc572df2ed8ac35bf82691570256cf5179ef7498af3c3b"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\coupons.json",
+    "bytes": 224,
+    "sha256": "f6a5eef4d06aad5ae8bf812a2254196719b54da9b783710f04bf9ea60dd731a7"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\deals.json",
+    "bytes": 6346,
+    "sha256": "e0a0537cd27488caa13a550fc47fdfeba53bf911fea977f6f8159fe512f7921c"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\dishes.json",
+    "bytes": 4691,
+    "sha256": "58afd09fe307b453ac939ffe855f8a64063c5b43486ac50838ee52f1c08439a2"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\group-orders.json",
+    "bytes": 1086,
+    "sha256": "0c8aea7a65c09006746c4744272e8a8315b41f84f62389bfe1debdca82544282"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\group-reviews.json",
+    "bytes": 5169,
+    "sha256": "126af1dc7b380c0643842f90e9379ea8daef8636cf06fee681384851e1cda779"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\merchants.json",
+    "bytes": 1909,
+    "sha256": "3cbe492e54c0925a08203db0bbc20a66d3d7f35a7f9df404068511ccb47e7cf5"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\orders.json",
+    "bytes": 212,
+    "sha256": "a3a617c08143cf412da2c0eae930945ef38641faee729300985b676461533b62"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\reviews.json",
+    "bytes": 6186,
+    "sha256": "f9becbef2106d8e70a14b8c333824c647afae37d71cdf2fa40dfcbe77bc30293"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\stores.json",
+    "bytes": 9462,
+    "sha256": "57d64c9fe9605c975ba866a8ae2d843bc456c2fa51ac58b68e56a1155e800e85"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\task2-development-fixtures.json",
+    "bytes": 562,
+    "sha256": "93cebe24933890e398390c0deb77748393d4218a9a5265f7eb3d8dbebaaa5dbd"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\users.json",
+    "bytes": 143,
+    "sha256": "fbc446ccbe8581043fd9e3849967db048bd043a915178e7584171503ba3f31bd"
+  },
+  {
+    "path": "task6-independent\\snapshot-4345ee207bbc4e6ca904b048f785e992\\data\\seed\\vouchers.json",
+    "bytes": 446,
+    "sha256": "542c0c519ffdef9ecbcbf115d334eab170c16d11295abad2ab39828544e09208"
+  },
+  {
+    "path": "task6-maestro-raw-401-prepare\\2026-10-02_080414\\task6-purchase-401-prepare\\commands.json",
+    "bytes": 15310,
+    "sha256": "a2d7a10d0e4814e1b883a16cb860a184c0d060a9d6a5de05e752bb83c892d9b2"
+  },
+  {
+    "path": "task6-maestro-raw-401-prepare\\2026-10-02_080414\\task6-purchase-401-prepare\\manifest.json",
+    "bytes": 688,
+    "sha256": "82a77e617ae225c4a95bef0c136790358771dcf2b3d37223c70d343fb602c616"
+  },
+  {
+    "path": "task6-maestro-raw-401-return\\2026-10-02_080642\\task6-purchase-401-return\\commands.json",
+    "bytes": 12641,
+    "sha256": "9f4b302727d35df874238bdeb4465209446b1619ce5b9b3abeea7854e6245574"
+  },
+  {
+    "path": "task6-maestro-raw-401-return\\2026-10-02_080642\\task6-purchase-401-return\\manifest.json",
+    "bytes": 688,
+    "sha256": "4ef473071560fe7429d84f2282cb33ca5489683fe8782c87b4dbbf7cf0c2790f"
+  },
+  {
+    "path": "task6-maestro-raw-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\commands.json",
+    "bytes": 28362,
+    "sha256": "edeea27ba70fcfabc8fb00d626664b70d4ca5db23a8f0b8bd2e58e9cbee22731"
+  },
+  {
+    "path": "task6-maestro-raw-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\manifest.json",
+    "bytes": 688,
+    "sha256": "a745eac5d7d302dac77dbd691e650688b95e0dbc45f02f50afd90ee6bbf3a709"
+  },
+  {
+    "path": "task6-maestro-raw-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\commands.json",
+    "bytes": 28365,
+    "sha256": "4cc53ffea05414ccd322030a40a6bbc780711d35fd9326b73a3d0ad218f3ec16"
+  },
+  {
+    "path": "task6-maestro-raw-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\manifest.json",
+    "bytes": 688,
+    "sha256": "4afa49e78f17885783079d9051d5d56496b9a3ae94565ca679ab5b8e6df325ff"
+  },
+  {
+    "path": "task6-maestro-raw-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\commands.json",
+    "bytes": 29863,
+    "sha256": "6194ad0d8004286a4c2e1650ae098b03dcc6759d022bca97e348227ee5c95269"
+  },
+  {
+    "path": "task6-maestro-raw-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\manifest.json",
+    "bytes": 688,
+    "sha256": "1e1bd06a0153a5d7ce7588b68bbb830c08096a308f9e697f28eb6c6bd248c939"
+  },
+  {
+    "path": "task6-public-raw-retained\\maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\commands.json",
+    "bytes": 25154,
+    "sha256": "81da6be17501b3987dcc00d01ef44d16b41f5ee071ff02cab2ccc34888dcf26e"
+  },
+  {
+    "path": "task6-public-raw-retained\\maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\manifest.json",
+    "bytes": 927,
+    "sha256": "362f23986252421ff7a502897237d8934d6b986aeefd20b175d93c609fe4350e"
+  },
+  {
+    "path": "task6-public-raw-retained\\maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\screen-hierarchy\\step-032-assertCondition-支付成功.json",
+    "bytes": 93956,
+    "sha256": "deaf997e0be4f10a56f4d107e197fa2dc49b6850557b1c6ebed6634c6c4b4f36"
+  },
+  {
+    "path": "task6-public-raw-retained\\maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\commands.json",
+    "bytes": 29864,
+    "sha256": "6fbfbd0bbfa581796e2c4d8d90909482e5967067ca9ce7d4290ff3f573e0ae66"
+  },
+  {
+    "path": "task6-public-raw-retained\\maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\manifest.json",
+    "bytes": 688,
+    "sha256": "5fbd47820320f5f6b70085cd9546bb8d324aa8d619ed986d71369f38217723b2"
+  },
+  {
+    "path": "task6-public-raw-retained\\maestro-quantity2\\2026-10-02_075133\\group-buying-03-purchase\\commands.json",
+    "bytes": 20853,
+    "sha256": "65dde02b5e1f0dbd5b5bd5f8405e3980772d34f0280e256b51848260ae6b3b2d"
+  },
+  {
+    "path": "task6-public-raw-retained\\maestro-quantity2\\2026-10-02_075133\\group-buying-03-purchase\\manifest.json",
+    "bytes": 927,
+    "sha256": "9d5702ece039d4a4562d8ca128c069a48aff7cd5491d625a69ce63422bb04a23"
+  },
+  {
+    "path": "task6-public-raw-retained\\maestro-quantity2\\2026-10-02_075133\\group-buying-03-purchase\\screen-hierarchy\\step-026-assertCondition-${TASK6_TOTAL}.json",
+    "bytes": 65714,
+    "sha256": "2828da640be46956136a862ebefa2cabb9cd977530e5f96102a3af174ec25b8a"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\.runtime\\task2-test-fixtures.json",
+    "bytes": 3058,
+    "sha256": "38485a1273db2c27a158d04697c70fde7cff823b4dfc8974c9c5a343d53f07c4"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\addresses.json",
+    "bytes": 312,
+    "sha256": "5a20b1d349142b19855ac5d90cf817542f8c593475154883ab223803344fc0c4"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\agent-scenarios.json",
+    "bytes": 792,
+    "sha256": "0cfb01c9b61d44809edc572df2ed8ac35bf82691570256cf5179ef7498af3c3b"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\coupons.json",
+    "bytes": 224,
+    "sha256": "f6a5eef4d06aad5ae8bf812a2254196719b54da9b783710f04bf9ea60dd731a7"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\deals.json",
+    "bytes": 6346,
+    "sha256": "e0a0537cd27488caa13a550fc47fdfeba53bf911fea977f6f8159fe512f7921c"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\dishes.json",
+    "bytes": 4691,
+    "sha256": "58afd09fe307b453ac939ffe855f8a64063c5b43486ac50838ee52f1c08439a2"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\group-orders.json",
+    "bytes": 1086,
+    "sha256": "0c8aea7a65c09006746c4744272e8a8315b41f84f62389bfe1debdca82544282"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\group-reviews.json",
+    "bytes": 5169,
+    "sha256": "126af1dc7b380c0643842f90e9379ea8daef8636cf06fee681384851e1cda779"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\merchants.json",
+    "bytes": 1909,
+    "sha256": "3cbe492e54c0925a08203db0bbc20a66d3d7f35a7f9df404068511ccb47e7cf5"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\orders.json",
+    "bytes": 212,
+    "sha256": "a3a617c08143cf412da2c0eae930945ef38641faee729300985b676461533b62"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\reviews.json",
+    "bytes": 6186,
+    "sha256": "f9becbef2106d8e70a14b8c333824c647afae37d71cdf2fa40dfcbe77bc30293"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\stores.json",
+    "bytes": 9462,
+    "sha256": "57d64c9fe9605c975ba866a8ae2d843bc456c2fa51ac58b68e56a1155e800e85"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\task2-development-fixtures.json",
+    "bytes": 562,
+    "sha256": "93cebe24933890e398390c0deb77748393d4218a9a5265f7eb3d8dbebaaa5dbd"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\users.json",
+    "bytes": 143,
+    "sha256": "fbc446ccbe8581043fd9e3849967db048bd043a915178e7584171503ba3f31bd"
+  },
+  {
+    "path": "task6-regression-495d1ceafb4f4d8f86bd052616e5171b\\data\\seed\\vouchers.json",
+    "bytes": 446,
+    "sha256": "542c0c519ffdef9ecbcbf115d334eab170c16d11295abad2ab39828544e09208"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\compound_intent_request_comparison.json",
+    "bytes": 126975,
+    "sha256": "7d7bcd6a82a53d1ccbf1f64723ed81de690c7ffe46b2a58a5f5b75bbd0cf8071"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\confidence_threshold_comparison_after_fewshot.json",
+    "bytes": 21545,
+    "sha256": "1480c7c6696117af8bed0d1ac80e383b8502975cc835c7bfaeb88121be2cb8c5"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\confidence_threshold_comparison_after_state.json",
+    "bytes": 21556,
+    "sha256": "f49b0d0093cbb1a0c160068e840100d607715e64d6d8b21ec0fad9d1d83b0841"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\confidence_threshold_comparison.json",
+    "bytes": 21561,
+    "sha256": "7adb81c1ff401681a807723d9ecd93bd5edd77a4daf1851b3e44081c1aa361fd"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\dag_planning_evaluation.json",
+    "bytes": 3217,
+    "sha256": "a7969c3c647edd42eed3c0dc2974b15d619db40ce580575f337539841aa95c36"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\group_buying_local_exact_shadow_20261001.json",
+    "bytes": 11707,
+    "sha256": "35259e071c5aee53ae30fba6b2f26c2dffad61d632bbe121bff82170db898f5e"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\group_buying_local_exact_shadow_v2_20261001.json",
+    "bytes": 14861,
+    "sha256": "8d5ca9e167a9c590feef7e108ec7f01b15781588867285a07510d1d2cce07084"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\intent_architecture_results.json",
+    "bytes": 47295,
+    "sha256": "e4a337c30131aef744a4a5a460c401df4022492f6852020bcc8dc6a629f88b24"
+  },
+  {
+    "path": "task6-source-after\\agent\\tests\\results\\local_exact_shadow.json",
+    "bytes": 5748,
+    "sha256": "add432780019830db9d89e873ecb741db3dd63a377d023b52b39f9b05f9c38b5"
+  },
+  {
+    "path": "task6-source-after\\manifest.json",
+    "bytes": 139576,
+    "sha256": "f86df1f2499716b93dbaa4f205e4833b79ad68afc39a4afbe9912932a7906566"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\compound_intent_request_comparison.json",
+    "bytes": 126975,
+    "sha256": "7d7bcd6a82a53d1ccbf1f64723ed81de690c7ffe46b2a58a5f5b75bbd0cf8071"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\confidence_threshold_comparison_after_fewshot.json",
+    "bytes": 21545,
+    "sha256": "1480c7c6696117af8bed0d1ac80e383b8502975cc835c7bfaeb88121be2cb8c5"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\confidence_threshold_comparison_after_state.json",
+    "bytes": 21556,
+    "sha256": "f49b0d0093cbb1a0c160068e840100d607715e64d6d8b21ec0fad9d1d83b0841"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\confidence_threshold_comparison.json",
+    "bytes": 21561,
+    "sha256": "7adb81c1ff401681a807723d9ecd93bd5edd77a4daf1851b3e44081c1aa361fd"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\dag_planning_evaluation.json",
+    "bytes": 3217,
+    "sha256": "a7969c3c647edd42eed3c0dc2974b15d619db40ce580575f337539841aa95c36"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\group_buying_local_exact_shadow_20261001.json",
+    "bytes": 11707,
+    "sha256": "35259e071c5aee53ae30fba6b2f26c2dffad61d632bbe121bff82170db898f5e"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\group_buying_local_exact_shadow_v2_20261001.json",
+    "bytes": 14861,
+    "sha256": "8d5ca9e167a9c590feef7e108ec7f01b15781588867285a07510d1d2cce07084"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\intent_architecture_results.json",
+    "bytes": 47295,
+    "sha256": "e4a337c30131aef744a4a5a460c401df4022492f6852020bcc8dc6a629f88b24"
+  },
+  {
+    "path": "task6-source-before\\agent\\tests\\results\\local_exact_shadow.json",
+    "bytes": 5748,
+    "sha256": "add432780019830db9d89e873ecb741db3dd63a377d023b52b39f9b05f9c38b5"
+  },
+  {
+    "path": "task6-source-before\\manifest.json",
+    "bytes": 136663,
+    "sha256": "358874e37232150ab983e751f80d393d7d0fc2dc27e88d09414a877b9ec7cf89"
+  },
+  {
+    "path": "task8-coupon-ui-fixture.json",
+    "bytes": 4230,
+    "sha256": "357cd12d7ce9e88c32110ea9a43e59c688aa85efbcefd17d9b8fb79acd1b6802"
+  },
+  {
+    "path": "task8-final-refund-after-normal.json",
+    "bytes": 903,
+    "sha256": "a1193e279342c989a8558617f8ed15527d8ddcc0793a59720480ef23c0fde626"
+  },
+  {
+    "path": "task8-final-refund-before.json",
+    "bytes": 736,
+    "sha256": "6d471cf9a2229645539f2002fdd51829948294962305eb567d3540023ac6617b"
+  },
+  {
+    "path": "task8-fixture-before.json",
+    "bytes": 3976,
+    "sha256": "a953e260975e530790335108c883b7c4e46da72864a98ababd62ee1334126085"
+  },
+  {
+    "path": "task8-review-retry-fixtures.json",
+    "bytes": 3058,
+    "sha256": "c047fbb150c80e45b5e4e85396b591d5af9e4d023ae454061366281651729ba0"
+  },
+  {
+    "path": "task8\\8.2-refund-first\\2026-10-02_002638\\group-buying-05-refund\\commands.json",
+    "bytes": 27893,
+    "sha256": "092d1c2db7123f22a6e11f1bc192ce91e4460c1e251f1dacbaa24cbd68e3c521"
+  },
+  {
+    "path": "task8\\8.2-refund-first\\2026-10-02_002638\\group-buying-05-refund\\manifest.json",
+    "bytes": 927,
+    "sha256": "28b28efdb3a9883e4a5ed2802434ec4d2ee1f6dddf07ac3f176466e50cadeb79"
+  },
+  {
+    "path": "task8\\8.2-refund-first\\2026-10-02_002638\\group-buying-05-refund\\screen-hierarchy\\step-034-assertCondition-申请待处理.json",
+    "bytes": 65903,
+    "sha256": "8f0ecd87eb71e17c9d8ed97c59f8aededfc2edde95fcc230cacb1f9818a7e1ae"
+  },
+  {
+    "path": "task8\\8.2-refund-reentry\\2026-10-02_004153\\group-buying-05-refund-reentry\\commands.json",
+    "bytes": 25567,
+    "sha256": "e36f65b48aa4995a3e5768a242800dc5fba825301ce51c10eb02a58c4817f923"
+  },
+  {
+    "path": "task8\\8.2-refund-reentry\\2026-10-02_004153\\group-buying-05-refund-reentry\\manifest.json",
+    "bytes": 688,
+    "sha256": "f58751f1dd2058b35a69566cf108d941fa4fd43a830354aced8e983e6f630a1f"
+  },
+  {
+    "path": "task8\\8.2-refund-repair\\2026-10-02_003141\\group-buying-05-refund\\commands.json",
+    "bytes": 29924,
+    "sha256": "ecc6740215fd305029fbe7be9ae2b7d9c07a038837cd945f0d95aa29bd8c4752"
+  },
+  {
+    "path": "task8\\8.2-refund-repair\\2026-10-02_003141\\group-buying-05-refund\\manifest.json",
+    "bytes": 688,
+    "sha256": "87999b79dedf0016ad8f0b1b782766e26607d1fdf3982858e6d274c139419c8a"
+  },
+  {
+    "path": "task8\\8.3-review-first\\2026-10-02_003536\\group-buying-05-review\\commands.json",
+    "bytes": 33050,
+    "sha256": "039c4909c35d75eaa01ba17ceefd49acf1efa2ef4d26b81b19f843b76007f742"
+  },
+  {
+    "path": "task8\\8.3-review-first\\2026-10-02_003536\\group-buying-05-review\\manifest.json",
+    "bytes": 688,
+    "sha256": "672c181906949f790f5eb142142767988a90b90df70a43957d654ebb46e595a1"
+  },
+  {
+    "path": "task8\\8.3-review-valid-input-final\\2026-10-02_013020\\group-buying-05-review-validation\\commands.json",
+    "bytes": 24160,
+    "sha256": "699c12f9048454b19058f869746b004677a15eb90ad55981e735f339e90a6f89"
+  },
+  {
+    "path": "task8\\8.3-review-valid-input-final\\2026-10-02_013020\\group-buying-05-review-validation\\manifest.json",
+    "bytes": 688,
+    "sha256": "1dbfa1fb7c665db9a027adf6206f4b57cb79f34ac9ed43392ccb0e2488627792"
+  },
+  {
+    "path": "task8\\8.4-support-first\\2026-10-02_004305\\group-buying-05-after-sale\\commands.json",
+    "bytes": 44505,
+    "sha256": "773c8278167b06ed737239f91e8a1a83d5bd6143b4406058dbd332c9a00c63f5"
+  },
+  {
+    "path": "task8\\8.4-support-first\\2026-10-02_004305\\group-buying-05-after-sale\\manifest.json",
+    "bytes": 690,
+    "sha256": "a3d9a969d71c1dc2ad98f5d6dcda2419fa9093db5d3046ce0db8ce2331615517"
+  },
+  {
+    "path": "task8\\8.5-agent-composite-live\\2026-10-02_011620\\group-buying-05-agent-composite\\commands.json",
+    "bytes": 17610,
+    "sha256": "b3b894a18a3942690413913469cb48617c510489af744e2b900eecb8f0c34996"
+  },
+  {
+    "path": "task8\\8.5-agent-composite-live\\2026-10-02_011620\\group-buying-05-agent-composite\\manifest.json",
+    "bytes": 806,
+    "sha256": "e12f9da20f7919c2bd638e0b35f0e5ab9466c4344bcc3c924e862b5c4be74b0b"
+  },
+  {
+    "path": "task8\\8.5-agent-composite-live\\2026-10-02_011620\\group-buying-05-agent-composite\\screen-hierarchy\\step-020-assertCondition-退款.未核销..未核销.退款.json",
+    "bytes": 80082,
+    "sha256": "fbc5c13da48568c18aa487b57cfd64e09cf5670e0442fb8dc744cea68fd46d55"
+  },
+  {
+    "path": "task8\\8.5-agent-refund-live\\2026-10-02_011039\\group-buying-05-agent-refund\\commands.json",
+    "bytes": 40769,
+    "sha256": "d981ec7dc7b12297d9d6283974ac535f807bf6e15f234dc0517e105d25e64de6"
+  },
+  {
+    "path": "task8\\8.5-agent-refund-live\\2026-10-02_011039\\group-buying-05-agent-refund\\manifest.json",
+    "bytes": 928,
+    "sha256": "79307212b134a5511e962d54cabd71adffd63c188f37d795a78e39ec5905f3db"
+  },
+  {
+    "path": "task8\\8.5-agent-refund-live\\2026-10-02_011039\\group-buying-05-agent-refund\\screen-hierarchy\\step-057-assertCondition-确认退款.json",
+    "bytes": 102158,
+    "sha256": "32c79028b5b2c7e600839d1b4aff994726a78427a04b7022ce0b6f582afa8b93"
+  },
+  {
+    "path": "task8\\8.5-agent-refund-receipt\\2026-10-02_011354\\group-buying-05-agent-receipt\\commands.json",
+    "bytes": 5678,
+    "sha256": "72c7614ea2dcd3d854306da5d41810ccae7026394b15a6759d6f0e754eff6df2"
+  },
+  {
+    "path": "task8\\8.5-agent-refund-receipt\\2026-10-02_011354\\group-buying-05-agent-receipt\\manifest.json",
+    "bytes": 686,
+    "sha256": "76d0ca1295fe724a63c2c9d93dd0ba2c4824420dffe932215fc2945b7ad04ce0"
+  },
+  {
+    "path": "task8\\8.5-agent-support-live\\2026-10-02_011441\\group-buying-05-agent-support\\commands.json",
+    "bytes": 33965,
+    "sha256": "bc265af5742233bbd1207d9e5accae21b49b3b93fd4c8548e2cbdc1cf0bbba95"
+  },
+  {
+    "path": "task8\\8.5-agent-support-live\\2026-10-02_011441\\group-buying-05-agent-support\\manifest.json",
+    "bytes": 689,
+    "sha256": "8ebfbe8337d6313cde55ddd7541055b2de8686dfe7a199d688ce579e2dc08c4a"
+  },
+  {
+    "path": "task8\\8.5-coupon-eight-live\\2026-10-02_012433\\group-buying-05-agent-coupon\\commands.json",
+    "bytes": 16893,
+    "sha256": "debd23d696114cf0dc5422714e8819f9bc0f354e9b8c7e6d293bd30b785b4a2d"
+  },
+  {
+    "path": "task8\\8.5-coupon-eight-live\\2026-10-02_012433\\group-buying-05-agent-coupon\\manifest.json",
+    "bytes": 806,
+    "sha256": "cf445bd9205b9d5473b12ff1588e76441c58ae460413eed3f5ab70ee5adcdb4f"
+  },
+  {
+    "path": "task8\\8.5-coupon-eight-live\\2026-10-02_012433\\group-buying-05-agent-coupon\\screen-hierarchy\\step-019-assertCondition-状态：(可用已使用已过期未生效已停用).json",
+    "bytes": 81090,
+    "sha256": "ea6378fc33882d48edd3b2f6ef151263d09c4e496d099c62b33ca33128b25a72"
+  },
+  {
+    "path": "task8\\8.6-empty\\2026-10-02_012907\\group-buying-05-orders-empty\\commands.json",
+    "bytes": 17106,
+    "sha256": "9c8010ccd4ab7fd655a3d10726d326273efe640edd906a8d863eaccda0e8daad"
+  },
+  {
+    "path": "task8\\8.6-empty\\2026-10-02_012907\\group-buying-05-orders-empty\\manifest.json",
+    "bytes": 688,
+    "sha256": "7350badde19e05e5aca0335fb2d4a13b2bf1fe40df124e281dd824c83aafa750"
+  },
+  {
+    "path": "task8\\8.6-image-blocked\\2026-10-02_014204\\group-buying-05-image-retry\\commands.json",
+    "bytes": 16536,
+    "sha256": "7b7fb59acd11703d19d40ef99aabcf3ac77d68280e2ee89929aaa80c4d574564"
+  },
+  {
+    "path": "task8\\8.6-image-blocked\\2026-10-02_014204\\group-buying-05-image-retry\\manifest.json",
+    "bytes": 806,
+    "sha256": "be5e0cc75404cf3c0cca7a9c218bef45cc2545e1f931f12a5bad02f15d2ec640"
+  },
+  {
+    "path": "task8\\8.6-image-blocked\\2026-10-02_014204\\group-buying-05-image-retry\\screen-hierarchy\\step-017-assertCondition-图片加载失败，点击重试.json",
+    "bytes": 67232,
+    "sha256": "47133f0ee9cc8befa78ccfacd281f7960bafa99e048a9f96e967347473f42ec0"
+  },
+  {
+    "path": "task8\\8.6-image-real-retry\\2026-10-02_013909\\group-buying-05-image-retry\\commands.json",
+    "bytes": 16386,
+    "sha256": "04d97b3b9edd1c3a62b79a58a4f51372c6f9a32692d8c10c6d859367d91f3f40"
+  },
+  {
+    "path": "task8\\8.6-image-real-retry\\2026-10-02_013909\\group-buying-05-image-retry\\manifest.json",
+    "bytes": 806,
+    "sha256": "26eb80c56a9909c5b3e3dc862c5649f3b72bb8156cf6786257872cd609c7f17f"
+  },
+  {
+    "path": "task8\\8.6-image-real-retry\\2026-10-02_013909\\group-buying-05-image-retry\\screen-hierarchy\\step-017-assertCondition-图片加载失败，点击重试.json",
+    "bytes": 67234,
+    "sha256": "3229c390f299c1b4f03c46b10572232e7e781fc5666d683cc584251f30b08989"
+  },
+  {
+    "path": "task8\\8.6-network\\login\\2026-10-02_012757\\group-buying-05-login\\commands.json",
+    "bytes": 6384,
+    "sha256": "c89a77761188a2ade005ec3d87378c89c876f3596620eb60fdc841b305f34c85"
+  },
+  {
+    "path": "task8\\8.6-network\\login\\2026-10-02_012757\\group-buying-05-login\\manifest.json",
+    "bytes": 566,
+    "sha256": "5f0b1685bb6afdd662349357621e0c383845aaf7798b60ac7ff58240a3880694"
+  },
+  {
+    "path": "task8\\8.6-network\\network-off\\2026-10-02_012829\\group-buying-05-orders-network\\commands.json",
+    "bytes": 5033,
+    "sha256": "19ac80b77162328d7d3bf4de236d83908894ae21a98abd049e2893b70864021a"
+  },
+  {
+    "path": "task8\\8.6-network\\network-off\\2026-10-02_012829\\group-buying-05-orders-network\\manifest.json",
+    "bytes": 687,
+    "sha256": "1c4b009e947480bb898cd70a644befe84a4f5af771ee1d6b080e1b4d237a8e2e"
+  },
+  {
+    "path": "task8\\8.6-network\\network-recover\\2026-10-02_012842\\group-buying-05-orders-network-recover\\commands.json",
+    "bytes": 4334,
+    "sha256": "a11bbca3a9fe0bd6906bfa3ea70ca14adb12ff5bc0ac91e851b84176ad8958b7"
+  },
+  {
+    "path": "task8\\8.6-network\\network-recover\\2026-10-02_012842\\group-buying-05-orders-network-recover\\manifest.json",
+    "bytes": 686,
+    "sha256": "53f42184b586de7b22408fdebb4389cd0ee1df38a0c342454a539c7b8dc29b2e"
+  },
+  {
+    "path": "task8\\8.6-server\\error-and-retry\\2026-10-02_012725\\group-buying-05-orders-error\\commands.json",
+    "bytes": 7742,
+    "sha256": "3ebd75db2547b25cea3dbf8fbd0f3cb567e66c21fe129b2c3db201921c409fd2"
+  },
+  {
+    "path": "task8\\8.6-server\\error-and-retry\\2026-10-02_012725\\group-buying-05-orders-error\\manifest.json",
+    "bytes": 687,
+    "sha256": "8d8295d9591d34080cef09a07c371c037e554c810b4f1c52682265848028e933"
+  },
+  {
+    "path": "task8\\8.6-server\\login\\2026-10-02_012647\\group-buying-05-login\\commands.json",
+    "bytes": 6383,
+    "sha256": "8ad8fbe5abf4a0821d23525a5b93b19c9307d9cb8e81d71bb329b34f0f4a2219"
+  },
+  {
+    "path": "task8\\8.6-server\\login\\2026-10-02_012647\\group-buying-05-login\\manifest.json",
+    "bytes": 566,
+    "sha256": "63e42c8480a5798c312a0a5a01fa81d542a52ca350f80660bd2401acef7f9d8b"
+  },
+  {
+    "path": "task8\\8.7-coupon-eight-retry\\2026-10-02_014632\\group-buying-05-agent-coupon\\commands.json",
+    "bytes": 28380,
+    "sha256": "8b4d64eb4131a8a2285189a86fd5375283e83436df4d709ec3330f737487747c"
+  },
+  {
+    "path": "task8\\8.7-coupon-eight-retry\\2026-10-02_014632\\group-buying-05-agent-coupon\\manifest.json",
+    "bytes": 927,
+    "sha256": "bfe56189b9ce41af7cf49b67d3bef2c923358806af5718701689066d7630b3c1"
+  },
+  {
+    "path": "task8\\8.7-coupon-eight-retry\\2026-10-02_014632\\group-buying-05-agent-coupon\\screen-hierarchy\\step-034-scrollUntilVisible-独立界面验收券_valid.json",
+    "bytes": 84869,
+    "sha256": "46ef6e2e7430fa16f6f136da4e82138d6da7b0ad5cc67450bb4350f40898ce2d"
+  },
+  {
+    "path": "task8\\8.7-coupon-eight-scroll-repair\\2026-10-02_014843\\group-buying-05-agent-coupon\\commands.json",
+    "bytes": 37028,
+    "sha256": "4e01bb162d967ea821ce9bd4e74f18b1cb0661ff4a9bc7c5671712dccd0566b9"
+  },
+  {
+    "path": "task8\\8.7-coupon-eight-scroll-repair\\2026-10-02_014843\\group-buying-05-agent-coupon\\manifest.json",
+    "bytes": 689,
+    "sha256": "d4f629c44d8e8ca255097e5c7b3a48720bd168da3adc17e59721a816571e0dfc"
+  },
+  {
+    "path": "task8\\8.7-final-refund\\2026-10-02_013520\\group-buying-05-refund\\commands.json",
+    "bytes": 31219,
+    "sha256": "a0c7f7163b038ba73c49236c4d7c9b357c514c9b082601acb7ba50da9c43a7ca"
+  },
+  {
+    "path": "task8\\8.7-final-refund\\2026-10-02_013520\\group-buying-05-refund\\manifest.json",
+    "bytes": 688,
+    "sha256": "eac2e6241996a3e419661663ca2efd45006e1aad29ba3944b02470be25090144"
+  },
+  {
+    "path": "task8\\input-preflight\\2026-10-02_010954\\group-buying-05-input-preflight\\commands.json",
+    "bytes": 4569,
+    "sha256": "206ea31c321ebde7fa29455ed2d66cca8ed44001f2a36998ac83c361597ad082"
+  },
+  {
+    "path": "task8\\input-preflight\\2026-10-02_010954\\group-buying-05-input-preflight\\manifest.json",
+    "bytes": 687,
+    "sha256": "ac2cd809b5d9357629cb43d4b6f12be58eb7cb33f70b4eaaa2ded89898367697"
+  }
+]

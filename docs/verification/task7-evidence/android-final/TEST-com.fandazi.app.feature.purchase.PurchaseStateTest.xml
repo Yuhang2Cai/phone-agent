@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.purchase.PurchaseStateTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-10-02T02:36:57.098Z" hostname="CAI" time="0.015">
+  <testcase name="lostResponseRetriesSameKeyButNewQuantityRequiresNewQuote" classname="com.fandazi.app.feature.purchase.PurchaseStateTest" time="0.009" />
+  <testcase name="duplicateCreateAndPayClicksOnlySendOnce" classname="com.fandazi.app.feature.purchase.PurchaseStateTest" time="0.002" />
+  <testcase name="invalidQuoteNeverDefaultsToZeroMoney" classname="com.fandazi.app.feature.purchase.PurchaseStateTest" time="0.001" />
+  <testcase name="authenticationFailureKeepsTyped401AndNoQuote" classname="com.fandazi.app.feature.purchase.PurchaseStateTest" time="0.002" />
+</testsuite>

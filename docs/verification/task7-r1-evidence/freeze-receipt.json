@@ -1,0 +1,93 @@
+{
+  "startedAt": "2026-10-02T11:52:41.6520053+08:00",
+  "frozenAt": "2026-10-02T11:52:47.0499486+08:00",
+  "stage": "DONE_WITH_CONCERNS，B1开发元数据修复，待独立R1",
+  "phoneHead": "c386a0555d9091fa2b9c5ec9830e643b6e0c767d",
+  "agentHead": "c339237fb38f9418f29e70b3ce36c7022215b6b3",
+  "sourceFiles": 893,
+  "sourceDifferenceFromR0": 0,
+  "r0SourceManifestSha256": "D82FD356DC35D1F30D0983EDE83B4A6B48A60772FF91E5EB69190162D79ECFCC",
+  "r1SourceManifestSha256": "D82FD356DC35D1F30D0983EDE83B4A6B48A60772FF91E5EB69190162D79ECFCC",
+  "addedNecessaryResources": 13,
+  "necessaryOriginalDirtyTotal": 25,
+  "necessaryColorTokens": [
+    "after_sale_ink",
+    "after_sale_muted"
+  ],
+  "recursiveXmlFiles": 14,
+  "recursiveResourceFiles": 21,
+  "uncoveredReferences": 0,
+  "productEdits": 0,
+  "stageOrCommit": false,
+  "task8Executed": false,
+  "independentR0": "FAIL保留",
+  "independentR1": "待控制端派发，仅续验B1及剩余原订单/券401",
+  "r0Preserved": [
+    {
+      "path": "C:/fdz-build/docs/verification/task7-evidence/source-freeze.json",
+      "sha256": "D82FD356DC35D1F30D0983EDE83B4A6B48A60772FF91E5EB69190162D79ECFCC"
+    },
+    {
+      "path": "C:/fdz-build/docs/verification/task7-evidence/source-start.json",
+      "sha256": "8BFEF83934425D1116D333C4D2520F90FF96D8DE4BA3B80DA3FEC22B509104D8"
+    },
+    {
+      "path": "C:/fdz-build/docs/verification/task7-evidence/source-start-delta.json",
+      "sha256": "877F8B79B62EF95211CD413CA54817455E58E8FB1CB05A77BDBCA2C4F47C1B02"
+    },
+    {
+      "path": "C:/fdz-build/docs/verification/task7-evidence/source-closure.json",
+      "sha256": "837A53E5EBEDF816F3EE3E9992D71DD797C78773B530864BFF43E47F745A004B"
+    },
+    {
+      "path": "C:/fdz-build/docs/verification/task7-evidence/deferred-source-closure.json",
+      "sha256": "E84747D51DC83BDC243F7C66B547CB0BC5F9547304C2E1492422B7E7912DD6B0"
+    },
+    {
+      "path": "C:/fdz-build/docs/verification/task7-evidence/task7-write-set.txt",
+      "sha256": "1E71B0BECED6DF9AEADA29A4E85B94D373C556409C127B71BD1A5B1E3F090D92"
+    },
+    {
+      "path": "C:/fdz-build/docs/verification/task7-independent-evidence/resource-closure-audit.json",
+      "sha256": "C02512D17EA51A4FD7A189202B60EC5448BB22914392178D418616EB41F7EFE1"
+    },
+    {
+      "path": "C:/fdz-build/docs/verification/2026-10-02-task7-independent-acceptance.md",
+      "sha256": "5CFD97D99619C4B7623823DEA31FD73543A77D9F2832421F2CB501E357042C2F"
+    }
+  ],
+  "metadata": [
+    {
+      "path": "docs/verification/task7-r1-evidence/source-closure.json",
+      "sha256": "AA4EED1AE28D6E711441CBB3E6C0755BE47295E7E7A0A09E4BDE6B6B613985D7"
+    },
+    {
+      "path": "docs/verification/task7-r1-evidence/color-token-closure.json",
+      "sha256": "4FB2E465076FB1D6E31E3A3EB1169EB8E28070FDD8D096C6E2327EE19D0D2A5F"
+    },
+    {
+      "path": "docs/verification/task7-r1-evidence/task7-write-set.txt",
+      "sha256": "624114460499FC3DF311237E726CB1B073099B4009F135ADD7E188890ACB0534"
+    },
+    {
+      "path": "docs/verification/task7-r1-evidence/resource-closure-audit.json",
+      "sha256": "302813CBB192DC6CC3CD592D29803AB3EE45AC8247398854BCE9261CA8F14247"
+    },
+    {
+      "path": "docs/verification/task7-r1-evidence/source-freeze.json",
+      "sha256": "D82FD356DC35D1F30D0983EDE83B4A6B48A60772FF91E5EB69190162D79ECFCC"
+    },
+    {
+      "path": "docs/verification/task7-r1-evidence/source-r0-r1-comparison.json",
+      "sha256": "BB707DFF1AC1C806BBB595727B8CDF6E90F9975AC5666A04947696A85DEDBF3C"
+    },
+    {
+      "path": "docs/verification/task7-r1-evidence/environment-release.json",
+      "sha256": "13FF65EE76C0202245B43E4578277AB475D4DBE54709B2FCD886F486C6F46082"
+    },
+    {
+      "path": "docs/verification/task7-r1-evidence/Verify-Task7R1Closure.ps1",
+      "sha256": "77B3C0432E611F9D6052ACA7FC251861BAC1935EEEE8E1FC1CD1303BF7209D9C"
+    }
+  ]
+}

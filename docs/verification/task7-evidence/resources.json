@@ -1,0 +1,18 @@
+[
+  {
+    "public_id": "55d561c9-c67c-4a86-8ca8-2ed59a60d7ae",
+    "title": "查询任务套餐甲",
+    "storePublicId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+    "price_amount": "71.23",
+    "inventory": 40,
+    "image_url": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg"
+  },
+  {
+    "public_id": "2bfac536-f2ff-4e9d-8525-7485b3d2af39",
+    "title": "查询任务套餐乙",
+    "storePublicId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+    "price_amount": "96.47",
+    "inventory": 40,
+    "image_url": null
+  }
+]

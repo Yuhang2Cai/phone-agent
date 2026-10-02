@@ -1,0 +1,579 @@
+{
+  "at": "2026-10-02T11:52:43.1141292+08:00",
+  "result": "PASS",
+  "checkedXmlResourceFiles": 14,
+  "checkedResourceFiles": 21,
+  "edges": [
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "to": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "to": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "to": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_voucher_row.xml",
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "inHead": true,
+      "declared": null,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_order_empty.png",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_empty_shadow.png",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_shadow.png",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_page.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_fold.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_eye.png",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_eye.png",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_badge.png",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_network_backdrop.png",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_network_off.png",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "covered": true
+    }
+  ],
+  "colorEdges": [
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "token": "group_buy_background",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "token": "group_buy_green",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "token": "group_buy_background",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "token": "after_sale_muted",
+      "inHead": false,
+      "necessaryToken": true,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_background",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_green",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_text",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_text",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_green",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_text",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_green",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_background",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_green",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_text",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_text",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_text",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_green",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "token": "group_buy_text",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "token": "group_buy_text",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "token": "group_buy_muted",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_voucher_row.xml",
+      "token": "brand_ink",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_voucher_row.xml",
+      "token": "brand_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "token": "after_sale_ink",
+      "inHead": false,
+      "necessaryToken": true,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "token": "after_sale_muted",
+      "inHead": false,
+      "necessaryToken": true,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "token": "after_sale_ink",
+      "inHead": false,
+      "necessaryToken": true,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "token": "after_sale_muted",
+      "inHead": false,
+      "necessaryToken": true,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "token": "after_sale_ink",
+      "inHead": false,
+      "necessaryToken": true,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "token": "after_sale_muted",
+      "inHead": false,
+      "necessaryToken": true,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/drawable/search_button_background.xml",
+      "token": "brand_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "token": "surface_card",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+      "token": "after_sale_ink",
+      "inHead": false,
+      "necessaryToken": true,
+      "covered": true
+    },
+    {
+      "from": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+      "token": "group_buy_orange",
+      "inHead": true,
+      "necessaryToken": false,
+      "covered": true
+    }
+  ],
+  "necessaryAddedResources": 13,
+  "necessaryOriginalDirtyTotal": 25,
+  "missingNecessaryOriginalDirty": [],
+  "missingColors": [],
+  "necessaryTokens": [
+    "after_sale_ink",
+    "after_sale_muted"
+  ],
+  "scope": "仅Task7只读显示资源闭合，不代表售后/QR闭合或独立验收通过"
+}

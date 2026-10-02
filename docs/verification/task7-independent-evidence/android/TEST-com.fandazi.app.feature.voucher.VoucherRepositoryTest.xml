@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.voucher.VoucherRepositoryTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-02T03:16:49.294Z" hostname="CAI" time="0.208">
+  <properties/>
+  <testcase name="distinctResourcesAndAuthenticationRetryKeepTheirIdentity" classname="com.fandazi.app.feature.voucher.VoucherRepositoryTest" time="0.134"/>
+  <testcase name="missingEligibilityFailsInsteadOfInventingPermission" classname="com.fandazi.app.feature.voucher.VoucherRepositoryTest" time="0.052"/>
+  <testcase name="paymentLabelsAndSegmentsRespectBackendFacts" classname="com.fandazi.app.feature.voucher.VoucherRepositoryTest" time="0.022"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

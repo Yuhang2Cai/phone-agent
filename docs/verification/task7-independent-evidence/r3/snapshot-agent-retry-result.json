@@ -1,0 +1,23 @@
+{
+  "finishedAt": "2026-10-02T13:02:41.5423610+08:00",
+  "phase": "snapshot-agent-retry",
+  "apkSha256": null,
+  "startedAt": "2026-10-02T13:02:32.0035010+08:00",
+  "cwd": "C:/fdz-build/.runtime/task7-independent/r3/agent-source/-Demo-master",
+  "arguments": [
+    "-m",
+    "pytest",
+    "tests/test_agent_service_reads.py",
+    "tests/test_agent_service_api.py",
+    "tests/test_agent_service_dag.py",
+    "tests/test_dag_models.py",
+    "tests/test_group_buying_intent_migration.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=C:/fdz-build/.runtime/task7-independent/r3/pytest-snapshot-agent-retry",
+    "--junitxml=C:/fdz-build/docs/verification/task7-independent-evidence/r3/agent-tests-retry.xml"
+  ],
+  "executable": "C:/Users/caid0/anaconda3/envs/pinnT/python.exe",
+  "exitCode": 0
+}

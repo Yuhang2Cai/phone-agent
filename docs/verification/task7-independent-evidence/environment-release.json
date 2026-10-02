@@ -1,0 +1,46 @@
+{
+  "airplane": 0,
+  "newPackagesDeactivated": true,
+  "sourceMismatchCount": 0,
+  "inventoryNotRestored": true,
+  "releasedAt": "2026-10-02T11:44:57.8569928+08:00",
+  "privateUnchanged": true,
+  "activeDefaultNetwork": "Active default network: 127",
+  "listeners": [
+    {
+      "port": 8080,
+      "pid": 57220,
+      "entryMatched": true,
+      "environment": {
+        "TASK2_FIXTURES_ENABLED": "false",
+        "TASK8_FAILURES_ENABLED": "false",
+        "SPRING_PROFILES_ACTIVE": "default",
+        "JWT_EXPIRATION_MINUTES": "60"
+      }
+    },
+    {
+      "port": 8091,
+      "pid": 29884,
+      "entryMatched": true,
+      "environment": {
+        "TASK2_FIXTURES_ENABLED": "false",
+        "TASK8_FAILURES_ENABLED": "false",
+        "SPRING_PROFILES_ACTIVE": null,
+        "JWT_EXPIRATION_MINUTES": null
+      }
+    }
+  ],
+  "frozenSources": 893,
+  "originalTask8ResourcesNotConsumed": true,
+  "controllerStopped": "6316 Ctrl-C退出1，未完成的原订单401返回不计通过，原券401未启动",
+  "ownRunningTestSessions": 0,
+  "faults": false,
+  "existingMaestroMcpServersRetained": true,
+  "fixtures": false,
+  "appForceStopped": true,
+  "data": 1,
+  "overall": "FAIL",
+  "wifi": 1,
+  "originalPrivateJson": 438,
+  "ordinaryJwtSeconds": 3600
+}

@@ -1,0 +1,9 @@
+{
+  "source": "C:/fdz-build/android-app/app/build/outputs/apk/debug/app-debug.apk",
+  "kind": "workspace",
+  "passed": true,
+  "oldPackagesAbsentAt": "2026-10-02T19:29:03.2672460+08:00",
+  "installedAt": "2026-10-02T19:29:06.2005276+08:00",
+  "deviceSha256": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B",
+  "localSha256": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B"
+}

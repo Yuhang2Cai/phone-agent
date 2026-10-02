@@ -1,0 +1,38 @@
+[
+  {
+    "requests": [
+      {
+        "path": "/api/group-orders",
+        "status": 200,
+        "at": "2026-10-02T11:23:53.0000000+08:00",
+        "method": "GET"
+      },
+      {
+        "path": "/api/group-orders/cf7aadd2-31a8-4348-8f24-80f4db27a606",
+        "status": 200,
+        "at": "2026-10-02T11:23:56.0000000+08:00",
+        "method": "GET"
+      },
+      {
+        "path": "/api/vouchers/a81f203b-f46b-4da7-be8e-eb11b9d14108",
+        "status": 200,
+        "at": "2026-10-02T11:24:02.0000000+08:00",
+        "method": "GET"
+      }
+    ],
+    "label": "network-recover",
+    "successfulOriginalReads": 3
+  },
+  {
+    "requests": [
+      {
+        "path": "/api/vouchers/a81f203b-f46b-4da7-be8e-eb11b9d14108",
+        "status": 200,
+        "at": "2026-10-02T11:26:48.0000000+08:00",
+        "method": "GET"
+      }
+    ],
+    "label": "voucher-network-recover",
+    "successfulOriginalReads": 1
+  }
+]

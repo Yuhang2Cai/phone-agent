@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-10-02T02:36:56.663Z" hostname="CAI" time="0.393">
+  <testcase name="keepsCreatedOrderIdForPaymentHandoff" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.165" />
+  <testcase name="sseReconnectsWithLastEventIdAfterDisconnectAndContinuesEvents" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.096" />
+  <testcase name="publicPurchasePreparationBecomesSafeConfirmationCard" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.01" />
+  <testcase name="voucherSelectionCreatesSafeChoiceCard" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.01" />
+  <testcase name="sendsOnlyBearerTokenToPublicAgentMessageApi" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.009" />
+  <testcase name="enrichedConfirmationIsSingleAndDropsPrivateFields" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.008" />
+  <testcase name="waitingEventPreservesPublicTextAndRemovesPrivatePayload" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.009" />
+  <testcase name="revokesTaskGrantThroughPublicApi" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.008" />
+  <testcase name="acceptsOnlyCompleteGatewayConfirmationCart" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.009" />
+  <testcase name="refundConfirmationUsesSafeCardWithoutLegacyCart" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.008" />
+  <testcase name="retriesSseAfterInitialSessionNotFoundAndRetainsCursor" classname="com.fandazi.app.feature.agent.HttpAgentRepositoryTest" time="0.061" />
+</testsuite>

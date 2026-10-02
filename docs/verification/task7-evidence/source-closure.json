@@ -1,0 +1,98 @@
+[
+  {
+    "beforeSha256": "AF86E5C451AC57F447F591FF5AEC30E370A26F15F7530122C129814B13F17AE7",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/GroupOrderDetailFragment.kt",
+    "mixed": true,
+    "frozenSha256": "47639870A21B7A589B27D9BE3CA5D984C854C00330B96CFADFA4E4BCBC8680FB",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "E6B7602C30CB0A2DDA7914DD73E5AAEC4CA99392EB86F6BCAD83B4C412FB7B91",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherRepository.kt",
+    "mixed": true,
+    "frozenSha256": "0AFE4491F563AE4A6657D11DBA846DD2A66DF85DB000A9CDD1144947A642211F",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "519C0D2AE0503E424D271C5B2A14C463BB8A3261E3122EFD289D3EA88EE41E3E",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt",
+    "mixed": true,
+    "frozenSha256": "A5F0E73BFD5E72C35B2E7A3416B062597E722601DD4A6C26971411163CB0E70E",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "77E84F0EAFBC24DE29465DAF21A716C4FD998790BFECA736AB5F86A1DD97E654",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt",
+    "mixed": true,
+    "frozenSha256": "79714D5CF86D2CD6CFCE702455083373E99788CBDB3C491A76AA248B7305E5C1",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "BFFDE1A365CA89B939BD1139C3DD34DA2D470F63F9159E43844B3FC9930CFC2B",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+    "mixed": false,
+    "frozenSha256": "A2C0E1F36793200B45F5965344BC51EFB80B1D81AA323E4A39483D3CABDCE8E4",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "26A1D89C01C7152B41A81ACF9C9540DBA393AA3D33C408B547C4D745B9D35EBD",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+    "mixed": false,
+    "frozenSha256": "A3DC5F2ED1D63DB8F8DB9B960BE3A29CFC3D8B0F31B46B7324F71694936FF0B9",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "A401FE4A3571261E42BEBC1D57E157E572194C52016A8E3112F2A897D42B9028",
+    "ownDelta": false,
+    "path": "android-app/app/src/main/res/layout/item_voucher_row.xml",
+    "mixed": false,
+    "frozenSha256": "A401FE4A3571261E42BEBC1D57E157E572194C52016A8E3112F2A897D42B9028",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "69DFC5E2B6EB1706F7A484B54F8AFB43AF5122C8F7AD891BBF90F033B72B16F4",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+    "mixed": false,
+    "frozenSha256": "839089C5065E5147DCD3B4287C7171BBF055D5CCBEB0DE1B3BABE240BDAAB566",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "675D9CC248BC5125FF79BDFDB4A1109818414CFB269B56B837768798011C9F34",
+    "ownDelta": false,
+    "path": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+    "mixed": false,
+    "frozenSha256": "675D9CC248BC5125FF79BDFDB4A1109818414CFB269B56B837768798011C9F34",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "28C5AE393C58B7617892616E1DAC87BA646AABAFEFB39E435C0BAEB096F824C3",
+    "ownDelta": false,
+    "path": "android-app/app/src/main/res/values/colors.xml",
+    "mixed": false,
+    "frozenSha256": "28C5AE393C58B7617892616E1DAC87BA646AABAFEFB39E435C0BAEB096F824C3",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "E074A332FEA54E7B7EE73F262AD36309A6C0F4FF4498E89BB2CDC7451D0A86B5",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/java/com/fandazi/app/FandaziApplication.kt",
+    "mixed": true,
+    "frozenSha256": "73151B1012B704D6D280994BB38FAC3246329486D8536F6FCBB1DE6A71C3A928",
+    "originalDirtyNecessary": true
+  },
+  {
+    "beforeSha256": "4460F74686E9A43144474CAB1F9AAD7063C6CB399E6885A9832F73EBD5052D61",
+    "ownDelta": true,
+    "path": "android-app/app/src/main/res/navigation/nav_graph.xml",
+    "mixed": true,
+    "frozenSha256": "23776E55191513CC98699493FFD6E87C4A6587B1DA4BFD930FB18B5A19B258B9",
+    "originalDirtyNecessary": true
+  }
+]

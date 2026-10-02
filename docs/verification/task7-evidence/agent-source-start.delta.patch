@@ -1,0 +1,85 @@
+diff --git a/C:/fdz-build/.runtime/task7/source-start/agent/service/engine.py b/D:/project/-Demo-master/service/engine.py
+index 3bb4088..79b2688 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/agent/service/engine.py
++++ b/D:/project/-Demo-master/service/engine.py
+@@ -341,12 +341,18 @@ class RunEngine:
+             result = await self._call(state, request, emit, "search_reviews", {"storeId": slots["storeId"]}, "正在查询真实评价")
+             message = "\n".join(row["content"] for row in result["reviews"][:5]) or "这家门店暂时没有评价"
+         elif intent == "group_buy_order":
+-            tool = "get_order_detail" if slots.get("orderId") else "list_user_orders"
+-            result = await self._call(state, request, emit, tool, {"orderId": slots["orderId"]} if slots.get("orderId") else {}, "正在查询团购订单")
+-            rows = [result["order"]] if tool == "get_order_detail" else result["orders"]
++            # 资源目标来自经过严格模型校验的槽位，不按用户原文关键词绕过三层识别。
++            # 券查询只用已有只读工具，可按本人订单收窄；未指定目标的历史检查点保留订单查询行为。
++            voucher_query = slots.get("queryTarget") == "vouchers"
++            tool = "list_user_vouchers" if voucher_query else ("get_order_detail" if slots.get("orderId") else "list_user_orders")
++            payload = {"orderId": slots["orderId"]} if slots.get("orderId") else {}
++            result = await self._call(state, request, emit, tool, payload, "正在查询团购券" if voucher_query else "正在查询团购订单")
++            rows = result["vouchers"] if voucher_query else ([result["order"]] if tool == "get_order_detail" else result["orders"])
+             for row in rows:
+-                await emit("card", {"card": self._card("order", row, "open_order")})
+-            message = f"查询到 {len(rows)} 个团购订单" if rows else "当前没有团购订单"
++                # 每张卡独立绑定真实资源，只有用户点击 open 动作才导航；不准备退款或签发核销令牌。
++                await emit("card", {"card": self._card("voucher" if voucher_query else "order", row, "open_voucher" if voucher_query else "open_order")})
++            name = "张团购券" if voucher_query else "个团购订单"
++            message = f"查询到 {len(rows)} {name}" if rows else ("当前没有团购券" if voucher_query else "当前没有团购订单")
+         elif intent == "coupon":
+             result = await self._call(state, request, emit, "query_coupon", {}, "正在查询优惠券")
+             for row in result["coupons"]:
+diff --git a/C:/fdz-build/.runtime/task7/source-start/agent/service/models.py b/D:/project/-Demo-master/service/models.py
+index e23e303..9e231a2 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/agent/service/models.py
++++ b/D:/project/-Demo-master/service/models.py
+@@ -34,6 +34,8 @@ class Slots(BaseModel):
+     keyword: str | None = Field(default=None, max_length=100)
+     # 查询与购买共享 group_buy_order 标签，槽位只细分处理动作，不重新决定一级意图。
+     operation: Literal["query", "purchase"] | None = None
++    # 只细分已有 group_buy_order 的读取资源；不新增意图、工具或身份，旧检查点缺值默认查订单。
++    queryTarget: Literal["orders", "vouchers"] | None = None
+     category: str | None = Field(default=None, max_length=100)
+     cityCode: str | None = Field(default=None, max_length=20)
+     storeId: str | None = Field(default=None, max_length=100)
+diff --git a/C:/fdz-build/.runtime/task7/source-start/agent/service/providers.py b/D:/project/-Demo-master/service/providers.py
+index 0bcb1bc..202eca1 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/agent/service/providers.py
++++ b/D:/project/-Demo-master/service/providers.py
+@@ -43,7 +43,8 @@ class ModelExtractor:
+         prompt = ("你是团购业务槽位抽取器，不负责重新分类。只输出 JSON 对象，字段缺失就省略。"
+                   "keyword 仅用于明确的门店或品牌专名；火锅、烧烤、饮品等菜系品类必须放 category，不得作为 keyword。"
+                   "明确品类原样提取，未给品类就省略；ID只能在用户或可信上下文明确提供时使用，禁止编造。"
+-                  "订单查询用 operation=query，明确购买套餐用 operation=purchase；不明确则省略并追问。"
++                  "订单或团购券查询用 operation=query；订单查询用 queryTarget=orders，团购券查询用 queryTarget=vouchers。"
++                  "团购券是购买后的券，不是优惠券；明确购买套餐用 operation=purchase；不明确则省略并追问。"
+                   "不输出身份、价格、凭证、URL或工具名称。用户明确提供的目录城市代码原样保留，不能替换成猜测的行政区代码；无法确定就省略。"
+                   f"允许的结构：{json.dumps(Slots.model_json_schema(), ensure_ascii=False)}\n"
+                   f"用户原文：{json.dumps(query, ensure_ascii=False)}\n"
+diff --git a/C:/fdz-build/.runtime/task7/source-start/agent/tests/test_agent_service_reads.py b/D:/project/-Demo-master/tests/test_agent_service_reads.py
+index 7e186b5..9753aa2 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/agent/tests/test_agent_service_reads.py
++++ b/D:/project/-Demo-master/tests/test_agent_service_reads.py
+@@ -69,6 +69,25 @@ def order_row():
+     }
+ 
+ 
++def test_voucher_query_is_read_only_and_emits_distinct_click_targets():
++    """模型指定券查询时只查本人券；即使携带确认布尔也不准备退款，不自动导航或泄露令牌。"""
++    vouchers = [{"publicId": str(uuid.uuid4()), "orderId": ORDER_ID, "dealId": DEAL_ID,
++                 "dealTitle": "合成券套餐", "storeId": STORE_ID, "storeName": "合成门店",
++                 "status": "UNUSED", "canRefund": False, "expiresAt": "2030-01-01T00:00:00Z",
++                 "redeemedAt": None, "amountCents": None} for _ in range(2)]
++    client, secret, repository, calls, _, _ = build_read_app(
++        "group_buy_order", {"operation": "query", "queryTarget": "vouchers", "orderId": ORDER_ID},
++        "list_user_vouchers", {"vouchers": vouchers})
++    output = events(send(client, secret, "查询这个订单的团购券", confirmed=True))
++    # 真实状态机和协议校验必须保留两个独立 ID，不能退回首张券或其他订单读取。
++    assert_successful_read(output, "list_user_vouchers")
++    assert calls[0]["body"]["payload"] == {"orderId": ORDER_ID}
++    cards = [item["payload"]["card"] for item in output if item["eventType"] == "card"]
++    assert [card["resourceId"] for card in cards] == [row["publicId"] for row in vouchers]
++    assert all(card["actions"][0]["actionType"] == "open_voucher" for card in cards)
++    assert repository.load("fixture-run")["status"] == "succeeded"
++
++
+ def build_read_app(intent, slots, expected_tool, result, *, store=None):
+     """创建真实应用和状态机，返回客户端、短时测试密钥、仓库及 HTTP 调用记录。
+ 

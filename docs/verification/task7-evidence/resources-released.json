@@ -1,0 +1,16 @@
+[
+  {
+    "public_id": "55d561c9-c67c-4a86-8ca8-2ed59a60d7ae",
+    "price_amount": "71.23",
+    "version": 1,
+    "inventory": 37,
+    "active": 0
+  },
+  {
+    "public_id": "2bfac536-f2ff-4e9d-8525-7485b3d2af39",
+    "price_amount": "96.47",
+    "version": 1,
+    "inventory": 38,
+    "active": 0
+  }
+]

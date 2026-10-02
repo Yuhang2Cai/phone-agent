@@ -1,0 +1,50 @@
+# R3拟提交APK真实UI：本人券入口在目标未注册时提示延期，保持同券页面，不产生业务成功或写请求。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- runFlow: C:/fdz-build/maestro/task7-login.yaml
+- tapOn: "订单"
+- extendedWaitUntil:
+    visible: "order-card-${TASK7_ORDER_A}"
+    timeout: 30000
+- tapOn: "order-card-${TASK7_ORDER_A}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_ORDER_A}.*"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/group_order_show_vouchers"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- scrollUntilVisible:
+    element:
+      text: "团购券 1 ${TASK7_VOUCHER_A}"
+    direction: DOWN
+- tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_VOUCHER_A}.*"
+    timeout: 30000
+- assertVisible: ".*${TASK7_ORDER_A}.*"
+- assertVisible: ".*本券实付.*71.23.*"
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/voucher_refund"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/voucher_refund"
+- assertVisible: "退款申请将在售后功能启用后开放"
+- takeScreenshot: "unregistered-explicit-unavailable"
+- assertVisible:
+    id: "com.fandazi.app:id/voucher_detail_info"
+- assertVisible: ".*${TASK7_VOUCHER_A}.*"
+- assertNotVisible:
+    id: "com.fandazi.app:id/refund_submit"
+- assertNotVisible: "退款申请已提交"
+- assertNotVisible: "展示核销二维码"
+- takeScreenshot: "unregistered-still-original-voucher"
+- back
+- assertVisible:
+    id: "com.fandazi.app:id/group_order_detail_title"
+

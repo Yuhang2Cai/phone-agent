@@ -1,0 +1,14 @@
+{
+  "apkSha256": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B",
+  "executable": "C:/fdz-build/android-app/gradlew.bat",
+  "startedAt": "2026-10-02T13:03:33.8763787+08:00",
+  "cwd": "C:/fdz-build/android-app",
+  "arguments": [
+    ":app:assembleDebug",
+    "--rerun-tasks",
+    "--console=plain"
+  ],
+  "exitCode": 0,
+  "phase": "workspace-apk",
+  "finishedAt": "2026-10-02T13:04:06.5786980+08:00"
+}

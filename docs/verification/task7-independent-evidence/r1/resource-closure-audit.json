@@ -1,0 +1,238 @@
+{
+  "checkedResourceFiles": 21,
+  "missingNecessaryOriginalDirty": [],
+  "at": "2026-10-02T11:57:27.7983930+08:00",
+  "checkedXmlFiles": 14,
+  "referencedAfterSaleColors": [
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "inHead": false,
+      "covered": true,
+      "token": "after_sale_muted"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "inHead": false,
+      "covered": true,
+      "token": "after_sale_ink"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "inHead": false,
+      "covered": true,
+      "token": "after_sale_muted"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "covered": true,
+      "token": "after_sale_ink"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "covered": true,
+      "token": "after_sale_muted"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "inHead": false,
+      "covered": true,
+      "token": "after_sale_ink"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "inHead": false,
+      "covered": true,
+      "token": "after_sale_muted"
+    },
+    {
+      "from": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+      "inHead": false,
+      "covered": true,
+      "token": "after_sale_ink"
+    }
+  ],
+  "edges": [
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/layout/view_orders_empty.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/layout/view_error_retry.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/layout/view_network_error.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_outline.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_outline.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/item_voucher_row.xml",
+      "inHead": true,
+      "declared": null,
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_order_empty.png"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_empty_shadow.png"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_shadow.png"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_page.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_fold.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_eye.png"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_eye.png"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_badge.png"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_network_backdrop.png"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_network_off.png"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "inHead": false,
+      "declared": "necessary",
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml"
+    }
+  ]
+}

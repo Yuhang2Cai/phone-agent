@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.agent.AgentCardRendererTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-10-02T02:36:56.412Z" hostname="CAI" time="0.001">
+  <testcase name="cardKeepsServerIdentityAndFields" classname="com.fandazi.app.feature.agent.AgentCardRendererTest" time="0.001" />
+</testsuite>

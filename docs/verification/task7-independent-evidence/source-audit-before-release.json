@@ -1,0 +1,20 @@
+{
+  "necessaryClosure": 12,
+  "errors": [],
+  "exactStartSources": 869,
+  "frozenSources": 893,
+  "at": "2026-10-02T11:23:52.5668935+08:00",
+  "declaredDelta": 48,
+  "actualDelta": 48,
+  "patches": [
+    {
+      "Path": "C:\\fdz-build\\docs\\verification\\task7-evidence\\phone-source-start.delta.patch",
+      "Hash": "B1F9C490AF44B58EDB31DA4B4A20B028C636870C121AC1189C1D429B92893128"
+    },
+    {
+      "Path": "C:\\fdz-build\\docs\\verification\\task7-evidence\\agent-source-start.delta.patch",
+      "Hash": "5D747C32E1F84CA6DF0FC6785B9B15E0E88C6626EC92407A6A4EB0076E924748"
+    }
+  ],
+  "deferredClosure": 31
+}

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.agent.AgentViewModelTest" tests="26" skipped="0" failures="0" errors="0" timestamp="2026-10-02T03:16:48.730Z" hostname="CAI" time="0.081">
+  <properties/>
+  <testcase name="firstMessageEstablishesSseAfterTheSessionExists" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.016"/>
+  <testcase name="asrResultRefillsComposerWithoutSending" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="successfulResponseClearsAnEarlyProgressStreamFailure" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.013"/>
+  <testcase name="failedGatewayResultShowsRetryableErrorAndClearsConfirmation" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.003"/>
+  <testcase name="responseEventsAreRetainedWithoutStartingBulkProgressAnimation" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.002"/>
+  <testcase name="sendsTypedFoodRequestAndShowsConfirmationCardInConfirmMode" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.002"/>
+  <testcase name="cancellingTaskAutoWaitsForServerRevocationBeforeClearingAuthorization" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.004"/>
+  <testcase name="modifyCancelsExistingGatewayCandidateBeforeStartingReplacementRequest" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="streamedEventsAreShownAndReconnectCursorIsRetained" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.006"/>
+  <testcase name="confirmSendsExplicitConfirmationButCancelDoesNotCreateOrder" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.002"/>
+  <testcase name="progressPresentationShowsOnlyLatestStepWhileRequestIsRunning" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="firstMessageStartsProgressStreamBeforeSendingRequest" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.002"/>
+  <testcase name="authenticationAndServerErrorsAreExposedWithRetryAction" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.003"/>
+  <testcase name="completedConfirmExposesCreatedOrderOnceForPaymentNavigation" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="taskAutoGrantUsesNaturalLanguageBudgetWhenItIsStricterThanGatewayLimit" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.002"/>
+  <testcase name="versionedWaitingConfirmationPausesEvenBeforeHttpCompletes" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.002"/>
+  <testcase name="taskAutoRequiresExplicitChoiceAndKeepsAddressAndAmountVisible" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="duplicateSendIsBlockedAndLatePreviousReplyDoesNotReplaceNewTurn" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.003"/>
+  <testcase name="assistantOpensHalfScreenTogglesFullScreenAndCloses" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="choosingTaskAutoGrantsThenResumesWorkflowInAutoMode" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="selectedVoucherBubbleUsesSuffixButRequestKeepsFullPublicId" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.002"/>
+  <testcase name="floatingAssistantIsLimitedToOrderingSurfaces" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="repeatedOldEventKeepsCursorAndConfirmationStopsProgress" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.002"/>
+  <testcase name="amountLimitInRequestIsShownWhenGatewayCartOmitsIt" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="savedStateRestoresSheetConversationAndConfirmationInANewViewModel" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.001"/>
+  <testcase name="waitingInputEventStopsProgressWithoutFailureOrNavigation" classname="com.fandazi.app.feature.agent.AgentViewModelTest" time="0.003"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

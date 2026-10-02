@@ -1,0 +1,7 @@
+{
+  "matcherCorrection": "原验证器只搜索启动命令字面路径，现展开JVM argfile核对实际classpath",
+  "cwd": "C:/fdz-build/backend",
+  "argfileClasses": "C:\\\\fdz-build\\\\backend\\\\target\\\\classes",
+  "pid": 54064,
+  "sourceMatched": false
+}

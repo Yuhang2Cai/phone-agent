@@ -1,0 +1,18 @@
+{
+  "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+  "deviceSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+  "oldPackagesAbsentAt": "2026-10-02T11:18:03.4600944+08:00",
+  "beforePackages": {
+    "com.fandazi.app": [
+      "package:/data/app/~~v0YPqvE6zz2jXXQZl5D6FA==/com.fandazi.app-N5GvvSgxy3oaolLUA7JRDA==/base.apk"
+    ],
+    "com.dirror.music": []
+  },
+  "installedAt": "2026-10-02T11:18:18.8031970+08:00",
+  "initialNetwork": {
+    "data": "1",
+    "activeDefaultNetwork": "Active default network: 123",
+    "airplane": "0",
+    "wifi": "1"
+  }
+}

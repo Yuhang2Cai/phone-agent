@@ -1,0 +1,8 @@
+{
+  "ordinaryJwt": true,
+  "lifetimeSeconds": 120,
+  "actualLoginAt": "2026-10-02T11:37:18.0000000+08:00",
+  "tokenTampered": false,
+  "entry": "order",
+  "waitUntil": "2026-10-02T11:39:22.0000000+08:00"
+}

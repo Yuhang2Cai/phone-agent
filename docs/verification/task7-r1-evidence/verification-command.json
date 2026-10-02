@@ -1,0 +1,17 @@
+{
+  "说明": "Task7 R1仅亲跑资源归属递归核对和冻结字节比较；没有重跑24/71/95、Maestro或剩余401。",
+  "startedAt": "2026-10-02T11:52:41.6520053+08:00",
+  "completedAt": "2026-10-02T11:52:47.0499486+08:00",
+  "command": "& 'C:/fdz-build/docs/verification/task7-r1-evidence/Verify-Task7R1Closure.ps1' *> 'C:/fdz-build/docs/verification/task7-r1-evidence/verification-command.log'; $result=$LASTEXITCODE; Get-Content -LiteralPath 'C:/fdz-build/docs/verification/task7-r1-evidence/verification-command.log'; if ($result) { exit $result }",
+  "exitCode": 0,
+  "result": "PASS",
+  "checkedXmlFiles": 14,
+  "checkedResourceFiles": 21,
+  "addedNecessaryResources": 13,
+  "necessaryOriginalDirtyTotal": 25,
+  "necessaryColorTokens": ["after_sale_ink", "after_sale_muted"],
+  "missingReferences": 0,
+  "frozenSourcesCompared": 893,
+  "sourceDifferenceFromR0": 0,
+  "independentAcceptance": "R0 FAIL保留，独立R1待控制端派发"
+}

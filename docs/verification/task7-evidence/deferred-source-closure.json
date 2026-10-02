@@ -1,0 +1,219 @@
+[
+  {
+    "frozenSha256": "02ABD0625F974EBD52016B6F9509981A76119BE4B3F15800C5BBB3D4DC9A65FA",
+    "beforeSha256": "02ABD0625F974EBD52016B6F9509981A76119BE4B3F15800C5BBB3D4DC9A65FA",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/refund/RefundProgressFragment.kt",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "740A831B0CA9B2C72254B8A01EFB749235501ADCE48B9652608D97CFE82C2790",
+    "beforeSha256": "740A831B0CA9B2C72254B8A01EFB749235501ADCE48B9652608D97CFE82C2790",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/refund/RefundRequestFragment.kt",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "E2DD2EB41EA8010FBADF253E84CE9934A8612A857833EE4AAE8264EAFF7BADCF",
+    "beforeSha256": "E2DD2EB41EA8010FBADF253E84CE9934A8612A857833EE4AAE8264EAFF7BADCF",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/review/ReviewFragment.kt",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "611A33D2BF768F9985D38306ACA2B967CD0424FE3B6CB884CF6825B72107E6F6",
+    "beforeSha256": "611A33D2BF768F9985D38306ACA2B967CD0424FE3B6CB884CF6825B72107E6F6",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/support/AfterSaleRepository.kt",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "D777BF13A07318FA887FC168F60272C97222DCC5FCB6287A7A89B907529C1A9A",
+    "beforeSha256": "D777BF13A07318FA887FC168F60272C97222DCC5FCB6287A7A89B907529C1A9A",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/support/ComplaintFragment.kt",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "FA7C37180A1FF83FD775B00C958AF7F3CAD691BC462C66167D05123A3D31A3AB",
+    "beforeSha256": "FA7C37180A1FF83FD775B00C958AF7F3CAD691BC462C66167D05123A3D31A3AB",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/support/HelpFaqFragment.kt",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "7C2BEC0F2C849B974F2841242DFAED76B0A79EA1A8423E7E481E60F17D9ED568",
+    "beforeSha256": "7C2BEC0F2C849B974F2841242DFAED76B0A79EA1A8423E7E481E60F17D9ED568",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/RedemptionResultFragment.kt",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "FB064DF31BAE9349E6B88681D1164C175C89E372C87CB8C4CAAFAB0B9DD63B11",
+    "beforeSha256": "FB064DF31BAE9349E6B88681D1164C175C89E372C87CB8C4CAAFAB0B9DD63B11",
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherQrFragment.kt",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "1D5F2148744637ADDB9FDC10B32C4604D52EDE67821B9B07880971D6686CC9F5",
+    "beforeSha256": "1D5F2148744637ADDB9FDC10B32C4604D52EDE67821B9B07880971D6686CC9F5",
+    "path": "android-app/app/src/main/res/drawable/after_sale_card.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "250D0D3F0C9A4E6DAB8ED1E31657C0EDD76A6C3BD5FED6C563BB380DE2F14415",
+    "beforeSha256": "250D0D3F0C9A4E6DAB8ED1E31657C0EDD76A6C3BD5FED6C563BB380DE2F14415",
+    "path": "android-app/app/src/main/res/drawable/after_sale_empty_shadow.png",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "DF9A45EA52A0425704A589D60D736987486AF065DAA19DEDE630082CD70DE96F",
+    "beforeSha256": "DF9A45EA52A0425704A589D60D736987486AF065DAA19DEDE630082CD70DE96F",
+    "path": "android-app/app/src/main/res/drawable/after_sale_error_badge.png",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "79EEDDB1E225A16ADA11CEE07F9B2BAC1FED2A4BE2E59F5D9AE263CDFA0994C0",
+    "beforeSha256": "79EEDDB1E225A16ADA11CEE07F9B2BAC1FED2A4BE2E59F5D9AE263CDFA0994C0",
+    "path": "android-app/app/src/main/res/drawable/after_sale_error_eye.png",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "4558BCC98D41D5603B5B01C61354DCBF072EB2ADE462534A75BF33D19EE371A2",
+    "beforeSha256": "4558BCC98D41D5603B5B01C61354DCBF072EB2ADE462534A75BF33D19EE371A2",
+    "path": "android-app/app/src/main/res/drawable/after_sale_error_fold.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "853FCCEF245379F6E0736D00F8475B6437E9D265CE814DACA6C1D75A4F4673C5",
+    "beforeSha256": "853FCCEF245379F6E0736D00F8475B6437E9D265CE814DACA6C1D75A4F4673C5",
+    "path": "android-app/app/src/main/res/drawable/after_sale_error_page.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "5DE13963183ED0ED7A845E0D12ADD443D876D2442D502EE292547689E6613CBF",
+    "beforeSha256": "5DE13963183ED0ED7A845E0D12ADD443D876D2442D502EE292547689E6613CBF",
+    "path": "android-app/app/src/main/res/drawable/after_sale_error_shadow.png",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "D2BA308B9F51588E07A7CD49BC7A2CA873E6E1EE9C550C2F25F0390DFD82C2CC",
+    "beforeSha256": "D2BA308B9F51588E07A7CD49BC7A2CA873E6E1EE9C550C2F25F0390DFD82C2CC",
+    "path": "android-app/app/src/main/res/drawable/after_sale_image_placeholder.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "1CA80AE5CDE689F37AE8D05640933E5E8F5D1AD086839DB3D9136B2A4AA27995",
+    "beforeSha256": "1CA80AE5CDE689F37AE8D05640933E5E8F5D1AD086839DB3D9136B2A4AA27995",
+    "path": "android-app/app/src/main/res/drawable/after_sale_input.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "4ACBF4D52F685870AE6FC56766B0B06DD8D3FA01182BE6961EF5C9EB33123649",
+    "beforeSha256": "4ACBF4D52F685870AE6FC56766B0B06DD8D3FA01182BE6961EF5C9EB33123649",
+    "path": "android-app/app/src/main/res/drawable/after_sale_network_backdrop.png",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "35FA799D900F3066DEC7FAEF731E3A75C1DC81B4A582430553564020860F39EC",
+    "beforeSha256": "35FA799D900F3066DEC7FAEF731E3A75C1DC81B4A582430553564020860F39EC",
+    "path": "android-app/app/src/main/res/drawable/after_sale_network_off.png",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "25FA94287B1300E14869F82D0AACE8148E13ACA10B8D8A143F44BB7A34DC6E2E",
+    "beforeSha256": "25FA94287B1300E14869F82D0AACE8148E13ACA10B8D8A143F44BB7A34DC6E2E",
+    "path": "android-app/app/src/main/res/drawable/after_sale_order_empty.png",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "675D9CC248BC5125FF79BDFDB4A1109818414CFB269B56B837768798011C9F34",
+    "beforeSha256": "675D9CC248BC5125FF79BDFDB4A1109818414CFB269B56B837768798011C9F34",
+    "path": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "3FFDAB4B3D4C35D83D426273AF965B72FC4A4EF3D3BB459717E9972C82C70BC9",
+    "beforeSha256": "3FFDAB4B3D4C35D83D426273AF965B72FC4A4EF3D3BB459717E9972C82C70BC9",
+    "path": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "22A3AA0970EA742E039A5F5DA92F52995F8F0291520AD92029559B41D813C489",
+    "beforeSha256": "22A3AA0970EA742E039A5F5DA92F52995F8F0291520AD92029559B41D813C489",
+    "path": "android-app/app/src/main/res/drawable/after_sale_step_active.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "03D5BD1E91FB2BF80CE723CA08E3F8696D1A3375608771776D0A61F8201BAFE0",
+    "beforeSha256": "03D5BD1E91FB2BF80CE723CA08E3F8696D1A3375608771776D0A61F8201BAFE0",
+    "path": "android-app/app/src/main/res/drawable/after_sale_step_pending.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "870A66B79D48ECA6968C1B840329808080D3A29454F7EFD2FE5CC4CB10132E0F",
+    "beforeSha256": "870A66B79D48ECA6968C1B840329808080D3A29454F7EFD2FE5CC4CB10132E0F",
+    "path": "android-app/app/src/main/res/layout/fragment_complaint.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "3182D575E0184E72AD2CD428B39D142B64D784C0C12651F4008214CD0941A7EB",
+    "beforeSha256": "3182D575E0184E72AD2CD428B39D142B64D784C0C12651F4008214CD0941A7EB",
+    "path": "android-app/app/src/main/res/layout/fragment_help_faq.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "101CA246AE33CEF61BD5D9D3D4B33EFA22CB218E9731D51847E55CE86A02A6CC",
+    "beforeSha256": "101CA246AE33CEF61BD5D9D3D4B33EFA22CB218E9731D51847E55CE86A02A6CC",
+    "path": "android-app/app/src/main/res/layout/fragment_redemption_result.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "2E03D25F71E3E624C52A6E25A60EC7F1EA0449D18F27FC81A876DE11D8E74789",
+    "beforeSha256": "2E03D25F71E3E624C52A6E25A60EC7F1EA0449D18F27FC81A876DE11D8E74789",
+    "path": "android-app/app/src/main/res/layout/fragment_refund_progress.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "F425866706C368A26C9C3E719AE3DBBA1AE24DEF4D40F581D1A992EC8FD73A75",
+    "beforeSha256": "F425866706C368A26C9C3E719AE3DBBA1AE24DEF4D40F581D1A992EC8FD73A75",
+    "path": "android-app/app/src/main/res/layout/fragment_refund_request.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "CF321343A7FAC476F6E4EE96726D4301D603E850C14FAB351F2ADB098C242943",
+    "beforeSha256": "CF321343A7FAC476F6E4EE96726D4301D603E850C14FAB351F2ADB098C242943",
+    "path": "android-app/app/src/main/res/layout/fragment_review.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  },
+  {
+    "frozenSha256": "8A0873B90A4C4FA6E8E1746C431207DB242EAA77C24D9DEB74101889CA075A0E",
+    "beforeSha256": "8A0873B90A4C4FA6E8E1746C431207DB242EAA77C24D9DEB74101889CA075A0E",
+    "path": "android-app/app/src/main/res/layout/fragment_voucher_qr.xml",
+    "unchangedSinceStart": true,
+    "scope": "Task8或延期QR，只读指纹，不纳入Task7写功能验收"
+  }
+]

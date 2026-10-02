@@ -1,0 +1,11 @@
+{
+  "frozenSources": 893,
+  "originalBusinessTables": 6,
+  "publicTextFilesScanned": 100,
+  "apkSha256": "28380CF723C41659ACA0DC7C609F2388F0083FD3344F8DAC4269D9CE67C2FB3D",
+  "protectedPrivateFiles": 438,
+  "independentAcceptance": "待控制端派发",
+  "stageOrCommit": false,
+  "verifiedAt": "2026-10-02T10:50:16.6999923+08:00",
+  "knownSecretsMatches": 0
+}
