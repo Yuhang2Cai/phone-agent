@@ -34,7 +34,9 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/internal/tools/**").permitAll()
+                        // 旧接口即使残留在历史代码也永远拒绝；不能凭用户JWT或静态内部令牌重新启用。
+                        .requestMatchers("/internal/tools/**", "/api/addresses/**", "/api/cart/**",
+                                "/api/carts/**", "/api/orders/**", "/api/automation/**").denyAll()
                         // V1 入口由专用短时内部 JWT 校验器保护，不能由用户 JWT 过滤器代替其身份绑定。
                         .requestMatchers("/internal/v1/tools/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/merchants/**").permitAll()

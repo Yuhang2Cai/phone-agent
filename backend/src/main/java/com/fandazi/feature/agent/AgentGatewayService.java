@@ -1,20 +1,15 @@
 // 智能助手网关：绑定用户会话、授权和后端代理调用。
 package com.fandazi.feature.agent;
 
-import com.fandazi.feature.address.AddressService;
-import com.fandazi.feature.cart.CartQuote;
-import com.fandazi.feature.cart.CartService;
-import java.math.BigDecimal;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service public class AgentGatewayService {
-    private final AgentSessionService sessions; private final AgentServiceClient client; private final AgentEventService events; private final CartService carts; private final AddressService addresses; private final AgentCardEnrichmentService cards;
+    private final AgentSessionService sessions; private final AgentServiceClient client; private final AgentEventService events; private final AgentCardEnrichmentService cards;
 // 初始化对象依赖与默认状态。
-    public AgentGatewayService(AgentSessionService sessions, AgentServiceClient client, AgentEventService events, CartService carts, AddressService addresses, AgentCardEnrichmentService cards) { this.sessions=sessions; this.client=client; this.events=events; this.carts=carts; this.addresses=addresses; this.cards=cards; }
+    public AgentGatewayService(AgentSessionService sessions, AgentServiceClient client, AgentEventService events, AgentCardEnrichmentService cards) { this.sessions=sessions; this.client=client; this.events=events; this.cards=cards; }
 // 处理当前数据。
     public AgentResult handle(Long userId,String sessionId,String text,AgentMode mode) {
         String traceId=UUID.randomUUID().toString(); AgentSession session=sessions.start(userId,sessionId,mode,traceId);
@@ -30,8 +25,9 @@ import org.springframework.stereotype.Service;
                     runId, Map.of("confirmationAccepted", mode == AgentMode.CONFIRM && isConfirmation(text))));
             // 模型只提交公开 ID；网关在返回 Android 前重新查询真实资源，防止客户端展示过期或伪造字段。
             result = enrichCards(userId, sessionId, result);
-            result=completeConfirmation(userId, mode, result);
-            bindAuthorizedCandidate(userId, sessionId, result);
+            // 只接受新团购摘要；旧购物车/地址确认被明确拒绝，不再重查或授权外卖交易。
+            if (result.candidateCart().containsKey("cartDraftId") || result.candidateCart().containsKey("addressId"))
+                result = AgentResult.failed("旧外卖动作已停用，请使用团购服务");
             // 将最终公开且已重查的摘要绑定待确认动作，泛化“确认”只能授权该资源与输入正文。
             if (result.status() == AgentResult.Status.AWAITING_CONFIRMATION && result.candidateCart().containsKey("action"))
                 sessions.bindPendingConfirmation(userId, sessionId, runId, result.candidateCart());
@@ -66,27 +62,6 @@ import org.springframework.stereotype.Service;
             return AgentResult.failed("卡片或确认资源已失效，请重新查询");
         }
     }
-// 处理 `completeConfirmation` 相关逻辑。
-    private AgentResult completeConfirmation(Long userId, AgentMode mode, AgentResult result) {
-        if (result.status()!=AgentResult.Status.AWAITING_CONFIRMATION) return result;
-        Long cartId=number(result.candidateCart().get("cartDraftId")); Long addressId=number(result.candidateCart().get("addressId")); Object maximum=result.candidateCart().get("maxAmount");
-        if(cartId==null||addressId==null||maximum==null) return result;
-        var draft=carts.owned(userId,cartId); CartQuote quote=carts.validate(userId,cartId); var address=addresses.owned(userId,addressId);
-        List<Map<String,Object>> items=quote.lines().stream().map(line->Map.<String,Object>of("name",line.dishName(),"specification",line.optionSummary().isBlank()?"无额外规格":line.optionSummary(),"price",line.unitPrice(),"quantity",line.quantity())).toList();
-        Map<String,Object> cart=new LinkedHashMap<>(); cart.put("merchantName",draft.getMerchant().getName()); cart.put("items",items); cart.put("cartDraftId",cartId); cart.put("workflowId",result.candidateCart().get("workflowId")); cart.put("address",address.getRecipient()+" "+address.getPhone()+" "+address.getDetail()); cart.put("addressId",addressId); cart.put("deliveryFee",quote.deliveryFee()); cart.put("discount",quote.discount()); cart.put("total",quote.total()); cart.put("maxAmount",maximum); cart.put("authorizationMode",mode.name());
-        return new AgentResult(result.status(),result.message(),result.nextAction(),cart,result.events(),result.cards(),result.error(),result.eventsRecorded());
-    }
-// 处理 `bindAuthorizedCandidate` 相关逻辑。
-    private void bindAuthorizedCandidate(Long userId, String sessionId, AgentResult result) {
-        if (result.status()!=AgentResult.Status.AWAITING_CONFIRMATION) return;
-        Long cartId=number(result.candidateCart().get("cartDraftId")); Long addressId=number(result.candidateCart().get("addressId")); BigDecimal total=decimal(result.candidateCart().get("total"));
-        Object workflow=result.candidateCart().get("workflowId");
-        if(cartId!=null&&addressId!=null&&total!=null&&workflow!=null) sessions.bindAuthorizedCart(userId,sessionId,String.valueOf(workflow),cartId,addressId,total);
-    }
-// 处理 `number` 相关逻辑。
-    private Long number(Object value){if(value instanceof Number n)return n.longValue();try{return value==null?null:Long.valueOf(String.valueOf(value));}catch(NumberFormatException ignored){return null;}}
-// 处理 `decimal` 相关逻辑。
-    private BigDecimal decimal(Object value){if(value instanceof BigDecimal b)return b;if(value instanceof Number n)return new BigDecimal(n.toString());try{return value==null?null:new BigDecimal(String.valueOf(value));}catch(NumberFormatException ignored){return null;}}
 // 判断confirmation。
     // 本轮确认使用整句匹配；支付必须是单独输入，不能从订单创建成功推断。
     private boolean isConfirmation(String text) { String normal=text == null ? "" : text.trim(); return normal.equals("确认") || normal.equals("确认下单") || normal.equals("确定") || normal.equals("确定下单") || normal.equals("确认退款") || normal.equals("确认投诉") || normal.equals("确认支付") || normal.equals("确认模拟支付"); }

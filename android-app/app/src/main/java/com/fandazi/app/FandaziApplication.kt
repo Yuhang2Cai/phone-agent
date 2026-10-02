@@ -1,4 +1,4 @@
-// 应用入口：初始化运行所需的组件与配置。
+// 应用入口：仅初始化当前团购、会话和新Agent依赖；旧外卖仓库不再随应用启动。
 package com.fandazi.app
 
 import android.app.Application
@@ -8,11 +8,6 @@ import com.fandazi.app.feature.auth.EncryptedSessionStorage
 import com.fandazi.app.feature.auth.SessionRepository
 import com.fandazi.app.feature.agent.AgentRepository
 import com.fandazi.app.feature.agent.HttpAgentRepository
-import com.fandazi.app.feature.ordering.HttpOrderingRepository
-import com.fandazi.app.feature.ordering.OrderingRepository
-import com.fandazi.app.feature.ordering.PreferencesCartStateStore
-import com.fandazi.app.feature.profile.AutomationSettingsRepository
-import com.fandazi.app.feature.profile.HttpAutomationSettingsRepository
 import com.fandazi.app.feature.deal.GroupBuyingRepository
 import com.fandazi.app.feature.deal.HttpGroupBuyingRepository
 import com.fandazi.app.feature.purchase.HttpPurchaseRepository
@@ -35,12 +30,6 @@ class FandaziApplication : Application() {
         private set
     lateinit var agentRepository: AgentRepository
         private set
-    lateinit var orderingRepository: OrderingRepository
-        private set
-    lateinit var cartStateStore: PreferencesCartStateStore
-        private set
-    lateinit var automationSettingsRepository: AutomationSettingsRepository
-        private set
     lateinit var groupBuyingRepository: GroupBuyingRepository
         private set
     /** Task6 报价与订单共享认证客户端，401 由购买页保留原目标并进入账号密码登录。 */
@@ -62,9 +51,6 @@ class FandaziApplication : Application() {
         )
         sessionRepository = SessionRepository(ApiAuthGateway(apiClient), EncryptedSessionStorage(this))
         memoryRepository = com.fandazi.app.feature.memory.MemoryRepository(apiClient)
-        orderingRepository = HttpOrderingRepository(apiClient)
-        cartStateStore = PreferencesCartStateStore(this)
-        automationSettingsRepository = HttpAutomationSettingsRepository(apiClient)
         groupBuyingRepository = HttpGroupBuyingRepository(apiClient)
         // 复用同一 ApiClient，保留游客公开读取和已登录用户的统一认证处理。
         catalogRepository = com.fandazi.app.feature.store.HttpCatalogRepository(apiClient)

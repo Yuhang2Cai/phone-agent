@@ -1,47 +1,24 @@
-# 饭搭子 AI
+# 饭搭子团购App
 
-饭搭子 AI 是一个 Android 外卖 App + Spring Boot 后端 + Python LangChain/LangGraph 单 Agent 的作品集项目。Android 负责用户交互和本地 ASR 输入；Spring Boot 负责认证、菜单、地址、购物车、订单、模拟支付、配送时间线、SSE 和工具授权；Python Agent Service 只做受约束点餐编排。
+Android XML客户端 → Spring团购业务服务 → 独立新Agent。Android只访问Spring；业务事实来自后端，Agent负责三层意图、DAG编排和授权长期记忆。文字和卡片留在聊天内，不自动跳转。
 
-## 工作区
+## 运行入口
 
-- `android-app/`：Android 客户端，XML + MVVM + OkHttp + Glide。
-- `backend/`：Spring Boot 服务，公开 `/api` 和内部 `/internal/tools`。
-- `agent-service/`：Python Agent Service，LangChain + LangGraph。
-- `ui-prototype/`：可编辑 HTML/CSS/JS 原型。
-- `data/seed/`：可重复导入的合成数据和 Agent 场景。
-- `docs/`：架构、API/Agent、面试说明和验证报告。
+- android-app：首页、AI助手、订单、我的四Tab；ASR和核销延期。
+- backend：真实门店/套餐/报价/团购订单/模拟支付/券/售后及Agent代理。
+- 独立Agent仓库：service.app:create_app，端口8091，内部协议1.1；agent-service仅历史参考，见其DEPRECATED.md。
+- 工具唯一活动入口/internal/v1/tools，旧/internal/tools拒绝；新Agent不可用时明确失败，不调用8090。
 
-## 本地启动顺序
+## 本地启动
 
-1. 准备 MySQL 和 JDK 17，设置后端环境变量。
-2. 启动 Spring Boot backend，默认 API 根路径为 `http://localhost:8080/api`。
-3. 启动 Agent Service，默认内部地址为 `http://localhost:8090`。
-4. 用 Android Studio 打开 `android-app/`，debug 默认连接模拟器中的 `http://10.0.2.2:8080/api/`。
-5. 直接用浏览器打开 `ui-prototype/index.html` 可查看无后端原型。
+准备MySQL、JDK17、Python及私有环境，分别执行scripts/Start-Services.ps1 -Service Spring和-Service Agent。本机启动器核验真实进程和健康，读取Docker/忽略.runtime凭据；新Agent读自己忽略.env的模型和独立dianping_intent库。普通启动不开种子或夹具、不重置事实。Android debug连接http://10.0.2.2:8080/api/。
 
-## 脱敏配置示例
+可移植启动：配置DB_URL/DB_USERNAME/DB_PASSWORD/JWT_SECRET/AGENT_INTERNAL_TOKEN/AGENT_SERVICE_URL后运行mvn -f backend/pom.xml spring-boot:run；Agent仓库配置独立数据库和模型后运行python -m uvicorn service.app:create_app --factory --host 127.0.0.1 --port 8091。不要使用旧Agent安装/启动命令。
 
-不要提交真实 `.env`。本地可用未跟踪 `.env` 或 shell 环境变量：
+## 验证与数据安全
 
-```powershell
-$env:DB_URL = "jdbc:mysql://localhost:3306/fandazi_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai"
-$env:DB_USERNAME = "fandazi"
-$env:DB_PASSWORD = "<local-db-password>"
-$env:JWT_SECRET = "<64+ chars local secret>"
-$env:AGENT_SERVICE_URL = "http://127.0.0.1:8090"
-$env:AGENT_INTERNAL_TOKEN = "<shared internal token>"
-$env:LLM_BASE_URL = "https://api.deepseek.com/v1"
-$env:LLM_MODEL = "deepseek-chat"
-$env:LLM_API_KEY = "<local-only key>"
-$env:LANGCHAIN_TRACING_V2 = "false"
-$env:LANGSMITH_API_KEY = "<optional local-only key>"
-```
+后端mvn -f backend/pom.xml test，新Agent仓库python -m pytest tests -q，Android wrapper运行testDebugUnitTest lintDebug assembleDebug。最新APK Maestro和独立验收不能由单测替代。
 
-`LLM_API_KEY`、`JWT_SECRET`、`AGENT_INTERNAL_TOKEN`、数据库密码、日志、APK、模型压缩包和 `.env` 都禁止提交。
+旧交易测试保留源码但退出默认后端套件，新团购/鉴权/公开事件/记忆测试仍执行。历史表和实体保留，旧地址/购物车/配送/自动下单不注册默认组件或导航。V14只登记停用审计，不清除旧事实；scripts/verify_retirement_backup.py只向随机隔离库恢复。
 
-## 验证入口
-
-- Backend: `mvn -f backend/pom.xml test`
-- Agent Service: `.\agent-service\.venv\Scripts\python.exe -m pytest agent-service/tests -q`
-- Android: `cd android-app; .\gradlew.bat testDebugUnitTest lintDebug assembleDebug`
-- 真实环境限制和本机执行结果见 `docs/verification-report.md`。
+真实密钥、密码、JWT、数据库备份、日志、APK和真实用户记录禁止提交。Task9真人文案生产审批未完成；Task12须保持启用门槛。实际结果以独立报告为准，运行说明不是验收声明。

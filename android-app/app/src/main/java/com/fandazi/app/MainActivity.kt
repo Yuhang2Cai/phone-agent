@@ -93,18 +93,12 @@ class MainActivity : AppCompatActivity() {
         ))[com.fandazi.app.feature.agent.AgentViewModel::class.java].bindAuthenticatedOwner(
             (state as? SessionState.Authenticated)?.user?.username
         )
-        ViewModelProvider(
-            this,
-            com.fandazi.app.feature.ordering.OrderingViewModelFactory(orderingRepository(), cartStateStore(), cartOwner())
-        )[com.fandazi.app.feature.ordering.OrderingViewModel::class.java].switchCartOwner(
-            (state as? SessionState.Authenticated)?.user?.username ?: "guest"
-        )
+        // 团购身份切换只隔离聊天；旧购物车ViewModel已退役，不创建或读取旧端侧状态。
         val desired = SessionRouteCoordinator.routeFor(state)
         val current = when (navHost.navController.currentDestination?.id) {
             R.id.authFragment -> SessionRoute.AUTH
-            R.id.homeFragment, R.id.searchFragment, R.id.merchantFragment, R.id.ordersFragment,
-            R.id.profileFragment, R.id.addressFragment, R.id.addressEditFragment,
-            R.id.automationSettingsFragment, R.id.cartFragment, R.id.paymentFragment,
+            R.id.homeFragment, R.id.searchFragment, R.id.storeFragment, R.id.ordersFragment,
+            R.id.profileFragment,
             R.id.agentChatFragment, R.id.dealDetailFragment, R.id.dealCheckoutBottomSheetFragment,
             // Task7 本人订单/券详情属于已登录业务路由，状态重新派发时不能丢失当前资源退回首页。
             R.id.groupBuyPaymentFragment, R.id.paymentSuccessFragment,
@@ -155,13 +149,22 @@ class MainActivity : AppCompatActivity() {
 // 处理 `applicationSession` 相关逻辑。
     fun applicationSession() = (application as FandaziApplication).sessionRepository
 // 处理 `orderingRepository` 相关逻辑。
-    fun orderingRepository() = (application as FandaziApplication).orderingRepository
+    /** 仅保留历史类编译签名，旧导航不可达；误调用时立即拒绝，不初始化仓库或访问接口。 */
+    @Deprecated("旧外卖流程已退役")
+    fun orderingRepository(): com.fandazi.app.feature.ordering.OrderingRepository =
+        throw IllegalStateException("旧外卖流程已退役")
 // 处理 `cartStateStore` 相关逻辑。
-    fun cartStateStore() = (application as FandaziApplication).cartStateStore
+    /** 历史购物车存储不再装配，禁止端侧旧状态复活。 */
+    @Deprecated("旧外卖流程已退役")
+    fun cartStateStore(): com.fandazi.app.feature.ordering.PreferencesCartStateStore =
+        throw IllegalStateException("旧外卖流程已退役")
 // 处理 `cartOwner` 相关逻辑。
     fun cartOwner() = (applicationSession().state.value as? SessionState.Authenticated)?.user?.username ?: "guest"
 // 处理 `automationSettingsRepository` 相关逻辑。
-    fun automationSettingsRepository() = (application as FandaziApplication).automationSettingsRepository
+    /** 旧自动下单设置只留编译兼容，不能调用旧服务。 */
+    @Deprecated("旧外卖流程已退役")
+    fun automationSettingsRepository(): com.fandazi.app.feature.profile.AutomationSettingsRepository =
+        throw IllegalStateException("旧外卖流程已退役")
 
     /** 打开受保护页面；登录返回保留目标参数，不沿用过期授权或页面金额。 */
     fun openProtectedDestination(destination: Int, arguments: Bundle? = null) {

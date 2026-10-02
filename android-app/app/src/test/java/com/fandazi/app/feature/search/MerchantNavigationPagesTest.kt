@@ -1,4 +1,4 @@
-// 路由回归：保留旧merchant页有效生命周期测试；首页/搜索改用现行团购点击路由，不监听退役外卖导航。
+// 路由回归：旧外卖目标不可达，首页/搜索保留团购公开身份和生命周期稳定性。
 package com.fandazi.app.feature.search
 
 import android.os.Looper
@@ -39,49 +39,20 @@ class MerchantNavigationPagesTest {
     @Test fun homeIgnoresRetiredOrderingRequestsAndClickKeepsPublicId() = verifyGroupBuyingNavigation(R.id.homeFragment)
     /** 搜索恢复不能被历史外卖导航抢走；替代原已退役消费者测试，验证当前真实NavController。 */
     @Test fun searchIgnoresRetiredOrderingRequestsAndClickKeepsPublicId() = verifyGroupBuyingNavigation(R.id.searchFragment)
-    @Test fun merchantResumesWithLatestRequestAndDoesNotRepeat() = verifyResumedNavigation(R.id.merchantFragment)
-
-    // 保留仍实际监听OrderingViewModel的旧merchant入口；最新请求确认及恢复不重复的断言不删除。
-    private fun verifyResumedNavigation(source: Int) = runTest {
-        val repository = object : OrderingRepository by HttpOrderingRepository(ApiClient("http://localhost/", { null })) {
-            override suspend fun loadMerchant(merchantId: Long) = ApiResult.Success(
-                Merchant(merchantId, "商家$merchantId", "粥", BigDecimal.TEN, BigDecimal.ONE, 20, true)
-            )
-            override suspend fun loadMenu(merchantId: Long) = ApiResult.Success(emptyList<Dish>())
-        }
-        val controller = Robolectric.buildActivity(MainActivity::class.java).create()
+    /** 退役目标即使保留资源ID也不能导航；返回与生命周期不会自动创建旧购物车页面。 */
+    @Test fun retiredMerchantCannotBeOpenedOrRevived() = runTest {
+        val controller = Robolectric.buildActivity(MainActivity::class.java).create().start().resume().visible()
         try {
             val activity = controller.get()
-            val vm = OrderingViewModel(repository, StandardTestDispatcher(testScheduler))
-            ViewModelProvider(activity, object : ViewModelProvider.Factory {
-                @Suppress("UNCHECKED_CAST")
-                override fun <T : ViewModel> create(modelClass: Class<T>): T = vm as T
-            })[OrderingViewModel::class.java]
-            controller.start().resume().visible()
             val host = activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-            host.navController.navigate(source, if (source == R.id.merchantFragment) bundleOf("merchantId" to 1L) else null)
-            shadowOf(Looper.getMainLooper()).idle()
-            runCurrent()
-            shadowOf(Looper.getMainLooper()).idle()
-            controller.pause()
-            vm.openMerchant(2)
-            runCurrent()
-            val old = requireNotNull(vm.merchantNavigationRequest.value)
-            vm.openMerchant(3)
-            runCurrent()
-            vm.acknowledgeMerchantNavigation(old.requestId)
-            shadowOf(Looper.getMainLooper()).idle()
-            assertEquals(source, host.navController.currentDestination?.id)
-            assertEquals(3L, vm.merchantNavigationRequest.value?.merchantId)
-            controller.resume()
-            shadowOf(Looper.getMainLooper()).idle()
-            assertEquals(R.id.merchantFragment, host.navController.currentDestination?.id)
-            assertEquals(3L, host.navController.currentBackStackEntry?.arguments?.getLong("merchantId"))
-            assertNull(vm.merchantNavigationRequest.value)
-            val entry = host.navController.currentBackStackEntry
+            val before = host.navController.currentDestination?.id
+            // 验证真实NavController拒绝旧目标，而不是仅检查字符串或将旧流程测试标绿。
+            assertThrows(IllegalArgumentException::class.java) {
+                host.navController.navigate(R.id.merchantFragment, bundleOf("merchantId" to 1L))
+            }
             controller.pause().resume()
             shadowOf(Looper.getMainLooper()).idle()
-            assertSame(entry, host.navController.currentBackStackEntry)
+            assertEquals(before, host.navController.currentDestination?.id)
         } finally {
             controller.pause().stop().destroy()
         }

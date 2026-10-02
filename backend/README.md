@@ -1,25 +1,11 @@
-# 后端
+# 团购业务后端
 
-Spring Boot 是饭搭子 AI 的业务权威层：认证、菜单、地址、购物车、订单、模拟支付、配送时间线、Agent Gateway、SSE 和内部工具授权都在这里裁决。
+Spring是用户、门店/菜品、套餐、报价、团购订单、模拟支付、团购券、退款申请、评价、投诉和FAQ的权威来源，并代理新Agent与长期记忆管理。
 
-## 运行
+普通启动使用MySQL、Flyway追加迁移和Hibernate validate；种子默认关闭。配置DB_URL/DB_USERNAME/DB_PASSWORD/JWT_SECRET/AGENT_INTERNAL_TOKEN，不在源码写凭据。AGENT_SERVICE_URL默认http://127.0.0.1:8091，失败不回8090。
 
-需要 JDK 17、Maven 和 MySQL。生产配置使用 Flyway migration + Hibernate validate。
+根目录scripts/Start-Services.ps1 -Service Spring为本机入口；可移植环境执行mvn -f backend/pom.xml spring-boot:run。工具只开放短时JWT保护的/internal/v1/tools，旧路径拒绝。
 
-```powershell
-$env:DB_URL = "jdbc:mysql://localhost:3306/fandazi_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai"
-$env:DB_USERNAME = "fandazi"
-$env:DB_PASSWORD = "<local-db-password>"
-$env:JWT_SECRET = "<64+ chars local secret>"
-$env:AGENT_INTERNAL_TOKEN = "<shared internal token>"
-$env:AGENT_SERVICE_URL = "http://127.0.0.1:8090"
-mvn -f backend/pom.xml spring-boot:run
-```
+mvn -f backend/pom.xml test执行本期有效套件。原外卖/旧Agent契约测试保留但退出默认CI，NoTakeawayRuntimeDependencyTest防止回流；CouponComplaintToolTest已迁到V1实际执行器，公开事件安全测试仍执行。历史实体/表供审计保留，不代表旧交易启用。
 
-## 测试
-
-```powershell
-mvn -f backend/pom.xml test
-```
-
-Task 12 新增 `CrossLayerOrderingFlowTest`，用 H2 测试配置覆盖注册、菜单、地址、购物车、订单、支付、时间线、资源归属和幂等。不要把真实 JWT secret、内部 token、数据库密码或日志提交到仓库。
+V1–V13不修改；V12/V13是Java迁移，不能只数SQL。V14只登记停用状态，不DROP或更新用户事实。备份/恢复证据保存在忽略.runtime；回滚镜像不能替代恢复数据。

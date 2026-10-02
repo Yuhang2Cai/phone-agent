@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /** 每次调用持有会话行锁；成功结果、凭证消费、业务事实与动作记录原子提交，失败全部回滚。 */
 @Service
-class AgentV1ToolBridge {
+public class AgentV1ToolBridge {
     private final AgentSessionRepository sessions;
     private final AgentToolExecutionRepository executions;
     private final AgentToolSchemaValidator schema;

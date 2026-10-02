@@ -1,3 +1,7 @@
+# 已退役历史说明
+
+本目录不再是本期启动、CI、健康或发布路径；下面所有外卖运行示例只作历史参考，不应照此启动。正式入口见根README及DEPRECATED.md，8091独立新服务失败不回退此服务。
+
 # 饭搭子 AI Agent Service
 
 这是仅供服务端使用的 Python Agent Service。Android 只调用 Spring Boot；本服务也只通过 Spring Boot 的 `POST /internal/tools/{toolName}` 工具契约访问订单、权限和数据，不连接 MySQL。

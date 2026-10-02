@@ -8,8 +8,8 @@ import com.fandazi.feature.DomainException;
 import com.fandazi.feature.agent.ConfirmationGrantService;
 import com.fandazi.feature.agent.AgentMode;
 import com.fandazi.feature.agent.AgentSessionService;
-import com.fandazi.feature.agent.AgentToolService;
-import com.fandazi.feature.agent.ToolRequest;
+import com.fandazi.feature.agent.AgentV1ToolBridge;
+import com.fandazi.feature.agent.InternalV1ToolRequest;
 import com.fandazi.feature.auth.UserEntity;
 import com.fandazi.feature.auth.UserRepository;
 import com.fandazi.feature.coupon.CouponEntity;
@@ -41,7 +41,7 @@ class CouponComplaintToolTest {
     @Autowired private UserRepository users;
     @Autowired private ConfirmationGrantService grants;
     @Autowired private AgentSessionService sessions;
-    @Autowired private AgentToolService tools;
+    @Autowired private AgentV1ToolBridge tools;
 
     /** 只返回当前用户领过的券，不把平台全量券误认为个人优惠券。 */
     @Test
@@ -78,17 +78,24 @@ class CouponComplaintToolTest {
     void agentComplaintWriteWaitsForExplicitSessionConfirmation() {
         var alice = users.findByUsername("seed_alice").orElseThrow();
         String sessionId = "complaint-agent-" + UUID.randomUUID();
-        sessions.start(alice.getId(), sessionId, AgentMode.CONFIRM, "trace");
-        String grant = complaints.prepare(alice.getId(), sessionId, publicIds.require("order", "group-order-paid")).get("confirmationGrant").toString();
-        ToolRequest request = new ToolRequest(alice.getId().toString(), sessionId, "trace", "complaint-1", "workflow",
-                java.util.Map.of("orderId", publicIds.require("order", "group-order-paid"), "subject", "门店服务", "description", "到店体验问题",
-                        "confirmationGrant", grant));
+        var session = sessions.start(alice.getId(), sessionId, AgentMode.CONFIRM, "trace");
+        String orderId = publicIds.require("order", "group-order-paid");
+        String grant = complaints.prepare(alice.getId(), sessionId, orderId).get("confirmationGrant").toString();
+        var payload = java.util.Map.<String,Object>of("orderId", orderId, "subject", "门店服务", "description", "到店体验问题",
+                "confirmationGrantId", grant);
+        var request = new InternalV1ToolRequest("1.1", alice.getId().toString(), sessionId, "trace",
+                session.getActiveRunId(), "complaint", session.getActiveRunId()+":complaint:1", 1, payload);
+        // 已准备凭证仍未授权，V1真实执行器必须拒绝，不能依赖已退役旧工具证明新边界。
         assertThatThrownBy(() -> tools.execute("submit_complaint", request))
-                .isInstanceOf(DomainException.class).hasMessageContaining("用户确认");
+                .isInstanceOf(DomainException.class).hasMessageContaining("明确确认");
+        sessions.bindPendingConfirmation(alice.getId(), sessionId, session.getActiveRunId(),
+                java.util.Map.of("action","submit_complaint", "resourceId",orderId, "ruleVersion","complaint-v1",
+                        "amountCents",0, "subject","门店服务", "description","到店体验问题"));
         sessions.confirm(alice.getId(), sessionId);
-        assertThat(tools.execute("submit_complaint", request).ok()).isTrue();
-        assertThatThrownBy(() -> tools.execute("submit_complaint", request))
-                .isInstanceOf(DomainException.class);
+        var submitted = tools.execute("submit_complaint", request);
+        assertThat(submitted.get("status")).isEqualTo("OPEN");
+        // 相同动作键重放已提交事实而不是再次消费凭证，符合新执行器幂等契约。
+        assertThat(tools.execute("submit_complaint", request)).isEqualTo(submitted);
     }
 
     /** 只读工具返回值必须可写入审计 JSON，不能因 Java 时间对象导致查询失败。 */
@@ -96,12 +103,14 @@ class CouponComplaintToolTest {
     void afterSaleReadToolsProduceAuditableResults() {
         var alice = users.findByUsername("seed_alice").orElseThrow();
         String sessionId = "after-sale-read-" + UUID.randomUUID();
-        sessions.start(alice.getId(), sessionId, AgentMode.CONFIRM, "trace");
+        var session = sessions.start(alice.getId(), sessionId, AgentMode.CONFIRM, "trace");
         for (String name : java.util.List.of("list_user_orders", "list_user_vouchers", "query_coupon", "query_faq", "get_order_detail")) {
             java.util.Map<String, Object> payload = name.equals("get_order_detail")
-                    ? java.util.Map.of("orderId", publicIds.require("order", "group-order-paid")) : java.util.Map.of();
-            var request = new ToolRequest(alice.getId().toString(), sessionId, "trace", name, "workflow", payload);
-            assertThat(tools.execute(name, request).ok()).isTrue();
+                    ? java.util.Map.of("orderId", publicIds.require("order", "group-order-paid")) : name.equals("query_faq") ? java.util.Map.of("question","退款规则") : java.util.Map.of();
+            // 按新run/task/version键执行真实只读域并校验数据可审计，旧工具不再装配。
+            var request = new InternalV1ToolRequest("1.1", alice.getId().toString(), sessionId, "trace",
+                    session.getActiveRunId(), name, session.getActiveRunId()+":"+name+":1", 1, payload);
+            assertThat(tools.execute(name, request)).isNotEmpty();
         }
     }
 }

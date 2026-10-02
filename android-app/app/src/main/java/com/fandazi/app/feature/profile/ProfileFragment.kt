@@ -36,12 +36,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
                 .setMessage(if (activity.applicationSession().tokenOrNull() == null) "当前为游客" else "已登录")
                 .setPositiveButton("确定", null).show()
         }
-        binding.profileAddressEntry.setOnClickListener {
-            activity.openProtectedDestination(R.id.addressFragment)
-        }
-        binding.profileAutomationEntry.setOnClickListener {
-            activity.openProtectedDestination(R.id.automationSettingsFragment)
-        }
+        // 旧隐藏行不再绑定监听器，避免无障碍或错误代码重新唤起退役路径。
         // FAQ 可公开阅读；投诉提交时再由受保护接口校验用户，入口保持清晰可达。
         binding.profileHelpEntry.setOnClickListener { it.findNavController().navigate(R.id.helpFaqFragment) }
         viewLifecycleOwner.lifecycleScope.launch {
@@ -65,7 +60,7 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         binding.profileOrdersEntry.isVisible = authenticated
         binding.profileRefundEntry.isVisible = authenticated
         binding.profileHelpEntry.isVisible = authenticated
-        // 仅收起旧UI引用；旧交易服务的完整退役在Task11单独验收。
+        // 旧行只保留布局兼容，监听和导航已退役，不承载任何交易能力。
         binding.profileAddressEntry.isVisible = false
         binding.profileAutomationEntry.isVisible = false
     }

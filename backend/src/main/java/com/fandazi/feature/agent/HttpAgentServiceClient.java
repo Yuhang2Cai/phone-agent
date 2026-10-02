@@ -41,7 +41,7 @@ class HttpAgentServiceClient implements AgentServiceClient {
     private final AgentProtocolValidator protocol;
 
     /** 初始化 HTTP 客户端、协议解析器和事件记录器。 */
-    HttpAgentServiceClient(@Value("${agent.service.base-url:http://127.0.0.1:8090}") String baseUrl,
+    HttpAgentServiceClient(@Value("${agent.service.base-url:http://127.0.0.1:8091}") String baseUrl,
                            @Value("${agent.internal-token:}") String internalToken,
                            @Value("${agent.service.timeout-millis:5000}") long timeoutMillis,
                            ObjectMapper mapper, AgentMessageService messages) {

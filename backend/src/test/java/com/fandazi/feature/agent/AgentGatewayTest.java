@@ -39,7 +39,7 @@ class AgentGatewayTest {
 // 验证 `allowsGuestsToBrowseMerchantsButKeepsAgentEndpointsProtected` 覆盖场景的预期行为与边界。
     @Test
     void allowsGuestsToBrowseMerchantsButKeepsAgentEndpointsProtected() throws Exception {
-        mockMvc.perform(get("/api/merchants?keyword=清淡"))
+        mockMvc.perform(get("/api/stores/cities"))
                 .andExpect(status().isOk());
         mockMvc.perform(get("/api/agent/sessions/guest/events"))
                 .andExpect(status().isUnauthorized());
@@ -84,7 +84,7 @@ class AgentGatewayTest {
 
         mockMvc.perform(get("/api/agent/sessions/sse-session/events").with(auth))
                 .andExpect(status().isOk()).andExpect(content().string(org.hamcrest.Matchers.containsString("agent-event")));
-        mockMvc.perform(get("/api/merchants").with(auth)).andExpect(status().isOk());
+        mockMvc.perform(get("/api/stores/cities").with(auth)).andExpect(status().isOk());
     }
 
 // 验证 `keepsSseSubscriptionOpenAfterReplayingOnlyEventsNewerThanLastEventId` 覆盖场景的预期行为与边界。
