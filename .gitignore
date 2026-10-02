@@ -9,6 +9,9 @@ target/
 local.properties
 *.apk
 *.log
+# 验收脚本的Python字节码属于本机运行缓存；只归档脚本、结果和截图。
+__pycache__/
+*.pyc
 .env
 # 本地生成的内部 JWT 与共享服务密钥只留在开发机，禁止提交。
 .runtime/
