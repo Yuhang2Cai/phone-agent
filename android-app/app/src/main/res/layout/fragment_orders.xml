@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/home_background">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
-        <LinearLayout android:layout_width="match_parent" android:layout_height="68dp" android:gravity="center_vertical" android:paddingStart="18dp" android:paddingEnd="18dp">
-            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="订单" android:textColor="@color/brand_ink" android:textSize="28sp" android:textStyle="bold" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="饭搭子AI" android:textColor="@color/brand_orange" android:textSize="16sp" android:textStyle="bold" />
-        </LinearLayout>
-        <LinearLayout android:id="@+id/order_filters" android:layout_width="match_parent" android:layout_height="54dp" android:orientation="horizontal" android:paddingStart="12dp" android:paddingEnd="12dp">
-            <TextView android:id="@+id/filter_all" android:layout_width="0dp" android:layout_height="42dp" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/search_button_background" android:contentDescription="筛选全部订单" android:gravity="center" android:text="全部" android:textColor="#FFFFFF" android:textStyle="bold" />
-            <TextView android:id="@+id/filter_pending" android:layout_width="0dp" android:layout_height="42dp" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/dish_option_unselected" android:contentDescription="筛选待支付订单" android:gravity="center" android:text="待支付" android:textColor="@color/brand_ink" />
-            <TextView android:id="@+id/filter_delivering" android:layout_width="0dp" android:layout_height="42dp" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/dish_option_unselected" android:contentDescription="筛选配送中订单" android:gravity="center" android:text="配送中" android:textColor="@color/brand_ink" />
-            <TextView android:id="@+id/filter_completed" android:layout_width="0dp" android:layout_height="42dp" android:layout_marginHorizontal="4dp" android:layout_weight="1" android:background="@drawable/dish_option_unselected" android:contentDescription="筛选已完成订单" android:gravity="center" android:text="已完成" android:textColor="@color/brand_ink" />
-        </LinearLayout>
-        <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingBottom="88dp">
+<!-- 订单页保留 MainActivity 的正式底栏；列表、空态和错误态在同一页面切换。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/group_buy_background" android:orientation="vertical">
+    <!-- UI10 真实列表与分段，底栏继续复用正式四图标导航。 -->
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="24dp" android:paddingTop="24dp"
+        android:text="订单" android:textColor="@color/group_buy_green" android:textSize="26sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="24dp" android:paddingTop="4dp" android:paddingBottom="16dp"
+        android:text="查看团购订单和使用状态" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
+    <com.google.android.material.tabs.TabLayout android:id="@+id/orders_segments" android:layout_width="match_parent" android:layout_height="48dp" android:background="@color/group_buy_background" />
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <ScrollView android:id="@+id/orders_content" android:layout_width="match_parent" android:layout_height="match_parent"
+            android:clipToPadding="false" android:paddingHorizontal="16dp" android:paddingBottom="24dp">
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                <TextView android:id="@+id/order_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:padding="16dp" android:textColor="@color/brand_muted" android:textSize="14sp" />
-                <LinearLayout android:id="@+id/order_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+                <TextView android:id="@+id/order_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="center" android:padding="16dp" android:textColor="@color/after_sale_muted" android:textSize="14sp" />
+                <LinearLayout android:id="@+id/order_list" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" />
             </LinearLayout>
         </ScrollView>
-    </LinearLayout>
-</FrameLayout>
+        <include layout="@layout/view_orders_empty" />
+        <include layout="@layout/view_error_retry" />
+        <include layout="@layout/view_network_error" />
+    </FrameLayout>
+</LinearLayout>

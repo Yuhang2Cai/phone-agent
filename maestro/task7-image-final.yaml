@@ -1,0 +1,12 @@
+# 真实图片完成证据：图来自API原URL；先等待加载状态消失，再保存当前券详情，不替换业务图。
+appId: com.fandazi.app
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    notVisible: "图片加载中.*"
+    timeout: 30000
+- assertNotVisible: "图片加载失败.*"
+- assertVisible:
+    id: "com.fandazi.app:id/voucher_detail_image"
+- takeScreenshot: "UI12-image-loaded"

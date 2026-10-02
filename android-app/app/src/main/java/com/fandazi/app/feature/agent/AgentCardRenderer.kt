@@ -41,6 +41,7 @@ object AgentCardRenderer {
                 "store" -> renderStore(fragment, inflater, container, card, onNavigate)
                 "deal" -> renderDeal(fragment, inflater, container, card, onNavigate)
                 "order" -> renderOrder(inflater, container, card, onNavigate)
+                "voucher" -> renderVoucher(inflater, container, card, onNavigate)
                 "confirmation" -> renderConfirmation(inflater, container, card, isCurrentConfirmation, onNavigate)
                 "coupon" -> renderCoupon(inflater, container, card)
                 "after_sale_voucher_choice" -> renderVoucherChoice(inflater, container, card, onNavigate)
@@ -48,6 +49,28 @@ object AgentCardRenderer {
                 else -> renderUnknown(inflater, container, card)
             }
         }
+    }
+
+    /** 本人券查询卡只展示后端事实；独立公开券号绑定详情，区别于 Task8 的选券回复动作。 */
+    private fun renderVoucher(inflater: LayoutInflater, container: LinearLayout, card: AgentCardPayload,
+                              onNavigate: (AgentNavigationRequest) -> Unit) {
+        val voucherId = card.fields["voucherId"]?.takeIf(String::isNotBlank)
+        val view = inflater.inflate(R.layout.item_agent_order_card, container, false)
+        view.findViewById<TextView>(R.id.agent_order_title).text = listOfNotNull(card.fields["storeName"], card.fields["dealTitle"]).joinToString(" · ")
+        view.findViewById<TextView>(R.id.agent_order_meta).text = listOf(
+            com.fandazi.app.feature.voucher.VoucherPresentation.voucherStatus(card.fields["status"].orEmpty()),
+            "有效期：${BusinessDisplay.time(card.fields["expiresAt"])}", "券号末8位：${voucherId?.takeLast(8).orEmpty()}").joinToString("\n")
+        view.findViewById<TextView>(R.id.agent_order_amount).apply {
+            visibility = View.VISIBLE
+            text = card.fields["amountCents"]?.toIntOrNull()?.let { "本券实付 ${BusinessDisplay.money(it)}" } ?: "本券尚无付款记录"
+        }
+        // 查询卡资格不影响只读详情权限；真正退款入口仍由券详情重读 canRefund 控制。
+        view.findViewById<TextView>(R.id.agent_order_action).apply {
+            text = "查看团购券"
+            isEnabled = voucherId != null
+            setOnClickListener { voucherId?.let { onNavigate(AgentNavigationRequest.Voucher(it)) } }
+        }
+        container.addView(view)
     }
 
     /** 待选券卡展示本人券事实；只有后端明确canRefund=true时用户才能点击完整公开券号。 */

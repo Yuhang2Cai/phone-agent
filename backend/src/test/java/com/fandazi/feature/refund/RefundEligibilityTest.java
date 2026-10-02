@@ -155,4 +155,21 @@ class RefundEligibilityTest {
         refunds.request(userId, sessionId, paid.getPublicId(), "行程变化", grant);
         assertThat(voucherService.detail(userId, paid.getPublicId()).get("canRefund")).isEqualTo(false);
     }
+
+    /** 退出申请页后仍可凭本人券读取真实进度；未申请和他人资源不能泄漏摘要。 */
+    @Test
+    void progressCanBeReloadedFromOwnedVoucherWithoutCachedReceipt() {
+        Long owner = users.findByUsername("seed_alice").orElseThrow().getId();
+        var paid = orders.findByPublicId(publicIds.require("order", "group-order-paid")).orElseThrow().getVouchers().get(0);
+        assertThat(refunds.detailByVoucher(owner, paid.getPublicId())).isEmpty();
+        String session = "reload-progress-" + UUID.randomUUID();
+        var prepared = refunds.prepare(owner, session, paid.getPublicId());
+        var submitted = refunds.request(owner, session, paid.getPublicId(), "行程调整", prepared.get("confirmationGrant").toString());
+        // 清除实体缓存模拟退出页面/重新请求；新读取必须等于持久化申请，而不是构造默认进度。
+        entityManager.flush(); entityManager.clear();
+        assertThat(refunds.detailByVoucher(owner, paid.getPublicId())).contains(submitted);
+        Long stranger = users.save(new UserEntity("progress-stranger-" + UUID.randomUUID(), "progress@example.com", "hash")).getId();
+        assertThatThrownBy(() -> refunds.detailByVoucher(stranger, paid.getPublicId()))
+                .isInstanceOf(DomainException.class).hasMessageContaining("团购券不存在");
+    }
 }

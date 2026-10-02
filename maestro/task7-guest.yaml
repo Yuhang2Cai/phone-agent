@@ -1,0 +1,35 @@
+# 游客入口不能读取订单：普通登录拦截后用新空账号登录，返回原订单而非首页。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_search_button"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/username_input"
+    timeout: 30000
+- takeScreenshot: "guest-orders-login-intercept"
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "${MAESTRO_USERNAME}"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "${MAESTRO_PASSWORD}"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible: "暂无订单"
+    timeout: 30000
+- assertVisible:
+    id: "com.fandazi.app:id/orders_segments"
+- assertNotVisible:
+    id: "com.fandazi.app:id/home_search_button"
+- takeScreenshot: "guest-login-original-orders"

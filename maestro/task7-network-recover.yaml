@@ -1,0 +1,28 @@
+# 网络恢复后列表原地重试，再按同一订单ID进入详情；只读不能新增订单。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: "com.fandazi.app:id/orders_network_retry"
+- extendedWaitUntil:
+    visible: "order-card-${TASK7_ORDER_A}"
+    timeout: 30000
+- tapOn: "order-card-${TASK7_ORDER_A}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_ORDER_A}.*"
+    timeout: 30000
+- takeScreenshot: "order-network-recovered"
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/group_order_show_vouchers"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- scrollUntilVisible:
+    element:
+      text: "团购券 1 ${TASK7_VOUCHER_A}"
+    direction: DOWN
+- tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_VOUCHER_A}.*"
+    timeout: 30000
+- takeScreenshot: "voucher-before-network"

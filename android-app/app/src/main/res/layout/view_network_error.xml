@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-21C：网络错误有专属插画和重连文案；按钮恢复原请求而非跳到首页。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/orders_network_state"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center"
+    android:orientation="vertical" android:visibility="gone" android:background="@android:color/white">
+    <FrameLayout android:layout_width="205dp" android:layout_height="176dp">
+        <ImageView android:layout_width="205dp" android:layout_height="176dp" android:src="@drawable/after_sale_network_backdrop" android:importantForAccessibility="no" />
+        <ImageView android:layout_width="140dp" android:layout_height="140dp" android:layout_gravity="center" android:src="@drawable/after_sale_network_off"
+            android:contentDescription="网络连接异常插画" />
+    </FrameLayout>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="44dp"
+        android:gravity="center" android:text="网络连接异常" android:textColor="@color/after_sale_ink"
+        android:textSize="25sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"
+        android:gravity="center" android:text="请检查网络后重试" android:textColor="@color/after_sale_muted" android:textSize="15sp" />
+    <TextView android:id="@+id/orders_network_retry" android:layout_width="245dp" android:layout_height="49dp"
+        android:layout_marginTop="29dp" android:background="@drawable/after_sale_primary" android:gravity="center"
+        android:text="重新连接" android:textColor="@android:color/white" android:textSize="17sp" />
+</LinearLayout>

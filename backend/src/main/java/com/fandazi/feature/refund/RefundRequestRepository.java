@@ -9,4 +9,6 @@ public interface RefundRequestRepository extends JpaRepository<RefundRequestEnti
     boolean existsByVoucherId(Long voucherId);
     /** 查询当前用户的退款进度，不允许只凭申请编号读取他人记录。 */
     java.util.Optional<RefundRequestEntity> findByUserIdAndPublicId(Long userId, String publicId);
+    /** 已申请券可按本人归属重新找到唯一进度，避免客户端必须永久保存首次提交回执。 */
+    java.util.Optional<RefundRequestEntity> findByUserIdAndVoucherPublicId(Long userId, String voucherPublicId);
 }

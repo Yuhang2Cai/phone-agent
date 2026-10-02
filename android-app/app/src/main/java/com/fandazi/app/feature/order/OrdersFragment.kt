@@ -1,168 +1,133 @@
-// 订单模块：管理页面交互和状态展示。
+// 团购订单模块：展示真实后端订单和团购券入口。
 package com.fandazi.app.feature.order
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.findNavController
+import com.fandazi.app.FandaziApplication
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
-import com.fandazi.app.databinding.FragmentOrdersBinding
-import com.fandazi.app.feature.ordering.Order
-import com.fandazi.app.feature.ordering.OrderStatus
-import com.fandazi.app.feature.ordering.OrderingViewModel
-import com.fandazi.app.feature.ordering.OrderingViewModelFactory
+import com.fandazi.app.core.network.ApiResult
+import com.fandazi.app.core.network.ApiError
+import com.fandazi.app.core.time.BusinessDisplay
+import com.fandazi.app.feature.voucher.GroupOrderSummary
+import com.fandazi.app.feature.voucher.OrderSegment
+import com.fandazi.app.feature.voucher.VoucherPresentation
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
 
+/** UI-10：订单列表；业务金额、订单状态和券数量均来自后端接口。 */
 class OrdersFragment : Fragment(R.layout.fragment_orders) {
-    private val viewModel: OrderingViewModel by activityViewModels {
-        val activity = requireActivity() as MainActivity
-        OrderingViewModelFactory(activity.orderingRepository(), activity.cartStateStore(), activity.cartOwner())
-    }
-    private var filter = OrderFilter.ALL
-    private var expandedOrderId: Long? = null
+    private val repository by lazy { (requireActivity().application as FandaziApplication).voucherRepository }
+    /** 同一视图只允许一个列表读取；快速重试不并发覆盖错误或真实列表。 */
+    private var loading: Job? = null
+    // 分段保存显示选择，业务集合仅来自最近成功接口；读取失败时清空，避免旧资格继续可点。
+    private var orders: List<GroupOrderSummary> = emptyList()
+    private var segment = OrderSegment.ALL
 
-// 在视图创建后绑定控件、事件与初始状态。
+    /** 绑定三个状态的真实操作，重试按钮原地发起同一个订单列表请求。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val binding = FragmentOrdersBinding.bind(view)
-        filter = savedInstanceState?.getString(KEY_FILTER)?.let { runCatching { OrderFilter.valueOf(it) }.getOrNull() } ?: OrderFilter.ALL
-        expandedOrderId = if (savedInstanceState?.containsKey(KEY_EXPANDED) == true) {
-            savedInstanceState.getLong(KEY_EXPANDED).takeIf { it > 0 }
-        } else {
-            viewModel.uiState.value.currentOrder?.takeIf { it.status != OrderStatus.PENDING_PAYMENT }?.id
-        }
-        val filters = mapOf(
-            binding.filterAll to OrderFilter.ALL,
-            binding.filterPending to OrderFilter.PENDING_PAYMENT,
-            binding.filterDelivering to OrderFilter.DELIVERING,
-            binding.filterCompleted to OrderFilter.COMPLETED
-        )
-        filters.forEach { (button, value) ->
-            button.setOnClickListener {
-                filter = value
-                renderFilters(filters)
-                renderOrders(binding, viewModel.uiState.value.orders.ifEmpty { listOfNotNull(viewModel.uiState.value.currentOrder) })
-            }
-        }
-        renderFilters(filters)
-        viewModel.refreshOrders()
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    renderOrders(binding, state.orders.ifEmpty { listOfNotNull(state.currentOrder) })
-                    binding.orderStatus.text = state.error.orEmpty()
+        view.findViewById<TabLayout>(R.id.orders_segments).apply {
+            setTabTextColors(resources.getColor(R.color.group_buy_muted, null), resources.getColor(R.color.group_buy_orange, null))
+            setSelectedTabIndicatorColor(resources.getColor(R.color.group_buy_orange, null))
+            // 固定分段是界面结构；每次点击只筛选后端枚举，不改变订单状态或资格。
+            listOf("全部", "待使用", "已完成", "退款/售后").forEach { addTab(newTab().setText(it)) }
+            getTabAt(segment.ordinal)?.select()
+            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    segment = OrderSegment.entries[tab.position]
+                    if (orders.isNotEmpty()) renderSegment(view)
                 }
-            }
-        }
-    }
-
-// 渲染filters。
-    private fun renderFilters(filters: Map<TextView, OrderFilter>) {
-        filters.forEach { (button, value) ->
-            button.setBackgroundResource(if (value == filter) R.drawable.search_button_background else R.drawable.dish_option_unselected)
-            button.setTextColor(requireContext().getColor(if (value == filter) R.color.surface_card else R.color.brand_ink))
-        }
-    }
-
-// 渲染orders。
-    private fun renderOrders(binding: FragmentOrdersBinding, orders: List<Order>) {
-        val visible = OrderPresentation.filter(orders, filter)
-        binding.orderList.removeAllViews()
-        binding.orderStatus.isVisible = visible.isEmpty() || viewModel.uiState.value.error != null
-        if (visible.isEmpty()) binding.orderStatus.text = "这里还没有${OrderPresentation.filterLabel(filter)}订单"
-        visible.forEachIndexed { index, order ->
-            val card = LayoutInflater.from(requireContext()).inflate(R.layout.item_order_card, binding.orderList, false)
-            card.findViewById<TextView>(R.id.order_merchant).text = order.merchantName ?: "饭搭子订单"
-            card.findViewById<TextView>(R.id.order_items).text = order.items.joinToString("、") { "${it.dishName} ×${it.quantity}" }
-            card.findViewById<TextView>(R.id.order_number).text = "订单 #${order.id} · ${displayDate(order.createdAt)}"
-            card.findViewById<TextView>(R.id.order_status_badge).text = OrderPresentation.statusLabel(order.status)
-            card.findViewById<TextView>(R.id.order_total).text = "¥${order.total}"
-            card.findViewById<ImageView>(R.id.order_image).setImageResource(listOf(R.drawable.home_merchant_3, R.drawable.home_merchant_1, R.drawable.home_merchant_2)[index % 3])
-            val timeline = card.findViewById<LinearLayout>(R.id.order_timeline)
-            val actions = card.findViewById<LinearLayout>(R.id.order_actions)
-            val expanded = expandedOrderId == order.id
-            timeline.isVisible = expanded
-            actions.isVisible = expanded || order.status == OrderStatus.PENDING_PAYMENT
-            if (expanded) renderTimeline(timeline, order)
-            card.setOnClickListener {
-                if (order.status == OrderStatus.PENDING_PAYMENT) {
-                    openPendingOrder(it, order)
-                } else {
-                    expandedOrderId = if (expandedOrderId == order.id) null else order.id
-                    renderOrders(binding, orders)
-                }
-            }
-            val primary = card.findViewById<TextView>(R.id.order_primary_action)
-            primary.text = if (order.status == OrderStatus.PENDING_PAYMENT) "继续支付" else "联系骑手"
-            primary.setOnClickListener {
-                if (order.status == OrderStatus.PENDING_PAYMENT) {
-                    openPendingOrder(it, order)
-                }
-            }
-            binding.orderList.addView(card)
-        }
-    }
-
-// 渲染timeline。
-    private fun renderTimeline(container: LinearLayout, order: Order) {
-        container.removeAllViews()
-        OrderPresentation.timeline(order).forEach { (status, complete) ->
-            container.addView(TextView(requireContext()).apply {
-                text = "${if (complete) "●" else "○"}  ${OrderPresentation.statusLabel(status)}\n      ${timelineHint(status)}"
-                contentDescription = "配送进度：${OrderPresentation.statusLabel(status)}，${if (complete) "已完成" else "待进行"}"
-                textSize = 14f
-                setTextColor(requireContext().getColor(if (complete) R.color.brand_orange else R.color.brand_muted))
-                setPadding(4.dp, 7.dp, 4.dp, 7.dp)
+                override fun onTabUnselected(tab: TabLayout.Tab) = Unit
+                override fun onTabReselected(tab: TabLayout.Tab) = Unit
             })
         }
+        view.findViewById<View>(R.id.orders_empty_browse).setOnClickListener { it.findNavController().navigate(R.id.homeFragment) }
+        view.findViewById<View>(R.id.orders_error_retry).setOnClickListener { load(view) }
+        view.findViewById<View>(R.id.orders_network_retry).setOnClickListener { load(view) }
+        // onResume 负责首次与返回时刷新，避免同一次页面进入发送两份列表请求。
     }
 
-// 处理 `timelineHint` 相关逻辑。
-    private fun timelineHint(status: OrderStatus): String = when (status) {
-        OrderStatus.MERCHANT_ACCEPTED -> "商家已确认订单，正在准备"
-        OrderStatus.PREPARING -> "餐品正在制作中"
-        OrderStatus.RIDER_PICKED_UP -> "骑手已取餐"
-        OrderStatus.DELIVERING -> "骑手正在配送"
-        OrderStatus.DELIVERED -> "餐品已送达"
-        else -> ""
+    /** 返回订单页时刷新支付、券和评价后的状态，避免旧视图持有过期资格。 */
+    override fun onResume() {
+        super.onResume()
+        view?.let(::load)
     }
 
-// 处理 `displayDate` 相关逻辑。
-    private fun displayDate(createdAt: String?): String {
-        val date = createdAt?.substringBefore('T')?.takeIf { it.length >= 10 } ?: return "今天"
-        return "${date.substring(5, 7)}-${date.substring(8, 10)}"
+    /** 列表、空态、普通错误和网络错误互斥，底栏仍由主页面管理。 */
+    private fun load(view: View) {
+        if (loading?.isActive == true) return
+        val status = view.findViewById<TextView>(R.id.order_status)
+        val list = view.findViewById<android.widget.LinearLayout>(R.id.order_list)
+        setState(view, "loading")
+        status.isVisible = true
+        list.removeAllViews()
+        orders = emptyList()
+        status.text = "正在加载订单…"
+        loading = viewLifecycleOwner.lifecycleScope.launch {
+            when (val result = repository.listOrders()) {
+                is ApiResult.Success -> {
+                    orders = result.value
+                    setState(view, if (orders.isEmpty()) "empty" else "list")
+                    renderSegment(view)
+                }
+                is ApiResult.Failure -> {
+                    // 普通身份过期登录后返回订单入口，不能把 401 伪装为空列表。
+                    if ((result.error as? ApiError.Http)?.code == 401) {
+                        (requireActivity() as MainActivity).openPurchaseLogin(R.id.ordersFragment, Bundle(), true)
+                        return@launch
+                    }
+                    val networkError = result.error is ApiError.Network || result.error is ApiError.Timeout
+                    setState(view, if (networkError) "network" else "error")
+                    view.findViewById<TextView>(R.id.orders_error_description).text = "加载暂时失败，请稍后重试"
+                }
+            }
+        }
     }
 
-// 打开pending、订单。
-    private fun openPendingOrder(view: View, order: Order) {
-        if (!lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED) || parentFragmentManager.isStateSaved) return
-        val controller = view.findNavController()
-        if (controller.currentDestination?.id != R.id.ordersFragment) return
-        view.isEnabled = false
-        viewModel.selectOrderSnapshot(order)
-        controller.navigate(R.id.paymentFragment)
+    /** 分段为空时仍保留状态标签可切换；整个账号无订单则展示既有浏览空态。 */
+    private fun renderSegment(view: View) {
+        val filtered = orders.filter { VoucherPresentation.matches(it, segment) }
+        val status = view.findViewById<TextView>(R.id.order_status)
+        renderOrders(view.findViewById(R.id.order_list), status, filtered)
+        if (orders.isNotEmpty() && filtered.isEmpty()) {
+            status.isVisible = true
+            status.text = "该状态暂无订单"
+        }
     }
 
-// 处理 `onSaveInstanceState` 相关逻辑。
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putString(KEY_FILTER, filter.name)
-        outState.putLong(KEY_EXPANDED, expandedOrderId ?: -1L)
-        super.onSaveInstanceState(outState)
+    /** 一次只展示一种状态，防止错误层遮挡可点击订单和底部导航。 */
+    private fun setState(view: View, state: String) {
+        view.findViewById<View>(R.id.orders_content).isVisible = state == "list" || state == "loading"
+        view.findViewById<View>(R.id.orders_empty_state).isVisible = state == "empty"
+        view.findViewById<View>(R.id.orders_error_state).isVisible = state == "error"
+        view.findViewById<View>(R.id.orders_network_state).isVisible = state == "network"
     }
 
-    private val Int.dp: Int get() = (this * resources.displayMetrics.density).toInt()
-
-    private companion object {
-        const val KEY_FILTER = "order_filter"
-        const val KEY_EXPANDED = "expanded_order_id"
+    /** 将后端订单逐条渲染为可点击卡片，避免复用固定的演示订单文本。 */
+    private fun renderOrders(container: android.widget.LinearLayout, status: TextView, orders: List<GroupOrderSummary>) {
+        container.removeAllViews()
+        status.isVisible = false
+        orders.forEach { order ->
+            val card = LayoutInflater.from(requireContext()).inflate(R.layout.item_group_order_card, container, false)
+            // 无障碍身份绑定本条真实公开编号；辅助服务和端到端测试不依赖重复的门店/套餐文字定位。
+            card.contentDescription = "order-card-${order.orderId}"
+            // 订单卡以响应中的实际套餐名称为标题，不能用固定示例或仅用截断编号替代业务内容。
+            card.findViewById<TextView>(R.id.group_order_title).text = order.storeName
+            card.findViewById<TextView>(R.id.group_order_deal).text = order.dealTitle
+            card.findViewById<TextView>(R.id.group_order_state).text = VoucherPresentation.orderStatus(order.status)
+            card.findViewById<TextView>(R.id.group_order_time).text = BusinessDisplay.time(order.createdAt)
+            card.findViewById<TextView>(R.id.group_order_summary).text = "数量 ${order.quantity} · ${order.voucherCount} 张团购券"
+            card.findViewById<TextView>(R.id.group_order_total).text = VoucherPresentation.amount(order)
+            card.setOnClickListener { it.findNavController().navigate(R.id.groupOrderDetailFragment, Bundle().apply { putString("orderId", order.orderId) }) }
+            container.addView(card)
+        }
     }
+
 }

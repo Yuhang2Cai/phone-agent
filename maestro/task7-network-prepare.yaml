@@ -1,0 +1,10 @@
+# 断网前保持本人真实订单列表；由运行器关闭网络并采集无活动默认网络证据。
+appId: com.fandazi.app
+---
+- launchApp
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible: "order-card-${TASK7_ORDER_A}"
+    timeout: 30000
+- takeScreenshot: "network-before"

@@ -37,6 +37,22 @@ public class VoucherService {
                 .orElseThrow(() -> new DomainException("团购券不存在"));
     }
 
+    /** 本人券页面详情补充所属订单事实；输入公开券号，跨用户和未知资源均拒绝，无写入副作用。 */
+    @Transactional(readOnly = true)
+    public Map<String, Object> detailForPage(Long userId, String publicId) {
+        // 先校验本人归属，再读取订单关联；不能接受客户端提供的订单身份或购买数量。
+        var voucher = vouchers.findByUserIdAndPublicId(userId, publicId)
+                .orElseThrow(() -> new DomainException("团购券不存在"));
+        Map<String, Object> result = new LinkedHashMap<>(summary(voucher));
+        var order = voucher.getOrder();
+        result.put("orderQuantity", order.getQuantity());
+        result.put("orderStatus", order.getStatus().name());
+        result.put("orderCreatedAt", com.fandazi.core.time.BusinessTime.utc(order.getCreatedAt()));
+        // 实付为单券分摊快照，订单时间与套餐说明只是展示上下文，不据此授予退款或核销资格。
+        result.put("dealDescription", voucher.getDeal().getDescription());
+        return result;
+    }
+
     /** 仅为当前用户的指定团购券生成短时二维码展示令牌。 */
     @Transactional(readOnly = true)
     public Map<String, Object> displayToken(Long userId, String publicId) {

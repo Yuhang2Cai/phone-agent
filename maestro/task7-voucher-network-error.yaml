@@ -1,0 +1,13 @@
+# 真实断网返回同一券：隐藏旧资格，显示重试，不留可消费券按钮。
+appId: com.fandazi.app
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible: "团购券加载失败，请重试"
+    timeout: 45000
+- assertVisible:
+    id: "com.fandazi.app:id/voucher_detail_retry"
+- assertNotVisible:
+    id: "com.fandazi.app:id/voucher_refund"
+- takeScreenshot: "voucher-real-network-error"

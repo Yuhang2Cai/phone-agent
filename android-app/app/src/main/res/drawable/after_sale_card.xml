@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 售后业务块采用 Figma 的白底、10dp 圆角；间距交给调用页面控制。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/white" />
+    <corners android:radius="10dp" />
+</shape>

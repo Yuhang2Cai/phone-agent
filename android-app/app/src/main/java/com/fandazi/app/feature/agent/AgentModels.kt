@@ -29,6 +29,9 @@ sealed interface AgentNavigationRequest : Serializable {
     /** 用户主动点击后以服务端本人订单 ID 打开现有订单详情，不创建第二条路由。 */
     data class Order(val orderPublicId: String) : AgentNavigationRequest
 
+    /** 只读券卡的显式点击打开该券详情；不发送退款确认或请求展示令牌。 */
+    data class Voucher(val voucherPublicId: String) : AgentNavigationRequest
+
     /** 卡片动作携带原公开摘要供状态入口校验；旧售后特定语句保持原默认调用兼容。 */
     data class AgentReply(val text: String, val sourceCard: AgentCardPayload? = null) : AgentNavigationRequest
 }

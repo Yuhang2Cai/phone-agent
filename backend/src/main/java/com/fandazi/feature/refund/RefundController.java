@@ -37,4 +37,11 @@ public class RefundController {
     public Map<String, Object> detail(@AuthenticationPrincipal Long userId, @PathVariable String requestId) {
         return refunds.detail(userId, requestId);
     }
+
+    /** 本人券详情重新进入进度时使用；没有申请返回404，响应不新增资格或假审核状态。 */
+    @GetMapping("/by-voucher/{voucherId}")
+    public org.springframework.http.ResponseEntity<Map<String, Object>> byVoucher(
+            @AuthenticationPrincipal Long userId, @PathVariable String voucherId) {
+        return org.springframework.http.ResponseEntity.of(refunds.detailByVoucher(userId, voucherId));
+    }
 }

@@ -81,6 +81,33 @@ public class GroupBuyOrderService {
         return data(orders.findByUserIdAndPublicId(userId, publicId).orElseThrow(() -> new DomainException("团购订单不存在")));
     }
 
+    /** 输入当前认证用户，返回页面列表专用投影；只读数据库，不改变订单或工具协议。 */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> listForPage(Long userId) {
+        // 本人过滤在仓储完成，页面补充字段不能扩大到其他用户的订单。
+        return orders.findByUserIdOrderByCreatedAtDesc(userId).stream().map(this::pageData).toList();
+    }
+
+    /** 输入本人用户和公开订单号，读取页面详情；资源不存在或不属于本人时统一拒绝。 */
+    @Transactional(readOnly = true)
+    public Map<String, Object> detailForPage(Long userId, String publicId) {
+        var order = orders.findByUserIdAndPublicId(userId, publicId)
+                .orElseThrow(() -> new DomainException("团购订单不存在"));
+        return pageData(order);
+    }
+
+    /** 页面专用字段来自持久化支付快照及当前套餐说明，合法空值表示尚无付款事实。 */
+    private Map<String, Object> pageData(GroupBuyOrderEntity order) {
+        Map<String, Object> result = new LinkedHashMap<>(data(order));
+        // 不能用订单状态推定实付：取消或过期订单可能从未支付，必须直接读取数据库快照。
+        result.put("paidTotalCents", order.getPaidTotalCents());
+        result.put("paidAt", com.fandazi.core.time.BusinessTime.utc(order.getPaidAt()));
+        result.put("expiresAt", com.fandazi.core.time.BusinessTime.utc(order.getExpiresAt()));
+        // 当前没有独立使用规则字段，原样显示套餐说明；不补 Figma 示例中的自动退款承诺。
+        result.put("dealDescription", order.getDeal().getDescription());
+        return result;
+    }
+
     /** V1 按真实报价创建订单；锁住套餐后重查版本、金额、日期和库存，任何变化均要求重新报价。 */
     @Transactional
     public Map<String, Object> createFromQuote(Long userId, String sessionId, com.fandazi.feature.purchase.PurchaseQuote quote,

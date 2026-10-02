@@ -17,6 +17,8 @@ import com.fandazi.app.feature.deal.GroupBuyingRepository
 import com.fandazi.app.feature.deal.HttpGroupBuyingRepository
 import com.fandazi.app.feature.purchase.HttpPurchaseRepository
 import com.fandazi.app.feature.purchase.PurchaseRepository
+import com.fandazi.app.feature.voucher.HttpVoucherRepository
+import com.fandazi.app.feature.voucher.VoucherRepository
 
 class FandaziApplication : Application() {
     /** 首页、搜索及门店公开浏览共享网络仓库，所有业务事实来自同一 Spring 目录。 */
@@ -39,6 +41,9 @@ class FandaziApplication : Application() {
     /** Task6 报价与订单共享认证客户端，401 由购买页保留原目标并进入账号密码登录。 */
     lateinit var purchaseRepository: PurchaseRepository
         private set
+    /** Task7 本人订单与券只读查询共享认证客户端；原 afterSale 接线属于 Task8。 */
+    lateinit var voucherRepository: VoucherRepository
+        private set
 
 // 初始化组件与页面状态。
     override fun onCreate() {
@@ -56,6 +61,8 @@ class FandaziApplication : Application() {
         catalogRepository = com.fandazi.app.feature.store.HttpCatalogRepository(apiClient)
         // Task6 只接入真实 Spring 购买接口，不能使用固定套餐或测试仓库作为运行期兜底。
         purchaseRepository = HttpPurchaseRepository(apiClient)
+        // 只接入本人真实订单/券读取，不引入延期二维码或模拟核销调用入口。
+        voucherRepository = HttpVoucherRepository(apiClient)
         agentRepository = HttpAgentRepository(
             baseUrl = BuildConfig.API_BASE_URL,
             tokenProvider = { sessionRepository.tokenOrNull() }

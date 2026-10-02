@@ -99,7 +99,9 @@ class MainActivity : AppCompatActivity() {
             R.id.profileFragment, R.id.addressFragment, R.id.addressEditFragment,
             R.id.automationSettingsFragment, R.id.cartFragment, R.id.paymentFragment,
             R.id.agentChatFragment, R.id.dealDetailFragment, R.id.dealCheckoutBottomSheetFragment,
-            R.id.groupBuyPaymentFragment, R.id.paymentSuccessFragment -> SessionRoute.HOME
+            // Task7 本人订单/券详情属于已登录业务路由，状态重新派发时不能丢失当前资源退回首页。
+            R.id.groupBuyPaymentFragment, R.id.paymentSuccessFragment,
+            R.id.groupOrderDetailFragment, R.id.voucherDetailFragment -> SessionRoute.HOME
             else -> null
         }
         Log.d("FandaziSession", "session navigation: state=${state::class.java.simpleName}, current=$current, desired=$desired")

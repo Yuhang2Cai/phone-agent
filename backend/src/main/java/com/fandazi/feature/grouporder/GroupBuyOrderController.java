@@ -14,12 +14,13 @@ public class GroupBuyOrderController {
     public record PayRequest(@NotBlank String idempotencyKey) {}
     private final GroupBuyOrderService orders;
     private final com.fandazi.feature.purchase.PurchaseQuoteService quotes;
-    /** 可选开发故障组件默认不存在；生产路径只调用真实领域服务。 */
-    private final org.springframework.beans.factory.ObjectProvider<com.fandazi.development.DevelopmentOrderFailure> failures;
+    /** 可选开发读取钩子仅依赖JDK接口；正式订单模块不因未交付的开发故障实现而无法构建。 */
+    private final org.springframework.beans.factory.ObjectProvider<java.util.function.LongConsumer> failures;
 
     /** 注入团购订单服务。 */
     public GroupBuyOrderController(GroupBuyOrderService orders, com.fandazi.feature.purchase.PurchaseQuoteService quotes,
-            org.springframework.beans.factory.ObjectProvider<com.fandazi.development.DevelopmentOrderFailure> failures) {
+            @org.springframework.beans.factory.annotation.Qualifier("developmentOrderFailure")
+            org.springframework.beans.factory.ObjectProvider<java.util.function.LongConsumer> failures) {
         this.orders = orders; this.quotes = quotes; this.failures = failures;
     }
 
@@ -41,13 +42,15 @@ public class GroupBuyOrderController {
     @GetMapping
     public java.util.List<java.util.Map<String, Object>> list(@AuthenticationPrincipal Long userId) {
         // 只有 development 显式开关且本人已启动验证时才触发一次 503；恢复重试仍读取原订单数据。
-        failures.ifAvailable(failure -> failure.beforeList(userId));
-        return orders.list(userId);
+        // 认证缺失仍由正常安全链拒绝；可选钩子不存在时直接读真实领域数据，不加载未来开发模块。
+        if (userId != null) failures.ifAvailable(failure -> failure.accept(userId));
+        return orders.listForPage(userId);
     }
 
     /** 返回当前用户指定团购订单详情和券摘要。 */
     @GetMapping("/{orderId}")
     public java.util.Map<String, Object> detail(@AuthenticationPrincipal Long userId, @PathVariable String orderId) {
-        return orders.detail(userId, orderId);
+        // 页面读取包含付款事实，工具仍使用原严格投影，避免三端契约发生隐式扩张。
+        return orders.detailForPage(userId, orderId);
     }
 }

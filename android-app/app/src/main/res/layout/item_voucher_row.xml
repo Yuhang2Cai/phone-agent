@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-11 券列表项：公开标识只用于导航，不展示内部令牌。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="10dp" android:background="@drawable/group_buy_card_background" android:orientation="horizontal" android:padding="16dp">
+    <TextView android:id="@+id/voucher_row_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/brand_ink" android:textSize="16sp" />
+    <TextView android:id="@+id/voucher_row_status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/brand_orange" android:textSize="14sp" />
+</LinearLayout>

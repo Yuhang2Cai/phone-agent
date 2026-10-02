@@ -140,6 +140,7 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
                 is AgentNavigationRequest.Store -> card.storePublicId == request.storePublicId
                 is AgentNavigationRequest.Deal -> card.dealPublicId == request.dealPublicId
                 is AgentNavigationRequest.Order -> card.orderPublicId == request.orderPublicId
+                is AgentNavigationRequest.Voucher -> card.fields["voucherId"] == request.voucherPublicId
                 else -> false
             } }?.let(viewModel::rememberViewedCard)
             when (request) {
@@ -159,6 +160,9 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
                 is AgentNavigationRequest.AgentReply -> viewModel.replyToCard(request)
                 is AgentNavigationRequest.Order -> findNavController().navigate(R.id.groupOrderDetailFragment,
                     Bundle().apply { putString("orderId", request.orderPublicId) })
+                // 查询结果始终停留聊天；此处仅在用户点击真实券卡之后导航，不消费任何售后资格。
+                is AgentNavigationRequest.Voucher -> findNavController().navigate(R.id.voucherDetailFragment,
+                    Bundle().apply { putString("voucherId", request.voucherPublicId) })
             }
         }
 

@@ -68,6 +68,14 @@ public class RefundService {
                 .orElseThrow(() -> new DomainException("退款申请不存在"));
     }
 
+    /** 先核对本人券，再查询已持久化的唯一申请；未申请返回空，不制造进度或暴露他人资源。 */
+    @Transactional(readOnly = true)
+    public java.util.Optional<Map<String, Object>> detailByVoucher(Long userId, String voucherId) {
+        // canRefund=false 也可能表示已核销/过期，因此不能据此猜测已有申请；必须查询真实记录。
+        owned(userId, voucherId);
+        return requests.findByUserIdAndVoucherPublicId(userId, voucherId).map(this::summary);
+    }
+
     /** 为已经按当前用户查询出的团购券计算只读退款入口资格；写入时仍须重新执行完整校验。 */
     @Transactional(readOnly = true)
     public boolean canRefund(VoucherEntity voucher) {

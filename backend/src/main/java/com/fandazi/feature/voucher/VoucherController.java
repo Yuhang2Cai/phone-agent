@@ -24,7 +24,10 @@ public class VoucherController {
 
     /** 查询当前用户的券详情。 */
     @GetMapping("/{publicId}")
-    public Map<String, Object> detail(@AuthenticationPrincipal Long userId, @PathVariable String publicId) { return service.detail(userId, publicId); }
+    public Map<String, Object> detail(@AuthenticationPrincipal Long userId, @PathVariable String publicId) {
+        // 页面读取需要所属订单信息；Agent 只读工具继续复用既有不带令牌的安全摘要。
+        return service.detailForPage(userId, publicId);
+    }
 
     /** 按需生成短时二维码展示令牌。 */
     @PostMapping("/{publicId}/display-token")

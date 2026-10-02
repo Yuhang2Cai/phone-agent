@@ -26,6 +26,27 @@ class GroupOrderSummaryContractTest {
     @Autowired private GroupBuyOrderRepository entities;
     @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbc;
     @jakarta.persistence.PersistenceContext private jakarta.persistence.EntityManager entityManager;
+    // 页面接口单独暴露实付事实，不能把 totalCents 或券状态当作付款证明。
+    @Autowired private GroupBuyOrderController pages;
+    @Autowired private com.fandazi.feature.voucher.VoucherController voucherPages;
+
+    /** 真实页面读取必须区分待付和实付，并提供券所属订单信息；防止旧详情误标金额。 */
+    @Test
+    void pageQueriesExposePaymentFactsWithoutChangingToolProjection() {
+        Long userId = users.findByUsername("seed_alice").orElseThrow().getId();
+        // 未付款分支保留 null，已付款分支读取持久化快照；两者均不能由页面猜测。
+        var pending = pages.detail(userId, publicIds.require("order", "group-order-pending"));
+        assertThat(pending).containsEntry("paidTotalCents", null).containsEntry("paidAt", null);
+        var paid = pages.detail(userId, publicIds.require("order", "group-order-paid"));
+        // 该种子为两份各 12800 分，整单实付必须为 25600，不能混淆单券与订单金额。
+        assertThat(paid).containsEntry("paidTotalCents", 25600).containsKeys("paidAt", "expiresAt", "dealDescription");
+        @SuppressWarnings("unchecked") var voucher = ((java.util.List<Map<String, Object>>) paid.get("vouchers")).get(0);
+        var detail = voucherPages.detail(userId, voucher.get("publicId").toString());
+        assertThat(detail).containsEntry("orderQuantity", 2).containsEntry("orderStatus", "PAID")
+                .containsKeys("orderCreatedAt", "dealDescription");
+        // 工具读取继续使用原严格契约，不把页面专用字段扩散至既有跨服务输出。
+        assertThat(orders.detail(userId, paid.get("orderId").toString())).doesNotContainKeys("paidTotalCents", "paidAt", "dealDescription");
+    }
 
     /** JPA 真实插入和支付必须读写 DECIMAL 权威列，legacy 列保持 null，不能只添加不使用的新列。 */
     @Test

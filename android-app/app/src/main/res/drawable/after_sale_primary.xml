@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 售后主动作使用已确认画板的橙色与胶囊轮廓；禁用态在页面设置透明度。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/group_buy_orange" />
+    <corners android:radius="24dp" />
+</shape>
