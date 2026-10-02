@@ -2,7 +2,8 @@
 
 ## 1. 状态、范围和文档职责
 
-- 修订日期：2026-10-02。
+- 修订日期：2026-10-03。
+- 当前执行授权：Task1–8 已独立验收提交，本轮连续实施 Task9 → Task10 → Task11 → Task12；前述轮次的暂停和停止范围保留为历史。每项仍须独立验收与精确提交，ASR 和核销继续延期。
 - 本文是目标规格；实施计划记录任务、前置条件和完成状态，UI 文档记录设计与视觉容差，验收报告记录实测证据。
 - 手机项目：`C:/Users/caid0/Documents/ChatGPT/手机agent/.worktrees/fandazi-ai`。
 - 新 Agent 项目：`D:/project/-Demo-master`。
