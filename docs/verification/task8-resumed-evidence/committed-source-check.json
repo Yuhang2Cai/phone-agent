@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "repositories": [
+    {
+      "repository": "C:/fdz-build",
+      "commit": "5476e4a7d3102638f8f0ec79f14a20ef34ea4225",
+      "auditedTree": "642e90cd5a6750df42886c08fc6cbf4b952a0d12",
+      "productEqual": true,
+      "remainingDifferences": "docs only"
+    },
+    {
+      "repository": "D:/project/-Demo-master",
+      "commit": "d3cabc3f2321e91b90bc80bde6b06a560a17a21b",
+      "auditedTree": "42e45ad09c35e37beadb46769deb10538104574b",
+      "productEqual": true,
+      "remainingDifferences": "docs only"
+    }
+  ]
+}
