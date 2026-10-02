@@ -39,6 +39,19 @@ public class PurchaseQuoteService {
         return createQuote(userId, sessionId, dealPublicId, quantity, true);
     }
 
+    /** 页面报价绑定独立报价编号，并补齐数量边界及展示字段；准备阶段不创建订单。 */
+    @Transactional
+    public Map<String, Object> createForPage(Long userId, String sessionId, String dealPublicId, int quantity) {
+        var result = createQuote(userId, sessionId, dealPublicId, quantity, true);
+        var deal = deals.findByPublicId(dealPublicId).orElseThrow(() -> new DomainException("套餐不存在"));
+        // 展示数据与确认使用同一后端资源，端上不从导航参数推断价格、资格或数量范围。
+        result.put("dealTitle", deal.getTitle()); result.put("storeName", deal.getStore().getName());
+        result.put("imageUrl", deal.getImageUrl()); result.put("imageAlt", deal.getImageAlt());
+        result.put("usageRules", "有效期：" + deal.getValidFrom() + " 至 " + deal.getValidTo());
+        result.put("minQuantity", 1); result.put("maxQuantity", Math.min(deal.getInventory(), deal.getPurchaseLimit()));
+        return result;
+    }
+
     /** 统一报价计算；页面历史调用保留原资源绑定，V1 调用使用报价身份和独立确认元数据。 */
     private Map<String, Object> createQuote(Long userId, String sessionId, String dealPublicId, int quantity, boolean agent) {
         // 输入校验：真实有效日期、上架状态、库存和限购共同决定是否可以准备购买。
@@ -49,9 +62,10 @@ public class PurchaseQuoteService {
         if (quantity > deal.getPurchaseLimit()) throw new DomainException("超过套餐限购数量");
         if (java.time.LocalDate.now().isBefore(deal.getValidFrom()) || java.time.LocalDate.now().isAfter(deal.getValidTo()))
             throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "套餐不在可购买有效期内");
-        int subtotal = Math.multiplyExact(deal.getPriceCents(), quantity);
-        int discount = Math.max(0, deal.getOriginalPriceCents() * quantity - subtotal);
-        int total = subtotal;
+        // 金额规范化：商品总价采用原价与售价中较高者，折扣只计算一次，确保总价减折扣等于实付。
+        int total = Math.multiplyExact(deal.getPriceCents(), quantity);
+        int subtotal = Math.multiplyExact(Math.max(deal.getOriginalPriceCents(), deal.getPriceCents()), quantity);
+        int discount = Math.subtractExact(subtotal, total);
         Instant expiresAt = Instant.now().plusSeconds(300);
         String fingerprint = deal.getPublicId() + ":" + deal.getVersion() + ":" + quantity + ":" + total;
         var quote = quotes.save(new PurchaseQuote(UUID.randomUUID().toString(), user, deal, quantity, subtotal, discount, total,
@@ -73,10 +87,19 @@ public class PurchaseQuoteService {
     /** 恢复本人有效报价；创建端必须使用这里的数量、金额、版本快照而不是工具载荷的猜测值。 */
     @Transactional(readOnly = true)
     public PurchaseQuote requireForCreation(Long userId, String quoteId) {
-        var quote = quotes.findByPublicId(quoteId).orElseThrow(() -> new com.fandazi.feature.agent.ToolBoundaryException("NOT_FOUND", "购买报价不存在"));
-        if (!quote.getUser().getId().equals(userId)) throw new com.fandazi.feature.agent.ToolBoundaryException("FORBIDDEN", "购买报价不属于当前用户");
+        var quote = owned(userId, quoteId);
         if (!quote.getExpiresAt().isAfter(Instant.now())) throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "购买报价已过期");
         if (!"ACTIVE".equals(quote.getStatus())) throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "购买报价已使用");
+        return quote;
+    }
+
+    /** 读取本人报价，包括已消费快照供安全幂等重放；有效期和消费状态在写事务内复核。 */
+    @Transactional(readOnly = true)
+    public PurchaseQuote owned(Long userId, String quoteId) {
+        var quote = quotes.findByPublicId(quoteId).orElseThrow(() -> new com.fandazi.feature.agent.ToolBoundaryException("NOT_FOUND", "购买报价不存在"));
+        if (!quote.getUser().getId().equals(userId)) throw new com.fandazi.feature.agent.ToolBoundaryException("FORBIDDEN", "购买报价不属于当前用户");
+        // 初始化后续事务所需关联，避免关闭查询事务后读取懒加载代理失败。
+        quote.getDeal().getPublicId();
         return quote;
     }
 }

@@ -1,0 +1,31 @@
+{
+  "releasedAt": "2026-10-02T08:14:16.2279059+08:00",
+  "listeners": [
+    {
+      "LocalPort": 8080,
+      "OwningProcess": 33452
+    },
+    {
+      "LocalPort": 8091,
+      "OwningProcess": 42144
+    }
+  ],
+  "springHealthy": true,
+  "agentHealth": {
+    "status": "ok",
+    "schemaVersion": "1.1",
+    "service": "group-buying-agent",
+    "sourceRoot": "D:\\project\\-Demo-master",
+    "entryPoint": "service.app:create_app",
+    "buildVersion": "f9fcff3-task6-working-tree"
+  },
+  "jwtExpirationMinutes": 60,
+  "task2FixturesEnabled": false,
+  "task8FailuresEnabled": false,
+  "seedEnabled": false,
+  "servicesLeftRunning": true,
+  "oldAgentStarted": false,
+  "activeProductTests": 0,
+  "device": "emulator-5554",
+  "ownership": "实现Agent停止源改动和产品测试，释放设备/Gradle/Maestro/双服务给新的独立验收"
+}

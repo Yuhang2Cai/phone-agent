@@ -1,0 +1,538 @@
+[
+  {
+    "path": "401-access.log",
+    "sha256": "1368B2115CB667F4EF1E6C3A88F7B5B8CA8C01D7791A339364387B0E9020FBBB"
+  },
+  {
+    "path": "401-facts.json",
+    "sha256": "88FCC231D538853FE855F67A938625E88FFC1B19B71002CABCA075631B570B54"
+  },
+  {
+    "path": "agent-counts.json",
+    "sha256": "6485537A349B45C5EF1D5CB04D7D5623F83FCB128C72C425D0D480626929674C"
+  },
+  {
+    "path": "agent-environment-recheck.xml",
+    "sha256": "7ED04BBB6EC641300DDBDB37280E1A4F09B8C1FB8EFA8F2D713AC455311B0611"
+  },
+  {
+    "path": "agent-expiry-prepared.json",
+    "sha256": "BA56FB8D465B0E361612AD254DD16899AA8A4F2B1FC74E36A4C8297AA87A08B3"
+  },
+  {
+    "path": "agent-live.json",
+    "sha256": "900349D81CB60F4239D46E87E5C5602D1E21BC6F0729925C4F2CC5201F30F38B"
+  },
+  {
+    "path": "agent-natural-expiry.json",
+    "sha256": "AC26C86BEF0E4DF53011BB11EE34B0426545220E7CC416E53DE33B41B5484921"
+  },
+  {
+    "path": "agent-price-change.json",
+    "sha256": "189DE4A05F6930CF2941368549B369CB99C1F867A5BCF77EC22E6EDE3D37E5EA"
+  },
+  {
+    "path": "agent-regression.xml",
+    "sha256": "431785153393CD326BE05FA818BC72AB8B1B23DB6AE5CA6DA8EA4D810EBA7EE8"
+  },
+  {
+    "path": "agent-source.json",
+    "sha256": "DF3B82A974C7935FEF6B3213B9DD7F0E5452DB5D5EFFE5933FD3ECD96A30C5C4"
+  },
+  {
+    "path": "android-final-purchase.xml",
+    "sha256": "348A548A38AC63585847D82419696089DBF1C67DE05BAAD8E47B396FAE585AF8"
+  },
+  {
+    "path": "android-regression-summary.json",
+    "sha256": "D9ED07B79F96CEBA60E730D1F9AD18AE1D77829972B6401DA7A2A5B6548C9E86"
+  },
+  {
+    "path": "apk-device-match.json",
+    "sha256": "4C9C6716E39B75A7398C20B09F074542697C90DB26CDBEB7C9CDE8EAA09D0E6A"
+  },
+  {
+    "path": "apk-final-installed.json",
+    "sha256": "CB0755A096968B8870C25A9BE4C4DD28564DC4C401128708C5C2D31AC72A8C8D"
+  },
+  {
+    "path": "apk-installed.json",
+    "sha256": "165DCF19499781B4FDA0B9FFD5DF2EB9774F628B95594B43860709925EEC9C0E"
+  },
+  {
+    "path": "backend-final-regression.json",
+    "sha256": "1322FF3AD5D6027B5FD37CD833DF1101CC3823AA8244C5A427495D9183684E55"
+  },
+  {
+    "path": "backend-final-source-binding.json",
+    "sha256": "1C32B9AC89833327160414976FBC40129AA42BE435E619AF4B970C7B21F34757"
+  },
+  {
+    "path": "compile-inputs.json",
+    "sha256": "49CA87BF19600020677BAF4838879EBF927674B5A9BC8803B641343D1A5AA563"
+  },
+  {
+    "path": "environment-release.json",
+    "sha256": "E8FED66C8F9D6605E6F2C29DCF5F818696D3A191F514A8E9C3F88C2DF6540189"
+  },
+  {
+    "path": "expiry-prepared.json",
+    "sha256": "B1D968F05C8F31574A593286009F70ED4358AC711F3BC59FA98DB2ACF6AC2741"
+  },
+  {
+    "path": "facts-after401.json",
+    "sha256": "08AA9D4FF2A7D2741A5CCC723E36C04BAEAAF4AF9A02867E0700BCFCA1DB43A1"
+  },
+  {
+    "path": "facts-before401.json",
+    "sha256": "08AA9D4FF2A7D2741A5CCC723E36C04BAEAAF4AF9A02867E0700BCFCA1DB43A1"
+  },
+  {
+    "path": "facts-device-before401.json",
+    "sha256": "561690F538170D338DEF0F44C35C5FC0288890F7441C4B75115B75A933534520"
+  },
+  {
+    "path": "facts-final.json",
+    "sha256": "27F62FF9040EA88FCB3957F0C5037A6C7CF7C23859D40621351254983F1AAC4F"
+  },
+  {
+    "path": "figma-ui07.png",
+    "sha256": "2A44BF768F38EA126A9920CE47DE80101E07A6770D7F186DA0639FAE611CC523"
+  },
+  {
+    "path": "figma-ui08.png",
+    "sha256": "6D3664FC8923D2BAA5CC901E9980EA64607D0E7251897C1F294E6BF592447AA5"
+  },
+  {
+    "path": "figma-ui09.png",
+    "sha256": "DDD801C703EDDEDF48CF2099821CC6506D254EAB26E2E9ABB9AABB36C6E7B79F"
+  },
+  {
+    "path": "final-http-contract.json",
+    "sha256": "810C26402C4EBA3BD9D79CCECDA214DFDBA099D4EE5C89292DEE840070D6C580"
+  },
+  {
+    "path": "natural-expiry.json",
+    "sha256": "89AD3E393AA65A742B128BA6D13872C221E482084740851A473E396236F0FE29"
+  },
+  {
+    "path": "phone-source.json",
+    "sha256": "D2F771F7781EC0991CAEF1026C706DCE585CF3BB7A58443D4D03DB1B4958E832"
+  },
+  {
+    "path": "price-change.json",
+    "sha256": "85C8649EA22A8A38727CF0BB789D134F0EE5756487B2772B2FBC2538782B45AC"
+  },
+  {
+    "path": "price-restored.json",
+    "sha256": "831EC1B7C97FB3B92D0DD0B5B3899F90A27ABC92977DEC0C26E0F9661A422EFB"
+  },
+  {
+    "path": "real-api-purchase.json",
+    "sha256": "22CB3B0A0A153078CDE28D4930E9DDC8BFCB7460EB18B373F96435040B72A902"
+  },
+  {
+    "path": "source-before.json",
+    "sha256": "358874E37232150AB983E751F80D393D7D0FC2DC27E88D09414A877B9EC7CF89"
+  },
+  {
+    "path": "source-final.json",
+    "sha256": "F86DF1F2499716B93DBAA4F205E4833B79AD68AFC39A4AFBE9912932A7906566"
+  },
+  {
+    "path": "task6-baseline-hunks.patch",
+    "sha256": "3CE45F453C1F11A1A066F47DEB7265CE6266EC99042C550E91E0561BE7FE5CB8"
+  },
+  {
+    "path": "task6-delta.json",
+    "sha256": "6EAACD2C5E093D62694BB026C5A874F31A29B89A6979939C3415BFCD1961D7F0"
+  },
+  {
+    "path": "task6-write-set.txt",
+    "sha256": "95D64FC0B9AF29B33A694820178A83201F644CE4649934CC0D738C9F1C732889"
+  },
+  {
+    "path": "backend-final\\counts.json",
+    "sha256": "A2AB149D9EAC5ABD2794D328BFDDC6DA429FF2F73CD14B2ABC1FBE1561560F33"
+  },
+  {
+    "path": "backend-final\\final-directed-counts.json",
+    "sha256": "8FBB60BD84F1605E06F4391B838A0357AC748E68ED2E6A75FA0FE4700648F289"
+  },
+  {
+    "path": "backend-final\\isolated-money-test.json",
+    "sha256": "2A4E426DD5BB9B70DFCABDDED5A130D524081CD3A787A150CC0E342E1C358FF8"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.core.money.CentsDecimalConverterTest.xml",
+    "sha256": "6E6BCEC905FBBB0CA7A5953ADD436E2F2FD0E8B2B00347615B11A75E0CFE4726"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.core.time.BusinessTimeTest.xml",
+    "sha256": "3DA2044592276B0C349CF771C6B06AF4670C539E6A9295014484A6680571355D"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.development.DevelopmentOrderFailureTest.xml",
+    "sha256": "1EE7455CFEA95F3081D2AE3138D6043DA0716DCE3D53FC7DD61A17BA37D8F791"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.address.AddressConcurrencyTest.xml",
+    "sha256": "3C1C0C5FA0DAB0357FC04BECD769E38CE8EF987A6EDCA15C72D338639594457E"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentAuthorizationConcurrencyTest.xml",
+    "sha256": "1E82F0A1FA7D689F24E28E2E00D2A69E12635C4082AC78ADEE4D7209B99A16D1"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentCardEnrichmentTest.xml",
+    "sha256": "9AA69AF008ABDD8F334C22669B8C79ECE1AF49D4A01669FB19864601C90082B3"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentContractSchemaTest.xml",
+    "sha256": "7B48B1B56C168C52AEE288E0C3F43AFB50F1DD501CB2914E27993BC216512B5B"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentGatewayTest.xml",
+    "sha256": "EF6B7843BD5EE0E530E4FA25DB0B182B0B2B16414263263B8F122423D32BD210"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentGatewayV1ContractTest.xml",
+    "sha256": "E27CA01F3D8638691A01606118269014630072EC3D2DAAB1FA030B07ADB4E9BF"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentProtocolBoundaryTest.xml",
+    "sha256": "C0067E5FAEA528BBB5517730A1B6098B993811F13969E1FA9E45D8049BB84789"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentRunIdentityTest.xml",
+    "sha256": "627D6E3C03DDA18014065980964C7E8EFFB6539E9AF05FC8ED8EF01216DE4520"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentToolAuthorizationTest.xml",
+    "sha256": "640D665C8E1171F4DDD1EDA4C1A46BB950E75B89F68C9A16F26266DCCBDE9F71"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AgentToolFieldBoundaryTest.xml",
+    "sha256": "70B1B315377D03EEB72A35E968615A7E9427D1B27B5A29AA864571B088239D02"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AutomationControllerTest.xml",
+    "sha256": "1726AE8A9670A088C764CB9CAABC16CA588C0C7469246AF34A7000FF22E56784"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AutomationDefaultAddressTest.xml",
+    "sha256": "314864F6F2486AE25310EBC36A614275287546ED98F3008950DF22F471C46B98"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.AutomationPolicyTest.xml",
+    "sha256": "09C16C056B69CC8C993B1704D2A7B9F23A97056386B4C9BAAA2F006DC557D3BF"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.FlywayAgentSchemaValidationTest.xml",
+    "sha256": "E2F60E155B7A6FF986ED632BBECC15A40FCC5DD392833F5AEC40BEE4887C9866"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.InternalV1ToolIntegrationTest.xml",
+    "sha256": "3C2E173FD0DC7CAE3C94937AE1AB330EAB5DC8FE5C96D351B3AE564410A994B7"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.SpringBootToolHttpContractTest.xml",
+    "sha256": "3C29F9B2B7DA036E6D4F595A3870129F803F4E69BAC41F38EF26E46B10544CAF"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.Task1IndependentAcceptanceTest.xml",
+    "sha256": "709F4200949FFB83BAD73C233ED8D3243CF815603FFD7DF10CE41B65910D5A28"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.Task1NestedPublicEventAcceptanceTest.xml",
+    "sha256": "02A6FB140BCEEB476963131AF39D3DEFB650AF54FEADB843115FC6BACE96F8E8"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.Task1PublicToolAuditAcceptanceTest.xml",
+    "sha256": "C03A48476CB27669027624E1713DC342B9E4D0F1A2165AE8A79A213551215234"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.agent.Task3StreamInterruptionAcceptanceTest.xml",
+    "sha256": "0446E190DA607F6A55B5E64B511F98CC85A317AD7ECBCA947DF902448D42E29B"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.auth.AuthConflictIntegrationTest.xml",
+    "sha256": "342C3C0613D6A7A47D4921C6A06D065F7211CC5A346673C66A8C6B554A3A0C37"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.auth.AuthControllerConflictMappingTest.xml",
+    "sha256": "C94B4CA3D5239CC51074A3571EB9550B3EB4D1AA613C42AAE11010F20B8FA0C0"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.auth.AuthControllerTest.xml",
+    "sha256": "AA15576B482F24C030A5980C1CEB453E42C400244A67EDC74CC67F6075FC812E"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.cart.CartServiceTest.xml",
+    "sha256": "A0F1E49DF323F1527592D153619048EE504B535319E83FD545F474E80649DAAE"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.catalog.MerchantCatalogControllerTest.xml",
+    "sha256": "61D82022D1CD7408BA09F67AFD8B3909BA57BE8D2D3A0530B3734057A2940382"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.catalog.StoreDealApiTest.xml",
+    "sha256": "1C97D6B0F142FF03C603E0933684EFA24F9AD734B7F4DFE21C1D6C0EE6F2B6BB"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.coupon.CouponAvailabilityTest.xml",
+    "sha256": "66C32E65E5941D6CF289BAD94B0C1407DD4A2B803AA02487CA535A241FF5F5F0"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.groupbuy.GroupBuyingSchemaTest.xml",
+    "sha256": "F55FCE264F125970B379B6BAE86DF89F1D15FA28AABAC35B56647B120CECB2C5"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.grouporder.GroupBuyingMigrationTest.xml",
+    "sha256": "19A4838D2CFE607E362C3BCCD93F91CC050E243FE4B5C7B6FD7F1414F18F5304"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.grouporder.GroupBuyOrderIdempotencyTest.xml",
+    "sha256": "81DE9772CFD680CC04D924141C68A14BFA8ACEEC67FA46519815ED31DA264733"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.grouporder.GroupOrderSummaryContractTest.xml",
+    "sha256": "DE6ECF838D48D92A6E3BC32DF1A674055246DE349191FCE3434CB8D0678B1E33"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.order.CrossLayerOrderingFlowTest.xml",
+    "sha256": "C3DA669C36289990CDB2C65AFF462558DC4604B6B0D747ED63AFE3D010B92BA5"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.order.DomainControllerTest.xml",
+    "sha256": "814F18B4446CCE7384045321B5303B09C6744CCEA85CCD03201C2EC9B6D0BB76"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.order.OrderIdempotencyConcurrencyTest.xml",
+    "sha256": "0A9DC53C810057EFF35FC18AB5CA37E53F0A7E6734D892D813C9F110464A079A"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.order.OrderInventoryRollbackTest.xml",
+    "sha256": "8A8FACF4103F813638C862CD6A6A021981E853F852E533D90029E6D2ACAD5FFB"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.order.OrderServiceTest.xml",
+    "sha256": "BBCBF603F3CA23E54D7FCDBA5B232BECA2D008753FB99AD5EBD472B56565661E"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.purchase.PurchaseConfirmationTest.xml",
+    "sha256": "B27A57A6D982F3374B92FD11F97AB0563AB75DA2E1CE416F7B971DE85E8AF62E"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.purchase.PurchaseRequestValidationTest.xml",
+    "sha256": "19E29293EBCF4C61E5142115E4473039BE828C711CF518DD24E0B202C29927A9"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.refund.RefundEligibilityTest.xml",
+    "sha256": "441248F1F9C397162575C94D244F152F2CA54B7ED5D2B04DD558A8854E5337FA"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.review.ReviewEligibilityTest.xml",
+    "sha256": "374661B1CD034426193651730AB03ECD83E808602BA058F26FC90FEBBAD07B70"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.support.CouponComplaintToolTest.xml",
+    "sha256": "B30493B5E477DC638D1893C1513A8AE28C1331E76BC68B5501BB9C5590977D90"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.support.FaqServiceTest.xml",
+    "sha256": "1BB7727D8E2AA6C1F8FA78CFEAC6CF2251F0588AC50C350444F25FA13BEB31AB"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.voucher.VoucherLifecycleTest.xml",
+    "sha256": "F7D8DF83AE79987AD93282207D66E3C222440D92F43D03D4BF642D3CF25FB0E0"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.feature.voucher.VoucherTokenSecurityTest.xml",
+    "sha256": "E7BAF9443EA20ED798660402D4339691B6DE3589D783E1A214162A48789D3688"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.seed.GroupBuyingSeedDataTest.xml",
+    "sha256": "0D845F63D7F4B86A2A9B7F8D2A28396C680E5B1C8381B4FEA91B8A6ED3C3DF1C"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.seed.SeedDataLoaderTest.xml",
+    "sha256": "825803D28D374B0FA3024058B985783154DF8D52C6487E2350F6C4554B0DEF50"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.seed.SeedDisabledTest.xml",
+    "sha256": "F2216E01FA4AD286C2BA4C84A9EA61AA45E8A888C9F7E2641CF322FAA54C861A"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.seed.Task2DevelopmentFixtureTest.xml",
+    "sha256": "97ED78CB76B4BE8FBF67D19E030FB8CE5BBFCABCCF70B6ACFD8600BF067FE05D"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.seed.Task2FixturesDisabledTest.xml",
+    "sha256": "83807CD72F588618732B26388227F9A874DA88EF4A7426DF2194CC4E1E972C68"
+  },
+  {
+    "path": "backend-final\\TEST-com.fandazi.seed.Task2FixturesProductionGuardTest.xml",
+    "sha256": "5AD825644DD4D2FD00476B665A17A0225A946C9724FD416FBA2839DDB67E3194"
+  },
+  {
+    "path": "backend-first\\TEST-com.fandazi.feature.grouporder.GroupBuyOrderIdempotencyTest-detached.xml",
+    "sha256": "36549C47187E02FC81AB405DDC0F0667BD0A49C160B727E0165B126C19AF781D"
+  },
+  {
+    "path": "backend-first\\TEST-com.fandazi.feature.purchase.PurchaseConfirmationTest.xml",
+    "sha256": "697AA564DED3C149C8E2F86B7DC3B35E1A665B3E99E8EC457964E5F8CC42EE5A"
+  },
+  {
+    "path": "backend-first\\TEST-com.fandazi.feature.purchase.PurchaseRequestValidationTest.xml",
+    "sha256": "1286D1D1ED7728FB405547520BCE5561F4F63C412F4F4BC14CC833D64881A055"
+  },
+  {
+    "path": "maestro-401-prepare\\result.json",
+    "sha256": "5539F56CE0F32EE36F7C1CDDF9E984D4B23F197BCC86CF46B5F0B6088BD3152F"
+  },
+  {
+    "path": "maestro-401-prepare\\2026-10-02_080414\\task6-purchase-401-prepare\\takeScreenshot\\401-before-expiry-quantity2.png",
+    "sha256": "7C5B162A33B5454A7F3E60F16EBD7C351773FF99F72881368E4C90291C337BCE"
+  },
+  {
+    "path": "maestro-401-return\\result.json",
+    "sha256": "B14184FA90146D523D3CE0B384839D913DB3F5E618CCAE564B980D2DA46284CD"
+  },
+  {
+    "path": "maestro-401-return\\2026-10-02_080642\\task6-purchase-401-return\\takeScreenshot\\401-login-return-original-quantity2.png",
+    "sha256": "EC874B6D8CEDFF10FEBE0F7CC5AF8CD2DAFF18B8E77E591FC741ED68E0C77E81"
+  },
+  {
+    "path": "maestro-401-return\\2026-10-02_080642\\task6-purchase-401-return\\takeScreenshot\\401-return-cancelled.png",
+    "sha256": "A69105C5EDE855B863C70A1FB6008B44CFED695DBCF1D8EFA7B870C4C6F3256E"
+  },
+  {
+    "path": "maestro-latest-server\\result.json",
+    "sha256": "50B113EB94BBFB3E8398548337C8C35893581C9B161DD61893CFB4DFAFBD767E"
+  },
+  {
+    "path": "maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png",
+    "sha256": "4311BB6CD56CB9D92778D8AC6252A5C023C6075CCBC5B83F4413D9DE9298B6D7"
+  },
+  {
+    "path": "maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png",
+    "sha256": "FDA6D5A13CCB8660E2DEB8B378CD98DFE7939CC572EDD9FCF64F484B66B4E6CC"
+  },
+  {
+    "path": "maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png",
+    "sha256": "ABBDF959CD7681CD6D4232A74B887836B67D6104A7895E41E19CDE2133476F90"
+  },
+  {
+    "path": "maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png",
+    "sha256": "48559057E5101D7C8A90F30DA8B8E6DF223B08FD4AC0AB159FA56C0787DF7107"
+  },
+  {
+    "path": "maestro-latest-server\\2026-10-02_081217\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png",
+    "sha256": "24E2BD8BAA23F6E941CFDD5E5D2B6CFA1ACA2C2105B346741CAC910BC20C87C6"
+  },
+  {
+    "path": "maestro-quantity1\\result.json",
+    "sha256": "2B918DB16F729B8C4DF47F3A8BF2575B2237B190BF4D913009694CAB64CF7ECF"
+  },
+  {
+    "path": "maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\screenshots\\step-032-assertCondition-支付成功.png",
+    "sha256": "ED18EF3FD7F7B8DD41B01450E248A7EC09766A401D6D456BD1BAA93300B7BDA6"
+  },
+  {
+    "path": "maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png",
+    "sha256": "21EF5AF3201BF97A366C9F580EB35DE5BE541C2ED2C7AA7DA4B100E122072A8E"
+  },
+  {
+    "path": "maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png",
+    "sha256": "21EF5AF3201BF97A366C9F580EB35DE5BE541C2ED2C7AA7DA4B100E122072A8E"
+  },
+  {
+    "path": "maestro-quantity1\\2026-10-02_075439\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png",
+    "sha256": "7244575C2B4F9678FCC9D4C19BFC053AAF74D7E180DDA27400BA9BDB1C0D21AD"
+  },
+  {
+    "path": "maestro-quantity1-final\\result.json",
+    "sha256": "95C1DAB4BAE1695CDC8A66AEF12E17FC60F619D53D797B404EB7B8ABE6BADCC8"
+  },
+  {
+    "path": "maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png",
+    "sha256": "53B5AC4D073D3814248505B38AF0E26D760DA9AD1DE42FF1097F63D678D56636"
+  },
+  {
+    "path": "maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png",
+    "sha256": "AA05C14DD368B53463350EA189D58662BB8FD2341B822252F2A390662303B581"
+  },
+  {
+    "path": "maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png",
+    "sha256": "AA05C14DD368B53463350EA189D58662BB8FD2341B822252F2A390662303B581"
+  },
+  {
+    "path": "maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png",
+    "sha256": "0A8C3A05B1C3FD0E5D295201B1ACBE98DFFECBCEAB6E74D340F9E6340F9938CB"
+  },
+  {
+    "path": "maestro-quantity1-final\\2026-10-02_080036\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png",
+    "sha256": "E8B1F5FEF14DE1646DC80AA3B5777FA96B862438ECE186041F3BF04E4FE9571D"
+  },
+  {
+    "path": "maestro-quantity2\\result.json",
+    "sha256": "A735544752FB3DA62E17CD7F9767C821F0A0314957329AA38E05E39316857DA8"
+  },
+  {
+    "path": "maestro-quantity2\\2026-10-02_075133\\group-buying-03-purchase\\screenshots\\step-026-assertCondition-${TASK6_TOTAL}.png",
+    "sha256": "AB54B3CAC82E74FEA9B1A1CCDAF608ED8597DB1409514D63C1F51BE1C1515612"
+  },
+  {
+    "path": "maestro-quantity2\\2026-10-02_075133\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png",
+    "sha256": "F3FD80E50E197E89249067564273151A7371B355E5124AB2A65584DAC0935910"
+  },
+  {
+    "path": "maestro-quantity2-final\\result.json",
+    "sha256": "364074BF52AFE6932F9E14110369800923DAEE8C0C3FCAB58B0B908700D4A7AA"
+  },
+  {
+    "path": "maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png",
+    "sha256": "87B431FE551E22E44ECE63B516CD4C407814E81FCFDFC68ACACD64815EA53E89"
+  },
+  {
+    "path": "maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png",
+    "sha256": "9BFC6BB62EE98E90DC620361DE77A089C687D086E42560B8852DA8016A11DA38"
+  },
+  {
+    "path": "maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png",
+    "sha256": "3706694CCD516945EBF48E422FCAA128B0B8919BD6B45F95F9B39445142CA9A6"
+  },
+  {
+    "path": "maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png",
+    "sha256": "F3C6AD0C5DF3FF562243BDD593403E412367743FF15227F49952DFB3AAE3FADC"
+  },
+  {
+    "path": "maestro-quantity2-final\\2026-10-02_080207\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png",
+    "sha256": "1A4B404EEEBE70444B95C381A369C04AB93E84A3B0DB5001836ECA80E1A3CCEC"
+  },
+  {
+    "path": "maestro-quantity2-r1\\result.json",
+    "sha256": "01FBB7B185E9406960AB59E1A3CA0ACFDED10EE3051E4D617338250F41C63B01"
+  },
+  {
+    "path": "maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png",
+    "sha256": "DD891B6D953A9046B80B8A5AB0E150B768E6091DAD2C0231CF8173CF9D7CCFDD"
+  },
+  {
+    "path": "maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png",
+    "sha256": "D78449C2DB66538BCACBEDCCCCEB51F10A09D8CDBDDCEB52F09523ADA04CD80A"
+  },
+  {
+    "path": "maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png",
+    "sha256": "16AF00CE7181DD8AD98A96A028A063F5E8D194F91C414FD223CD71816F4CD618"
+  },
+  {
+    "path": "maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png",
+    "sha256": "8943C14EEA5E08DEEC0989FAD99302510595F0F2E693C67D5590486B70C713E2"
+  },
+  {
+    "path": "maestro-quantity2-r1\\2026-10-02_075327\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png",
+    "sha256": "4DB7F4A626EF720676BC7895BADCD56EF203F14AB51032A888265CFBCEC2A4EF"
+  }
+]

@@ -58,9 +58,13 @@ public class GroupBuyOrderService {
     /** 模拟支付待支付团购订单，重复支付保持幂等。 */
     @Transactional
     public Map<String, Object> pay(Long userId, String publicId, String idempotencyKey) {
-        var order = orders.findByPublicId(publicId).filter(value -> value.getUser().getId().equals(userId)).orElseThrow(() -> new DomainException("团购订单不存在"));
+        // 页面支付串行锁住本人订单；两个按钮请求只能保存一次支付快照，不重新生成券。
+        if (idempotencyKey == null || idempotencyKey.isBlank()) throw new DomainException("缺少支付幂等键");
+        var order = orders.findOwnedForUpdate(userId, publicId).orElseThrow(() -> new DomainException("团购订单不存在"));
         if (order.getStatus() == GroupBuyOrderStatus.PAID) return data(order);
         if (order.getStatus() != GroupBuyOrderStatus.PENDING_PAYMENT) throw new DomainException("订单当前不可支付");
+        if (!order.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now()))
+            throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "订单已过期，不能支付");
         order.markPaid();
         return data(order);
     }
@@ -81,6 +85,29 @@ public class GroupBuyOrderService {
     @Transactional
     public Map<String, Object> createFromQuote(Long userId, String sessionId, com.fandazi.feature.purchase.PurchaseQuote quote,
                                                String grantId, String idempotencyKey) {
+        // 输入校验：页面与 Agent 共用报价写入。按用户串行检查幂等键，避免并发先查后写产生第二单。
+        if (idempotencyKey == null || idempotencyKey.isBlank() || idempotencyKey.length() > 255)
+            throw new DomainException("订单幂等键无效");
+        entityManager.find(com.fandazi.feature.auth.UserEntity.class, userId, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        // HTTP 报价读取事务已结束，参数可能脱管；重新取写事务内的报价并锁定，确保 consume 真正入库。
+        // 与用户锁使用一致顺序，页面和 Agent 都从数据库权威状态判断期限/单次消费，不能依赖旧对象。
+        quote = entityManager.find(com.fandazi.feature.purchase.PurchaseQuote.class, quote.getId(), jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if (quote == null) throw new com.fandazi.feature.agent.ToolBoundaryException("NOT_FOUND", "购买报价不存在");
+        if (!quote.getUser().getId().equals(userId)) throw new com.fandazi.feature.agent.ToolBoundaryException("FORBIDDEN", "报价不属于当前用户");
+        var binding = confirmations.owned(userId, sessionId, grantId);
+        if (!quote.getPublicId().equals(binding.getResourceId()))
+            throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "确认凭证对应不同报价");
+        var existing = orders.findByUserIdAndIdempotencyKey(userId, idempotencyKey);
+        if (existing.isPresent()) {
+            // 重放返回已经保存的事实；不同数量、金额或版本不能借相同键获得旧订单。
+            if (!existing.get().getRequestFingerprint().equals(quote.getRequestFingerprint()))
+                throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "幂等键对应不同报价");
+            return data(existing.get());
+        }
+        if (!quote.getExpiresAt().isAfter(java.time.Instant.now()))
+            throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "购买报价已过期，请重新报价");
+        if (!"ACTIVE".equals(quote.getStatus()))
+            throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "购买报价已使用");
         // 数据恢复：报价是持久化事实，禁止退回默认数量或从载荷重新构造价格。
         var deal = deals.findByPublicId(quote.getDeal().getPublicId()).orElseThrow(() -> new DomainException("套餐不存在"));
         // 套餐行锁让库存校验和扣减成为原子步骤，避免两个会话同时消费最后一份库存。
@@ -113,6 +140,9 @@ public class GroupBuyOrderService {
         var order = orders.findOwnedForUpdate(userId, orderId).orElseThrow(() -> new com.fandazi.feature.agent.ToolBoundaryException("NOT_FOUND", "团购订单不存在"));
         if (order.getStatus() != GroupBuyOrderStatus.PENDING_PAYMENT)
             throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "订单当前不可支付");
+        // 支付授权有效也不能支付业务已到期订单，日期与凭证期限分别校验。
+        if (!order.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now()))
+            throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "订单已过期，不能支付");
         confirmations.consumeBound(userId, sessionId, grantId, "PAY_MOCK_ORDER", orderId, order.getTotalCents(), "pay-v1");
         order.markPaid();
         return data(order);

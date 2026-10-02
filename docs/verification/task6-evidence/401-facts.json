@@ -1,0 +1,13 @@
+{
+  "beforeOrders": 9,
+  "afterOrders": 9,
+  "beforeVouchers": 13,
+  "afterVouchers": 13,
+  "unchanged": true,
+  "tokenLifetimeSeconds": 60,
+  "realHttp401": "2026-10-02T08:06:53+08:00 POST /api/group-orders",
+  "loginHttp200": "2026-10-02T08:07:16+08:00",
+  "quoteHttp200": "2026-10-02T08:07:16+08:00",
+  "quantity": 2,
+  "dealId": "7b5a48ce-8d4b-4a4e-9858-c9752011685d"
+}

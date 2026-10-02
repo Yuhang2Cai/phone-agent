@@ -1,0 +1,952 @@
+{
+  "snapshot": "C:/fdz-build/.runtime/task6-regression-495d1ceafb4f4d8f86bd052616e5171b",
+  "sourceVerified": true,
+  "sourceFiles": 235,
+  "sourceHashes": [
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\FandaziApplication.java",
+      "sha256": "9D518CEE63696D8280B71B48CF821B3AD0FCA0761FF00713A74AB233EE812128"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\core\\identity\\PublicIdAlias.java",
+      "sha256": "31FAA79F1DB7CD657C5F8F41CFC3ABCA8F4D14E3757987099B15CB4E6960BE8D"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\core\\identity\\PublicIdAliases.java",
+      "sha256": "FC6FB49A373BFFB447BFE7101A983F4D25F26613C12C45F231EE1B9576EF0B7F"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\core\\identity\\PublicIdAliasRepository.java",
+      "sha256": "34A630776FC6A14C5C4AE27E8A2C7A9BCA3FDDA1B378FFBA8EC5530AD7AF0FC0"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\core\\money\\CentsDecimalConverter.java",
+      "sha256": "D370D54BD455100DB72DA83B7378B206534DC76E699D04831C3873B9A537AAD2"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\core\\security\\JwtAuthenticationFilter.java",
+      "sha256": "D1BCCDACD3B90844EB484B6C3E0158D07421966CAF9C105F409B0F442528F62E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\core\\security\\JwtService.java",
+      "sha256": "88B15B958A22C07785E3F54EBA4E43CDABDA97172CC83ABD11880B1900D3E354"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\core\\security\\SecurityConfiguration.java",
+      "sha256": "1E5D8E43ABC717E1E526AB7A32E7D4F98CF6F059DCB1CFB3757CAF9DB3AFD26F"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\core\\time\\BusinessTime.java",
+      "sha256": "C077847931BBE04C1E5C51DF8648904C8C3386AADC8B74444F407EC16E84D2F5"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\development\\DevelopmentOrderFailure.java",
+      "sha256": "A17D3665BDEAF1F2F245561C4178701B0859691079C54E69DB197CA5449DF478"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\DomainException.java",
+      "sha256": "E2AC92A5CDC660A2CFA01D179DB797479EB44A69417769D8542252CCD4B35C7E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\DomainExceptionHandler.java",
+      "sha256": "ADB119020E5F30AB9B645BAF0824FDDA9F4C37D26E888D26B671350399768D9B"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\address\\AddressCommand.java",
+      "sha256": "68DD2084BFAFE2CBF6DFD21E54432D7B53F257E88ABDCD70D55EF6CD5D6EE209"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\address\\AddressController.java",
+      "sha256": "BFA434D2D89B08EAFA6B12D49600E69FDF000BB2A7C060EC3B60C412B7D23379"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\address\\AddressEntity.java",
+      "sha256": "6144819B08A14466D0BC3094D03E02A7A7FBA0C60FA911A3B1EB9E5A0B84E63E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\address\\AddressRepository.java",
+      "sha256": "F66AD826DC7C7596D2E4C707D8983273D9BF6EE4A7E8B03E18490D1125957192"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\address\\AddressResponse.java",
+      "sha256": "B926D19B42D70FE67DDA663A575CE279AE2ED1C35821331F0B6C135BC9BCFD52"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\address\\AddressService.java",
+      "sha256": "663435ED25C5109E8423E126714C61FFDE3634470CBD9159612D580645616136"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentCardEnrichmentService.java",
+      "sha256": "DECD166FB7BCD38BDAEA49284BDB2491C11B18FAB06BC83034C0029654995B96"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentContractCompatibility.java",
+      "sha256": "4091C2194018D8CD73B39A0E3F8A7D846384DEF5B7203DA1DA8EA871E7927632"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentDomainProjection.java",
+      "sha256": "0ADF52933AC2D45F71F606A82BECEA80FE9B5380210140330F55B40EDD183836"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentEventEntity.java",
+      "sha256": "C401DAC3828C393CC5924DF8D3ED528025A298D71B8E18BCE98B404622E2364A"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentEventRepository.java",
+      "sha256": "62A654ABDE801FE4183C4CA70608C3CCDD6991C1D75B55700B6AF0D9203C64A9"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentEventService.java",
+      "sha256": "F2DBAB7C261694555742F13B4C757370985E25EFDA7CCBA9E370B4ED81ED61FF"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentGatewayController.java",
+      "sha256": "096233011DE071592B83546B48792656FF5CD7EDE744BDBE0C4E009B1876719F"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentGatewayService.java",
+      "sha256": "C841319220E9C40D306976F2D5644D95E19532BCDE92C799B6CB9AE5432DB849"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentMessageEntity.java",
+      "sha256": "16DA3D725168E2C2443289359F06A235870B6A21F4DC00AAE9880996C48EA33C"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentMessageRepository.java",
+      "sha256": "EA9980916D8892F0B14F2FB43592B40868A96F6C1E2E431099C898C93967ECAB"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentMessageService.java",
+      "sha256": "2888A664BDF0314A864B717A67A4E506966F4160923C6706C93A322D2DD99981"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentMode.java",
+      "sha256": "9DDC9D1ECC89B5C5D297CA8645F4823DD3656D88E8393C15CB2B797ED4EE3380"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentProtocolValidator.java",
+      "sha256": "5BE71E7AB7384F2CE18CFBEE7976D86DB0FF20A0BBE0234E23DFDF9F10BDB3D5"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentResult.java",
+      "sha256": "FC0BAB86E009103D6B7BCC4701F6D304ED6A575CB3BBC9A2E0DEF475C5F8EABE"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentRunRequest.java",
+      "sha256": "A08D04584CB192733DE2F38C16780B1F7240C329320C2D73F6CA1573B66F78F0"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentServiceClient.java",
+      "sha256": "37B4C01E1D0C5E7A5DB4C65F76436C727E00F064BC484D7F0277377FE762935A"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentServiceUnavailableException.java",
+      "sha256": "D64AD3DB987CC6D4FB4E9EEADEF3773791AA931F14EDD6170EEDED127EF2D580"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentSession.java",
+      "sha256": "6962A26BA73EA433FAE5910319ADCE917C7A0773F468D65F515706178A9FAACC"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentSessionRepository.java",
+      "sha256": "BDEF5A556A550388808FA49A89D3DE0BCAE5F722720F44937B10F31B81C08FCD"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentSessionService.java",
+      "sha256": "10AB9C8E2925ED04A02DD79EE5916ADD005E605C01C90828FF639408208F1841"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentToolExecution.java",
+      "sha256": "20A003F39ED1F30AC050F797E0AF6764218098CBA0802CCD3494250FE71C5D05"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentToolExecutionRepository.java",
+      "sha256": "1174E7164683F14BD9B4B1F3DEE4BF24E6819ADD00B041A58AFE3EB43E776F63"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentToolSchemaValidator.java",
+      "sha256": "A4BD587DC909B9562464985D189D01562B0E9807A669C6CD661AB329E7B79A17"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentToolService.java",
+      "sha256": "527C1EE8B7E9FE7835294EB9B6550C96FF0CD90792FCD19D51C747D88F9D33CE"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentV1ToolAudit.java",
+      "sha256": "6747BD52720C66B31F508FE52A2BADC416236D585B6006C153972186D3EE5CCB"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\AgentV1ToolBridge.java",
+      "sha256": "BB31DE388E55D6CF3D3EC8A842142CD1626D17FA0C5F5D87884BBB1AC5FFF6B3"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\ConfirmationGrantEntity.java",
+      "sha256": "E9BAC0BE25F314AAA4055AF76FFDE93AED95BCE0F4016D100FD496792BE78315"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\ConfirmationGrantRepository.java",
+      "sha256": "D82B1C49C2540AA46E1FB38C62C6DAD0B4BE91673FD0FB46C1A34A3704454176"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\ConfirmationGrantService.java",
+      "sha256": "FA6810A66D557DB9C71942683C443B66187DDA508329814A5795E646E2C48FF1"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\HttpAgentServiceClient.java",
+      "sha256": "EB2D725FEAD3B07B25BD57D1924E5E110CF1F608396F710A4B0AEDCC11DC62EC"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\InternalTokenValidator.java",
+      "sha256": "4B5E502F971079A7B959E500A4A173E91BC622F7C35E6A4F81CE749342BCE2C7"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\InternalToolController.java",
+      "sha256": "381C11531F7F9C551B23EC7A5D30B5435037E372BBA8ADA802CF65C15590BE11"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\InternalV1JwtValidator.java",
+      "sha256": "365869C72A2DB2D461A274D9390E335165645FB4C2C4F2F512092993AE56B6C5"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\InternalV1ToolController.java",
+      "sha256": "E91F24F7F0D937CE26A8E6FF296383FB9F52E0333D4D3977C682883777A31C65"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\InternalV1ToolRequest.java",
+      "sha256": "F77232E1BD0AD84D07DCE5E014E79938C8AB4A1212BA92C7B1BFF8225483B114"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\StringMapJsonConverter.java",
+      "sha256": "FDBE3C990E5375E1F0F947635B3CDA836557826D1C575EB93A6E358F6DA8E0F4"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\ToolBoundaryException.java",
+      "sha256": "BE4DD75DE187E358EAAD852887C637D860FA4CA1D85EAF2EF67765389BEC01C7"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\ToolRequest.java",
+      "sha256": "934DEAB0E275DF2AD5D76C3C3ADCC282FBB7D8AB9A98CC454AE8A65F5F5130E1"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\agent\\ToolResult.java",
+      "sha256": "6F60D21B09490104E9909CA4F85E5FE17E72B1F8C916C987B395CA99B5AE8EC9"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\auth\\AuthConflictException.java",
+      "sha256": "645E3B13A30A11A6B316034BD50A16700F6944C99D467816A0CED894331C742D"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\auth\\AuthController.java",
+      "sha256": "917C3F8C1C64552B0F07FFC19510583871F16F57F348DB61515A7B6E5E8A0ED5"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\auth\\AuthDtos.java",
+      "sha256": "E59B9522B9947B09C9CBA0543CF20B5224EB78D7C74EAD8BC328AD5B36F0A857"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\auth\\AuthService.java",
+      "sha256": "E83FC1EB7D2DCE5CDADFABF3345E62B23AFD03AE84B2547EEA63E0C25B3194A3"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\auth\\InvalidCredentialsException.java",
+      "sha256": "F7E90936D667611A9482910A739A7FC67F5B1FCA411D293661E909A3AD18F35A"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\auth\\UserEntity.java",
+      "sha256": "16E7F8DEB263D011DBF383564B5C25ED9798654782696BB561D9731E60B46894"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\auth\\UserRepository.java",
+      "sha256": "7E323ED34521A8BFD283CA489AF52ECEEFC0E03913C69B9ADEAE22C7B116182C"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\automation\\AutomationController.java",
+      "sha256": "78F911A78CD693FCCED2CB5D07AD3A8A73680485CA046FD25DFC2338E02D79DD"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\automation\\AutomationGrant.java",
+      "sha256": "D36C0C927F103F61D4D46954A72CA49104BD7BF41F8FA8CD23FE819143585299"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\automation\\AutomationGrantRepository.java",
+      "sha256": "FE8804581F42279538E8FAEBF54B847FF59462659A0B5CA1AEACE763D5E8C6DD"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\automation\\AutomationPolicy.java",
+      "sha256": "BE62C549B4D749F73805D40271200232B505D2D564A6A79C0B69BA419088738E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\automation\\AutomationPolicyRepository.java",
+      "sha256": "7E36ED41A6C581E05FF574AF8FB770DF15A1AB0C20C89A46EA279D2C58EA3BDF"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\automation\\AutomationPolicyService.java",
+      "sha256": "1A5D49F361441EE8F1573DC9B6412E7CB95FA60A124A5BB2FDBEB930355CD898"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\automation\\OrderAuthorizationService.java",
+      "sha256": "52A4531C48703B85F361B8633DC554E0754AC0F851E906365ED4DBF6689A286D"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\cart\\CartController.java",
+      "sha256": "625D2AAF7D95EDC9C8667BB07713071D67CA03B16E749B85743100015BA0DDC4"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\cart\\CartDraft.java",
+      "sha256": "00380C7409FC9F724C1A6FA54F01AD72E6BC732EF74E9155098062BB03B726B9"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\cart\\CartDraftItem.java",
+      "sha256": "EB7CC0A30D46725D5BEA44347175F03F606E6D12E19378B5094F84AF41A0F505"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\cart\\CartDraftRepository.java",
+      "sha256": "055BA3915592E92A9F0DD2A3752109DF806E46BE0E00429AA2710DFA3115C1AF"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\cart\\CartDraftResponse.java",
+      "sha256": "619732CB6B41D8D831CB01A20CD66F2081FE831310064A886DCF306988B5F04A"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\cart\\CartItemCommand.java",
+      "sha256": "1BE4C9B3609A019D16CE24B9055FB4F10CFD64391F7D5D56AC923066B80747AE"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\cart\\CartQuote.java",
+      "sha256": "122E36AF7516768A4FC78612B800E633C237009BB864E5B69F475BEFC688FD1E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\cart\\CartService.java",
+      "sha256": "10C49DA90DA5019217F7E973512C78AC0DCEB2CF304B7B9FDADFB5CFEFDCED27"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DealPackageController.java",
+      "sha256": "0EA5DD0B97993579E4F80FB76E95183D8B7647CC288B2E2B15863B4D076916F0"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DealPackageEntity.java",
+      "sha256": "F76851E84615667E84D6229A1B5C107E96D3A0F12B989F485719AAD3B746054B"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DealPackageRepository.java",
+      "sha256": "AD84E66D5A7CB11A08EAC5F2DFC9E414B09BBF454C74D9EF2E1CE1CE9A80F85D"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DealPackageResponse.java",
+      "sha256": "71AA81481FEBABC5A1DFB85229B2D58F123413AE29C712F5D965AA429A10358B"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DealPackageService.java",
+      "sha256": "F4DF170512EAE59CE716AE2BFBB9EB7CE0ABBF236E53A83FF3073E0177CACC8C"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DishEntity.java",
+      "sha256": "C29E20AF0A565C32DA56006CF5527A89BCD41D3B44CF6C0A35ED3C1678245988"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DishOptionEntity.java",
+      "sha256": "61A4FB524824A56B56FFB567576B547B830F1E3E40E22CB829AC94975990AE49"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DishOptionRepository.java",
+      "sha256": "A92C34F9A8A629A7434A4BDF8F3538C9BB6CC6F2BC9281135D1BDA01AC5D2D34"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DishRepository.java",
+      "sha256": "B4B12F47A281167FB74E3A15EBCF1FD8BDC6083F57617436ED7570B8199FFC8A"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\DishResponse.java",
+      "sha256": "25345F216BEC20FE0EC8F7A737FBFFC1FEABFA86854BDB37F3356E0067658F7C"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\MerchantController.java",
+      "sha256": "F96E4BC4E6EB3AF9ADE9E1BD9357FDEA9544C419378B836915F7265622720D9A"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\MerchantEntity.java",
+      "sha256": "59C5640C641F6B05C322950C0882F03FF01737EB3EE9E98F44631B45FA6ABA9F"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\MerchantRepository.java",
+      "sha256": "0D453174E82CBE3CBC5E0670D62C1FC83C38CC51CE8B09E575AF38EFAF993E92"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\MerchantResponse.java",
+      "sha256": "3C15F58F2C651CEDF917CA77DAB196DB9EF67F39CE7DFE32EE1C3F60DEA10C48"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\MerchantReviewEntity.java",
+      "sha256": "9462E837A342DD9A5C4DAEAD45CEAAF84E6B0B471BE512101DAC68A9BD8E92E7"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\MerchantReviewRepository.java",
+      "sha256": "D041E4D350226B05570EF3972E51AC428826E656D3B0FB4E136C9D5159503F06"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\MerchantReviewResponse.java",
+      "sha256": "6A6E2B8394FD997820C6A9009AEE9FB3912AE92C1D60275C8A7B745A249643B6"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreBrowseResponse.java",
+      "sha256": "0FB49D7100C6906B38064446BB4DD6C91F8A5197379D7A5661442C7BB5AB1EB2"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreBrowseService.java",
+      "sha256": "841911BE72F29749893950C8FDA468A0D16F6A95D6448FA25C399B96B7790A71"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreController.java",
+      "sha256": "0A10368D538C8F81E4D53805C226B753AF9AEEAED177DFE875BA55312AEF895F"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreEntity.java",
+      "sha256": "CD5E5B501C68435B627B051EBFD3342C2FCD192E5C58EAF89EE44F95CE4D992B"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreRepository.java",
+      "sha256": "D551150B2F66E9887C26DCFEDC7802BE209C282F2A2BA558DC690935D7ECB9A1"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreResponse.java",
+      "sha256": "4A566B9BA56F193DE8C0DBC05C09D647AD48D68AC555F12CE7793D27BF1C2C30"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreReviewEntity.java",
+      "sha256": "8150C1CE5DCD755945FD3EFAF12994D3692ED837874FC888EEEA936680468519"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreReviewRepository.java",
+      "sha256": "E70B4ABCD41EFC9D185594AF93F62CDA6E0611FE6C51558357D80F644EE1F64C"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreReviewResponse.java",
+      "sha256": "59DCC35E66DE70220CCE2DF72E493E8972E696992FC7972D25252319879211E7"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\catalog\\StoreService.java",
+      "sha256": "BBAD37276FB0507A144740582D97C561DC69150CED03E1F85B5C882D39C2D41D"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\coupon\\CouponController.java",
+      "sha256": "C622FC1B440D7011F08C807DD379A4E3ED9C5E5B56AE18BEFD44719A206D9B06"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\coupon\\CouponEntity.java",
+      "sha256": "70372DAFFF8C90E764E62B0FA5E32F4AB773DE0DE4CA9AAD4063318470563BC2"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\coupon\\CouponRepository.java",
+      "sha256": "DC049AE244F75ECE61ED54882C35D64F25DE4037393859EA64C5E959747D9670"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\coupon\\CouponService.java",
+      "sha256": "F66A6DDB69FA00EECB1C000B348049E1E08E1DF71A085311E0C96F82944A13CA"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\coupon\\CouponStatus.java",
+      "sha256": "E8F6498F0A0AC28BBAA119BAD9441E2B8600DDEC7ABDBBEAFB3DBB9A129A7990"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\coupon\\UserCouponEntity.java",
+      "sha256": "732BA644734714B6952F2200C24D2E05234F608E9CABA41312DB49FB8868887E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\coupon\\UserCouponRepository.java",
+      "sha256": "07A1D1A6A70FFD9B0F074CD4EFF7F790824CD606CEE5CF119765D882736542BC"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\delivery\\DeliveryService.java",
+      "sha256": "D93C518DEAC7B40981217112F694885436FE8EE0E928768E8DA128F24E1C7A09"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderController.java",
+      "sha256": "643B43995C9A5E2C872C9AE45293AE880316A6920E54FAA1CB0281C29A28FDA1"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderEntity.java",
+      "sha256": "29182C6F0507D7B2FBCD675B3DA97DF6BD53E6E0503AE121B4AA80D66305BC69"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderRepository.java",
+      "sha256": "C34A17CD4622EAC679A78E937A82DC08DCF9ADBDF06CD39957DDBC179BB3842D"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderService.java",
+      "sha256": "CEF707BCB1936DE860741ECFA70E327AF56E2882D01852D0AF4799A976C4FF7E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderStatus.java",
+      "sha256": "46A688D011D6365DA7C5535A5FA90C0B15FB28AC0D2CA96BD6D1E0772C7E3915"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\CreateOrderCommand.java",
+      "sha256": "D8CE918CE06D45435329B0AC806AEE4B03C2763F5214ABD940B37D367A3E1AFD"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\OrderConflictException.java",
+      "sha256": "4D9669B0F3B741AB02FF66A0A14329C7CEB1AD93074C40A2138F1CA2E0CA8789"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\OrderController.java",
+      "sha256": "AB81250BF1A4F96AEB894945832D295F05470CE19BE399F069A99329EA2E1B82"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\OrderEntity.java",
+      "sha256": "D56CE836C68E2A3FC20C60D58168DFC28866F80D33CE9E97A97906D085AB425C"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\OrderItemEntity.java",
+      "sha256": "6394B4FFBA8BC97E28E41BDEDA09D7321F5B584CFDC450C0C8A8BA05A9DE921E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\OrderRepository.java",
+      "sha256": "42AA2ED7EEB91B02BDE6C0E3938298A2FC9F8399D29629D7C189CFB78F083659"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\OrderResponse.java",
+      "sha256": "0FD415CF5E17D34F281535034B004F5B1AFBA1304E12CF1A2BED737E81D425B9"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\OrderService.java",
+      "sha256": "B9F84396C3C9ADB6B9FAA876313AE208E2482B9F9BD781AED89665BFE8CB9055"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\order\\OrderStatus.java",
+      "sha256": "993310CDC1C8AE952863750FB4103D2D55B54642A2E0487BD4EDCC392596E1E2"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\payment\\PaymentService.java",
+      "sha256": "03D5CAACED1BA0BAE5EFA257B0D46E026450CD7533978BB0DF394AF8EE2DAA2D"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\purchase\\PurchaseController.java",
+      "sha256": "BAB2D24D4F4FC8476964D5D502A122C9DB0438D8AEE8E13D3D55E3171BE6C982"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\purchase\\PurchaseQuote.java",
+      "sha256": "47D7F0F66D97F26830A40316BB3B7A9902519630AE59D50C9C95299C11E3BE7E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\purchase\\PurchaseQuoteRepository.java",
+      "sha256": "070833664EDF06E8086D51759EB81E0BB7963005E76E1A8F092EEA7B357C99A6"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\purchase\\PurchaseQuoteService.java",
+      "sha256": "4C76BC4BE8C9A5FE22D51F1468D26B499CC1B5941AE59BD0C232DCBFB260C283"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\refund\\RefundController.java",
+      "sha256": "E55AE6E9AC4103DE91CB2A9627458F061FA974476BAA2FB53AC3C4307246AE98"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\refund\\RefundRequestEntity.java",
+      "sha256": "EB0D5D25081FA194FBE76298C5DD82C59B92F6541FDCF49968621435AD9769E1"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\refund\\RefundRequestRepository.java",
+      "sha256": "4AA73E2E7084902FFC302AFD387ADF3881CE7E00EEDD80630CFFD972B89A8C68"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\refund\\RefundService.java",
+      "sha256": "2DEE5D1CF745D0610AF367262BAFD2712D0812763FEFF5C602A5CBC76C0EB323"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\refund\\RefundStatus.java",
+      "sha256": "AD9961B6FE954AF9038AE93353903F450C339E5469E9CDF798DCA4C9F618C438"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\review\\ReviewController.java",
+      "sha256": "4C5C50DB942AB7E132D0A16527FCBF15977A92116AD24C482745CD841870F3E7"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\review\\ReviewService.java",
+      "sha256": "1F47ABF564E7F0EF135C5E8F016382C2F558974279E8B68E68F3DF9EC6BB96D6"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\support\\ComplaintController.java",
+      "sha256": "0A5211402AAF00CC42CA739226EF6689E89753C8083D237A4953582AF0EDD606"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\support\\ComplaintService.java",
+      "sha256": "89A88FFC85B79CE44404450CB334EE6429008C1FE56C2F12F8132B1FD463A303"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\support\\ComplaintStatus.java",
+      "sha256": "CCB4CE3912C1C2A31BF746D96C0D544B03098F08F9D8459F73A0CC602813E9E9"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\support\\ComplaintTicketEntity.java",
+      "sha256": "4CC445A7329F09DAB03EC2043FFEF1CD2F18E3C787B885642CB574DBA66CAF5B"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\support\\ComplaintTicketRepository.java",
+      "sha256": "4B43C86C78449C47754D4503F97A5B566E8CE62718B309937DE9A470C33A36E6"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\support\\FaqController.java",
+      "sha256": "B0B48F0E56261CE08B3F0CD7786687735D0C73D1F922F5795C794C7259AE3AAE"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\support\\FaqService.java",
+      "sha256": "9FC5122DA09EC2082A57499F0F8F71460EB64F4CF9170824158D3CFB873C6418"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\voucher\\VoucherController.java",
+      "sha256": "2DECD44252E59005809AE95EE21D378244A82F50AB3E7B8231EAB2343115B243"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\voucher\\VoucherEntity.java",
+      "sha256": "1127CEF9BCD9F23EFA5FBD8BB587C92AB614C2FD489023AE6D1131F6200965D3"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\voucher\\VoucherRepository.java",
+      "sha256": "1A726E42F03651A1ED2F6DFCCE5D841EBADF321AEFDA249DAA21AB6B4F5699DF"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\voucher\\VoucherService.java",
+      "sha256": "F149BFBA40F38E9B5E3225723D52F2729E5EC5F002255499020769A9C9F30636"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\voucher\\VoucherStatus.java",
+      "sha256": "495D583AD90328CE9B9F113F53BF4350F0847C84AF6A05722B4D6EFFC67E935B"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\voucher\\VoucherSummary.java",
+      "sha256": "4F2A6FD452C084AEDBA89728C2A17781087402A5DC2D1559F17F114184477ABA"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\voucher\\VoucherTokenService.java",
+      "sha256": "1D7E4446AC2276A1D2F82DCB08A6B02FFB7DFB76F8C88C20A9920681F0D54AF8"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\seed\\SeedAddressMetadataEntity.java",
+      "sha256": "49FE9B6FE17A38C8D978F776293BCDD8E45035492E2EEBF7911183C0EA83DDC5"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\seed\\SeedAddressMetadataRepository.java",
+      "sha256": "E61FC1008BAC554AEF242AAA48D69D59BF418FF61104A57D9BD9E406D8AC71A6"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\seed\\SeedDataLoader.java",
+      "sha256": "1CAE5374361C701DD4EB9985075A50EA7C1469B578959B600E282DCA7A1A969E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\seed\\SeedDishMetadataEntity.java",
+      "sha256": "284D7DA019262B8F06C2E8D676568581AB7CF64AF67D84AC63480DC299C15939"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\seed\\SeedDishMetadataRepository.java",
+      "sha256": "6496320F92E9B490E577632E4DFF6A734B4FC3337823043EF9CC73312364576E"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\seed\\SeedScenario.java",
+      "sha256": "AA6589FBAE2D13D5DB25ED83C44118015E60B195AEC94F0595113D3F2B307741"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\seed\\StringListJsonConverter.java",
+      "sha256": "728FFBD5F88424A2204AAE251560BB170EA1474184B07892D918A3FA21080CF3"
+    },
+    {
+      "path": "backend\\src\\main\\java\\com\\fandazi\\seed\\Task2DevelopmentFixtures.java",
+      "sha256": "D070F81A640DA293BCF37F487F84280F9184F6BAE27CB2CC44EA39F94A6BF4FC"
+    },
+    {
+      "path": "backend\\src\\main\\java\\db\\migration\\Task2MigrationSupport.java",
+      "sha256": "01F4E886CEE492D3BB9DA34D11BAF9E890E7F8DB8784FBEDCB5212B8619E19C9"
+    },
+    {
+      "path": "backend\\src\\main\\java\\db\\migration\\V12__decimal_payment_snapshots.java",
+      "sha256": "0ABFBC0A34685A7402870EC52A490D137234C8655C5F31C3D56BC3F1816CCED1"
+    },
+    {
+      "path": "backend\\src\\main\\java\\db\\migration\\V13__random_public_ids_and_legacy_aliases.java",
+      "sha256": "94B18D65D2AC2DAC975138C2078C2C0D0D8553906C57317A46B007EE181379A3"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\application-development.yml",
+      "sha256": "AC62326EA3B53AD16F032EECFD6C7F2AC23574AC5812EEF6E13A41832E8A6499"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\application.yml",
+      "sha256": "2EEA598C4D43AD2373054FCEB1D83D25F3D768F86D8DE65E98DEFC5C191D7566"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V1__create_seed_metadata.sql",
+      "sha256": "192152BDA8A855007190E4FE024A3E6152A10AB96E1446435B0FD40947711958"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V10__persist_agent_tool_execution.sql",
+      "sha256": "AE5C077AA305C73B03930A880C61F68F53C1DF365C05774556DB5BC190F3ECCB"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V11__bind_agent_pending_confirmation.sql",
+      "sha256": "DF62C9C4913A5DB24FA23A8A5EBB1450C3D5728AA8CC98F7AD24FA82D9545C36"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V2__create_agent_gateway.sql",
+      "sha256": "82FABD393AEA79BD33F08CAF761D96CB778C8794602015DD310BC9A040918420"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V3__bind_agent_authorized_cart.sql",
+      "sha256": "CD0D552F93720EF8D652A612722067450822B82E88982E8C7A52D268EB6EE823"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V4__add_order_display_metadata.sql",
+      "sha256": "16D8111B2B38926DC85C1066AE748A062666E23164508EBF56254C09B3EFAA75"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V5__create_merchant_reviews.sql",
+      "sha256": "302BCADC549347C9A8D358C0610B7D3BE31AC677D9B057FC0F68FE75F2ACE788"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V6__create_group_buying_domain.sql",
+      "sha256": "5279B8C125F78F334B0C77110E8C14C5E231BF4619BA7C1AD47BD7B4E8A902E4"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V7__migrate_merchants_to_stores.sql",
+      "sha256": "AE394709B639096114352723EBF69571FCDF5358A8F708B836BA6B212365DF81"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V8__bind_group_review_to_order.sql",
+      "sha256": "7EAEFA039599FB888B261E437A41A8E61D246A34D79B71D7031D058B800341C0"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\db\\migration\\V9__persist_agent_run_identity.sql",
+      "sha256": "556AFF8DB8EE5516AA76A7C39BAEF738A1D6C724B5B2A92D5BEF50B09BD44705"
+    },
+    {
+      "path": "backend\\src\\main\\resources\\static\\images\\seed\\meal-placeholder.png",
+      "sha256": "A8F1A373D417F6C11699BD720611E97DF9EDF66098FD09E3841737C2F79933AA"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\core\\money\\CentsDecimalConverterTest.java",
+      "sha256": "9D0F5F5E0835BDDEA77F6254A1488DD6163B0BF6F0C7358500ED606F85018658"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\core\\time\\BusinessTimeTest.java",
+      "sha256": "E4B8CA2FC0B295E0AC74CE89C4A57EC63E6E6F11F8D3B2981CE2FA512EE1EF40"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\development\\DevelopmentOrderFailureTest.java",
+      "sha256": "23B31727F8F789D3C061F4A87962FEC55D8567EAC816F2FB077F5B69636532FB"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\address\\AddressConcurrencyTest.java",
+      "sha256": "3D64874EF8837A5A4A8C6151778F8A545B8F5EEABBABED2F00111C394E91BA8F"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentAuthorizationConcurrencyTest.java",
+      "sha256": "45C526E287071322DD287AD3718F901DFF5DF1B2E934A9E6F3516FD7E1A73E92"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentCardEnrichmentTest.java",
+      "sha256": "54C90F711C6B00DFF22BA765B76A47352E18EA7D93E9B1E87A7C65765EC00A80"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentContractSchemaTest.java",
+      "sha256": "53F9A3B0B4E590531FB6F521D8200F9C7E0C13D1CE60B3C5524F5E71A60D63F4"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentGatewayTest.java",
+      "sha256": "7C014397372CAE34E1388D34945E7F9ECBB555E22E8D1A74EF79127AB5188958"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentGatewayV1ContractTest.java",
+      "sha256": "90AC878375FEC83D9E4E40B2E1560604399A90D79D0B8FEC5E90A4ED31F6C70D"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentProtocolBoundaryTest.java",
+      "sha256": "ABD74F2ECE877575A5DC9FBAA0B041F4523C66B12C1D33BD07576D5075C80EB2"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentRunIdentityTest.java",
+      "sha256": "DAD4594696A30837BBC0B4D66F1CE51C905964E7FD39B5D1B610C0D646B25A5D"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentToolAuthorizationTest.java",
+      "sha256": "37EF571B45E22E76AE44E6ADA196781E3953784DC1B76F760685FE78B8606E6E"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AgentToolFieldBoundaryTest.java",
+      "sha256": "10DDE3696BFCEC459364B6ED801D58CC5959B1710901E73B7A9F2D03597F9856"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AutomationControllerTest.java",
+      "sha256": "E379481C39EA77708FC383E4116224AECD87E35C08DF8C507409C564E088D0DA"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AutomationDefaultAddressTest.java",
+      "sha256": "FF9F9413082D7D59499B60E99A8CFEC07A73738F15D45A81810D166B3929142E"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\AutomationPolicyTest.java",
+      "sha256": "4D9CD838CB7D51562505B10DD2E6DB6288579F2846EF1DFD95A2D86C0923475B"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\FlywayAgentSchemaValidationTest.java",
+      "sha256": "190F0AF9F118BDDDF375641574E5CB87A42C87FFAD46CDABC73E22E074907E94"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\InternalV1ToolIntegrationTest.java",
+      "sha256": "72174FF02401249A5B826ED956DBC814511F5B62AD5BFD3CC899788888770052"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\SpringBootToolHttpContractTest.java",
+      "sha256": "094703D28557D4F5002A3ED01CE4EC36FA9FCD0343AA740B507BCD873D9F40B7"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\Task1IndependentAcceptanceTest.java",
+      "sha256": "BDA9E3271E49C126A9F4A3AF14AA3EC73CBFD8E657C2B4B3EAF457FEAABE9827"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\Task1NestedPublicEventAcceptanceTest.java",
+      "sha256": "5FB24CD1412EADE7D807FEE77C4588AC7B7BAFAA88882598268188147FBFAE69"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\Task1PublicToolAuditAcceptanceTest.java",
+      "sha256": "F372930577E14C83400C8B6F9D63087DF1F8AAD97D05D392D9770A69A6B42A78"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\agent\\Task3StreamInterruptionAcceptanceTest.java",
+      "sha256": "FD4FC030D36AEEA92D9F963DBF436AF262D10FA938B24C65CD52B5DC2775CA79"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\auth\\AuthConflictIntegrationTest.java",
+      "sha256": "95B378A3F7F4270838FD8998FB507B0D126F58468F2644005364D9FA8E8FBD44"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\auth\\AuthControllerConflictMappingTest.java",
+      "sha256": "0058E6B7AE75AA03C1F789410AFAD516327A53B6BF7E89FC6DAAC27B18229394"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\auth\\AuthControllerTest.java",
+      "sha256": "ACE54CFA696F3B73E1399687D56926D81B061951E919C34915359724AAA90B04"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\cart\\CartServiceTest.java",
+      "sha256": "1F943362D97A93B2F7C010E788384DD41A0BA56D8765C544A0DB8E5AE6322A2C"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\catalog\\MerchantCatalogControllerTest.java",
+      "sha256": "35239552927B77D97D7A1EDD0C4D4E453A8700949FF8FFE05E5FBDE044AD49F7"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\catalog\\StoreDealApiTest.java",
+      "sha256": "DDB236C17720F324A5B14EF45449C69886D25B8F688926DB08E1CAF4C0496FB3"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\coupon\\CouponAvailabilityTest.java",
+      "sha256": "F33048035FD7F162922A63D8CA8FB4A3A195EF0D6E07EBF58A445162DCAB084C"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\groupbuy\\GroupBuyingSchemaTest.java",
+      "sha256": "2F0A566FEA74B30A5725CC231ECD2F476DB25A91C6213FF84420F5B9A15CB58C"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyingMigrationTest.java",
+      "sha256": "82502EE08A5E80FB81A2E87E489790A2A1E1671BC089388A6091E86441947DCB"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderIdempotencyTest.java",
+      "sha256": "ACFC77BD6E5D9601B5A9567DF5B3567DC9DCCBB9D8BA3DB4DE3DF32706222384"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\grouporder\\GroupOrderSummaryContractTest.java",
+      "sha256": "567277A0E703E32F78214036957DED271F27B5DE1395C6BCB027AB5F786BAA25"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\order\\CrossLayerOrderingFlowTest.java",
+      "sha256": "F8128E74B195840DF448B759DE2182EC356B4DD4259B7C140CBE638465EA95E0"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\order\\DomainControllerTest.java",
+      "sha256": "160500C344F09E82607BF9221638D29218BB76F6D1B9204775339D5B64A4CEF7"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\order\\OrderIdempotencyConcurrencyTest.java",
+      "sha256": "39B9FB7A1A43EFAEF616E291874C9252F393B641516E2ABFF398D839FFEFA3E1"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\order\\OrderInventoryRollbackTest.java",
+      "sha256": "5E72264DD2357AD3FCE6F793A70B1484C37C9CE873A1C830D5DE84015B4E080B"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\order\\OrderServiceTest.java",
+      "sha256": "0013EA1DCB38090277E237BFBBEC8C0E4630B4B4B5E24A7106D254DDC1CB27FF"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\purchase\\PurchaseConfirmationTest.java",
+      "sha256": "CD5D9B40A0516313DC9C1B0AF50E02F97128A1F4737CF2F5C9AEF8560E117760"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\purchase\\PurchaseRequestValidationTest.java",
+      "sha256": "6B12C572A33610B19E8CFCCC7C0243631DAB1984D66E07C8F3DF5962114AB365"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\refund\\RefundEligibilityTest.java",
+      "sha256": "456A2D3777115FE5A1498943C70BF90F46694928FAE8625A99DB4A55436FAC9B"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\review\\ReviewEligibilityTest.java",
+      "sha256": "5A5A318E87BEAE6FF013465B6BC4BE827F31F1D657F69EEBCDA9D543E5A293D1"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\support\\CouponComplaintToolTest.java",
+      "sha256": "564196AB89C0F4681630DFCEAEA55E934806206A2A90990302AAA52BCDCEA271"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\support\\FaqServiceTest.java",
+      "sha256": "73EE191B51AFE16073CA8F3BBAB756B7A94BB399F582F9B7B6B2C54DB9994A78"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\voucher\\VoucherLifecycleTest.java",
+      "sha256": "EFB582E7C3073B6E8A2C06A197F2C69F5A1E5748E165D366BB6FF128A13B8696"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\voucher\\VoucherTokenSecurityTest.java",
+      "sha256": "86C057921B6AB83BBD5EDAA4CA0892AE675D6777BE86B0D2D507D1368E6D6CEC"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\seed\\GroupBuyingSeedDataTest.java",
+      "sha256": "F0CCA45A05A0BE95C545F1E0D775F2F25772BA80E4B25754EB1EC134D647133F"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\seed\\SeedDataLoaderTest.java",
+      "sha256": "3A279DE853C04CE1478BEA780759605E802F3DCC311D37947A04F42005BE0DFE"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\seed\\SeedDisabledTest.java",
+      "sha256": "7513602842D6666C82844DE331A3B8A75D2503E8067876AF84AEA49CF01E75D0"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\seed\\Task2DevelopmentFixtureTest.java",
+      "sha256": "6A3742F7CA2B807FE6276131646515E7C53038D628FF9C0CA0EAC6F2DD74BD2C"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\seed\\Task2FixturesDisabledTest.java",
+      "sha256": "3C9C559C417F4DBF862A618E132F08D381A382C414949D3802488B56D70DA802"
+    },
+    {
+      "path": "backend\\src\\test\\java\\com\\fandazi\\seed\\Task2FixturesProductionGuardTest.java",
+      "sha256": "BBADDA9CCF38668ADFAE9B2017DD5F77F513712B259C2A970E0B8BB709924C30"
+    },
+    {
+      "path": "backend\\src\\test\\resources\\application.yml",
+      "sha256": "C28FF1EABE784A2E3744AF1C28C8D3F889992106189DF1140844EDFEC5593630"
+    },
+    {
+      "path": "backend\\src\\test\\resources\\spring_tool_contract_probe.py",
+      "sha256": "4D975AC2DE0888AB1D1DB2CADBF252DC98084F887978FA892DC7D2B2A252B8EF"
+    },
+    {
+      "path": "backend\\src\\test\\resources\\__pycache__\\spring_tool_contract_probe.cpython-313.pyc",
+      "sha256": "384A885E31929758350F45DCB5E2D2583DF6F0C9864C3AB5BA8D2A5055DF9193"
+    }
+  ],
+  "directedTests": 14,
+  "errors": 0,
+  "failures": 0,
+  "lastDirectedLogSha256": "2D1A3ABB8BC8636CCAEC23D79A02FE01427B512865BBFB5726A3DA7C06D3FA7B",
+  "note": "全量首次216项，失败类复验后及最后新增入口边界1项组成217项合并XML；不是最终源重新全量一次通过"
+}

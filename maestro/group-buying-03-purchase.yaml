@@ -1,0 +1,82 @@
+# Task6 最新 APK 真实购买：套餐、门店、金额由运行器读取服务；先取消再确认，双击不得多单。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "${MAESTRO_USERNAME}"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "${MAESTRO_PASSWORD}"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_search_button"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: "store-card-${TASK6_STORE_ID}"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "store-card-${TASK6_STORE_ID}"
+- extendedWaitUntil:
+    visible: "store-deal-${TASK6_DEAL_ID}"
+    timeout: 30000
+- tapOn: "store-deal-${TASK6_DEAL_ID}"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/deal_purchase_bar"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/deal_purchase_bar"
+- extendedWaitUntil:
+    visible: "提交订单"
+    timeout: 30000
+- takeScreenshot: "UI-07-cancel-before-submit"
+- tapOn:
+    id: "com.fandazi.app:id/checkout_close"
+- assertVisible:
+    id: "com.fandazi.app:id/deal_purchase_bar"
+# 关闭弹窗后重新准备，只在本次明确提交时创建待支付订单。
+- tapOn:
+    id: "com.fandazi.app:id/deal_purchase_bar"
+- extendedWaitUntil:
+    visible: "提交订单"
+    timeout: 30000
+- runFlow:
+    when:
+      true: ${TASK6_QUANTITY == "2"}
+    commands:
+      - tapOn:
+          id: "com.fandazi.app:id/checkout_plus"
+      - extendedWaitUntil:
+          visible: "提交订单"
+          timeout: 30000
+- assertVisible: "${TASK6_TOTAL}"
+- takeScreenshot: "UI-07-confirmation"
+- doubleTapOn:
+    id: "com.fandazi.app:id/checkout_action"
+- extendedWaitUntil:
+    visible: "确认支付"
+    timeout: 30000
+- assertVisible: "${TASK6_TOTAL}"
+- assertVisible: "本页面仅用于演示，不会产生真实支付。"
+- takeScreenshot: "UI-08-payment"
+- doubleTapOn:
+    id: "com.fandazi.app:id/group_payment_action"
+- extendedWaitUntil:
+    visible: "支付成功"
+    timeout: 30000
+- assertVisible: "${TASK6_TOTAL}"
+- assertVisible: "已生成 ${TASK6_QUANTITY} 张团购券"
+- takeScreenshot: "UI-09-success"
+- tapOn:
+    id: "com.fandazi.app:id/payment_success_vouchers"
+- extendedWaitUntil:
+    visible:
+      id: "${TASK6_VOUCHER_TARGET}"
+    timeout: 30000
+- takeScreenshot: "purchase-real-vouchers"

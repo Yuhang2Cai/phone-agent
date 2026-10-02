@@ -8,14 +8,15 @@ import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.ImageView
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.fandazi.app.FandaziApplication
+import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiResult
+import com.fandazi.app.feature.auth.SessionState
 import com.fandazi.app.core.image.AfterSaleImageLoader
 import com.fandazi.app.feature.store.CatalogImages
 import kotlinx.coroutines.launch
@@ -45,14 +46,29 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
         view.findViewById<View>(R.id.deal_store).setOnClickListener {
             selectedDeal?.let { deal -> view.findNavController().navigate(R.id.storeFragment, Bundle().apply { putString("storePublicId", deal.storePublicId) }) }
         }
-        view.findViewById<View>(R.id.deal_purchase).setOnClickListener {
-            if (selectedDeal == null) {
-                Toast.makeText(requireContext(), "套餐信息仍在加载，请稍候", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(requireContext(), "正在准备下单确认页", Toast.LENGTH_SHORT).show()
-            }
-        }
+        // 购买栏作为一个整体接收点击，避免底部栏中的展示型 TextView 抢占触摸事件导致购买无响应。
+        view.findViewById<View>(R.id.deal_purchase_bar).setOnClickListener {
+            val currentDealId = selectedDeal?.publicId.orEmpty()
+            if (currentDealId.isBlank()) return@setOnClickListener
 
+            // 团购报价和下单是受保护接口；游客只能浏览目录，点击购买时必须先完成登录。
+            val mainActivity = requireActivity() as MainActivity
+            if (mainActivity.applicationSession().state.value !is SessionState.Authenticated) {
+                // 游客登录后重建原套餐并打开购买弹窗，保留真实资源和当前数量。
+                mainActivity.openPurchaseLogin(R.id.dealDetailFragment, Bundle().apply {
+                    putString("dealPublicId", currentDealId); putString("storePublicId", selectedDeal?.storePublicId)
+                    putBoolean("resumePurchase", true); putInt("quantity", 1)
+                })
+                return@setOnClickListener
+            }
+
+            // 公开套餐 ID 来自当前选中对象，确认页继续通过该 ID 请求后端，不使用首次打开的旧 ID。
+            view.findNavController().navigate(R.id.dealCheckoutBottomSheetFragment, Bundle().apply {
+                putString("dealPublicId", currentDealId)
+                putString("storePublicId", selectedDeal?.storePublicId)
+                putInt("quantity", 1)
+            })
+        }
         loadDeal(view)
     }
 
@@ -110,6 +126,14 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
             contentDescription = "deal-price-${deal.priceCents}"
         }
         view.findViewById<TextView>(R.id.deal_purchase).text = "立即购买  ${deal.priceText()}"
+        // 登录返回后先加载真实套餐，再恢复弹窗并重新报价；恢复标记只消费一次。
+        if (arguments?.getBoolean("resumePurchase") == true) {
+            arguments?.putBoolean("resumePurchase", false)
+            view.findNavController().navigate(R.id.dealCheckoutBottomSheetFragment, Bundle().apply {
+                putString("dealPublicId", deal.publicId); putString("storePublicId", deal.storePublicId)
+                putInt("quantity", arguments?.getInt("quantity", 1) ?: 1)
+            })
+        }
         renderDealDetails(view.findViewById(R.id.deal_detail_list), deal)
     }
 

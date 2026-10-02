@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-09，Figma 29:82：真实支付快照和券集合；多券内容可滚动，主操作始终可达。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/group_buy_background">
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:gravity="center_horizontal">
+        <TextView style="@style/Task6.Text" android:layout_width="80dp" android:layout_height="80dp" android:layout_marginTop="40dp" android:background="@drawable/purchase_success" android:gravity="center" android:text="✓" android:textSize="44sp" android:textColor="@android:color/white" android:contentDescription="支付结果"/>
+        <TextView android:id="@+id/payment_success_title" style="@style/Task6.Title" android:layout_marginTop="20dp" android:gravity="center" android:text="核对支付结果" android:textSize="28sp"/>
+        <TextView android:id="@+id/payment_success_detail" style="@style/Task6.Muted" android:layout_marginTop="12dp" android:gravity="center" android:textSize="13sp"/>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="32dp" android:background="@drawable/after_sale_card" android:padding="18dp" android:gravity="center_vertical">
+            <ImageView android:id="@+id/payment_success_image" android:layout_width="92dp" android:layout_height="90dp" android:scaleType="centerCrop" android:contentDescription="套餐图片"/>
+            <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="22dp" android:orientation="vertical">
+                <TextView android:id="@+id/payment_success_deal" style="@style/Task6.Text" android:textSize="18sp" android:textStyle="bold"/>
+                <TextView android:id="@+id/payment_success_store" style="@style/Task6.Muted" android:layout_marginTop="10dp"/>
+                <TextView android:id="@+id/payment_success_amount" style="@style/Task6.Amount" android:gravity="end" android:layout_marginTop="8dp"/>
+            </LinearLayout>
+        </LinearLayout>
+        <!-- 券码与期限必须来自实际订单响应；不可把 Figma 示例券码作为业务显示。 -->
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp" android:background="@drawable/after_sale_card" android:orientation="vertical" android:padding="24dp">
+            <TextView android:id="@+id/payment_success_count" style="@style/Task6.Text" android:textSize="20sp" android:textStyle="bold"/>
+            <TextView style="@style/Task6.Muted" android:text="支付成功后，团购券已自动生成" android:textSize="13sp" android:layout_marginTop="8dp"/>
+            <TextView android:id="@+id/payment_success_voucher_info" style="@style/Task6.Text" android:layout_marginTop="18dp" android:textSize="14sp" android:lineSpacingExtra="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/payment_success_vouchers" style="@style/Task6.Action" android:layout_marginHorizontal="32dp" android:layout_marginTop="16dp" android:text="查看团购券" android:enabled="false"/>
+    <TextView android:id="@+id/payment_success_orders" style="@style/Task6.Text" android:layout_height="64dp" android:gravity="center" android:text="返回订单" android:clickable="true" android:focusable="true"/>
+</LinearLayout>

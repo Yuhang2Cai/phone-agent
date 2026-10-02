@@ -23,6 +23,28 @@ import org.springframework.test.context.ActiveProfiles;
 class PurchaseConfirmationTest {
     @Autowired private ConfirmationGrantService confirmationGrants;
     @Autowired private UserRepository users;
+    @Autowired private PurchaseQuoteService quotes;
+    @Autowired private com.fandazi.feature.catalog.DealPackageRepository deals;
+    @Autowired private com.fandazi.feature.catalog.StoreRepository stores;
+
+    @Test
+    @org.springframework.transaction.annotation.Transactional
+    void displayedDiscountReconcilesWithPayableAmount() {
+        // 商品总价必须减去活动优惠后等于实付；防止页面展示已优惠价格后再次减同一折扣。
+        Long owner = users.save(new UserEntity("purchase-reconcile", "purchase-reconcile@example.com", "hash")).getId();
+        // 门店与套餐均由本用例创建，不读取共享种子；其他测试清空门店也不能影响金额断言。
+        // merchant 是可空兼容关联，显式不依赖历史商家；门店、套餐、报价和授权随本事务结束回滚。
+        var store = stores.save(new com.fandazi.feature.catalog.StoreEntity(java.util.UUID.randomUUID().toString(),
+                "金额测试品牌", "金额守恒隔离门店", "task6-h2", "仅用于离线金额测试", "00000000000", "测试",
+                java.math.BigDecimal.ZERO, java.math.BigDecimal.ZERO, 8800, true, "00:00-23:59", null));
+        var today = java.time.LocalDate.now();
+        var deal = deals.save(new com.fandazi.feature.catalog.DealPackageEntity(java.util.UUID.randomUUID().toString(),
+                store, "金额守恒隔离套餐", "仅用于离线金额测试", 8800, 10800, 5,
+                today, today.plusDays(30), true, 2, 1));
+        var quote = quotes.createForAgent(owner, "reconcile-session", deal.getPublicId(), 2);
+        assertThat((Integer) quote.get("subtotalCents") - (Integer) quote.get("discountCents"))
+                .isEqualTo(quote.get("totalCents"));
+    }
 
     @Test
     void expiredGrantCannotBeConsumed() {

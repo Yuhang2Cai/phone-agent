@@ -1,0 +1,12 @@
+{
+  "firstTests": 399,
+  "firstErrors": 18,
+  "firstFailures": 0,
+  "firstSkipped": 21,
+  "recheckTests": 18,
+  "recheckErrors": 0,
+  "recheckFailures": 0,
+  "effectivePassed": 378,
+  "effectiveSkipped": 21,
+  "note": "保留原18环境错误，只复验原错误节点，未重跑已过全套"
+}

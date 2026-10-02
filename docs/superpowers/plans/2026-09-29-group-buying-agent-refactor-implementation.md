@@ -33,7 +33,7 @@
 | Task3 新 Agent 服务 | 新入口、12 类、DAG 与工具桥接已独立 PASS 并提交 | 后续 UI 验收使用新服务，不复用旧服务结论 |
 | Task4 浏览推荐 | 独立整体 PASS 并提交 | 手机8d1870d / Agent88c386e；Maven213、Android147、真实在线3、四条Maestro及六页Figma；历史失败和非阻塞关注保留 |
 | Task5 AI 页面 | 独立R1整体PASS，旧确认卡P1已关闭；ASR延期 | Jason亲跑64项、最新APK11流程、原事件11配对、游客禁发与全离线恢复；原R0失败保留，范围提交后直接Task6 |
-| Task6 购买支付 | 部分开发自测通过 | 新 Agent 确认恢复、完整独立验收 |
+| Task6 购买支付 | 独立R1整体PASS | Tesla亲跑全量217、最新APK真实购买/三页401/断网/过期/变价/历史按钮；原失败与价格审计限制保留 |
 | Task7 券查询 | 查询已实现，核销延期 | 验收 UI-10–12；UI-13/14 不计本期 |
 | Task8 售后 | 用户暂停 / 待整体验收；设计已人工通过 | Task4–7 独立通过后恢复剩余项；最新在线 FAQ 失败、Android 独立验收未完成，详见暂停检查点 |
 | Task9 意图语料 | 未开始 | 12 类完整模板、千级规则、评测 |
@@ -196,11 +196,13 @@ Task3 的旧勾选不再表示新项目接入通过，原记录完整保留在�
 **Files:** 手机 `purchase/PurchaseQuoteService.java`、`grouporder/GroupBuyOrderService.java`、`agent/ConfirmationGrantService.java`；Android `feature/purchase/` 与支付页面；`maestro/group-buying-03-purchase.yaml`；新 Agent `workflows/purchase.py`、`tests/test_purchase_workflow.py`。
 
 - [x] 后端报价/创建/支付和 UI-07–09 设计已有，历史开发自测保留。
-- [ ] 新 Agent 使用真实报价与确认摘要，完成暂停、恢复、取消、过期与价格变化分支。
-- [ ] Android 底部确认弹窗及支付页面绑定后端金额；鉴权失败引导登录并回到原目标。
-- [ ] 运行 PurchaseConfirmationTest、GroupBuyOrderIdempotencyTest、新 Agent test_purchase_workflow.py 与购买 Maestro。
-- [ ] 独立验证不同套餐、数量、重复点击、凭证过期及支付成功，按 UI 容差检查。
-- [ ] 通过后提交。
+- [x] 新 Agent 使用真实报价与确认摘要，完成暂停、恢复、取消、过期与价格变化分支。
+- [x] Android 底部确认弹窗及支付页面绑定后端金额；鉴权失败引导登录并回到原目标。
+- [x] 运行 PurchaseConfirmationTest、GroupBuyOrderIdempotencyTest、新 Agent test_purchase_workflow.py 与购买 Maestro。
+- [x] 独立验证不同套餐、数量、重复点击、凭证过期及支付成功，按 UI 容差检查。
+- [ ] 通过后提交（已独立PASS，正在精确暂存）。
+
+2026-10-02 Task6独立R1整体PASS：`docs/verification/2026-10-02-task6-independent-acceptance.md`。R0金额用例依赖共享门店导致217项1error，改独立H2门店/套餐后Tesla亲跑同源全量217全绿；复用其不受影响Android171与Agent378/21跳过，不能把跳过算在线结果。最新APK5F03AF43…两套餐数量1/2、三页真实401登录返回、真实断网恢复、310秒自然过期、隔离变价与旧卡守卫均实际完成，30段Maestro中27段退出0、3次环境/验证器失败及受影响复验保留，175条断言非175个独立场景。原事实与277保护文件不变；开发历史共享套餐变价审计限制不抹除。当前工作区验收与干净中间HEAD边界延续Task5，订单/券只读依赖交Task7闭合，不把Task7/8或延期核销提前算完成。
 
 ### Task 7: 完成本期团购券查询；核销延期
 

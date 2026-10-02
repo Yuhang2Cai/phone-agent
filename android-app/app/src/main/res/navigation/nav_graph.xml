@@ -37,4 +37,12 @@
         <argument android:name="dealPublicId" app:argType="string" />
         <argument android:name="storePublicId" app:argType="string" />
     </fragment>
+    <!-- UI-07 是套餐详情上的浮动底部弹窗；导航到支付页时自动移除该确认窗口。 -->
+    <dialog android:id="@+id/dealCheckoutBottomSheetFragment" android:name="com.fandazi.app.feature.purchase.DealCheckoutBottomSheetFragment" android:label="确认购买">
+        <argument android:name="dealPublicId" app:argType="string" />
+        <argument android:name="storePublicId" app:argType="string" android:defaultValue="" />
+        <argument android:name="quantity" app:argType="integer" />
+    </dialog>
+    <fragment android:id="@+id/groupBuyPaymentFragment" android:name="com.fandazi.app.feature.purchase.GroupBuyPaymentFragment" android:label="模拟支付" />
+    <fragment android:id="@+id/paymentSuccessFragment" android:name="com.fandazi.app.feature.purchase.PaymentSuccessFragment" android:label="支付成功" />
 </navigation>

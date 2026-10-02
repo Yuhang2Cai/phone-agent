@@ -1,0 +1,18 @@
+{
+  "status": "DONE_FIXROUND1，待Tesla独立复验",
+  "frozenAt": "2026-10-02T08:39:52.8862859+08:00",
+  "phoneHead": "158c21b385a11406d72ea12bd139092f0b574ff7",
+  "agentHead": "f9fcff3e8f2b9f41410762c5b6383f883b9cd742",
+  "testSourceBefore": "CD5D9B40A0516313DC9C1B0AF50E02F97128A1F4737CF2F5C9AEF8560E117760",
+  "testSourceFinal": "2679AEAD67A1F6A6E7DA509939743E22928751763D65267DB2D7876F4100839A",
+  "sourceDeltaCount": 1,
+  "directedTests": 3,
+  "fullTests": 217,
+  "fullExitCode": 0,
+  "protectedR0Files": 271,
+  "protectedR0Mismatches": 0,
+  "protectedPrivateMismatches": 0,
+  "manifestSha256": "BC569565D0A47D75FB245AB821E59B19F35FD56C6B4D5B97851DE0244CA385B6",
+  "released": true,
+  "scope": "仅H2构建完成，停止本轮测试/源修改，服务与设备未操作"
+}

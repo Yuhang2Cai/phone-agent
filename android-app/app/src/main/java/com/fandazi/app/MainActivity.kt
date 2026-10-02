@@ -23,11 +23,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navHost: NavHostFragment
     private lateinit var bottomNavigation: com.google.android.material.bottomnavigation.BottomNavigationView
     private var pendingProtectedDestination: Int? = null
+    /** 购买登录返回保留资源和数量，不能在认证成功后退回首页丢失目标。 */
+    private var pendingProtectedArguments: Bundle? = null
 
 // 初始化组件与页面状态。
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pendingProtectedDestination = savedInstanceState?.getInt(KEY_PENDING_DESTINATION)?.takeIf { it != 0 }
+        pendingProtectedArguments = savedInstanceState?.getBundle("pending_protected_arguments")
         setContentView(R.layout.activity_main)
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         bottomNavigation = findViewById(R.id.bottom_navigation)
@@ -45,6 +48,7 @@ class MainActivity : AppCompatActivity() {
         navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id != R.id.authFragment && pendingProtectedDestination != null) {
                 pendingProtectedDestination = null
+                pendingProtectedArguments = null
             }
             // 门店三个内容状态属于首页浏览链路，继续显示并选中首页 Tab；套餐详情按设计隐藏底部导航。
             bottomNavigation.isVisible = destination.id in setOf(
@@ -94,14 +98,17 @@ class MainActivity : AppCompatActivity() {
             R.id.homeFragment, R.id.searchFragment, R.id.merchantFragment, R.id.ordersFragment,
             R.id.profileFragment, R.id.addressFragment, R.id.addressEditFragment,
             R.id.automationSettingsFragment, R.id.cartFragment, R.id.paymentFragment,
-            R.id.agentChatFragment -> SessionRoute.HOME
+            R.id.agentChatFragment, R.id.dealDetailFragment, R.id.dealCheckoutBottomSheetFragment,
+            R.id.groupBuyPaymentFragment, R.id.paymentSuccessFragment -> SessionRoute.HOME
             else -> null
         }
         Log.d("FandaziSession", "session navigation: state=${state::class.java.simpleName}, current=$current, desired=$desired")
         if (state is SessionState.Authenticated && pendingProtectedDestination != null) {
             val destination = pendingProtectedDestination ?: return
+            val targetArguments = pendingProtectedArguments
             pendingProtectedDestination = null
-            navHost.navController.navigate(destination, null, navOptions {
+            pendingProtectedArguments = null
+            navHost.navController.navigate(destination, targetArguments, navOptions {
                 popUpTo(R.id.authFragment) { inclusive = true }
             })
             return
@@ -128,13 +135,22 @@ class MainActivity : AppCompatActivity() {
 // 处理 `automationSettingsRepository` 相关逻辑。
     fun automationSettingsRepository() = (application as FandaziApplication).automationSettingsRepository
 
-// 打开protected、destination。
-    fun openProtectedDestination(destination: Int) {
+    /** 打开受保护页面；登录返回保留目标参数，不沿用过期授权或页面金额。 */
+    fun openProtectedDestination(destination: Int, arguments: Bundle? = null) {
         if (applicationSession().state.value is SessionState.Authenticated) {
-            navHost.navController.navigate(destination)
+            navHost.navController.navigate(destination, arguments)
         } else {
             pendingProtectedDestination = destination
+            pendingProtectedArguments = arguments?.let(::Bundle)
             navHost.navController.navigate(R.id.authFragment, bundleOf("require_login" to true))
+        }
+    }
+
+    /** 购买遇到 401 清除旧身份后登录，返回原套餐数量或原订单并重新读取服务端事实。 */
+    fun openPurchaseLogin(destination: Int, arguments: Bundle, expired: Boolean = false) {
+        lifecycleScope.launch {
+            if (expired) applicationSession().logout()
+            openProtectedDestination(destination, arguments)
         }
     }
 
@@ -146,6 +162,7 @@ class MainActivity : AppCompatActivity() {
 // 处理 `onSaveInstanceState` 相关逻辑。
     override fun onSaveInstanceState(outState: Bundle) {
         pendingProtectedDestination?.let { outState.putInt(KEY_PENDING_DESTINATION, it) }
+        pendingProtectedArguments?.let { outState.putBundle("pending_protected_arguments", it) }
         super.onSaveInstanceState(outState)
     }
 

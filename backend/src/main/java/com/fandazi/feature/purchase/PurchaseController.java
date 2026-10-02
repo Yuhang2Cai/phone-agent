@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/purchases")
 public class PurchaseController {
-    public record QuoteRequest(@NotBlank String dealId, @Min(1) int quantity, String sessionId) {}
+    /** 页面只提供公开套餐、用户数量与会话；金额和边界由服务端计算。 */
+    public record QuoteRequest(@NotBlank String dealId, @Min(1) int quantity, @NotBlank String sessionId) {}
     private final PurchaseQuoteService quotes;
 
     /** 注入报价服务。 */
@@ -21,7 +22,7 @@ public class PurchaseController {
 
     /** 创建五分钟有效报价并返回一次性确认凭证。 */
     @PostMapping("/quotes")
-    public java.util.Map<String, Object> quote(@AuthenticationPrincipal Long userId, @RequestBody QuoteRequest request) {
-        return quotes.create(userId, request.sessionId(), request.dealId(), request.quantity());
+    public java.util.Map<String, Object> quote(@AuthenticationPrincipal Long userId, @jakarta.validation.Valid @RequestBody QuoteRequest request) {
+        return quotes.createForPage(userId, request.sessionId(), request.dealId(), request.quantity());
     }
 }
