@@ -16,7 +16,7 @@
 
 **Figma:** `https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN`。
 
-**修订日期:** 2026-10-02。历史记录见 `docs/verification/group-buying-refactor-history-2026-10-01.md`。
+**修订日期:** 2026-10-03。历史记录见 `docs/verification/group-buying-refactor-history-2026-10-01.md`。
 
 **暂停更新（2026-10-02）:** 用户要求暂停 Task8 并保存进度，原因是计划执行顺序需要重新讨论。实现与验收 Agent 均已停止新操作；未提交、未勾选 Task8 完成、不自动进入后续任务。本次只更新状态，未调整原任务顺序。恢复检查点：`D:/project/-Demo-master/docs/verification/2026-10-02-task8-paused.md`。
 
@@ -43,7 +43,7 @@
 | Task9 意图语料 | 独立开发/测量 PASS，Agent 163e8b5 | 1120条、意图116/120、复杂度46/48；真人审批为生产门槛 |
 | Task10 记忆 | 独立R2 PASS并提交 | Agent c76645a、手机c6748f5；授权政策/MySQL/Chroma/管理入口完成 |
 | Task11 旧路径退役 | 独立PASS并提交 | 手机07545dc、Agent563f3a6；V14非破坏性登记，旧代码/事实保留 |
-| Task12 最终验收 | 开发与自测中，待独立验收 | 隔离部署/评测/全链验证；未测与首次失败保留，不提前勾选 |
+| Task12 最终验收 | Archimedes R7四轴PASS、阻塞0并提交 | 手机10abc6c、Agent d3e2db6；必要功能通过，UI共享变体、性能差距和延期如实单列 |
 
 以上区分历史开发进度与当前验收状态，不撤销历史证据，也不将旧服务自测换算为新服务通过。
 
@@ -411,22 +411,24 @@ Task11收尾：手机07545dc、Agent563f3a6；Descartes唯一独立验收PASS、
 
 **Files:** 新 Agent `evaluation/`、场景数据、Dockerfile、实验文档；手机 backend/Dockerfile、docker-compose.integration.yml、启动脚本、maestro/group-buying-99-full-regression.yaml、docs/ui-acceptance/README.md、docs/verification-report.md。
 
-- [ ] 12.1 按3.4步骤1核对Task7–11提交/独立报告/遗留，列部署评测及共享源、现有未提交改动来源；ASR/核销仍延期，不改变业务范围。
-- [ ] 12.2 按3.4步骤2–3沿镜像上下文、配置/依赖清单、Flyway、Figma/资源/导航、场景和构建递归核对；精确清单排除密钥、运行库及原始私有数据。
-- [ ] 12.3 按3.4步骤4–6主Agent自测后单一独立验收亲跑实际集成/全量适用测试/最新APK全链/Figma/真实评测，并从拟提交源隔离构建部署证明不依赖本地遗漏文件；未测指标单列，失败定向复验。
-- [ ] 12.4 按3.4步骤7精确提交及编号/最终报告/实际指标/遗留/延期回写，再宣称本期完成。2026-10-03追加授权按Task11收尾后实施，不能提前勾选或把未测项写为通过。
+- [x] 12.1 按3.4步骤1核对Task7–11提交/独立报告/遗留，列部署评测及共享源、现有未提交改动来源；ASR/核销仍延期，不改变业务范围。
+- [x] 12.2 按3.4步骤2–3沿镜像上下文、配置/依赖清单、Flyway、Figma/资源/导航、场景和构建递归核对；精确清单排除密钥、运行库及原始私有数据。
+- [x] 12.3 按3.4步骤4–6主Agent自测后单一独立验收亲跑实际集成/全量适用测试/最新APK全链/Figma/真实评测，并从拟提交源隔离构建部署证明不依赖本地遗漏文件；未测指标单列，失败定向复验。
+- [x] 12.4 按3.4步骤7精确提交及编号/最终报告/实际指标/遗留/延期回写，再宣称本期完成。2026-10-03追加授权按Task11收尾后实施，不能提前勾选或把未测项写为通过。
 
-- [ ] 实现版本化 ScenarioCase/EvaluationResult/Scorer，评分器替换不改 Agent 主流程。
-- [ ] 建立业务 MySQL、新 Agent/MySQL/Chroma 与 Spring 集成部署、健康标识和故障降级。
-- [ ] 建立活动验收状态清单：Frame/nodeId、确认依据、页面入口、所需数据、Maestro、截图、结果；标记 UI-13/14 延期，登记新派生状态与记忆页。
-- [ ] 最终报告明确端侧离线 ASR 延期、不算本期缺陷，也不宣称本地语音模型已部署；历史语音方案仅保留后续入口。
-- [ ] 运行后端全量测试、新 Agent pytest、Android testDebugUnitTest/lintDebug/assembleDebug；本期有效测试全通过。
-- [ ] 运行真实场景评测，记录意图、composite、DAG、工具、确认、记忆、卡片、任务成功和 P50/P95；没有实测不宣称达标。
-- [ ] 独立 Agent 使用最新 APK 跑本期全量 Maestro，按 UI 容差逐屏确认，覆盖浏览/登录/聊天/购买/券查询/售后/异常/记忆。
-- [ ] 停止新 Agent，独立验证普通业务继续可用与 AI 错误/恢复，不启动旧服务。
-- [ ] 输出最终报告、运行说明、实验数据和延期清单；通过后提交，整体完成不宣称核销已完成。
+- [x] 实现版本化 ScenarioCase/EvaluationResult/Scorer，评分器替换不改 Agent 主流程。
+- [x] 建立业务 MySQL、新 Agent/MySQL/Chroma 与 Spring 集成部署、健康标识和故障降级。
+- [x] 建立活动验收状态清单：Frame/nodeId、确认依据、页面入口、所需数据、Maestro、截图、结果；标记 UI-13/14 延期，登记新派生状态与记忆页。
+- [x] 最终报告明确端侧离线 ASR 延期、不算本期缺陷，也不宣称本地语音模型已部署；历史语音方案仅保留后续入口。
+- [x] 运行后端全量测试、新 Agent pytest、Android testDebugUnitTest/lintDebug/assembleDebug；本期有效测试全通过。
+- [x] 运行真实场景评测，记录意图、composite、DAG、工具、确认、记忆、卡片、任务成功和 P50/P95；没有实测不宣称达标。
+- [x] 独立 Agent 使用最新 APK 跑本期全量 Maestro，按 UI 容差逐屏确认，覆盖浏览/登录/聊天/购买/券查询/售后/异常/记忆。
+- [x] 停止新 Agent，独立验证普通业务继续可用与 AI 错误/恢复，不启动旧服务。
+- [x] 输出最终报告、运行说明、实验数据和延期清单；通过后提交，整体完成不宣称核销已完成。
 
 命令：手机 `mvn -f backend/pom.xml test`；新 Agent `python -m pytest -q` 与 `python -m evaluation.runner`；Android `.\gradlew.bat testDebugUnitTest lintDebug assembleDebug`；集成 `docker compose -f docker-compose.integration.yml up --build -d`；本期全量 `maestro test maestro/group-buying-99-full-regression.yaml`。完整参数与环境变量记录在报告，避免依赖聊天上下文。
+
+Task12收尾（2026-10-03）：手机10abc6c、Agent d3e2db6；唯一Archimedes R7四轴PASS，IND01–06关闭、阻塞0。报告D:/project/-Demo-master/docs/verification/2026-10-03-task12-independent-acceptance.md；2028文件闭合，Agent421通过/20条件跳过、后端163、Android180、lint0错误653警告。R5完整99自然exit0，R6受影响认证及七异常阶段、R7正式记忆尾链和必要UI定向实跑，按未变blob复用，不冒称R7重跑整套。UI41 PASS/82 PARTIAL/4延期/1重复；必要独特功能完成，PARTIAL不算整屏通过。十条评测goal8/10、完整P95约11.66s/首事件P95约1.89s未达观察目标；模型优化/压力不在本期追加。生产1120规则无真人批准仍shadow，ASR/核销延期，原库存及保留订单不改删。原未提交改动和首次失败全部保留。
 
 ## 4. 任务依赖与完成门槛
 
@@ -441,6 +443,6 @@ UI-13/14 与核销流程：延期分支，不阻塞本期 Task8–12
 
 以上图只说明依赖，不作为跳过任务的调度顺序。唯一后续执行顺序为 Task4 → Task5 → Task6 → Task7 → Task8 → Task9 → Task10 → Task11 → Task12；Task1/3/2 保留已通过记录，不重做。核销与端侧离线 ASR 均延期，不阻塞本期完成，也不能写成已实现。
 
-用户要求依次执行 Task，主Agent负责开发、自测与修复，仅独立验收单独Agent；每Task自测后一名验收者，失败原人定向复验。每项独立验收及拟提交源闭合通过后精确提交、记录并勾选，再自动下一项；Task8子步骤顺序自测，最后一次独立综合验收。本轮已获连续授权至Task8，Task9–12仅完善计划，原暂停记录不再阻止本轮恢复。
+用户要求依次执行 Task，主Agent负责开发、自测与修复，仅独立验收单独Agent；每Task自测后一名验收者，失败原人定向复验。每项独立验收及拟提交源闭合通过后精确提交、记录并勾选，再自动下一项；Task8子步骤顺序自测，最后一次独立综合验收。此前至Task8的范围属于历史轮次；2026-10-03追加授权Task9→Task10→Task11→Task12已依次独立验收、闭合、精确提交。当前轮次在Task12收尾后结束，不继续ASR、核销或规则真人审批。
 
-文档修订只改变执行依据，不把未运行检查勾成通过；当前代码改动与旧服务结果需要后续实际验证。
+文档修订只改变执行依据，不把未运行检查勾成通过；旧服务历史结果不得复用成当前团购通过；当前本期结果以Task12原独立报告和源码树为准。
