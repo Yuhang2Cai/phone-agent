@@ -49,7 +49,9 @@ class HttpAgentRepository(
     private val gson: Gson = Gson(),
     client: OkHttpClient? = null,
     private val reconnectDelayMillis: Long = 500L,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    /** 仅公开接口真实401通知身份仓库；传递实际请求令牌，防止迟到响应注销新会话。 */
+    private val onUnauthorized: suspend (String) -> Unit = {}
 ) : AgentRepository {
     private val client = (client ?: OkHttpClient()).newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
@@ -88,6 +90,8 @@ class HttpAgentRepository(
                     val call = client.newCall(request)
                     activeCall.set(call)
                     call.execute().use { response ->
+                        // SSE与普通消息共用失效策略，401不反复重连；403仅表示权限拒绝。
+                        invalidateRejectedCredential(response)
                         if (!response.isSuccessful) throw AgentStreamException(response.code, errorMessage(response.body?.string().orEmpty(), response.message))
                         var id: Long? = null
                         val data = StringBuilder()
@@ -157,6 +161,8 @@ class HttpAgentRepository(
         try {
             // 普通 HTTP 请求与长连接分开限制等待；SSE 可长期空闲，消息请求不能永久挂起。
             client.newBuilder().callTimeout(120, TimeUnit.SECONDS).build().newCall(request).execute().use { response ->
+                // 在消费响应前同步全局身份，避免页面仍显示登录、重试继续发送同一过期令牌。
+                invalidateRejectedCredential(response)
                 val body = response.body?.string().orEmpty()
                 if (response.isSuccessful) ApiResult.Success(parser(body))
                 else ApiResult.Failure(ApiError.Http(response.code, errorMessage(body, response.message)))
@@ -168,6 +174,14 @@ class HttpAgentRepository(
         } catch (error: Exception) {
             ApiResult.Failure(ApiError.Network(error.message ?: "Unable to read server response"))
         }
+    }
+
+    /** 从实际已发送请求读取凭据版本；不记录令牌，不把503、403或网络故障解释成失效。 */
+    private suspend fun invalidateRejectedCredential(response: okhttp3.Response) {
+        if (response.code != 401) return
+        val authorization = response.request.header("Authorization") ?: return
+        if (!authorization.startsWith("Bearer ")) return
+        onUnauthorized(authorization.removePrefix("Bearer "))
     }
 
 // 解析消息。

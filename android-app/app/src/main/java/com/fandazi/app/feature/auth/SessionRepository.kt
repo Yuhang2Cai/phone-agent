@@ -1,4 +1,4 @@
-// 身份认证模块：封装持久化查询与写入。
+// 全局身份仓库：串行维护加密会话与界面登录态，接收公开接口对实际令牌的认证拒绝。
 package com.fandazi.app.feature.auth
 
 import android.util.Log
@@ -7,11 +7,16 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
+/** 唯一身份源；认证网关提供服务端身份，存储失败经error暴露，不把缓存存在等同永远有效。 */
 class SessionRepository(
     private val authGateway: AuthGateway,
     private val storage: SessionStorage
 ) : SessionActions {
+    /** 串行处理身份持久化与失效，避免清理旧凭据时覆盖同时完成的新登录。 */
+    private val sessionMutex = Mutex()
     private val initialRead = storage.read()
     private val initialGuestRead = storage.readGuest()
     private val mutableState = MutableStateFlow(initialRead.getOrNull().toSessionState(initialGuestRead.getOrNull() == true))
@@ -37,8 +42,21 @@ class SessionRepository(
     override suspend fun register(username: String, email: String, password: String, nickname: String?): ApiResult<AuthResponse> =
         persistSuccessful(authGateway.register(username, email, password, nickname))
 
-// 退出登录当前数据。
-    override suspend fun logout() {
+    /** 主动退出并清理持久化；清理失败保留既有身份及错误，不伪称退出成功。 */
+    override suspend fun logout() = sessionMutex.withLock { clearSession(rejected = false) }
+
+    /**
+     * 清除服务端明确拒绝的当前凭据；参数必须是实际请求使用的令牌，不能事后读取新令牌。
+     * 旧请求迟到、无令牌请求或重复401不影响新身份；存储失败时也禁止继续使用已拒绝的身份。
+     */
+    suspend fun invalidateToken(rejectedToken: String) = sessionMutex.withLock {
+        // 比较的是完整认证版本，不是用户名；同账号重新登录也必须保留其新令牌。
+        if (rejectedToken.isBlank() || tokenOrNull() != rejectedToken) return@withLock
+        clearSession(rejected = true)
+    }
+
+    /** 在会话锁内清理凭据；主动退出保留既有失败语义，服务端拒绝则必须在内存中失效。 */
+    private suspend fun clearSession(rejected: Boolean) {
         val cleared = try {
             storage.clear()
         } catch (exception: Throwable) {
@@ -50,6 +68,8 @@ class SessionRepository(
             mutableState.value = SessionState.Unauthenticated
             mutableError.value = null
         } else {
+            // 不能因磁盘清理失败而继续把已被服务端拒绝的令牌暴露给任何请求供应器。
+            if (rejected) mutableState.value = SessionState.Unauthenticated
             mutableError.value = if (storage.initializationError != null) {
                 SessionError.StorageUnavailable
             } else {
@@ -58,8 +78,8 @@ class SessionRepository(
         }
     }
 
-// 处理 `continueAsGuest` 相关逻辑。
-    override suspend fun continueAsGuest() {
+    /** 在同一会话锁内进入游客模式，避免写入游客标记与新登录/失效清理交错。 */
+    override suspend fun continueAsGuest(): Unit = sessionMutex.withLock {
         Log.d(TAG, "continueAsGuest requested")
         if (storage.writeGuest()) {
             mutableState.value = SessionState.Guest
@@ -74,11 +94,11 @@ class SessionRepository(
 // 处理 `tokenOrNull` 相关逻辑。
     fun tokenOrNull(): String? = (mutableState.value as? SessionState.Authenticated)?.token
 
-// 处理 `persistSuccessful` 相关逻辑。
-    private suspend fun persistSuccessful(result: ApiResult<AuthResponse>): ApiResult<AuthResponse> {
+    /** 串行保存认证响应；只有令牌成功落盘才发布登录状态，失败返回原错误或存储错误。 */
+    private suspend fun persistSuccessful(result: ApiResult<AuthResponse>): ApiResult<AuthResponse> = sessionMutex.withLock {
         if (result !is ApiResult.Success) {
             mutableState.value = SessionState.Unauthenticated
-            return result
+            return@withLock result
         }
         val session = PersistedSession(result.value.token, result.value.user)
         val written = try {
@@ -87,7 +107,7 @@ class SessionRepository(
             if (exception is CancellationException) throw exception
             false
         }
-        return if (written) {
+        if (written) {
             storage.clearGuest()
             mutableState.value = session.toSessionState(false)
             mutableError.value = null
