@@ -11,6 +11,16 @@ appId: com.fandazi.app
     id: "com.fandazi.app:id/agentAssistantTab"
 - extendedWaitUntil:
     visible:
+      id: "com.fandazi.app:id/agent_login_gate"
+    timeout: 10000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_deal_card"
+- takeScreenshot: UI-15H-guest-login-gate
+# 当前确认设计先展示登录引导，只有明确点击才打开账号密码页，不能沿用旧自动跳转断言。
+- tapOn:
+    id: "com.fandazi.app:id/agent_login_action"
+- extendedWaitUntil:
+    visible:
       id: "com.fandazi.app:id/username_input"
     timeout: 10000
 - assertNotVisible:
@@ -21,10 +31,13 @@ appId: com.fandazi.app
 # 登录页只验证账号和密码控件存在；测试账号通过运行环境注入，仓库不保存真实凭据。
 - tapOn:
     id: "com.fandazi.app:id/username_input"
-- inputText: "${AGENT_TEST_USERNAME}"
+- setClipboard: "${AGENT_TEST_USERNAME}"
+- pasteText
 - tapOn:
     id: "com.fandazi.app:id/password_input"
-- inputText: "${AGENT_TEST_PASSWORD}"
+- setClipboard: "${AGENT_TEST_PASSWORD}"
+- pasteText
+- setClipboard: ""
 - hideKeyboard
 - tapOn:
     id: "com.fandazi.app:id/submit_button"
@@ -37,6 +50,8 @@ appId: com.fandazi.app
 - tapOn:
     id: "com.fandazi.app:id/agent_chat_input"
 - inputText: "${AGENT_TEST_QUERY}"
+# 隐藏系统键盘后再点击发送，防止测试点击被键盘遮挡；这一步不替代服务端响应断言。
+- hideKeyboard
 - tapOn:
     id: "com.fandazi.app:id/agent_chat_send"
 - extendedWaitUntil:
@@ -45,4 +60,9 @@ appId: com.fandazi.app
     timeout: 30000
 - assertVisible:
     id: "com.fandazi.app:id/agent_chat_input"
+- extendedWaitUntil:
+    visible: ".*你好.*|.*您好.*"
+    timeout: 60000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_card"
 - takeScreenshot: "group-buying-agent-chat"

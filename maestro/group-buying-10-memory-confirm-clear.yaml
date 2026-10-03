@@ -7,26 +7,60 @@ appId: com.fandazi.app
 - tapOn:
     id: "com.fandazi.app:id/profile_memory_entry"
 - extendedWaitUntil:
-    visible: "确认敏感保存"
+    visible:
+      id: "com.fandazi.app:id/memory_confirm"
+      text: "确认敏感保存"
     timeout: 30000
-- tapOn: "确认敏感保存"
+- tapOn:
+    id: "com.fandazi.app:id/memory_confirm"
+    text: "确认敏感保存"
 - assertVisible: "确认保存敏感信息？"
 - takeScreenshot: memory-sensitive-consent
 - tapOn:
     id: "com.fandazi.app:id/memory_dialog_cancel"
-- assertVisible: "确认敏感保存"
-- tapOn: "确认敏感保存"
+# 取消后须确认弹窗真的关闭；列表与弹窗共享文案，不能只按文字定位。
+- extendedWaitUntil:
+    notVisible:
+      id: "com.fandazi.app:id/memory_dialog_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/memory_confirm"
+    text: "确认敏感保存"
+- assertVisible: "确认保存敏感信息？"
 - tapOn:
     id: "com.fandazi.app:id/memory_dialog_confirm"
+# 异步提交期间背景行会被遮挡，不能把背景文字暂不可见当保存成功。
+# 先等真实成功关闭确认层，再等重新读取的列表移除敏感候选操作。
 - extendedWaitUntil:
-    notVisible: "确认敏感保存"
+    notVisible:
+      id: "com.fandazi.app:id/memory_dialog_title"
     timeout: 30000
-- tapOn: "确认保存"
+- extendedWaitUntil:
+    notVisible:
+      id: "com.fandazi.app:id/memory_confirm"
+      text: "确认敏感保存"
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/memory_confirm"
+      text: "确认保存"
+      enabled: true
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/memory_confirm"
+    text: "确认保存"
 - assertVisible: "确认这条记忆？"
 - tapOn:
     id: "com.fandazi.app:id/memory_dialog_confirm"
+# 普通候选同样等待确认层关闭及权威列表刷新，避免清空点击与保存请求竞态。
 - extendedWaitUntil:
-    notVisible: "确认保存"
+    notVisible:
+      id: "com.fandazi.app:id/memory_dialog_title"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible:
+      id: "com.fandazi.app:id/memory_confirm"
+      text: "确认保存"
     timeout: 30000
 - scrollUntilVisible:
     element: "全部清除"
@@ -36,6 +70,10 @@ appId: com.fandazi.app
 - takeScreenshot: memory-clear-confirm
 - tapOn:
     id: "com.fandazi.app:id/memory_dialog_confirm"
+- extendedWaitUntil:
+    notVisible:
+      id: "com.fandazi.app:id/memory_dialog_title"
+    timeout: 30000
 - extendedWaitUntil:
     visible: ".*还没有AI记忆.*"
     timeout: 30000

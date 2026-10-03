@@ -320,8 +320,10 @@ Task8 已人工确认的 Figma 页面不重新设计；按退款、评价、帮�
 `contracts/` 权威协议；`backend/.../catalog,purchase,grouporder,voucher,refund,review,coupon,support,agent/` 业务与网关；`data/seed/` 夹具；`android-app/.../feature/` 正式页面；`maestro/` 操作流程；`docs/ui-acceptance/` 状态清单与截图；`docker-compose.integration.yml` 集成环境。
 
 新 Agent 项目：
-`service/` FastAPI、内部鉴权、NDJSON；`config/contracts/` 契约副本；`intent/` 和两份意图 YAML；`dag/` Planner/Validator/Executor；`workflows/` 简单业务；`memory/` MySQL 与 Chroma；`evaluation/` 可替换评分器；`tests/`；Dockerfile。
+`service/` FastAPI、内部鉴权、NDJSON；`config/contracts/` 契约副本；`intent/` 和两份意图 YAML；`dag/` Planner/Validator/Executor；`service/engine.py` 简单确定性工作流与`service/dag_runtime.py`运行衔接；`memory/` MySQL 与 Chroma；`evaluation/` 可替换评分器；`tests/`；Dockerfile。
 
 基线 decisionNode.py、routerNode.py 与历史实验保留。旧 agent-service 源码保留停用说明，退出默认启动、CI、健康检查和发布；新服务故障时关闭 AI 或回滚新镜像。
+
+Task12交付补正：`evaluation/models.py,scorers.py,gateway.py,runner.py`提供版本化可替换评测；公开网关真实创建会话，流程完成和目标成功分开，卡片按公开字段核对，DAG按本人快照只读观测。集成双库为独立容器/卷，首次/已有卷按既有001/002幂等初始化意图审计；业务Flyway及原事实不改。手机`scripts/Export-DeliverySnapshot.ps1,Run-FullRegression.py,Run-IntegrationSideChains.py`负责隔离拟提交源、最新APK主链与真实异常副链，说明为`docs/integration-deployment.md`。千级规则的生产终结仍需要绑定规则摘要与规范化版本的真人审批；未批准保持影子，测试不能自动批准。
 
 本期完成要求：新服务实际接入、真实工具与三端状态一致、普通业务和 AI 故障降级可用、记忆可管理、当前适用 UI 状态按容差通过、独立测试与 Maestro 证据完整、文档与运行脚本一致。延期核销与端侧 ASR 另记，不把整体重构完成写成这两项已经完成。

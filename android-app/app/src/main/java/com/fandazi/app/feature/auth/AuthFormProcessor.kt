@@ -13,6 +13,8 @@ data class AuthFormState(
     val username: String = "",
     val email: String = "",
     val password: String = "",
+    /** 可选昵称只用于注册请求；登录仍用唯一账号，不能当成认证凭据。 */
+    val nickname: String = "",
     val isRegisterMode: Boolean = false,
     val isSubmitting: Boolean = false,
     val usernameError: String? = null,
@@ -32,8 +34,8 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     }
 
 // 更新draft。
-    fun updateDraft(username: String, email: String, password: String) {
-        mutableState.value = mutableState.value.copy(username = username, email = email, password = password)
+    fun updateDraft(username: String, email: String, password: String, nickname: String = "") {
+        mutableState.value = mutableState.value.copy(username = username, email = email, password = password, nickname = nickname)
     }
 
 // 处理 `continueAsGuest` 相关逻辑。
@@ -63,16 +65,21 @@ class AuthFormProcessor(private val sessions: SessionActions) {
     }
 
 // 处理 `submitRegister` 相关逻辑。
-    suspend fun submitRegister(username: String, email: String, password: String) {
+    suspend fun submitRegister(username: String, email: String, password: String, nickname: String = "") {
         if (!submitting.compareAndSet(false, true)) return
         try {
+            // 昵称为可选后端资料；超长立即拒绝，空白以未填写发送，不混入旧邮箱字段。
+            if (nickname.trim().length > 40) {
+                mutableState.value = mutableState.value.copy(errorMessage = "昵称不能超过40字")
+                return
+            }
             val errors = validate(username = username, email = email, password = password, isRegisterMode = true)
             if (!publishErrors(errors, true)) {
                 return
             }
             mutableState.value = mutableState.value.copy(isSubmitting = true, errorMessage = null)
             val result = try {
-                sessions.register(username.trim(), email.trim(), password)
+                sessions.register(username.trim(), email.trim(), password, nickname.trim().takeIf { it.isNotBlank() })
             } catch (exception: CancellationException) {
                 throw exception
             } catch (exception: Exception) {

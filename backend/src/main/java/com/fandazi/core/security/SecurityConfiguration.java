@@ -33,6 +33,9 @@ public class SecurityConfiguration {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        // 业务入口已鉴权；框架 ERROR 二次分发只负责保留原 5xx/4xx，不能被再次认证误改为 401。
+                        // 仅放行 DispatcherType.ERROR，不放行普通用户直接 GET /error 或其他私有接口。
+                        .dispatcherTypeMatchers(jakarta.servlet.DispatcherType.ERROR).permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
                         // 旧接口即使残留在历史代码也永远拒绝；不能凭用户JWT或静态内部令牌重新启用。
                         .requestMatchers("/internal/tools/**", "/api/addresses/**", "/api/cart/**",

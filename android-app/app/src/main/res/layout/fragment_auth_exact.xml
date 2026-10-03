@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma34:43/34:60认证表单：同页切换模式，不复用旧插画/浮卡，也不在本地假造身份。 -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/group_buy_background">
+    <!-- 首次启动箭头允许游客进入；受保护入口箭头回到原调用方，不能越权继续原写操作。 -->
+    <TextView android:id="@+id/skip_login_button" style="@style/ExactAuthBack"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+    <TextView android:id="@+id/auth_back_button" style="@style/ExactAuthBack" android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+    <TextView android:id="@+id/brand_text" android:layout_width="0dp" android:layout_height="40dp"
+        android:layout_marginTop="4dp" android:layout_marginHorizontal="64dp" android:gravity="center"
+        android:text="@string/auth_exact_brand" android:textSize="28sp" android:textColor="@color/home_ink"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" />
+    <TextView android:id="@+id/auth_tagline" android:layout_width="0dp" android:layout_height="26dp" android:gravity="center"
+        android:text="@string/auth_exact_login_subtitle" android:textSize="13sp" android:textColor="@color/group_buy_muted"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toBottomOf="@id/brand_text" />
+    <!-- 独立滚动区域兼容小屏与键盘；标签、错误和输入逐行排布，避免固定稿坐标引起重叠。 -->
+    <ScrollView android:layout_width="0dp" android:layout_height="0dp" android:layout_marginTop="58dp"
+        app:layout_constraintTop_toBottomOf="@id/auth_tagline" app:layout_constraintBottom_toTopOf="@id/auth_agreement"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
+            android:paddingHorizontal="24dp" android:paddingBottom="24dp">
+            <TextView android:id="@+id/auth_form_heading" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="30dp" android:text="@string/auth_exact_login_heading" android:textSize="24sp" android:textColor="@color/home_ink" />
+            <LinearLayout style="@style/ExactAuthRow" android:layout_marginTop="30dp">
+                <TextView style="@style/ExactAuthLabel" android:text="@string/auth_exact_account" />
+                <com.google.android.material.textfield.TextInputLayout android:id="@+id/username_layout" style="@style/ExactAuthInputContainer">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/username_input" style="@style/ExactAuthInput"
+                        android:hint="@string/auth_exact_account_hint" android:inputType="text" android:autofillHints="username" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+            <LinearLayout style="@style/ExactAuthRow" android:layout_marginTop="16dp">
+                <TextView style="@style/ExactAuthLabel" android:text="@string/password" />
+                <com.google.android.material.textfield.TextInputLayout android:id="@+id/password_layout" style="@style/ExactAuthInputContainer">
+                    <com.google.android.material.textfield.TextInputEditText android:id="@+id/password_input" style="@style/ExactAuthInput"
+                        android:hint="@string/auth_exact_password_hint" android:inputType="textPassword" android:autofillHints="password" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+            <!-- 可选昵称不参与登录认证；空白合法，只能以真实后端返回值作为保存后的展示身份。 -->
+            <LinearLayout android:id="@+id/nickname_row" style="@style/ExactAuthRow" android:layout_marginTop="16dp" android:visibility="gone">
+                <TextView style="@style/ExactAuthLabel" android:text="@string/auth_exact_nickname" />
+                <EditText android:id="@+id/nickname_input" style="@style/ExactAuthInput" android:layout_width="0dp" android:layout_weight="1"
+                    android:hint="@string/auth_exact_nickname_hint" android:inputType="textPersonName" android:maxLength="40" android:autofillHints="personName" />
+            </LinearLayout>
+            <!-- 邮箱仅为历史协议兼容，不能成为本期注册条件，也不能借其字段保存昵称。 -->
+            <com.google.android.material.textfield.TextInputLayout android:id="@+id/email_layout"
+                android:layout_width="match_parent" android:layout_height="wrap_content" android:visibility="gone">
+                <com.google.android.material.textfield.TextInputEditText android:id="@+id/email_input"
+                    android:layout_width="match_parent" android:layout_height="48dp" android:inputType="textEmailAddress" />
+            </com.google.android.material.textfield.TextInputLayout>
+            <TextView android:id="@+id/auth_login_instruction" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="18dp" android:minHeight="20dp" android:text="@string/auth_exact_login_instruction"
+                android:textSize="12sp" android:textColor="@color/group_buy_muted" />
+            <TextView android:id="@+id/submit_button" android:layout_width="match_parent" android:layout_height="52dp"
+                android:layout_marginTop="30dp" android:background="@drawable/after_sale_primary" android:gravity="center"
+                android:text="@string/login" android:textSize="16sp" android:textColor="@android:color/white" android:clickable="true" android:focusable="true" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="14dp" android:gravity="center_vertical">
+                <TextView android:id="@+id/auth_mode_prompt" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:text="@string/auth_exact_no_account" android:textSize="13sp" android:textColor="@color/group_buy_muted" />
+                <TextView android:id="@+id/register_mode_button" style="@style/ExactAuthModeLink" android:text="@string/auth_exact_to_register" />
+                <TextView android:id="@+id/login_mode_button" style="@style/ExactAuthModeLink" android:text="@string/auth_exact_to_login" android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/auth_agreement" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_marginHorizontal="24dp" android:layout_marginBottom="96dp" android:gravity="center"
+        android:text="@string/auth_exact_login_agreement" android:textSize="11sp" android:textColor="@color/group_buy_muted"
+        app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

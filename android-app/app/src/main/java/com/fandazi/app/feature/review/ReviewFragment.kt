@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -18,6 +17,7 @@ import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.core.image.AfterSaleImageLoader
 import com.fandazi.app.core.time.BusinessDisplay
+import com.fandazi.app.feature.support.AfterSaleSuccessContent
 import kotlinx.coroutines.launch
 
 /** UI-19：资格、订单和门店均由服务端决定，禁止用页面本地状态代替核销判断。 */
@@ -26,6 +26,8 @@ class ReviewFragment : Fragment(R.layout.fragment_review) {
     private var eligible = false
     private var submitting = false
     private var rating = 0
+    /** 仅后端发布成功才能置位；旋转后恢复结果主体而不是重发评价或重新开启表单。 */
+    private var published = false
     /** 仅输入校验错误随编辑清除，资格或网络错误必须由实际重试结果解除。 */
     private var inputErrorVisible = false
 
@@ -33,16 +35,19 @@ class ReviewFragment : Fragment(R.layout.fragment_review) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         rating = savedInstanceState?.getInt("reviewRating") ?: 0
+        published = savedInstanceState?.getBoolean("reviewPublished") ?: false
     }
 
     /** 保存用户输入星级；核销资格不持久化，进入页面重新查询。 */
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt("reviewRating", rating)
+        outState.putBoolean("reviewPublished", published)
         super.onSaveInstanceState(outState)
     }
 
     /** 绑定评分、字数和提交操作，进入后重新读取订单资格。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if (published) { showPublished(view); return }
         view.findViewById<View>(R.id.review_back).setOnClickListener { findNavController().navigateUp() }
         // 五个独立等宽触摸区域避免缩放 RatingBar 导致最后一星越界或触点不准。
         starIds.forEachIndexed { index, id ->
@@ -103,12 +108,11 @@ class ReviewFragment : Fragment(R.layout.fragment_review) {
         viewLifecycleOwner.lifecycleScope.launch {
             when (val result = app.afterSaleRepository.publishReview(requireArguments().getString("orderId").orEmpty(), rating, content)) {
                 is ApiResult.Success -> {
-                    // 后端已写入成功，立即刷新资格；即使弹窗被关闭，也不能重复发布。
+                    // 真实发布成功后关闭写入口，完整结果主体替换表单，不能由成功话术伪造资格。
                     eligible = false
+                    published = true
                     app.voucherRepository.getOrder(requireArguments().getString("orderId").orEmpty())
-                    AlertDialog.Builder(requireContext()).setMessage("评价已发布")
-                        .setCancelable(false)
-                        .setPositiveButton("返回订单") { _, _ -> findNavController().navigateUp() }.show()
+                    showPublished(view)
                 }
                 is ApiResult.Failure -> {
                     submitting = false
@@ -117,6 +121,12 @@ class ReviewFragment : Fragment(R.layout.fragment_review) {
                 }
             }
         }
+    }
+
+    /** UI-19R使用已确认Figma结果构图；只在真实发布成功或同一次成功状态恢复后调用。 */
+    private fun showPublished(view: View) {
+        AfterSaleSuccessContent.show(view.findViewById(R.id.review_form), view.findViewById(R.id.review_result),
+            "发布评价", "评价已发布", "感谢分享这次用餐体验", "返回订单") { findNavController().navigateUp() }
     }
 
     /** 清除旧错误，避免加载成功后仍显示前一次网络异常。 */

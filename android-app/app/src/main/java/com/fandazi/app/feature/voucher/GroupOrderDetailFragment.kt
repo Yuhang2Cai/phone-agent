@@ -78,9 +78,17 @@ class GroupOrderDetailFragment : Fragment(R.layout.fragment_group_order_detail) 
         view.findViewById<TextView>(R.id.group_order_store).text = order.storeName
         view.findViewById<TextView>(R.id.group_order_deal).text = order.dealTitle
         view.findViewById<TextView>(R.id.group_order_detail_total).text = "数量 ${order.quantity}  " + VoucherPresentation.amount(order)
+        // 实付快照是付款事实，支付时间只说明时间是否可得；历史已付款记录可能没有paidAt。
+        // 不用券状态或当前时间补造支付记录，也不能因时间缺失把已支付误写成未支付。
+        val paymentRecord = when {
+            order.paidTotalCents != null && order.paidAt != null -> "已支付 · 模拟支付 · ${BusinessDisplay.time(order.paidAt)}"
+            order.paidTotalCents != null -> "已支付 · 支付时间暂未记录"
+            order.status == "PENDING_PAYMENT" -> "未支付"
+            else -> "付款记录暂未提供"
+        }
         view.findViewById<TextView>(R.id.group_order_info).text = listOf(
             "订单编号  ${order.orderId}", "下单时间  ${BusinessDisplay.time(order.createdAt)}",
-            "支付记录  " + if (order.paidAt != null) "模拟支付 · ${BusinessDisplay.time(order.paidAt)}" else "未支付",
+            "支付记录  $paymentRecord",
             "有效期  ${BusinessDisplay.time(order.expiresAt)}").joinToString("\n")
         view.findViewById<TextView>(R.id.group_order_rules).text = order.dealDescription?.takeIf(String::isNotBlank) ?: "使用说明暂未提供"
         AfterSaleImageLoader.load(view.findViewById(R.id.group_order_image), order.imageUrl, order.imageAlt) { load(view) }

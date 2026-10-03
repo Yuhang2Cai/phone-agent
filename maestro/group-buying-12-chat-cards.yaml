@@ -1,0 +1,58 @@
+# Task12正式只读卡片：明确真实目录城市/品类覆盖历史偏好，卡片内容与导航只来自后端。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "我所在城市代码是${MAESTRO_CITY_CODE}，帮我推荐火锅门店"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_store_card"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: UI-15D-real-store-cards
+# 收到卡片不自动跳页；点击只读查看按钮后才进入真实门店，返回保留同一聊天历史。
+- tapOn:
+    id: "com.fandazi.app:id/agent_store_action"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/store_back"
+    timeout: 30000
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "我所在城市代码是${MAESTRO_CITY_CODE}，帮我推荐火锅团购套餐"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_deal_card"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: UI-15E-real-deal-cards
+- tapOn:
+    id: "com.fandazi.app:id/agent_deal_action"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/deal_title"
+    timeout: 30000
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- assertNotVisible: "确认支付"
+- assertNotVisible: "确认退款"
+- takeScreenshot: UI-15E-returned-chat-history

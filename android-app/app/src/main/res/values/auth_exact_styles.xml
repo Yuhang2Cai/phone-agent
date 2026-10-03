@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 同构账号/密码/昵称行共享尺寸与文字样式；仅定义UI，不定义任何身份或后端业务值。 -->
+<resources>
+    <style name="ExactAuthBack">
+        <item name="android:layout_width">44dp</item><item name="android:layout_height">56dp</item>
+        <item name="android:layout_marginStart">18dp</item><item name="android:gravity">center_vertical</item>
+        <item name="android:text">@string/auth_exact_back_symbol</item><item name="android:textSize">34sp</item>
+        <item name="android:textColor">@color/home_ink</item><item name="android:contentDescription">@string/auth_exact_back</item>
+    </style>
+    <style name="ExactAuthRow">
+        <item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item>
+        <item name="android:minHeight">58dp</item><item name="android:gravity">center_vertical</item>
+        <item name="android:background">@drawable/auth_exact_field</item>
+    </style>
+    <style name="ExactAuthLabel">
+        <item name="android:layout_width">70dp</item><item name="android:layout_height">wrap_content</item>
+        <item name="android:paddingStart">18dp</item><item name="android:textSize">14sp</item><item name="android:textColor">@color/group_buy_muted</item>
+    </style>
+    <style name="ExactAuthInputContainer">
+        <item name="android:layout_width">0dp</item><item name="android:layout_height">wrap_content</item><item name="android:layout_weight">1</item>
+        <item name="hintEnabled">false</item><item name="boxBackgroundMode">none</item>
+    </style>
+    <style name="ExactAuthInput">
+        <item name="android:layout_width">match_parent</item><item name="android:layout_height">58dp</item>
+        <item name="android:background">@null</item><item name="android:paddingHorizontal">18dp</item>
+        <item name="android:singleLine">true</item><item name="android:textSize">15sp</item><item name="android:textColor">@color/home_ink</item>
+    </style>
+    <style name="ExactAuthModeLink">
+        <item name="android:layout_width">0dp</item><item name="android:layout_height">48dp</item><item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_vertical</item><item name="android:textSize">13sp</item><item name="android:textColor">@color/group_buy_orange</item>
+        <item name="android:clickable">true</item><item name="android:focusable">true</item>
+    </style>
+</resources>

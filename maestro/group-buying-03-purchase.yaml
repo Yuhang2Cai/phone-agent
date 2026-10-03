@@ -16,11 +16,32 @@ appId: com.fandazi.app
     visible:
       id: "com.fandazi.app:id/home_search_button"
     timeout: 30000
-- scrollUntilVisible:
-    element:
-      text: "store-card-${TASK6_STORE_ID}"
-    direction: DOWN
-    timeout: 15000
+# 新全链以当前API返回的门店名称搜索，避免目录扩容后靠固定滚动预算寻找独占夹具。
+# 旧Task6/7运行器尚未传名称，保留原入口；两种入口最终均核对真实公开ID，不选第一条结果。
+- runFlow:
+    when:
+      true: ${typeof TASK6_STORE_NAME !== "undefined" && TASK6_STORE_NAME.length > 0}
+    commands:
+      - tapOn:
+          id: "com.fandazi.app:id/home_search_button"
+      - tapOn:
+          id: "com.fandazi.app:id/search_input"
+      - inputText: "${TASK6_STORE_NAME}"
+      - hideKeyboard
+      - tapOn:
+          id: "com.fandazi.app:id/search_button"
+      - extendedWaitUntil:
+          visible: "store-card-${TASK6_STORE_ID}"
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${typeof TASK6_STORE_NAME === "undefined" || TASK6_STORE_NAME.length === 0}
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "store-card-${TASK6_STORE_ID}"
+          direction: DOWN
+          timeout: 15000
 - tapOn: "store-card-${TASK6_STORE_ID}"
 - extendedWaitUntil:
     visible: "store-deal-${TASK6_DEAL_ID}"

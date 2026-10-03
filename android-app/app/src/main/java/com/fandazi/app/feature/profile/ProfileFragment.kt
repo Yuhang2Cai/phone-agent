@@ -46,12 +46,12 @@ class ProfileFragment : Fragment(R.layout.fragment_profile) {
         }
     }
 
-    /** 登录身份只显示真实用户名；游客菜单不展示需要业务权限的条目。 */
+    /** 登录身份优先显示后端真实昵称，旧账号回退用户名；游客不展示业务权限菜单。 */
     private fun render(binding: FragmentProfileBinding, state: SessionState) {
         // 直接消费已提交的真实会话模型，不引入旧地址/自动下单展示类这一未交付依赖。
         val account = (state as? SessionState.Authenticated)?.user
         val authenticated = account != null
-        binding.profileAccountName.text = account?.username ?: "游客"
+        binding.profileAccountName.text = account?.nickname?.takeIf { it.isNotBlank() } ?: account?.username ?: "游客"
         binding.profileGuestHint.isVisible = !authenticated
         binding.profileLoginEntry.isVisible = !authenticated
         binding.profileLogout.isVisible = authenticated

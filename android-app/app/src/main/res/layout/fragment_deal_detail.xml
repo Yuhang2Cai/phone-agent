@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 通过AppCompat着色兼容API26；图标及Figma色值不变。 -->
 <!-- 团购套餐详情 UI-06；仅保留返回、套餐信息、团购明细与购买入口。 -->
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -39,7 +40,7 @@
                     android:contentDescription="返回"
                     android:padding="12dp"
                     android:src="@drawable/ic_back"
-                    android:tint="@color/group_buy_text" />
+                    app:tint="@color/group_buy_text" />
             </FrameLayout>
 
             <LinearLayout

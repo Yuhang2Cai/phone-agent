@@ -86,6 +86,12 @@ appId: com.fandazi.app
 - extendedWaitUntil:
     visible: "反馈已提交"
     timeout: 30000
+# 成功页必须替换整个编辑表单，不接受叠在原表单上的系统弹窗冒充Figma结果主体。
+- assertVisible: "平台已保存你的反馈记录"
+- assertVisible:
+    id: "com.fandazi.app:id/after_sale_result_return"
+- assertNotVisible:
+    id: "com.fandazi.app:id/complaint_description"
 - takeScreenshot: complaint-submitted
 - tapOn: "返回帮助"
 - assertVisible:

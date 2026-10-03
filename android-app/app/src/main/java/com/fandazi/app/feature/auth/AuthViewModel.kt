@@ -16,16 +16,18 @@ class AuthViewModel(private val processor: AuthFormProcessor) : ViewModel() {
 // 处理 `showRegister` 相关逻辑。
     fun showRegister() = processor.setRegisterMode(true)
 // 更新draft。
-    fun updateDraft(username: String, email: String, password: String) = processor.updateDraft(username, email, password)
+    /** 将可选昵称与表单草稿一并保存，不与邮箱兼容字段混用。 */
+    fun updateDraft(username: String, email: String, password: String, nickname: String = "") = processor.updateDraft(username, email, password, nickname)
 // 处理 `continueAsGuest` 相关逻辑。
     fun continueAsGuest() {
         Log.d(TAG, "AuthViewModel continueAsGuest started")
         viewModelScope.launch { processor.continueAsGuest() }
     }
 // 处理 `submit` 相关逻辑。
-    fun submit(username: String, email: String, password: String) {
+    /** 注册传递可选昵称；登录不使用昵称，保持账号密码验证和原会话归属。 */
+    fun submit(username: String, email: String, password: String, nickname: String = "") {
         viewModelScope.launch {
-            if (state.value.isRegisterMode) processor.submitRegister(username, email, password)
+            if (state.value.isRegisterMode) processor.submitRegister(username, email, password, nickname)
             else processor.submitLogin(username, password)
         }
     }

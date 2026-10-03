@@ -37,7 +37,7 @@ public class AuthService {
         }
         try {
             UserEntity user = users.saveAndFlush(new UserEntity(
-                    request.username(), email, passwordEncoder.encode(request.password())));
+                    request.username(), email, passwordEncoder.encode(request.password()), request.nickname()));
             return responseFor(user);
         } catch (DataIntegrityViolationException exception) {
             if (isUsernameOrEmailUniqueConstraint(exception)) {

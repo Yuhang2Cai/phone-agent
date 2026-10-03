@@ -1,0 +1,19 @@
+# Task12新购订单真实券查询；进入订单详情后显式展开，不把旧Task6目标当券列表。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/voucher_row_title"
+    timeout: 30000
+- takeScreenshot: UI-12-purchased-voucher-list
+- tapOn:
+    id: "com.fandazi.app:id/voucher_row_title"
+    index: 1
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/voucher_refund"
+    timeout: 30000
+- assertNotVisible: "出示核销码"
+- takeScreenshot: UI-12-purchased-voucher-detail

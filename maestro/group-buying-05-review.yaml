@@ -52,10 +52,18 @@ appId: com.fandazi.app
 - extendedWaitUntil:
     visible: "评价已发布"
     timeout: 30000
+# 后端成功后显示UI-19R独立结果主体，评分和正文编辑入口不得仍在弹窗背景中。
+- assertVisible: "感谢分享这次用餐体验"
+- assertVisible:
+    id: "com.fandazi.app:id/after_sale_result_return"
+- assertNotVisible:
+    id: "com.fandazi.app:id/review_content"
 - takeScreenshot: review-submitted
 - tapOn: "返回订单"
 - extendedWaitUntil:
     notVisible:
       id: "com.fandazi.app:id/group_order_review"
     timeout: 30000
+# 评价资格来自已付款订单；返回页不能因为历史支付时间空值而将权威实付事实显示成未支付。
+- assertNotVisible: "(?s).*支付记录.*未支付.*"
 - takeScreenshot: review-eligibility-refreshed

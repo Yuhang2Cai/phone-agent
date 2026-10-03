@@ -31,7 +31,11 @@ class SessionRepository(
 
 // 注册当前数据。
     override suspend fun register(username: String, email: String, password: String): ApiResult<AuthResponse> =
-        persistSuccessful(authGateway.register(username, email, password))
+        register(username, email, password, null)
+
+    /** 保存后端带可选昵称的真实身份；沿用加密会话写失败保护，不提前宣称注册成功。 */
+    override suspend fun register(username: String, email: String, password: String, nickname: String?): ApiResult<AuthResponse> =
+        persistSuccessful(authGateway.register(username, email, password, nickname))
 
 // 退出登录当前数据。
     override suspend fun logout() {

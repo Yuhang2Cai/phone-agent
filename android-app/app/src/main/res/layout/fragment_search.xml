@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- 搜索与筛选结果 UI-02：复用首页分类、排序和团购门店卡片。 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:orientation="vertical">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:orientation="vertical">
     <LinearLayout android:layout_width="match_parent" android:layout_height="76dp" android:background="@color/group_buy_green" android:gravity="bottom|center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="10dp" android:paddingBottom="8dp">
-        <ImageButton android:id="@+id/search_back" android:layout_width="38dp" android:layout_height="44dp" android:background="@android:color/transparent" android:contentDescription="返回" android:padding="9dp" android:src="@drawable/ic_back" android:tint="@color/surface_card" />
+        <ImageButton android:id="@+id/search_back" android:layout_width="38dp" android:layout_height="44dp" android:background="@android:color/transparent" android:contentDescription="返回" android:padding="9dp" android:src="@drawable/ic_back" app:tint="@color/surface_card" />
         <LinearLayout android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1" android:background="@drawable/group_buy_search_background" android:gravity="center_vertical" android:paddingStart="12dp">
             <ImageView android:layout_width="21dp" android:layout_height="21dp" android:contentDescription="搜索" android:src="@drawable/ic_home_search" />
             <!-- 搜索提交采用系统键盘搜索动作，避免每次输入字符都发真实业务请求。 -->

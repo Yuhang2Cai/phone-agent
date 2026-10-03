@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- UI-20B：类型、正文和可选订单真实可交互；提交前必须取得后端确认凭证。 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout android:id="@+id/complaint_form"
     android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
     android:background="@color/after_sale_background">
     <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical" android:paddingHorizontal="16dp">
@@ -59,3 +61,7 @@
         android:layout_marginHorizontal="16dp" android:layout_marginBottom="16dp" android:background="@drawable/after_sale_primary"
         android:gravity="center" android:text="提交反馈" android:textColor="@android:color/white" android:textSize="17sp" android:enabled="false" />
 </LinearLayout>
+    <!-- 后端确认工单写入后才显示成功主体，失败仍留在表单供用户核查和恢复。 -->
+    <include android:id="@+id/complaint_result" layout="@layout/after_sale_success_content"
+        android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+</FrameLayout>

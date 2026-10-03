@@ -31,6 +31,8 @@ class ComplaintFragment : Fragment(R.layout.fragment_complaint) {
     private var submitting = false
     private var typesReady = false
     private var selectedTypeId: String? = null
+    /** 仅保存后端已确认的工单公开标识；非空才可恢复成功主体，不重新消费一次性授权。 */
+    private var submittedTicketId: String? = null
     /** 编辑只能清除已经修正的输入错误，不能隐藏目录、网络或提交不确定状态。 */
     private var inputErrorVisible = false
 
@@ -40,6 +42,7 @@ class ComplaintFragment : Fragment(R.layout.fragment_complaint) {
         sessionId = savedInstanceState?.getString("complaintSessionId") ?: sessionId
         orderId = savedInstanceState?.getString("complaintOrderId") ?: arguments?.getString("orderId")
         selectedTypeId = savedInstanceState?.getString("complaintTypeId")
+        submittedTicketId = savedInstanceState?.getString("complaintSubmittedTicketId")
     }
 
     /** 只保留资源标识；一次性 grant 不写入持久化状态。 */
@@ -47,11 +50,13 @@ class ComplaintFragment : Fragment(R.layout.fragment_complaint) {
         outState.putString("complaintSessionId", sessionId)
         outState.putString("complaintOrderId", orderId)
         outState.putString("complaintTypeId", selectedTypeId)
+        outState.putString("complaintSubmittedTicketId", submittedTicketId)
         super.onSaveInstanceState(outState)
     }
 
     /** 入口允许不关联订单；需要关联时仅从本人订单列表选择。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        if (submittedTicketId != null) { showSubmitted(view); return }
         view.findViewById<View>(R.id.complaint_back).setOnClickListener { findNavController().navigateUp() }
         view.findViewById<View>(R.id.complaint_order_picker).setOnClickListener { chooseOrder(view) }
         view.findViewById<View>(R.id.complaint_submit).setOnClickListener { prepareAndConfirm(view) }
@@ -212,23 +217,18 @@ class ComplaintFragment : Fragment(R.layout.fragment_complaint) {
         }
     }
 
-    /** 非幂等提交不自动重试；成功时将真实工单号和后端状态转换为可读摘要。 */
+    /** 非幂等提交不自动重试；仅后端确认写入后切换成功主体，异常仍留原表单。 */
     private fun submit(view: View, selectedOrderId: String?, subject: String, description: String, grant: String) {
         if (submitting) return
         submitting = true
         view.findViewById<View>(R.id.complaint_submit).isEnabled = false
         viewLifecycleOwner.lifecycleScope.launch {
             when (val result = app.afterSaleRepository.submitComplaint(sessionId, selectedOrderId, subject, description, grant)) {
-                is ApiResult.Success -> AlertDialog.Builder(requireContext()).setTitle("反馈已提交")
-                    // 编号只作人工检索提示，完整标识仍以服务端工单为准；状态不能直接露出 OPEN 枚举。
-                    .setMessage("工单编号（末8位）：${result.value.ticketId.takeLast(8).uppercase()}\n当前状态：${when (result.value.status) {
-                        "OPEN" -> "待处理"
-                        "IN_PROGRESS" -> "处理中"
-                        "RESOLVED", "CLOSED" -> "已处理"
-                        else -> "状态更新中"
-                    }}")
-                    .setCancelable(false)
-                    .setPositiveButton("返回帮助") { _, _ -> findNavController().navigateUp() }.show()
+                is ApiResult.Success -> {
+                    // 工单标识来自真实响应；结果页只确认已保存，不承诺处理时限或冒称已解决。
+                    submittedTicketId = result.value.ticketId
+                    showSubmitted(view)
+                }
                 is ApiResult.Failure -> {
                     submitting = false
                     view.findViewById<View>(R.id.complaint_submit).isEnabled = true
@@ -236,6 +236,12 @@ class ComplaintFragment : Fragment(R.layout.fragment_complaint) {
                 }
             }
         }
+    }
+
+    /** UI-20C完整结果替换原表单；只有用户点击后才返回帮助，不覆盖确认提交阶段。 */
+    private fun showSubmitted(view: View) {
+        AfterSaleSuccessContent.show(view.findViewById(R.id.complaint_form), view.findViewById(R.id.complaint_result),
+            "投诉与反馈", "反馈已提交", "平台已保存你的反馈记录", "返回帮助") { findNavController().navigateUp() }
     }
 
     /** 错误状态始终留在当前页面，不把网络失败展示成成功工单。 */

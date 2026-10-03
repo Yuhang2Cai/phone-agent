@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-20C/19R共用成功构图：仅真实写入成功后替换表单，图标来自Figma134:73/135:73原资产。 -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/after_sale_background">
+    <!-- 结果仍属于原页面；返回按钮与主按钮都回到原调用方，不新增自动跳转。 -->
+    <TextView android:id="@+id/after_sale_result_back" android:layout_width="44dp" android:layout_height="56dp"
+        android:layout_marginStart="16dp" android:gravity="center_vertical" android:text="‹"
+        android:textSize="34sp" android:textColor="@color/after_sale_ink" android:contentDescription="返回"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" />
+    <TextView android:id="@+id/after_sale_result_header" android:layout_width="0dp" android:layout_height="56dp"
+        android:layout_marginHorizontal="64dp" android:gravity="center" android:textSize="21sp"
+        android:textStyle="bold" android:textColor="@color/after_sale_ink"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- 用相对高度保持已确认的大留白；下面内容按真实字体逐项排布，不靠绝对坐标重叠。 -->
+    <androidx.constraintlayout.widget.Guideline android:id="@+id/after_sale_result_top"
+        android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.255" />
+    <ImageView android:layout_width="92dp" android:layout_height="92dp"
+        android:src="@drawable/after_sale_success" android:scaleType="fitCenter" android:contentDescription="提交成功"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/after_sale_result_top" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_marginTop="116dp" android:layout_marginHorizontal="16dp" android:orientation="vertical"
+        android:gravity="center_horizontal" app:layout_constraintTop_toTopOf="@id/after_sale_result_top"
+        app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent">
+        <TextView android:id="@+id/after_sale_result_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:minHeight="42dp" android:gravity="center" android:textSize="24sp" android:textStyle="bold"
+            android:textColor="@color/after_sale_ink" />
+        <TextView android:id="@+id/after_sale_result_description" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="3dp" android:minHeight="42dp" android:gravity="center" android:textSize="14sp"
+            android:textColor="@color/after_sale_muted" />
+        <TextView android:id="@+id/after_sale_result_return" android:layout_width="match_parent" android:layout_height="49dp"
+            android:layout_marginTop="74dp" android:background="@drawable/after_sale_primary"
+            android:gravity="center" android:textSize="16sp" android:textStyle="bold" android:textColor="@android:color/white"
+            android:clickable="true" android:focusable="true" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

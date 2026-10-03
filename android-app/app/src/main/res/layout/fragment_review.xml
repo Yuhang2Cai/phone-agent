@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- UI-19：订单摘要、可点击星级和可编辑正文；未取得真实套餐图片时不展示固定餐图。 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout android:id="@+id/review_form"
     android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
     android:background="@color/after_sale_background">
     <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical" android:paddingHorizontal="16dp">
@@ -64,3 +66,7 @@
         android:layout_marginHorizontal="16dp" android:layout_marginBottom="16dp" android:background="@drawable/after_sale_primary"
         android:gravity="center" android:text="发布评价" android:textColor="@android:color/white" android:textSize="17sp" android:enabled="false" />
 </LinearLayout>
+    <!-- 成功后隐藏整个编辑表单，只呈现已确认结果；布局共享不共享任何业务事实。 -->
+    <include android:id="@+id/review_result" layout="@layout/after_sale_success_content"
+        android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+</FrameLayout>
