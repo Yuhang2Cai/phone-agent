@@ -2,6 +2,7 @@
 package com.fandazi.app.feature.agent
 
 import com.fandazi.app.core.network.ApiError
+import com.fandazi.app.core.network.CoroutineCallExecutor
 import com.fandazi.app.core.network.ApiResult
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -168,20 +169,24 @@ class HttpAgentRepository(
         Request.Builder().url(url("automation/task-grants?sessionId=$sessionId")).delete().build()
     ) { Unit }
 
+    /** 普通助手HTTP沿用120秒请求上限和原错误分类；SSE仍使用自身活动Call/续接逻辑。 */
+    private val ordinaryExecutor = CoroutineCallExecutor(
+        this.client.newBuilder().callTimeout(120, TimeUnit.SECONDS).build(), onUnauthorized, ::errorMessage,
+        networkError = { ApiError.Network(it.message ?: "Network request failed") }
+    )
+
+    /** 后台解析共享执行器成功文本，取消继续传播；解析异常保留原网络失败映射，不自动重发写消息。 */
     private suspend fun <T> executeJson(request: Request, parser: (String) -> T): ApiResult<T> = withContext(ioDispatcher) {
         try {
-            // 普通 HTTP 请求与长连接分开限制等待；SSE 可长期空闲，消息请求不能永久挂起。
-            client.newBuilder().callTimeout(120, TimeUnit.SECONDS).build().newCall(request).execute().use { response ->
-                // 在消费响应前同步全局身份，避免页面仍显示登录、重试继续发送同一过期令牌。
-                invalidateRejectedCredential(response)
-                val body = response.body?.string().orEmpty()
-                if (response.isSuccessful) ApiResult.Success(parser(body))
-                else ApiResult.Failure(ApiError.Http(response.code, errorMessage(body, response.message)))
+            when (val result = ordinaryExecutor.execute(request)) {
+                is ApiResult.Success -> {
+                    currentCoroutineContext().ensureActive()
+                    ApiResult.Success(parser(result.value))
+                }
+                is ApiResult.Failure -> result
             }
         } catch (cancelled: CancellationException) {
             throw cancelled
-        } catch (error: IOException) {
-            ApiResult.Failure(ApiError.Network(error.message ?: "Network request failed"))
         } catch (error: Exception) {
             ApiResult.Failure(ApiError.Network(error.message ?: "Unable to read server response"))
         }

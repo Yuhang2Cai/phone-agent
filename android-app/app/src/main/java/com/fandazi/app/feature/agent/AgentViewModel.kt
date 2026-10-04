@@ -8,6 +8,7 @@ import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,6 +50,8 @@ class AgentViewModel(
      */
     val navigation = _uiState.asStateFlow().map { it.navigation }
     private var eventsJob: Job? = null
+    /** 同轮SSE可能先允许下一轮，故维护全部仍等待的普通消息任务；同步保护完成回调与离页取消竞争。 */
+    private val messageJobs = mutableSetOf<Job>()
     /** HTTP可能晚于待输入SSE返回；轮次编号保证旧回答不能覆盖用户已经开始的新一轮。 */
     private var requestGeneration = 0L
     private var sessionId: String = savedState[SESSION_ID] ?: UUID.randomUUID().toString().also { savedState[SESSION_ID] = it }
@@ -68,6 +71,7 @@ class AgentViewModel(
         ++requestGeneration
         viewModelScope.coroutineContext.cancelChildren()
         eventsJob = null
+        synchronized(messageJobs) { messageJobs.clear() }
         retryText = null
         retryDisplayText = null
         requestedAmountLimit = null
@@ -89,6 +93,10 @@ class AgentViewModel(
     fun closeAssistant() {
         eventsJob?.cancel()
         eventsJob = null
+        // 离页停止所有尚未完成的HTTP等待；服务器可能已接受写入，保留会话和消息，返回只续接不重发原语句。
+        val pending = synchronized(messageJobs) { messageJobs.toList() }
+        if (pending.isNotEmpty()) ++requestGeneration
+        pending.forEach { it.cancel() }
         updateState { it.copy(sheetMode = AgentSheetMode.HIDDEN) }
     }
 
@@ -214,7 +222,9 @@ class AgentViewModel(
             )
         }
         if (_uiState.value.sheetMode != AgentSheetMode.HIDDEN && eventsJob?.isActive != true) subscribeEvents()
-        viewModelScope.launch(dispatcher) {
+        // 记录尝试过的会话使HTTP尚未回包的离页也能回来续接；未被服务器接受时SSE仍按已有404预算结束。
+        savedState[SESSION_ESTABLISHED] = true
+        val messageJob = viewModelScope.launch(dispatcher, start = CoroutineStart.LAZY) {
             when (val result = repository.sendMessage(sessionId, request, mode())) {
                 is ApiResult.Success -> {
                     if (generation != requestGeneration) return@launch
@@ -225,6 +235,10 @@ class AgentViewModel(
                 is ApiResult.Failure -> if (generation == requestGeneration) showError(result.error)
             }
         }
+        // 先登记后启动，避免立即完成的调用留下悬挂Job；完成只移除自身，不误取消下一轮请求。
+        synchronized(messageJobs) { messageJobs.add(messageJob) }
+        messageJob.invokeOnCompletion { synchronized(messageJobs) { messageJobs.remove(messageJob) } }
+        messageJob.start()
     }
 
 // 重试当前数据。

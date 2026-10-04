@@ -1,0 +1,74 @@
+# 普通HTTP设备取消验收：真实业务数据经过受控延迟透传，REQUEST_PHASE由运行器配置，不录音。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${REQUEST_PHASE == "filter" || REQUEST_PHASE == "detail"}
+    commands:
+      - launchApp:
+          clearState: true
+      - tapOn:
+          id: com.fandazi.app:id/skip_login_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${REQUEST_PHASE == "filter"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/category_drink
+      - assertVisible: 正在加载门店
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - takeScreenshot: HTTP-new-filter-only
+- runFlow:
+    when:
+      true: ${REQUEST_PHASE == "detail"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/store_name
+          index: 0
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/deal_action
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/deal_action
+          index: 0
+      - assertVisible: 正在加载套餐
+      - tapOn:
+          id: com.fandazi.app:id/deal_back
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_tab_deals
+          timeout: 15000
+      - assertNotVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+      - takeScreenshot: HTTP-left-detail-before-response
+- runFlow:
+    when:
+      true: ${REQUEST_PHASE == "chat"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: hello
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - assertNotVisible: 已回滚交易
+      - takeScreenshot: HTTP-left-chat-stops-waiting

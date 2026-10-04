@@ -47,7 +47,9 @@ class FandaziApplication : Application() {
         super.onCreate()
         apiClient = ApiClient(
             baseUrl = BuildConfig.API_BASE_URL,
-            tokenProvider = { sessionRepository.tokenOrNull() }
+            tokenProvider = { sessionRepository.tokenOrNull() },
+            // 普通业务请求与Agent保持唯一身份源；回调携带实际请求令牌，迟到旧401由身份仓库拒绝误注销。
+            onUnauthorized = { rejectedToken -> sessionRepository.invalidateToken(rejectedToken) }
         )
         sessionRepository = SessionRepository(ApiAuthGateway(apiClient), EncryptedSessionStorage(this))
         memoryRepository = com.fandazi.app.feature.memory.MemoryRepository(apiClient)
