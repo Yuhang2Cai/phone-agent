@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.isActive
@@ -74,7 +75,11 @@ class HttpAgentRepository(
                 .build()
         ) { body -> parseMessage(body) }
 
-// 处理 `streamEvents` 相关逻辑。
+    /**
+     * 按数据库SSE游标订阅公开会话事件，返回有界串行Flow；消费慢时暂停读取，不丢文字或关键终态。
+     * afterEventId来自状态层已应用位置；连接内只在成功入队后推进游标。取消关闭活动Call，
+     * 401/403或三次连续连接故障结束Flow并传播异常，任何取消均不得作为网络故障自动重试。
+     */
     override fun streamEvents(sessionId: String, afterEventId: Long?): Flow<AgentEvent> = callbackFlow {
         // 取消页面订阅时同时取消阻塞中的 OkHttp 调用，避免旧连接继续占用线程和推送历史事件。
         val activeCall = java.util.concurrent.atomic.AtomicReference<okhttp3.Call?>()
@@ -89,6 +94,8 @@ class HttpAgentRepository(
                 try {
                     val call = client.newCall(request)
                     activeCall.set(call)
+                    // 先登记再检查取消，覆盖awaitClose已执行而新Call尚未开始的竞争；未执行的Call不占网络资源。
+                    currentCoroutineContext().ensureActive()
                     call.execute().use { response ->
                         // SSE与普通消息共用失效策略，401不反复重连；403仅表示权限拒绝。
                         invalidateRejectedCredential(response)
@@ -102,9 +109,11 @@ class HttpAgentRepository(
                                     line.startsWith("data:") -> data.append(line.removePrefix("data:").trim())
                                     line.isBlank() && data.isNotBlank() -> {
                                         parseEvent(id, data.toString())?.let { event ->
+                                            // 等待有界队列有容量再交付，不能忽略trySend失败后推进至尚未入队的位置。
+                                            // send取消会直接抛取消异常，游标保留旧值；重新订阅仍由状态层已应用游标起步。
+                                            send(event)
                                             consecutiveFailures = 0
                                             cursor = event.id ?: cursor
-                                            trySend(event)
                                         }
                                         id = null
                                         data.clear()
@@ -113,8 +122,10 @@ class HttpAgentRepository(
                             }
                         }
                         if (data.isNotBlank()) parseEvent(id, data.toString())?.let { event ->
+                            // EOF前没有空行的合法末事件也走同一交付顺序，不能成为不受背压保护的另一条路径。
+                            send(event)
+                            consecutiveFailures = 0
                             cursor = event.id ?: cursor
-                            trySend(event)
                         }
                     }
                     if (currentCoroutineContext().isActive) delay(reconnectDelayMillis)
@@ -199,14 +210,15 @@ class HttpAgentRepository(
         )
     }
 
-// 解析事件。
+    /** 解析并脱敏SSE数据，数据库恢复身份只取行id；JSON的协议身份不能冒充已持久化游标。 */
     private fun parseEvent(id: Long?, raw: String): AgentEvent? = runCatching {
         val value = JsonParser.parseString(raw).asJsonObject
-        value.toEvent(id)
+        value.toEvent(id, fromSse = true)
     }.getOrNull()
 
-    private fun JsonObject.toEvent(fallbackId: Long? = null) = AgentEvent(
-        id = string("id")?.toLongOrNull() ?: fallbackId,
+    /** HTTP公开事件仍读其数据库id；SSE即使没有行id也不回退到JSON协议id，序号只作展示/去重负载。 */
+    private fun JsonObject.toEvent(databaseCursor: Long? = null, fromSse: Boolean = false) = AgentEvent(
+        id = if (fromSse) databaseCursor else string("id")?.toLongOrNull(),
         type = string("type").orEmpty(),
         summary = string("summary").orEmpty(),
         toolName = string("toolName"),
