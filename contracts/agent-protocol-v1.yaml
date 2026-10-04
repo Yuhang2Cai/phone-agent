@@ -30,6 +30,12 @@ fieldTypes:
   cents: &cents {type: integer, minimum: 0, description: "整数分，不接受浮点金额"}
   timestamp: &timestamp {type: string, format: date-time}
   date: &date {type: string, format: date}
+  # 公开餐图允许历史完整 URL 和受控版本化站内路径，其他相对路径仍拒绝进入卡片事件。
+  catalogImageUrl: &catalogImageUrl
+    oneOf:
+      - {type: "null"}
+      - {type: string, format: uri}
+      - {type: string, pattern: '^/catalog-images/v[0-9]+/(full|thumb)/[a-z0-9-]+-[a-f0-9]{12}\.jpg$'}
 
 agentRunRequest:
   type: object
@@ -323,7 +329,7 @@ storeCardData:
     averageSpendCents: *cents
     open: {type: boolean}
     openingHours: *text
-    imageUrl: {type: [string, "null"], format: uri}
+    imageUrl: *catalogImageUrl
     imageAlt: {type: [string, "null"]}
 dealCardData:
   type: object
@@ -340,7 +346,7 @@ dealCardData:
     validFrom: *date
     validTo: *date
     purchaseLimit: {type: integer, minimum: 1}
-    imageUrl: {type: [string, "null"], format: uri}
+    imageUrl: *catalogImageUrl
     imageAlt: {type: [string, "null"]}
 orderCardData:
   type: object
@@ -358,7 +364,7 @@ orderCardData:
     # 名称、图片都由 Spring 补齐；可选字段保持 1.1 已发布载荷的兼容性。
     storeName: *text
     dealTitle: *text
-    imageUrl: {type: [string, "null"], format: uri}
+    imageUrl: *catalogImageUrl
     imageAlt: {type: [string, "null"]}
 voucherCardData:
   type: object
@@ -378,7 +384,7 @@ voucherCardData:
     # 未支付时没有券支付分摊，不允许用套餐现价替代；金额由后端只读快照给出。
     amountCents: {type: [integer, "null"], minimum: 0}
     createdAt: *timestamp
-    imageUrl: {type: [string, "null"], format: uri}
+    imageUrl: *catalogImageUrl
     imageAlt: {type: [string, "null"]}
 couponCardData:
   type: object

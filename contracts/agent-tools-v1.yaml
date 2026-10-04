@@ -28,6 +28,12 @@ fieldTypes:
   reason: &reason {type: string, minLength: 1, maxLength: 500}
   subject: &subject {type: string, minLength: 1, maxLength: 255}
   description: &description {type: string, minLength: 1, maxLength: 2000}
+  # 图片既可保留历史完整 URL，也可使用审核过的本地版本化资源路径；其他相对路径不能绕过目录边界。
+  catalogImageUrl: &catalogImageUrl
+    oneOf:
+      - {type: "null"}
+      - {type: string, format: uri}
+      - {type: string, pattern: '^/catalog-images/v[0-9]+/(full|thumb)/[a-z0-9-]+-[a-f0-9]{12}\.jpg$'}
 
 commonRequest:
   type: object
@@ -87,7 +93,7 @@ definitions:
       open: {type: boolean}
       openingHours: *text
       phone: {type: [string, "null"]}
-      imageUrl: {type: [string, "null"], format: uri}
+      imageUrl: *catalogImageUrl
       # 图片缺失允许空值；替代文本来自目录事实，不由客户端拿其他餐品照片补齐。
       imageAlt: {type: [string, "null"]}
   deal:
@@ -107,7 +113,7 @@ definitions:
       validTo: *date
       purchaseLimit: {type: integer, minimum: 1}
       active: {type: boolean}
-      imageUrl: {type: [string, "null"], format: uri}
+      imageUrl: *catalogImageUrl
       imageAlt: {type: [string, "null"]}
   review:
     type: object
@@ -134,7 +140,7 @@ definitions:
       canRefund: {type: boolean, description: "来自 Spring 资格判断，UNUSED 本身不足以推断可退款"}
       expiresAt: *timestamp
       redeemedAt: {type: [string, "null"], format: date-time}
-      imageUrl: {type: [string, "null"], format: uri}
+      imageUrl: *catalogImageUrl
       imageAlt: {type: [string, "null"]}
       # 支付快照按券分摊；待支付券没有已付金额，不能把现价或零元当作可退款金额。
       amountCents: {type: [integer, "null"], minimum: 0}
@@ -156,7 +162,7 @@ definitions:
       vouchers: {type: array, items: {$ref: "#/definitions/voucher"}}
       storeName: *text
       dealTitle: *text
-      imageUrl: {type: [string, "null"], format: uri}
+      imageUrl: *catalogImageUrl
       imageAlt: {type: [string, "null"]}
       # 只有 create_group_buy_order 成功输出签发以下内部支付字段；列表、详情、支付结果不补造凭证。
       # Agent 保存后另起明确支付确认；该凭证绑定 PAY_MOCK_ORDER、真实新订单与金额，购买凭证不能复用。
@@ -276,7 +282,7 @@ definitions:
       dealId: *publicId
       storeName: *text
       canRefund: {type: boolean}
-      imageUrl: {type: [string, "null"], format: uri}
+      imageUrl: *catalogImageUrl
       imageAlt: {type: [string, "null"]}
       # 此处保留资格 API 的券有效期含义；确认凭证有效期由 Spring 内部记录，不能混用。
       expiresAt: *timestamp

@@ -23,7 +23,8 @@ object AfterSaleImageLoader {
      */
     fun load(image: ImageView, url: String?, alt: String?, refreshMetadata: () -> Unit) {
         Glide.with(image).clear(image)
-        val source = url?.takeIf { it.isNotBlank() }
+        // 售后快照可能含版本化站内路径，失败重试仍使用解析后的同一资源。
+        val source = CatalogImageUrls.resolve(url)
         if (source == null) {
             showState(image, "暂无图片", "点击刷新")
             image.setOnClickListener { refreshMetadata() }

@@ -10,13 +10,15 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.fandazi.app.core.image.CatalogImageUrls
 
 /** 48dp 套餐缩略图专用适配，不生成业务餐图；大图沿用既有实际 URL 加载行为。 */
 object CatalogImages {
     /** 实际图片成功后显示原图；缺图刷新元数据，加载失败只重试同一 URL。 */
     fun thumbnail(image: ImageView, url: String?, alt: String?, refresh: () -> Unit) {
         Glide.with(image).clear(image)
-        val source = url?.takeUnless { it.isBlank() }
+        // 缩略图沿用同一版本化地址；仅解析主机，不更换实际餐图。
+        val source = CatalogImageUrls.resolve(url)
         if (source == null) {
             state(image, "暂无图片，点击刷新", android.R.drawable.ic_menu_gallery)
             image.setOnClickListener { refresh() }

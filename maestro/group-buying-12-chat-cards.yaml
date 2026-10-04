@@ -8,7 +8,10 @@ appId: com.fandazi.app
     id: "com.fandazi.app:id/agent_chat_input"
 - setClipboard: "我所在城市代码是${MAESTRO_CITY_CODE}，帮我推荐火锅门店"
 - pasteText
-- hideKeyboard
+# 输入法遮挡底部发送按钮；只发送一次系统返回键收起键盘，并保持聊天页与原草稿。
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
 - tapOn:
     id: "com.fandazi.app:id/agent_chat_send"
 - extendedWaitUntil:
@@ -33,7 +36,10 @@ appId: com.fandazi.app
     id: "com.fandazi.app:id/agent_chat_input"
 - setClipboard: "我所在城市代码是${MAESTRO_CITY_CODE}，帮我推荐火锅团购套餐"
 - pasteText
-- hideKeyboard
+# 输入法遮挡底部发送按钮；只发送一次系统返回键收起键盘，并保持聊天页与原草稿。
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
 - tapOn:
     id: "com.fandazi.app:id/agent_chat_send"
 - extendedWaitUntil:

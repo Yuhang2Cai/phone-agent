@@ -70,11 +70,13 @@ public class DealPackageEntity {
 
     /** 装载明确属于本套餐的图片；两个输入都允许 null，空白 URL 规范化为缺图。 */
     public void replaceImage(String imageUrl, String imageAlt) {
-        // 配图必须是可加载的 HTTP(S) 资源，非法格式不能被种子或后台静默下发到页面。
-        if (imageUrl != null && !imageUrl.isBlank()) {
+        // 审核餐图优先使用项目托管的版本化根路径；旧历史 HTTP(S) URL 仍可读取。
+        // 根路径必须匹配固定资源形状，拒绝路径跳转、查询串和任意站内文件引用。
+        if (imageUrl != null && !imageUrl.isBlank()
+                && !imageUrl.matches("^/catalog-images/v[0-9]+/full/[a-z0-9-]+-[a-f0-9]{12}\\.jpg$")) {
             var uri = java.net.URI.create(imageUrl);
             if (!("https".equals(uri.getScheme()) || "http".equals(uri.getScheme())) || uri.getHost() == null)
-                throw new IllegalArgumentException("套餐图片地址必须为 HTTP(S) URL");
+                throw new IllegalArgumentException("套餐图片地址必须为审核餐图路径或 HTTP(S) URL");
         }
         this.imageUrl = imageUrl == null || imageUrl.isBlank() ? null : imageUrl;
         this.imageAlt = this.imageUrl == null || imageAlt == null || imageAlt.isBlank() ? null : imageAlt;

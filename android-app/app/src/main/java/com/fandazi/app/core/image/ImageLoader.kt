@@ -26,7 +26,8 @@ object ImageLoader {
         @DrawableRes placeholder: Int,
         @DrawableRes error: Int
     ) {
-        val requestUrl = ImageContentFallback.render("", url) { true }.loadedImageUrl
+        // 同一站内餐图路径由构建环境的 API 主机解析；旧绝对地址保持历史兼容。
+        val requestUrl = CatalogImageUrls.resolve(ImageContentFallback.render("", url) { true }.loadedImageUrl)
         if (requestUrl == null) {
             imageView.setImageResource(error)
             return

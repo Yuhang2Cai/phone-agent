@@ -9,6 +9,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.fandazi.app.R
+import com.fandazi.app.core.image.CatalogImageUrls
 import com.fandazi.app.core.time.BusinessDisplay
 import java.time.LocalDate
 
@@ -316,7 +317,9 @@ object AgentCardRenderer {
     /** 只在后端提供合法图片地址时加载图片；地址缺失时保留 XML 占位背景。 */
     private fun loadImage(fragment: Fragment, image: ImageView, url: String?) {
         if (url.isNullOrBlank()) return
-        Glide.with(fragment).load(url).placeholder(R.drawable.merchant_cover_placeholder)
+        // AI 卡片与目录使用同一审核资源，不把站内相对路径交给 Glide 当设备文件。
+        val source = CatalogImageUrls.resolve(url) ?: return
+        Glide.with(fragment).load(source).placeholder(R.drawable.merchant_cover_placeholder)
             .error(R.drawable.merchant_cover_placeholder).into(image)
     }
 

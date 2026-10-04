@@ -308,11 +308,17 @@ public class SeedDataLoader implements ApplicationRunner {
     private void refreshExistingDishImages(JsonNode templates) {
         List<DishEntity> existing = dishes.findAll();
         for (JsonNode template : templates) {
-            String prefix = text(template, "name") + " ";
             String imageUrl = text(template, "imageUrl");
-            existing.stream()
-                    .filter(dish -> dish.getName().startsWith(prefix))
-                    .forEach(dish -> dish.replaceImageUrl(imageUrl));
+            String merchantName = text(template, "merchant");
+            int count = template.path("count").asInt();
+            // 仅同步本模板明确展开的精确菜名和所属商家，防止相似前缀菜被旧种子覆盖。
+            for (int index = 1; index <= count; index++) {
+                String expectedName = text(template, "name") + " " + index;
+                existing.stream()
+                        .filter(dish -> dish.getName().equals(expectedName)
+                                && dish.getMerchant().getName().equals(merchantName))
+                        .forEach(dish -> dish.replaceImageUrl(imageUrl));
+            }
         }
         dishes.saveAll(existing);
     }

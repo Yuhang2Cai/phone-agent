@@ -92,8 +92,10 @@ class StoreDealApiTest {
         mockMvc.perform(get("/api/deals/{dealId}", publicIds.require("deal", "deal-001-1")))
                 .andExpect(status().isOk()).andExpect(jsonPath("$.imageUrl").isNotEmpty())
                 .andExpect(jsonPath("$.imageAlt").isNotEmpty());
-        // 缺图是明确的 null 字段，服务端不能用另一套餐图片兜底。
+        // 第二家门店必须返回自身审核的麻婆豆腐主菜图，不能借用第一家盖饭图片。
         mockMvc.perform(get("/api/deals/{dealId}", publicIds.require("deal", "deal-002-1")))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.imageUrl").value(org.hamcrest.Matchers.nullValue()));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.imageUrl").value(org.hamcrest.Matchers.startsWith(
+                        "/catalog-images/v1/full/mapo-tofu-rice-")));
     }
 }
