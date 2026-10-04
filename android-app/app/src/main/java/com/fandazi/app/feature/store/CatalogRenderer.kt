@@ -12,12 +12,15 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import com.fandazi.app.R
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
+import com.fandazi.app.FandaziApplication
+import com.fandazi.app.core.network.ApiResult
 import java.util.Locale
 
-/** UI 的共享绑定函数，不负责网络查询、本地排序、补写门店或套餐事实。 */
+/** 共享UI绑定；列表事实来自调用方，缺图仅读取对应对象图片元数据，不查询或重绘整个目录。 */
 object CatalogRenderer {
     /** 按服务器顺序绑定卡片；缺摘要显示无套餐，点击门店传完整 UUID 和已取得的位置。 */
+    @Suppress("UNUSED_PARAMETER")
     fun stores(container: LinearLayout, stores: List<CatalogStore>, query: CatalogQuery, retry: () -> Unit) {
         container.removeAllViews()
         val inflater = LayoutInflater.from(container.context)
@@ -27,7 +30,14 @@ object CatalogRenderer {
             card.findViewById<TextView>(R.id.store_rating).text = store.rating?.let { "★ $it" } ?: "暂无评分"
             card.findViewById<TextView>(R.id.store_reviews).text = "${store.reviewCount}条评价"
             card.findViewById<TextView>(R.id.store_distance).text = distance(store.distanceMeters)
-            AfterSaleImageLoader.load(card.findViewById(R.id.store_image), store.imageUrl, store.imageAlt, retry)
+            // 缺图仅读取这一门店的图片字段，保留原列表、筛选条件与其他卡片文本。
+            val application=container.context.applicationContext as FandaziApplication
+            CatalogImageMetadataRefresh.bind(card.findViewById(R.id.store_image),store.imageUrl,store.imageAlt) {
+                when(val result=application.catalogRepository.store(store.publicId,query)) {
+                    is ApiResult.Success -> result.value.imageUrl to result.value.imageAlt
+                    is ApiResult.Failure -> null
+                }
+            }
             val deal = store.featuredDeal
             card.findViewById<TextView>(R.id.deal_name).text = deal?.title ?: "暂无可售套餐"
             card.findViewById<TextView>(R.id.deal_price).text = deal?.priceText().orEmpty()
@@ -36,7 +46,13 @@ object CatalogRenderer {
                 paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
             }
             card.findViewById<TextView>(R.id.deal_discount).text = deal?.let { discount(it.priceCents, it.originalPriceCents) }.orEmpty()
-            CatalogImages.thumbnail(card.findViewById(R.id.deal_image), deal?.imageUrl, deal?.imageAlt, retry)
+            // 套餐不存在时没有可刷新对象，不能用全页刷新或其他套餐照片伪装本图。
+            CatalogImageMetadataRefresh.bind(card.findViewById(R.id.deal_image),deal?.imageUrl,deal?.imageAlt,thumbnail=true) {
+                if(deal==null) null else when(val result=application.groupBuyingRepository.loadDeal(deal.publicId)) {
+                    is ApiResult.Success -> result.value.imageUrl to result.value.imageAlt
+                    is ApiResult.Failure -> null
+                }
+            }
             card.contentDescription = "store-card-${store.publicId}"
             card.setOnClickListener {
                 card.findNavController().navigate(R.id.storeFragment, Bundle().apply {

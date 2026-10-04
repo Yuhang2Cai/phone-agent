@@ -13,7 +13,7 @@ import androidx.navigation.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.core.time.BusinessDisplay
@@ -91,7 +91,10 @@ class GroupOrderDetailFragment : Fragment(R.layout.fragment_group_order_detail) 
             "支付记录  $paymentRecord",
             "有效期  ${BusinessDisplay.time(order.expiresAt)}").joinToString("\n")
         view.findViewById<TextView>(R.id.group_order_rules).text = order.dealDescription?.takeIf(String::isNotBlank) ?: "使用说明暂未提供"
-        AfterSaleImageLoader.load(view.findViewById(R.id.group_order_image), order.imageUrl, order.imageAlt) { load(view) }
+        // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。
+        CatalogImageMetadataRefresh.bind(view.findViewById(R.id.group_order_image), order.imageUrl, order.imageAlt) {
+            (repository.getOrder(order.orderId) as? ApiResult.Success)?.value?.let { it.imageUrl to it.imageAlt }
+        }
         val container = view.findViewById<LinearLayout>(R.id.group_voucher_list)
         container.removeAllViews()
         // 券身份逐项绑定闭包；序号只用于可读选择，不能用下标生成资源 ID。

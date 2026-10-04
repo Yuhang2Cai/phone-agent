@@ -18,7 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiResult
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import com.fandazi.app.core.time.BusinessDisplay
 import com.fandazi.app.feature.support.RefundPreparation
 import com.fandazi.app.feature.voucher.VoucherSummary
@@ -77,8 +77,11 @@ class RefundRequestFragment : Fragment(R.layout.fragment_refund_request) {
                     view.findViewById<TextView>(R.id.refund_store).text = result.value.storeName
                     view.findViewById<TextView>(R.id.refund_deal).text = result.value.dealTitle
                     view.findViewById<TextView>(R.id.refund_order_id).text = "订单号末8位：${result.value.orderId.takeLast(8)}"
-                    // 缺图点击重新读取本人券元数据；图片失败只重试原URL，用户原因和说明不清空。
-                    AfterSaleImageLoader.load(view.findViewById(R.id.refund_image), result.value.imageUrl, result.value.imageAlt) { loadVoucher(view) }
+                    // 缺图仅提取本人券图片元数据；不重置退款准备凭证、原因和说明。
+                    // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。
+                    CatalogImageMetadataRefresh.bind(view.findViewById(R.id.refund_image), result.value.imageUrl, result.value.imageAlt) {
+                        (app.voucherRepository.getVoucher(voucherId) as? ApiResult.Success)?.value?.let { it.imageUrl to it.imageAlt }
+                    }
                     // 不合资格时保留摘要与输入，同时明确禁止后续写入。
                     if (!result.value.canRefund) {
                         showError(view, "此券当前不符合退款申请条件")

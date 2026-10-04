@@ -12,7 +12,7 @@ import androidx.navigation.fragment.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiResult
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import com.fandazi.app.core.time.BusinessDisplay
 import kotlinx.coroutines.launch
 
@@ -44,7 +44,10 @@ class RefundProgressFragment : Fragment(R.layout.fragment_refund_progress) {
                     view.findViewById<TextView>(R.id.progress_amount).text = BusinessDisplay.money(progress.amountCents)
                     view.findViewById<TextView>(R.id.progress_reason).text = "退款原因：${progress.reason}"
                     // 缺图刷新原申请的真实摘要；失败重试不改变退款状态或展示别的订单图片。
-                    AfterSaleImageLoader.load(view.findViewById(R.id.progress_image), progress.imageUrl, progress.imageAlt) { load(view) }
+                    // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。
+                    CatalogImageMetadataRefresh.bind(view.findViewById(R.id.progress_image), progress.imageUrl, progress.imageAlt) {
+                        (app.afterSaleRepository.getRefund(requestId) as? ApiResult.Success)?.value?.let { it.imageUrl to it.imageAlt }
+                    }
                     // 完整标识留在服务端和导航参数中；页面只显示末八位，避免长 UUID 挤压状态卡。
                     view.findViewById<TextView>(R.id.progress_voucher).text =
                         "退款申请编号（末8位）：${progress.requestId.takeLast(8).uppercase()}"

@@ -14,7 +14,8 @@ import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.feature.auth.SessionState
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
+import com.fandazi.app.core.network.ApiResult
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -67,7 +68,14 @@ class DealCheckoutBottomSheetFragment : BottomSheetDialogFragment(R.layout.sheet
                         view.findViewById<TextView>(R.id.checkout_deal).text = it.dealTitle
                         view.findViewById<TextView>(R.id.checkout_rules).text = it.usageRules
                         view.findViewById<TextView>(R.id.checkout_subtotal_label).text = "商品总价（共${it.quantity}件）"
-                        AfterSaleImageLoader.load(view.findViewById(R.id.checkout_image), it.imageUrl, it.imageAlt) { viewModel.quote(dealId, quantity) }
+                        CatalogImageMetadataRefresh.bind(view.findViewById(R.id.checkout_image),it.imageUrl,it.imageAlt) {
+                            // 图片刷新只读当前套餐照片，不重新准备报价，保留金额、数量、到期时间及原确认凭证。
+                            val repository=(requireActivity().application as FandaziApplication).groupBuyingRepository
+                            when(val refreshed=repository.loadDeal(dealId)) {
+                                is ApiResult.Success -> refreshed.value.imageUrl to refreshed.value.imageAlt
+                                is ApiResult.Failure -> null
+                            }
+                        }
                     }
                     // 类型化 401 才进入登录；保留套餐与数量并废弃旧会话、报价和凭证。
                     if ((state.error as? ApiError.Http)?.code == 401 && !routed) { login(activity, true); return@collect }

@@ -8,6 +8,12 @@ import android.widget.ImageView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.signature.ObjectKey
+import com.fandazi.app.core.image.CatalogImageRequestOptions
+import com.fandazi.app.core.image.CatalogImageRequestPolicy
+import com.fandazi.app.core.image.CatalogImageRequestMode
+import com.fandazi.app.core.image.CatalogImageAccess
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.fandazi.app.core.image.CatalogImageUrls
@@ -16,9 +22,17 @@ import com.fandazi.app.core.image.CatalogImageUrls
 object CatalogImages {
     /** 实际图片成功后显示原图；缺图刷新元数据，加载失败只重试同一 URL。 */
     fun thumbnail(image: ImageView, url: String?, alt: String?, refresh: () -> Unit) {
+        thumbnail(image,url,alt,CatalogImageRequestOptions(),refresh)
+    }
+
+    /** 小图同样支持稳定版本与归属；普通请求保留已有默认缓存，不增加无依据尺寸覆盖。 */
+    fun thumbnail(image:ImageView,url:String?,alt:String?,options:CatalogImageRequestOptions,refresh:()->Unit) {
+        // 取消旧请求和点击监听，后续缺图/失败分支只绑定当前条目的局部刷新。
         Glide.with(image).clear(image)
-        // 缩略图沿用同一版本化地址；仅解析主机，不更换实际餐图。
-        val source = CatalogImageUrls.resolve(url)
+        image.setOnClickListener(null)
+        image.isClickable=false
+        // 公开站内小图选择Task13固定派生；私人访问保持原资源路径，不按公开目录约定改写。
+        val source = if(options.access==CatalogImageAccess.Public) CatalogImageUrls.thumbnail(url) else CatalogImageUrls.resolve(url)
         if (source == null) {
             state(image, "暂无图片，点击刷新", android.R.drawable.ic_menu_gallery)
             image.setOnClickListener { refresh() }
@@ -27,12 +41,16 @@ object CatalogImages {
         state(image, "图片加载中", android.R.drawable.ic_menu_gallery)
         image.setOnClickListener(null)
         // 占位只使用图库符号，状态通过无障碍文本表达；小区域不缩放文字或叠放两行说明。
+        val plan=CatalogImageRequestPolicy.resolve(options)
         Glide.with(image).load(source).placeholder(image.drawable)
+            .signature(ObjectKey(plan.signature))
+            .skipMemoryCache(!plan.cacheEnabled)
+            .diskCacheStrategy(if(plan.cacheEnabled) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .listener(object : RequestListener<Drawable> {
                 /** 失败保留中性告警符号，用户点击再请求，避免自动重试循环。 */
                 override fun onLoadFailed(error: GlideException?, model: Any?, target: Target<Drawable>, first: Boolean): Boolean {
                     state(image, "图片加载失败，点击重试", android.R.drawable.ic_dialog_alert)
-                    image.setOnClickListener { thumbnail(image, source, alt, refresh) }
+                    image.setOnClickListener { thumbnail(image, source, alt, options.copy(mode=CatalogImageRequestMode.RETRY), refresh) }
                     return true
                 }
                 /** 原始图片不应用占位灰色滤镜；图片描述来自当前套餐，不借用其他餐图。 */

@@ -10,7 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.MainActivity
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.core.network.ApiError
@@ -68,7 +68,10 @@ class VoucherDetailFragment : Fragment(R.layout.fragment_voucher_detail) {
                         "购买时间  ${BusinessDisplay.time(voucher.orderCreatedAt)}",
                         "有效期  ${BusinessDisplay.time(voucher.expiresAt)}").joinToString("\n")
                     view.findViewById<TextView>(R.id.voucher_detail_rules).text = voucher.dealDescription?.takeIf(String::isNotBlank) ?: "使用说明暂未提供"
-                    AfterSaleImageLoader.load(view.findViewById(R.id.voucher_detail_image), voucher.imageUrl, voucher.imageAlt) { load(view) }
+                    // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。
+                    CatalogImageMetadataRefresh.bind(view.findViewById(R.id.voucher_detail_image), voucher.imageUrl, voucher.imageAlt) {
+                        (repository.getVoucher(voucher.publicId) as? ApiResult.Success)?.value?.let { it.imageUrl to it.imageAlt }
+                    }
                     // 退款入口只认后端资格，提交页会再做一次归属和状态校验。
                     view.findViewById<TextView>(R.id.voucher_refund).apply {
                         isVisible = voucher.canRefund

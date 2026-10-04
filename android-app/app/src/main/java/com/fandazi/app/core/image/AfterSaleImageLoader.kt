@@ -14,6 +14,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.signature.ObjectKey
 
 /** 固定图片区域的真实加载状态；仅操作图片，不改变金额、资格或用户已填写内容。 */
 object AfterSaleImageLoader {
@@ -22,7 +23,17 @@ object AfterSaleImageLoader {
      * alt仅用于成功图片的无障碍说明，不能掩盖缺图/失败状态；Glide随宿主视图生命周期取消请求。
      */
     fun load(image: ImageView, url: String?, alt: String?, refreshMetadata: () -> Unit) {
+        // 现有调用只提供后端公开餐图，保持四参数及尾随回调兼容，不扩大到私人图片。
+        load(image,url,alt,CatalogImageRequestOptions(),refreshMetadata)
+    }
+
+    /** options传递稳定版本、访问归属及重试模式；只改图片请求，不执行交易或元数据写入。 */
+    fun load(image:ImageView,url:String?,alt:String?,options:CatalogImageRequestOptions,refreshMetadata:()->Unit) {
+        // 复用前先取消旧请求并清理旧点击与滤镜，避免旧条目的监听或占位影响新图片。
         Glide.with(image).clear(image)
+        image.setOnClickListener(null)
+        image.isClickable=false
+        image.imageTintList=null
         // 售后快照可能含版本化站内路径，失败重试仍使用解析后的同一资源。
         val source = CatalogImageUrls.resolve(url)
         if (source == null) {
@@ -32,18 +43,23 @@ object AfterSaleImageLoader {
         }
         showState(image, "图片加载中", "")
         image.setOnClickListener(null)
-        // 每次明确重试都实际发出原URL请求，不能把失败缓存当作成功，也不能换一张无关餐图。
+        // 普通公开餐图复用两级缓存；仅用户点击失败重试或私人访问绕过缓存，签名保持稳定。
+        val plan=CatalogImageRequestPolicy.resolve(options)
         Glide.with(image).load(source)
             .placeholder(image.drawable)
-            .skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE)
+            .signature(ObjectKey(plan.signature))
+            .skipMemoryCache(!plan.cacheEnabled)
+            .diskCacheStrategy(if(plan.cacheEnabled) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .listener(object : RequestListener<Drawable> {
+                /** 失败保持原URL与当前归属；下一次用户点击只重试本图，不自动请求。 */
                 override fun onLoadFailed(error: GlideException?, model: Any?, target: Target<Drawable>, first: Boolean): Boolean {
                     showState(image, "图片加载失败", "点击重试")
                     // Glide回调期间不能立刻发起另一请求；用户下一次点击才重新加载，避免自动重试循环。
-                    image.setOnClickListener { load(image, source, alt, refreshMetadata) }
+                    image.setOnClickListener { load(image, source, alt, options.copy(mode=CatalogImageRequestMode.RETRY), refreshMetadata) }
                     return true
                 }
 
+                /** 成功清除失败监听，无障碍文本对应当前条目，不替换其他业务内容。 */
                 override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>?, sourceType: DataSource, first: Boolean): Boolean {
                     image.contentDescription = alt?.takeIf { it.isNotBlank() } ?: "套餐图片"
                     image.setOnClickListener(null)

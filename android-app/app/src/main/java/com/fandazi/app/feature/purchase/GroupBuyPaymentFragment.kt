@@ -15,8 +15,9 @@ import androidx.navigation.fragment.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
+import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.core.network.ApiError
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 
@@ -55,7 +56,10 @@ class GroupBuyPaymentFragment : Fragment(R.layout.fragment_group_buy_payment) {
                         view.findViewById<TextView>(R.id.group_payment_quantity).text = "数量 × ${it.quantity}"
                         view.findViewById<TextView>(R.id.group_payment_amount).text = purchaseMoney(it.totalCents)
                         view.findViewById<TextView>(R.id.group_payment_summary_amount).text = purchaseMoney(it.totalCents)
-                        AfterSaleImageLoader.load(view.findViewById(R.id.group_payment_image), it.imageUrl, it.imageAlt) { viewModel.loadOrder(orderId) }
+                        // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。
+                        CatalogImageMetadataRefresh.bind(view.findViewById(R.id.group_payment_image), it.imageUrl, it.imageAlt) {
+                            ((requireActivity().application as FandaziApplication).purchaseRepository.getOrder(orderId) as? ApiResult.Success)?.value?.let { refreshed -> refreshed.imageUrl to refreshed.imageAlt }
+                        }
                     }
                     if ((state.error as? ApiError.Http)?.code == 401 && !routed) {
                         routed = true

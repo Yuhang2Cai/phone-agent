@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.R
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.databinding.FragmentStoreBinding
 import kotlinx.coroutines.Job
@@ -56,7 +56,13 @@ class StoreFragment : Fragment(R.layout.fragment_store) {
                     val store = result.value
                     binding.storeTitle.text = store.name
                     binding.storeMeta.text = "${store.rating?.let { "★ $it" } ?: "暂无评分"}  (${store.reviewCount}条评价)  ${CatalogRenderer.distance(store.distanceMeters)}"
-                    AfterSaleImageLoader.load(binding.storeCover, store.imageUrl, store.imageAlt) { loadSummary(binding) }
+                    CatalogImageMetadataRefresh.bind(binding.storeCover,store.imageUrl,store.imageAlt) {
+                        // 只读取同门店照片，缺图点击不重新加载评分、评价或当前Tab。
+                        when(val refreshed=application.catalogRepository.store(storeId,query)) {
+                            is ApiResult.Success -> refreshed.value.imageUrl to refreshed.value.imageAlt
+                            is ApiResult.Failure -> null
+                        }
+                    }
                     binding.storeTitle.setOnClickListener(null)
                     if (selectedTab == "评价") loadTab(binding)
                 }
@@ -93,7 +99,13 @@ class StoreFragment : Fragment(R.layout.fragment_store) {
                                 paintFlags = paintFlags or android.graphics.Paint.STRIKE_THRU_TEXT_FLAG
                             }
                             row.findViewById<TextView>(R.id.deal_discount).text = CatalogRenderer.discount(deal.priceCents, deal.originalPriceCents)
-                            AfterSaleImageLoader.load(row.findViewById(R.id.deal_cover), deal.imageUrl, deal.imageAlt) { loadTab(binding) }
+                            CatalogImageMetadataRefresh.bind(row.findViewById(R.id.deal_cover),deal.imageUrl,deal.imageAlt) {
+                                // 套餐图只查询本套餐，原金额、按钮和其他条目不随图片刷新重绘。
+                                when(val refreshed=application.groupBuyingRepository.loadDeal(deal.publicId)) {
+                                    is ApiResult.Success -> refreshed.value.imageUrl to refreshed.value.imageAlt
+                                    is ApiResult.Failure -> null
+                                }
+                            }
                             row.contentDescription = "store-deal-${deal.publicId}"
                             val open = View.OnClickListener {
                                 requireView().findNavController().navigate(R.id.dealDetailFragment, Bundle().apply {
@@ -115,7 +127,13 @@ class StoreFragment : Fragment(R.layout.fragment_store) {
                             row.findViewById<TextView>(R.id.dish_title).text = dish.name
                             row.findViewById<TextView>(R.id.dish_description).text = dish.description
                             row.findViewById<TextView>(R.id.dish_price).text = CatalogRenderer.money(dish.priceCents)
-                            AfterSaleImageLoader.load(row.findViewById(R.id.dish_cover), dish.imageUrl, dish.name) { loadTab(binding) }
+                            CatalogImageMetadataRefresh.bind(row.findViewById(R.id.dish_cover),dish.imageUrl,dish.name) {
+                                // 后端菜单没有公开条目ID；只接受名称、描述、金额完全一致且唯一的原条目，不猜匹配或重绘集合。
+                                when(val refreshed=application.catalogRepository.dishes(storeId)) {
+                                    is ApiResult.Success -> refreshed.value.singleOrNull { it.name==dish.name && it.description==dish.description && it.priceCents==dish.priceCents }?.let { it.imageUrl to it.name }
+                                    is ApiResult.Failure -> null
+                                }
+                            }
                             binding.storeContent.addView(row)
                         }
                     }

@@ -17,8 +17,7 @@ import com.fandazi.app.MainActivity
 import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.feature.auth.SessionState
-import com.fandazi.app.core.image.AfterSaleImageLoader
-import com.fandazi.app.feature.store.CatalogImages
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import kotlinx.coroutines.launch
 
 /**
@@ -163,7 +162,10 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
             item.addView(ImageView(requireContext()).apply {
                 layoutParams = LinearLayout.LayoutParams(44.dp, 48.dp)
                 scaleType = ImageView.ScaleType.CENTER_CROP
-                CatalogImages.thumbnail(this, deal.imageUrl, deal.imageAlt) { loadDeal(view) }
+                // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。
+                CatalogImageMetadataRefresh.bind(this, deal.imageUrl, deal.imageAlt, thumbnail=true) {
+                    ((requireActivity().application as FandaziApplication).groupBuyingRepository.loadDeal(deal.publicId) as? ApiResult.Success)?.value?.let { it.imageUrl to it.imageAlt }
+                }
             })
             item.addView(LinearLayout(requireContext()).apply {
                 orientation = LinearLayout.VERTICAL

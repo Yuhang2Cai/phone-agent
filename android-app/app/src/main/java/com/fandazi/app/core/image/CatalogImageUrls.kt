@@ -33,4 +33,31 @@ object CatalogImageUrls {
             null
         }
     }
+
+    /**
+     * 小图选择Task13同时生成的同名thumb派生，返回稳定绝对URL；缺图仍为null。
+     * 仅重写与API同协议/主机/端口的审核路径，查询/片段/用户信息及外部URL保持原样。
+     */
+    fun thumbnail(url:String?,apiBaseUrl:String=BuildConfig.API_BASE_URL):String? {
+        val source=resolve(url,apiBaseUrl) ?: return null
+        return try {
+            val resource=URI.create(source)
+            val base=URI.create(apiBaseUrl)
+            // 来源必须一致，避免把外部图库、签名地址或私人资源路径套用本站派生约定。
+            val owned=resource.scheme==base.scheme && resource.host.equals(base.host,ignoreCase=true)
+                && effectivePort(resource)==effectivePort(base)
+                && resource.userInfo==null && resource.rawQuery==null && resource.rawFragment==null
+            if(!owned || !hostedPath.matches(resource.rawPath)) source
+            else {
+                // 文件名中的资源摘要和版本保持不变，只选择已审核的另一尺寸；没有时间戳或兜底换图。
+                URI(resource.scheme,null,resource.host,resource.port,resource.path.replace("/full/","/thumb/"),null,null).toString()
+            }
+        } catch(_:IllegalArgumentException) {
+            // 绝对历史URL已经通过resolve校验，环境基址异常时保留该资源，不生成猜测的thumb。
+            source
+        }
+    }
+
+    /** HTTP默认80、HTTPS默认443；显式端口与默认端口按同一来源判定。 */
+    private fun effectivePort(uri:URI):Int = if(uri.port>=0) uri.port else if(uri.scheme=="https") 443 else 80
 }

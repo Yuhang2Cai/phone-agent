@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.R
 import com.fandazi.app.core.network.ApiResult
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import com.fandazi.app.core.time.BusinessDisplay
 import com.fandazi.app.feature.support.AfterSaleSuccessContent
 import kotlinx.coroutines.launch
@@ -87,7 +87,10 @@ class ReviewFragment : Fragment(R.layout.fragment_review) {
                     view.findViewById<TextView>(R.id.review_deal).text = order.dealTitle
                     view.findViewById<TextView>(R.id.review_order).text = "下单时间：${BusinessDisplay.time(order.createdAt)}"
                     // 图片缺失刷新原订单元数据，星级与正文保持；图片失败不阻断真实可评价资格。
-                    AfterSaleImageLoader.load(view.findViewById(R.id.review_image), order.imageUrl, order.imageAlt) { loadOrder(view) }
+                    // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。
+                    CatalogImageMetadataRefresh.bind(view.findViewById(R.id.review_image), order.imageUrl, order.imageAlt) {
+                        (app.voucherRepository.getOrder(orderId) as? ApiResult.Success)?.value?.let { it.imageUrl to it.imageAlt }
+                    }
                     view.findViewById<View>(R.id.review_submit).isEnabled = eligible
                     showError(view, if (eligible) null else "此订单目前不可评价：需有已核销券且尚未评价")
                 }

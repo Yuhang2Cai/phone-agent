@@ -13,8 +13,9 @@ import androidx.navigation.fragment.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
+import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.core.network.ApiError
-import com.fandazi.app.core.image.AfterSaleImageLoader
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import kotlinx.coroutines.launch
 
 /** 成功状态必须由真实 PAID 快照证明，不能仅根据进入此页面宣称付款或生成券。 */
@@ -49,7 +50,10 @@ class PaymentSuccessFragment : Fragment(R.layout.fragment_payment_success) {
                         view.findViewById<TextView>(R.id.payment_success_voucher_info).text = it.vouchers.mapIndexed { index, voucher ->
                             "团购券 ${index + 1}  ${it.dealTitle}\n编号  ${voucher.publicId}\n有效期至  ${com.fandazi.app.core.time.BusinessDisplay.time(voucher.expiresAt)}"
                         }.joinToString("\n\n")
-                        AfterSaleImageLoader.load(view.findViewById(R.id.payment_success_image), it.imageUrl, it.imageAlt) { viewModel.loadOrder(orderId) }
+                        // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。
+                        CatalogImageMetadataRefresh.bind(view.findViewById(R.id.payment_success_image), it.imageUrl, it.imageAlt) {
+                            ((requireActivity().application as FandaziApplication).purchaseRepository.getOrder(orderId) as? ApiResult.Success)?.value?.let { refreshed -> refreshed.imageUrl to refreshed.imageAlt }
+                        }
                     }
                     if ((state.error as? ApiError.Http)?.code == 401 && !routed) {
                         routed = true
