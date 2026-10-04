@@ -48,6 +48,14 @@ android {
                 "proguard-rules.pro"
             )
         }
+        // 基线与增量使用release相同压缩策略，只增加本机测量签名、18080入口及可分析Manifest。
+        create("benchmark") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            signingConfig = signingConfigs.getByName("debug")
+            matchingFallbacks += listOf("release")
+            buildConfigField("String", "API_BASE_URL", "\"$debugApiBaseUrl\"")
+        }
     }
 
     compileOptions {
@@ -69,9 +77,12 @@ android {
 dependencies {
     // 固定来源AAR仅负责本地推理，不迁移Hilt、网络音频或redBook消息依赖。
     implementation(files("libs/sherpa-onnx-1.12.39.aar"))
-    // 设备测试入口版本固定；本轮只构建入口，现场识别仍待用户人工验收。
+    // 设备测试依赖版本固定；ASR入口本轮只构建，普通聊天状态测试可实际执行。
+    androidTestImplementation("androidx.test:core-ktx:1.6.1")
     androidTestImplementation("androidx.test:runner:1.6.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
+    // 只在benchmark提供Macrobenchmark清理编译/着色器所需的接收器，不改生产启动装配。
+    "benchmarkImplementation"("androidx.profileinstaller:profileinstaller:1.3.1")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.12.0")

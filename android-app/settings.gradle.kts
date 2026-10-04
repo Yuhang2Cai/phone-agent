@@ -3,7 +3,7 @@ pluginManagement {
     resolutionStrategy {
         eachPlugin {
             when (requested.id.id) {
-                "com.android.application" -> useModule("com.android.tools.build:gradle:${requested.version}")
+                "com.android.application", "com.android.test" -> useModule("com.android.tools.build:gradle:${requested.version}")
                 "org.jetbrains.kotlin.android" -> useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
             }
         }
@@ -24,4 +24,5 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "FandaziAi"
-include(":app")
+// 测量独立模块只驱动目标应用，不生成或安装Baseline/Startup Profiles。
+include(":app", ":benchmark")
