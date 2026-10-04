@@ -50,7 +50,8 @@ class Task5ChatStateTest {
     fun streamFailureStopsBusyState() = runTest {
         // 流中断不能留下永久忙碌状态；HTTP 未结束时也必须允许用户看到恢复入口。
         val repository = object : AgentRepository by ResponsesRepository(mutableListOf()) {
-            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult> {
+            /** 委托仓库新增四参数展示键入口必须覆盖，不能绕过本测试未完成HTTP替身。 */
+            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?): ApiResult<AgentMessageResult> {
                 kotlinx.coroutines.awaitCancellation()
             }
             override fun streamEvents(sessionId: String, afterEventId: Long?) = kotlinx.coroutines.flow.flow<AgentEvent> {
@@ -82,7 +83,7 @@ class Task5ChatStateTest {
 
     @Test
     fun historyCardsBelongToOriginalReplyAndSurviveRestore() = runTest {
-        // 开始第二轮与恢复 SavedState 都保留第一轮公开卡片，防止 UI 重绘丢失历史结果。
+        // 同Activity历史仍固定归属；进程重建不从薄SavedState还原正文，必须从只读后端页恢复。
         val saved = SavedStateHandle()
         val card = AgentCardPayload("deal", "isolated-store", "isolated-deal")
         val repository = ResponsesRepository(mutableListOf(ApiResult.Success(answer("查到套餐").copy(cards = listOf(card))),
@@ -93,8 +94,20 @@ class Task5ChatStateTest {
         model.sendText("还有其它吗")
         runCurrent()
         assertEquals(listOf(card), model.uiState.value.messages.first { !it.fromUser }.cards)
-        val restored = AgentViewModel(repository, saved, StandardTestDispatcher(testScheduler))
-        assertEquals(listOf(card), restored.uiState.value.messages.first { !it.fromUser }.cards)
+        val historyRepository=object:AgentRepository by repository {
+            /** 完整正文及公开卡事件由合成后端页提供，不能把事件摘要反造为用户话语。 */
+            override suspend fun loadHistory(sessionId:String,cursor:String?,limit:Int)=ApiResult.Success(AgentHistoryPage(sessionId,
+                listOf(AgentHistoryMessage("fixture-message","assistant","查到套餐","run","trace",null,null)),
+                listOf(AgentEvent(1,"card","",payload=mapOf("traceId" to "trace","card" to """{"type":"deal","storePublicId":"isolated-store","dealPublicId":"isolated-deal"}"""))),
+                1,null,"complete",null,null,null))
+        }
+        val restored = AgentViewModel(historyRepository, saved, StandardTestDispatcher(testScheduler))
+        assertEquals(0,restored.uiState.value.messages.size)
+        restored.openAssistant();runCurrent()
+        val historyCard=restored.uiState.value.messages.single().cards.single()
+        assertEquals(card.dealPublicId,historyCard.dealPublicId)
+        org.junit.Assert.assertTrue(historyCard.historicalReadOnly)
+        assertFalse(restored.isCurrentReplyCard(historyCard))
     }
 
     @Test

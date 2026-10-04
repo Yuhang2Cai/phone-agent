@@ -78,7 +78,10 @@ data class AgentCardPayload(
     val confirmationIdentity: AgentConfirmationIdentity? = null,
     /** 历史卡永远只读；即使摘要未过期也不得因恢复可见而重新获得确认资格。 */
     val historicalReadOnly: Boolean = false
-) : Serializable
+) : Serializable {
+    /** 缺少任何服务端身份时才用于展示；创建一次，不纳入业务相等/授权判断或工具参数。 */
+    val localDisplayKey: String = java.util.UUID.randomUUID().toString()
+}
 
 /** 同run重新准备仍产生新事件版本；trace与eventId共同约束原卡所属摘要，不以runId单独放行。 */
 data class AgentConfirmationIdentity(val runId: String, val traceId: String, val eventId: String, val sequence: Long?) : Serializable

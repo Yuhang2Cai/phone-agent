@@ -1,274 +1,200 @@
-// AI 助手完整聊天页：承载消息、流式进度、真实业务卡片和错误状态。
+// 正式聊天页：固定头/输入/导航，消息区四类RecyclerView；展示按帧合并，业务事件仍逐条处理。
 package com.fandazi.app.feature.agent
-
 import android.os.Bundle
-import android.view.Gravity
+import android.os.SystemClock
+import android.view.Choreographer
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.ScrollView
-import android.widget.TextView
-import android.widget.ProgressBar
 import android.widget.PopupMenu
-import androidx.core.content.ContextCompat
-import androidx.core.view.isVisible
+import android.widget.EditText
+import android.text.Editable
+import android.text.TextWatcher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.fandazi.app.FandaziApplication
-import com.fandazi.app.R
 import com.fandazi.app.MainActivity
+import com.fandazi.app.R
 import com.fandazi.app.feature.auth.SessionState
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
-/**
- * AI 助手正式页面。
- *
- * 页面只负责把 ViewModel 的状态映射成完整视觉界面；门店、套餐和订单字段全部来自服务端，
- * 卡片点击后才发起明确导航，接收流式事件本身不会自动切换 Fragment。
- */
-class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
-    private lateinit var viewModel: AgentViewModel
-    private lateinit var content: LinearLayout
-    private lateinit var scroll: ScrollView
-    /** 当前View的语音绑定；销毁时释放监听，草稿由独立ViewModel保存。 */
-    private var voiceInput: AgentVoiceInputController? = null
-    /** 在Fragment创建时注册权限回调，避免onViewCreated之后注册导致生命周期异常。 */
-    private val voicePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        voiceInput?.onPermissionResult(granted)
+/** 唯一聊天页；卡片导航和确认始终来自显式点击，投影及流式更新不触发业务写入。 */
+class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
+    private lateinit var viewModel:AgentViewModel
+    private var list:RecyclerView?=null
+    private var adapter:AgentMessageAdapter?=null
+    private var manager:LinearLayoutManager?=null
+    private var voiceInput:AgentVoiceInputController?=null
+    private val voicePermission=registerForActivityResult(ActivityResultContracts.RequestPermission()){voiceInput?.onPermissionResult(it)}
+    private var pending:AgentUiState?=null
+    private var rendered:AgentUiState?=null
+    private var frameQueued=false
+    private var owner:String?=null
+    private var ownerInitialized=false
+    private var viewEpoch=0L
+    private var submitEpoch=0L
+    private var dragEpoch=0L
+    private var following=true
+    private val sendFocus=AgentSendFocus()
+    private var restoreKey:String?=null
+    private var restoreOffset=0
+    /** 普通文本与业务薄SavedState桥接，页面离开不依赖Fragment级语音模型继续存在。 */
+    private var draftWatcher:TextWatcher?=null
+    private var draftInput:EditText?=null
+    private val authenticated get()=(requireActivity() as MainActivity).applicationSession().state.value is SessionState.Authenticated
+    /** 一帧仅投影最新普通状态；终态/错误/资格变化走同步renderNow，业务事件没有被此合并丢弃。 */
+    private val frame=Choreographer.FrameCallback {
+        frameQueued=false;val state=pending;pending=null
+        if(state!=null && list!=null && viewLifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED))renderNow(state)
     }
-    /** 游客仅渲染登录卡，不订阅私有会话、不调用发送接口。 */
-    private val authenticated: Boolean get() = (requireActivity() as MainActivity).applicationSession().state.value is SessionState.Authenticated
-
-    /** 绑定页面控件、注册发送操作，并订阅会话状态。 */
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        viewModel = ViewModelProvider(
-            requireActivity(),
-            AgentViewModelFactory((requireActivity().application as FandaziApplication).agentRepository)
-        )[AgentViewModel::class.java]
-        content = view.findViewById(R.id.agent_chat_content)
-        scroll = view.findViewById(R.id.agent_chat_scroll)
-
-        // Figma 右上角为更多菜单，不冒充关闭；退出只取消页面订阅，不清除历史。
-        view.findViewById<View>(R.id.agent_chat_close).setOnClickListener { anchor ->
-            PopupMenu(requireContext(), anchor).apply {
-                menu.add("返回首页")
-                setOnMenuItemClickListener { findNavController().navigate(R.id.homeFragment); true }
-                show()
+    /** 控件创建一次；状态和认证订阅仅STARTED阶段有效，离开后取消待渲染帧。 */
+    override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
+        viewEpoch++;ownerInitialized=false;rendered=null;following=true;sendFocus.cancel()
+        viewModel=ViewModelProvider(requireActivity(),AgentViewModelFactory((requireActivity().application as FandaziApplication).agentRepository))[AgentViewModel::class.java]
+        restoreKey=viewModel.uiState.value.scrollAnchorKey;restoreOffset=viewModel.uiState.value.scrollAnchorOffset
+        list=view.findViewById(R.id.agent_chat_scroll);manager=LinearLayoutManager(requireContext());list!!.layoutManager=manager
+        // 关闭变化动画避免token交叉闪烁，保留回收和差量比较。
+        list!!.itemAnimator=null;list!!.setItemViewCacheSize(4);resetAdapter()
+        list!!.addOnScrollListener(object:RecyclerView.OnScrollListener(){
+            override fun onScrollStateChanged(recyclerView:RecyclerView,newState:Int) {
+                if(newState==RecyclerView.SCROLL_STATE_DRAGGING){dragEpoch++;restoreKey=null;sendFocus.cancel()}
+                following=!recyclerView.canScrollVertically(1)
+                if(newState==RecyclerView.SCROLL_STATE_IDLE)saveAnchor()
             }
-        }
-        // ASR只处理本地录音和草稿，唯一业务发送委托仍是既有sendText，不注入语音消息仓库。
-        val application = requireActivity().application as FandaziApplication
-        val voiceModel = ViewModelProvider(this, AgentVoiceInputViewModelFactory(application))[AgentVoiceInputViewModel::class.java]
-        voiceInput = AgentVoiceInputController(this, view, voiceModel, application.sessionRepository,
-            requestPermission = { voicePermission.launch(it) },
-            isSending = { viewModel.uiState.value.isSending || viewModel.uiState.value.isRecoveringHistory },
-            sendText = { viewModel.sendText(it) })
-        if (authenticated) viewModel.openAssistant()
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewModel.uiState.collectLatest(::render)
-        }
-    }
-
-    /**
-     * 根据完整页面状态重建聊天内容。
-     *
-     * 每次重建都会清理上一轮的临时视图，避免多轮请求中残留错误卡或旧卡片；
-     * 业务字段只经过布局绑定，不在页面层生成默认门店、套餐或价格。
-     */
-    private fun render(state: AgentUiState) {
-        content.removeAllViews()
-        // 输入资格由语音绑定同时核对登录、业务发送和录音状态，避免消息重绘重新启用活动录音输入。
-        voiceInput?.refreshComposer()
-        if (!authenticated) {
-            // 不显示其他账号遗留历史或结果，登录成功由 Activity 回到同一聊天入口。
-            val gate = layoutInflater.inflate(R.layout.item_agent_login_gate, content, false)
-            gate.findViewById<View>(R.id.agent_login_action).setOnClickListener {
-                (requireActivity() as MainActivity).openProtectedDestination(R.id.agentChatFragment)
+            override fun onScrolled(recyclerView:RecyclerView,dx:Int,dy:Int){
+                following=!recyclerView.canScrollVertically(1)
+                // scrollToPositionWithOffset不会经历DRAGGING→IDLE，实际布局后立即保存，避免Activity保存树仍带发送前旧锚点。
+                if(recyclerView.scrollState==RecyclerView.SCROLL_STATE_IDLE)saveAnchor()
             }
-            gate.findViewById<View>(R.id.agent_login_later).setOnClickListener { findNavController().navigate(R.id.homeFragment) }
-            content.addView(gate)
-            return
-        }
-        if (state.messages.isEmpty() && state.cards.isEmpty() && state.error == null && !state.isSending && !state.isRecoveringHistory && state.historyNotice == null) {
-            val empty = layoutInflater.inflate(R.layout.item_agent_empty, content, false)
-            listOf(R.id.agent_quick_nearby, R.id.agent_quick_deal, R.id.agent_quick_order).forEach { id ->
-                empty.findViewById<TextView>(id).setOnClickListener {
-                    // 快捷问题同样是显式发送；录音/识别/合并期间不跳过当前草稿确认。
-                    if (voiceInput?.canSendQuickQuery() == true) viewModel.sendText((it as TextView).text.toString())
-                }
-            }
-            content.addView(empty)
-        }
-
-        // 先按会话顺序绘制消息，保证用户问题和助手回答在多轮场景中不会交叉。
-        state.messages.forEachIndexed { index, message ->
-            renderMessage(message)
-            // J 摘要来自真实点击选择和其服务端字段，放在最新用户消息之后，不改变原历史结果。
-            if (message.fromUser && index == state.messages.indexOfLast { it.fromUser }) state.viewedCard?.let { renderContext(it) }
-            // 历史结果绑定对应助手回答，后续输入不会把旧卡片挪到当前回答末尾。
-            if (!message.fromUser) {
-                if (message.events.any { it.type == "progress" }) renderProgress(state.copy(events = message.events, isSending = false))
-                renderCards(message.cards)
-            }
-        }
-
-        // 进度只属于当前正在处理的一轮；结束后由回复和业务卡片承接结果，不能留下过期的进行中状态。
-        if (state.isSending) renderProgress(state)
-
-        // 卡片内容由网关补全；每一种业务卡使用独立布局，避免所有卡片退化为同一个文本块。
-        if (state.messages.none { !it.fromUser && it.cards == state.cards } || state.isSending) renderCards(state.cards)
-
-        // 恢复提示复用已确认的文字气泡；没有错误时不提供重试按钮，避免恢复完成后误重发上一句。
-        if (state.isRecoveringHistory) renderMessage(ChatMessage("正在恢复聊天历史…", false))
-        else if (state.error == null) state.historyNotice?.let { renderMessage(ChatMessage(it, false)) }
-        // 恢复失败的重试只读历史GET；普通消息失败仍沿用原显式重试入口。
-        (state.error as? AgentError.Server)?.let { renderError(state.historyNotice ?: it.message) }
-        (state.error as? AgentError.Network)?.let { renderError(state.historyNotice ?: it.message) }
-        (state.error as? AgentError.Authentication)?.let { renderError("登录状态已失效，请重新登录") }
-        if (state.messages.isNotEmpty() || state.cards.isNotEmpty() || state.isSending) {
-            scroll.post { scroll.fullScroll(View.FOCUS_DOWN) }
-        }
-    }
-
-    /** 只在显式卡片点击时使用既有路由；文本和进度从不触发导航。 */
-    private fun renderCards(cards: List<AgentCardPayload>) {
-        AgentCardRenderer.render(this, content, cards, viewModel::isCurrentReplyCard) { request ->
-            cards.firstOrNull { card -> when (request) {
-                is AgentNavigationRequest.Store -> card.storePublicId == request.storePublicId
-                is AgentNavigationRequest.Deal -> card.dealPublicId == request.dealPublicId
-                is AgentNavigationRequest.Order -> card.orderPublicId == request.orderPublicId
-                is AgentNavigationRequest.Voucher -> card.fields["voucherId"] == request.voucherPublicId
-                else -> false
-            } }?.let(viewModel::rememberViewedCard)
-            when (request) {
-                is AgentNavigationRequest.Store -> findNavController().navigate(
-                    R.id.storeFragment,
-                    Bundle().apply { putString("storePublicId", request.storePublicId) }
-                )
-                is AgentNavigationRequest.Deal -> findNavController().navigate(
-                    R.id.dealDetailFragment,
-                    Bundle().apply {
-                        putString("storePublicId", request.storePublicId)
-                        putString("dealPublicId", request.dealPublicId)
-                    }
-                )
-                // 卡片按钮是用户显式确认；只向 Agent 发送确认语句，实际写入仍由服务端消费短时凭证。
-                // 即便点击后状态已被新回复替换，ViewModel仍按原run/摘要版本二次拒绝旧动作。
-                is AgentNavigationRequest.AgentReply -> viewModel.replyToCard(request)
-                is AgentNavigationRequest.Order -> findNavController().navigate(R.id.groupOrderDetailFragment,
-                    Bundle().apply { putString("orderId", request.orderPublicId) })
-                // 查询结果始终停留聊天；此处仅在用户点击真实券卡之后导航，不消费任何售后资格。
-                is AgentNavigationRequest.Voucher -> findNavController().navigate(R.id.voucherDetailFragment,
-                    Bundle().apply { putString("voucherId", request.voucherPublicId) })
-            }
-        }
-
-    }
-
-    /** 将一条消息绑定到统一气泡布局，用户消息靠右、助手消息靠左并显示头像。 */
-    private fun renderMessage(message: ChatMessage) {
-        val item = layoutInflater.inflate(R.layout.item_agent_message, content, false)
-        val root = item.findViewById<LinearLayout>(R.id.agent_message_root)
-        val avatar = item.findViewById<TextView>(R.id.agent_message_avatar)
-        val text = item.findViewById<TextView>(R.id.agent_message_text)
-        text.text = message.text
-        if (message.fromUser) {
-            text.maxWidth = 285.dp()
-            root.gravity = Gravity.END
-            avatar.isVisible = false
-            text.background = ContextCompat.getDrawable(requireContext(), R.drawable.agent_chat_user_bubble)
-        } else {
-            root.gravity = Gravity.START
-            avatar.isVisible = true
-            text.background = ContextCompat.getDrawable(requireContext(), R.drawable.agent_chat_bot_bubble)
-        }
-        content.addView(item)
-    }
-
-    /** 只做公开事实排版，未付款卡不写“实付”，也不宣称服务端已消费当前选择。 */
-    private fun renderContext(card: AgentCardPayload) {
-        val item = layoutInflater.inflate(R.layout.item_agent_context, content, false)
-        item.findViewById<TextView>(R.id.agent_context_title).text = "上次查看：" +
-            listOfNotNull(card.fields["storeName"], card.fields["title"] ?: card.fields["name"]).joinToString(" · ")
-        item.findViewById<TextView>(R.id.agent_context_body).text = listOfNotNull(card.fields["description"],
-            card.fields["priceCents"]?.toIntOrNull()?.let { "团购价：${com.fandazi.app.core.time.BusinessDisplay.money(it)}" }).joinToString("\n")
-        content.addView(item)
-    }
-
-    /** 把服务端事件按顺序展示为步骤，明确区分已完成、进行中和失败。 */
-    private fun renderProgress(state: AgentUiState) {
-        val item = layoutInflater.inflate(R.layout.item_agent_progress, content, false)
-        val steps = item.findViewById<LinearLayout>(R.id.agent_progress_steps)
-        // 同一处理步骤可能多次上报状态；保留最后一次，避免一项任务在界面里重复出现。
-        val events = state.events.filter { it.type == "progress" && !it.payload["stepId"].isNullOrBlank() }
-            .asReversed().distinctBy { "${it.runId}:${it.payload["stepId"]}" }.asReversed()
-        val composite = state.events.any { it.type == "intent_decided" && it.payload["isComposite"] == "true" }
-        item.findViewById<TextView>(R.id.agent_progress_title).text = if (composite) "任务进度" else "处理进度"
-        if (events.isEmpty()) {
-            addProgressStep(steps, "正在连接助手", if (state.isSending) "进行中" else "已结束", state.isSending)
-        } else {
-            events.forEachIndexed { index, event ->
-                // 协议状态是机器可读枚举，必须转换成用户能理解的文案，不能直接展示 running 等原值。
-                val status = when ((event.payload["stepStatus"] ?: event.status)?.lowercase()) {
-                    "running", "in_progress", "started" -> "进行中"
-                    "waiting_input", "needs_input" -> "等待补充"
-                    "waiting_confirmation", "awaiting_confirmation" -> "等待确认"
-                    "cancelled" -> "已取消"
-                    "failed", "error" -> "失败"
-                    "completed", "succeeded" -> "已完成"
-                    else -> "等待处理"
-                }
-                addProgressStep(steps, event.payload["label"] ?: event.summary.ifBlank { "处理请求" }, status,
-                    state.isSending && status == "进行中")
-            }
-        }
-        content.addView(item)
-    }
-
-    /** 创建单个进度步骤；步骤文字来自事件，状态只做界面呈现。 */
-    private fun addProgressStep(container: LinearLayout, summary: String, status: String, active: Boolean) {
-        val row = LinearLayout(requireContext()).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            minimumHeight = 38.dp()
-        }
-        // 原生不定进度只在当前运行步骤存在，暂停/终态重绘后立即移除，不写固定耗时。
-        if (active) row.addView(ProgressBar(requireContext()).apply {
-            isIndeterminate = true
-        }, LinearLayout.LayoutParams(18.dp(), 18.dp()))
-        else row.addView(TextView(requireContext()).apply { text = if (status == "已完成") "✓" else "○" }, LinearLayout.LayoutParams(18.dp(), 24.dp()))
-        row.addView(TextView(requireContext()).apply {
-            text = summary; textSize = 13f
-            setTextColor(ContextCompat.getColor(context, R.color.group_buy_text))
-            setPadding(8.dp(), 0, 8.dp(), 0)
-        }, LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1f))
-        row.addView(TextView(requireContext()).apply {
-            text = status; textSize = 12f
-            setTextColor(ContextCompat.getColor(context, R.color.group_buy_muted))
         })
-        container.addView(row)
+        // 键盘缩放只让原底部用户跟随，不能强迫上翻用户返回底部。
+        list!!.addOnLayoutChangeListener{_,_,top,_,bottom,_,oldTop,_,oldBottom->if(bottom-top!=oldBottom-oldTop && following && restoreKey==null && list?.scrollState!=RecyclerView.SCROLL_STATE_DRAGGING)scrollToBottom()}
+        view.findViewById<View>(R.id.agent_chat_close).setOnClickListener{anchor->PopupMenu(requireContext(),anchor).apply{
+            menu.add("返回首页");setOnMenuItemClickListener{saveAnchor();findNavController().navigate(R.id.homeFragment);true};show()
+        }}
+        // 保留Task14独立草稿绑定；本任务不触发录音或ASR测试，发送仍委托原业务入口。
+        val app=requireActivity().application as FandaziApplication
+        val voiceModel=ViewModelProvider(this,AgentVoiceInputViewModelFactory(app))[AgentVoiceInputViewModel::class.java]
+        val savedDraft=viewModel.uiState.value.composerText
+        voiceInput=AgentVoiceInputController(this,view,voiceModel,app.sessionRepository,requestPermission={voicePermission.launch(it)},
+            isSending={viewModel.uiState.value.isSending || viewModel.uiState.value.isRecoveringHistory},sendText={sendFocus.request();viewModel.sendText(it)})
+        // 账号绑定完成后回填普通文字草稿，控制器仍管理录音/识别/合并；这里只保存当前输入正文。
+        if(authenticated)voiceModel.updateDraft(savedDraft)
+        draftInput=view.findViewById(R.id.agent_chat_input)
+        draftWatcher=object:TextWatcher {
+            override fun beforeTextChanged(s:CharSequence?,start:Int,count:Int,after:Int)=Unit
+            override fun afterTextChanged(s:Editable?)=Unit
+            override fun onTextChanged(s:CharSequence?,start:Int,before:Int,count:Int){if(authenticated)viewModel.updateComposer(s?.toString().orEmpty())}
+        }
+        draftInput?.addTextChangedListener(draftWatcher)
+        if(authenticated)viewModel.openAssistant()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                try {
+                    launch{viewModel.uiState.collect{queue(it)}}
+                    launch{(requireActivity() as MainActivity).applicationSession().state.collect{queue(viewModel.uiState.value,force=true)}}
+                } finally{cancelFrame();saveAnchor()}
+            }
+        }
     }
-
-    /** 创建错误卡并绑定重试操作，错误不会覆盖或清除之前的聊天内容。 */
-    private fun renderError(message: String) {
-        val item = layoutInflater.inflate(R.layout.item_agent_error, content, false)
-        item.findViewById<TextView>(R.id.agent_error_text).text = message
-        item.findViewById<TextView>(R.id.agent_error_retry).setOnClickListener { viewModel.retry() }
-        content.addView(item)
+    /** 账号变化先换Adapter释放旧私有行及回调；普通token排一帧，关键状态立即刷新。 */
+    private fun queue(state:AgentUiState,force:Boolean=false) {
+        val session=(requireActivity() as MainActivity).applicationSession().state.value
+        val nextOwner=(session as? SessionState.Authenticated)?.user?.username
+        val changed=ownerInitialized && owner!=nextOwner
+        if(!ownerInitialized || changed) {
+            ownerInitialized=true;owner=nextOwner
+            if(changed){cancelFrame();viewEpoch++;submitEpoch++;dragEpoch++;restoreKey=null;sendFocus.cancel();rendered=null;following=true;resetAdapter()
+                // 认证通知和业务状态通知可能先后到达；同步清原owner，禁止用新账号资格显示旧账号行。
+                viewModel.bindAuthenticatedOwner(nextOwner)
+            }
+        }
+        val current=if(changed)viewModel.uiState.value else state
+        voiceInput?.refreshComposer();val before=rendered
+        val immediate=force || changed || !authenticated || before==null || current.error!=before.error || current.isSending!=before.isSending ||
+            current.isRecoveringHistory!=before.isRecoveringHistory || current.pendingConfirmationCard!=before.pendingConfirmationCard || current.pendingAfterSaleCards!=before.pendingAfterSaleCards ||
+            current.events.lastOrNull()?.type in setOf("final","error","completed","waiting_confirmation","waiting_input")
+        if(immediate){cancelFrame();renderNow(current)}else{pending=current;if(!frameQueued){frameQueued=true;Choreographer.getInstance().postFrameCallback(frame)}}
     }
-
-    /** 统一屏幕密度换算，避免核心布局在不同模拟器上发生尺寸漂移。 */
-    private fun Int.dp(): Int = (this * resources.displayMetrics.density).toInt()
-
-    /** 离开唯一聊天页时释放 SSE；保留消息历史，回来后从原数据库游标继续。 */
+    /** 主线程冻结数据、捕获底部/首行锚点；异步Diff后仅同代且没有新拖动才定位。 */
+    private fun renderNow(state:AgentUiState) {
+        val recycler=list ?: return;val currentAdapter=adapter ?: return;val layout=manager ?: return
+        // 首次恢复定位已经提交但尚未布局时，canScrollVertically仍是空列表值；沿用用户/恢复意图，防止下一StateFlow把上翻恢复抢到底部。
+        val started=SystemClock.elapsedRealtimeNanos();val anchor=captureAnchor();val wasBottom=following
+        val rows=AgentRenderRows.project(state,authenticated,viewModel::isCurrentReplyCard)
+        val lastUser=state.messages.lastOrNull{it.fromUser}?.displayKey
+        val userAdded=lastUser!=rendered?.messages?.lastOrNull{it.fromUser}?.displayKey
+        // 发送定位持续到有效差量提交，下一帧或终态取代首提交时仍使用同一用户展示键。
+        val focusTarget=sendFocus.targetFor(lastUser,userAdded)
+        val restore=restoreKey;val offset=restoreOffset;val generation=++submitEpoch;val viewGeneration=viewEpoch;val dragGeneration=dragEpoch
+        rendered=state
+        currentAdapter.submitRows(rows){
+            if(list!==recycler || adapter!==currentAdapter || generation!=submitEpoch || viewGeneration!=viewEpoch || dragGeneration!=dragEpoch)return@submitRows
+            val restoredIndex=restore?.let{key->rows.indexOfFirst{it.key==key}} ?: -1
+            // 加载提示/空引导阶段不消费恢复锚点，等待首批真实消息。
+            when {
+                focusTarget!=null && focusTarget==lastUser->{sendFocus.committed(focusTarget);restoreKey=null;following=true;scrollToBottom()}
+                restoredIndex>=0->{restoreKey=null;following=false;layout.scrollToPositionWithOffset(restoredIndex,offset)}
+                restore!=null && rows.none{it is AgentRenderRow.Message && it.key.startsWith("message:")}->Unit
+                restore!=null->{restoreKey=null;following=wasBottom;if(wasBottom)scrollToBottom()}
+                wasBottom->{following=true;scrollToBottom()}
+                anchor!=null->rows.indexOfFirst{it.key==anchor.first}.takeIf{it>=0}?.let{layout.scrollToPositionWithOffset(it,anchor.second)}
+            }
+        }
+        currentAdapter.metrics.frame(SystemClock.elapsedRealtimeNanos()-started)
+    }
+    /** 四类Adapter委托原导航/重试/快捷操作；半屏仍使用兼容Renderer，不被本任务改造。 */
+    private fun resetAdapter() {
+        val recycler=list ?: return
+        for(i in 0 until recycler.childCount)adapter?.release(recycler.getChildViewHolder(recycler.getChildAt(i)))
+        recycler.adapter=null;recycler.recycledViewPool.clear()
+        adapter=AgentMessageAdapter(::navigate,{viewModel.retry()},
+            {(requireActivity() as MainActivity).openProtectedDestination(R.id.agentChatFragment)},
+            {findNavController().navigate(R.id.homeFragment)},
+            {if(voiceInput?.canSendQuickQuery()==true){sendFocus.request();viewModel.sendText(it)}})
+        recycler.adapter=adapter
+    }
+    /** 显式点击使用原公开ID；确认/取消/选券实时再次验证原摘要版本。 */
+    private fun navigate(request:AgentNavigationRequest,card:AgentCardPayload) {
+        if(request !is AgentNavigationRequest.AgentReply)viewModel.rememberViewedCard(card)
+        saveAnchor()
+        when(request) {
+            is AgentNavigationRequest.Store->findNavController().navigate(R.id.storeFragment,Bundle().apply{putString("storePublicId",request.storePublicId)})
+            is AgentNavigationRequest.Deal->findNavController().navigate(R.id.dealDetailFragment,Bundle().apply{putString("storePublicId",request.storePublicId);putString("dealPublicId",request.dealPublicId)})
+            is AgentNavigationRequest.Order->findNavController().navigate(R.id.groupOrderDetailFragment,Bundle().apply{putString("orderId",request.orderPublicId)})
+            is AgentNavigationRequest.Voucher->findNavController().navigate(R.id.voucherDetailFragment,Bundle().apply{putString("voucherId",request.voucherPublicId)})
+            is AgentNavigationRequest.AgentReply->{if(viewModel.replyToCard(request))sendFocus.request()}
+        }
+    }
+    /** 捕获稳定行身份及相对内容起点的像素偏移，不保存列表绝对位置。 */
+    private fun captureAnchor():Pair<String,Int>? {
+        val recycler=list ?: return null;val layout=manager ?: return null;val data=adapter ?: return null
+        val position=layout.findFirstVisibleItemPosition();val row=data.currentList.getOrNull(position) ?: return null
+        val child=layout.findViewByPosition(position) ?: return null
+        return row.key to (layout.getDecoratedTop(child)-recycler.paddingTop)
+    }
+    /** 真实消息行出现且恢复完成后才回写薄锚点；退出或游客不保存私人行。 */
+    private fun saveAnchor(){
+        if(!authenticated || restoreKey!=null)return
+        // null锚点表示继续跟随底部；离开时在底部却保存旧首行，会把之后新增的历史留在屏幕下方。
+        if(following){viewModel.updateScrollAnchor(null,0);return}
+        captureAnchor()?.takeIf{it.first.startsWith("message:")}?.let{viewModel.updateScrollAnchor(it.first,it.second)}
+    }
+    /** 不排队无代际保护的旧滚动任务，当前布局只定位当前Adapter底部。 */
+    private fun scrollToBottom(){val count=adapter?.itemCount ?: 0;if(count>0)manager?.scrollToPosition(count-1)}
+    /** 取消展示帧，不干预业务事件或SSE游标。 */
+    private fun cancelFrame(){if(frameQueued)Choreographer.getInstance().removeFrameCallback(frame);frameQueued=false;pending=null}
+    /** 销毁清理附着Holder、回收池、帧和语音View引用，沿用唯一聊天页原SSE关闭规则。 */
     override fun onDestroyView() {
-        // View监听和权限迟到回调先解除，取消本轮语音但不清除同账号文字草稿。
-        voiceInput?.close()
-        voiceInput = null
-        viewModel.closeAssistant()
-        super.onDestroyView()
+        saveAnchor();cancelFrame();sendFocus.cancel();viewEpoch++;submitEpoch++
+        list?.let{r->for(i in 0 until r.childCount)adapter?.release(r.getChildViewHolder(r.getChildAt(i)));r.clearOnScrollListeners();r.adapter=null;r.layoutManager=null;r.recycledViewPool.clear()}
+        adapter=null;manager=null;list=null;rendered=null;ownerInitialized=false
+        draftWatcher?.let{draftInput?.removeTextChangedListener(it)};draftWatcher=null;draftInput=null
+        voiceInput?.close();voiceInput=null;viewModel.closeAssistant();super.onDestroyView()
     }
 }

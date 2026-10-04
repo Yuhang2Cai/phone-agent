@@ -86,8 +86,8 @@ class Task8AfterSaleActionTest {
         assertEquals(1, repo.sent.size)
     }
 
-    /** 重建保留当前确认身份；候选券和投诉仍能正常发送，不因安全拦截而全部失效。 */
-    @Test fun restorationKeepsOnlyCurrentActionsAcrossAllAfterSaleTypes() = runTest {
+    /** 进程重建不保留旧确认资格；当前Activity显式操作仍由其他测试覆盖，重建不得自动重发。 */
+    @Test fun restorationRejectsAllCapturedAfterSaleActions() = runTest {
         for ((type, action) in listOf("after_sale_refund" to "确认退款",
                 "after_sale_complaint" to "确认投诉", "after_sale_voucher_choice" to "voucher-id")) {
             val state = SavedStateHandle()
@@ -99,11 +99,11 @@ class Task8AfterSaleActionTest {
             val current = model.uiState.value.cards.single()
             val restored = AgentViewModel(repo, state, StandardTestDispatcher(testScheduler))
             assertFalse(restored.replyToCard(AgentNavigationRequest.AgentReply(action, old)))
-            assertTrue(restored.replyToCard(AgentNavigationRequest.AgentReply(action, current)))
-            // 网络未完成期间立即再次点击必须失败，不能重复提交同一个动作。
+            assertFalse(restored.replyToCard(AgentNavigationRequest.AgentReply(action, current)))
+            // 重建后连续点旧动作也不得发送；所有旧卡只读，重新取得资格必须走新明确请求。
             assertFalse(restored.replyToCard(AgentNavigationRequest.AgentReply(action, current)))
             runCurrent()
-            assertEquals(action, repo.sent.last())
+            assertEquals(listOf("旧请求","新请求"),repo.sent)
             assertFalse(restored.isCurrentReplyCard(current))
         }
     }

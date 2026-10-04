@@ -27,6 +27,9 @@ class AgentPageCancellationTest {
         val http = HttpAgentRepository(server.url("/api/").toString(), { null }, client = client)
         var subscriptions = 0
         val repository = object : AgentRepository by http {
+            /** 15.5返回页先只读恢复，再续接SSE；替身显式实现真实空页，不能让默认503冒充成功。 */
+            override suspend fun loadHistory(sessionId: String, cursor: String?, limit: Int) = com.fandazi.app.core.network.ApiResult.Success(
+                AgentHistoryPage(sessionId,emptyList(),emptyList(),0,null,"empty",null,null,null))
             override fun streamEvents(sessionId: String, afterEventId: Long?) = kotlinx.coroutines.flow.emptyFlow<AgentEvent>().also { subscriptions++ }
         }
         val model = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))

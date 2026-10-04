@@ -46,23 +46,12 @@
             android:textSize="28sp" />
     </LinearLayout>
 
-    <ScrollView
+    <!-- 唯一消息滚动容器，保持列表外头部和Task14输入；四类Holder以稳定身份回收。 -->
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/agent_chat_scroll"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:clipToPadding="false"
-        android:fillViewport="true"
-        android:paddingHorizontal="16dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="16dp">
-        <LinearLayout
-            android:id="@+id/agent_chat_content"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:clipToPadding="false"
-            android:orientation="vertical" />
-    </ScrollView>
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:clipToPadding="false" android:paddingHorizontal="16dp"
+        android:paddingTop="4dp" android:paddingBottom="16dp" />
 
     <!-- 本地语音状态独立于消息列表，不把录音进度伪装成服务端聊天事件。 -->
     <LinearLayout android:id="@+id/agent_voice_panel" android:layout_width="match_parent" android:layout_height="wrap_content"

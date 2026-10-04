@@ -1,0 +1,64 @@
+# 四类列表历史端到端：复用已验收恢复路径，并在真实50/200历史上检查上翻、输入和返回位置。
+appId: com.fandazi.app
+---
+# 200条恢复按规格保持原稳定行，新增150条长正文可能在其后；完整滚动给足时间，不能要求产品放弃锚点。
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "restored"}
+    commands:
+      - scrollUntilVisible:
+          element: "历史已恢复，历史卡片仅供查看"
+          direction: DOWN
+          # 此设备上极限速度100产生的手势未推动列表；40与原恢复流程一致并已观察到实际滚动。
+          speed: 40
+          timeout: 600000
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "unfinished"}
+    commands:
+      # 在上翻历史时主动发送，必须定位新轮进度；不能只从已经在底部的位置验证发送。
+      - scrollUntilVisible:
+          element: ".*O7恢复第${HISTORY_PREVIOUS}条.*"
+          direction: UP
+          timeout: 30000
+      - takeScreenshot: recyclerview-before-explicit-send
+- runFlow: advanced-15-chat-recovery.yaml
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "offline"}
+    commands:
+      # 错误出现必须先正向识别原语义ID，随后“错误不存在”才能代表恢复成功。
+      - assertVisible:
+          id: com.fandazi.app:id/agent_error_card
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "restored"}
+    commands:
+      # 长正文跨屏时只在消息区滚动；头、输入和外部底栏仍可见。
+      - scrollUntilVisible:
+          element: ".*O7恢复第${HISTORY_PREVIOUS}条.*"
+          direction: UP
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+          text: ${HISTORY_DRAFT}
+      - takeScreenshot: recyclerview-history-scrolled-up-${HISTORY_SIZE}
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - hideKeyboard
+      - assertVisible: ".*O7恢复第${HISTORY_PREVIOUS}条.*"
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - extendedWaitUntil:
+          visible: ".*O7恢复第${HISTORY_PREVIOUS}条.*"
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+          text: ${HISTORY_DRAFT}
+      - takeScreenshot: recyclerview-history-return-anchor-${HISTORY_SIZE}
+      - scrollUntilVisible:
+          element: "历史已恢复，历史卡片仅供查看"
+          direction: DOWN
+          timeout: 30000

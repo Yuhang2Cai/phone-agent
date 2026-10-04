@@ -106,7 +106,7 @@ class Task5ConfirmationActionTest {
         assertEquals(1, repo.requests.size)
     }
 
-    @Test fun restoreKeepsOnlyCurrentEffectiveSummary() = runTest {
+    @Test fun restoreNeverReactivatesAnyCapturedSummary() = runTest {
         val state = SavedStateHandle()
         val repo = Responses(mutableListOf(prepare("run-one", "v1", 1), prepare("run-two", "v2", 2), terminal()))
         val first = AgentViewModel(repo, state, StandardTestDispatcher(testScheduler))
@@ -115,10 +115,11 @@ class Task5ConfirmationActionTest {
         first.sendText("替换两份"); runCurrent()
         val current = first.uiState.value.cards.single()
         val restored = AgentViewModel(repo, state, StandardTestDispatcher(testScheduler))
-        // 旋转/进程重建保留历史展示，不把已失效摘要重新提升为当前等待版本。
-        assertTrue(restored.uiState.value.messages.any { it.cards.contains(old) })
+        // 15.5薄SavedState不保存正文/待确认资格，重建前后所有捕获摘要均不可自动恢复授权。
+        assertEquals(0,restored.uiState.value.messages.size)
         assertFalse(restored.replyToCard(AgentNavigationRequest.AgentReply("取消", old)))
-        assertTrue(restored.replyToCard(AgentNavigationRequest.AgentReply("取消", current))); runCurrent()
+        assertFalse(restored.replyToCard(AgentNavigationRequest.AgentReply("取消", current)))
+        assertEquals(2,repo.requests.size)
     }
 
     @Test fun waitingInputAndInFlightInvalidateOldActions() = runTest {

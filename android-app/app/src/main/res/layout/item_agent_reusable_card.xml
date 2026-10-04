@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 卡片单一骨架：图片、标题/信息/补充说明、价格与操作槽按内容复用；不预堆各业务完整布局。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/agent_reusable_card" android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp" android:orientation="horizontal" android:padding="16dp"
+    android:background="@drawable/group_buy_card_background">
+    <ImageView android:id="@+id/agent_reusable_image" android:layout_width="92dp" android:layout_height="92dp"
+        android:scaleType="centerCrop" android:contentDescription="菜品图片" />
+    <LinearLayout android:id="@+id/agent_reusable_card_info" android:layout_width="0dp" android:layout_height="wrap_content"
+        android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
+        <TextView android:id="@+id/agent_reusable_card_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/group_buy_green" android:textStyle="bold" android:textSize="15sp" />
+        <TextView android:id="@+id/agent_reusable_card_meta" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="7dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" />
+        <TextView android:id="@+id/agent_reusable_card_detail" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="7dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" android:visibility="gone" />
+        <LinearLayout android:id="@+id/agent_reusable_card_action_row" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:gravity="center_vertical|end">
+            <TextView android:id="@+id/agent_reusable_card_amount" android:layout_width="0dp" android:layout_height="wrap_content"
+                android:layout_weight="1" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:textStyle="bold" />
+            <TextView android:id="@+id/agent_reusable_card_action" android:layout_width="wrap_content" android:layout_height="40dp"
+                android:gravity="center" android:paddingHorizontal="16dp" android:textColor="@color/group_buy_orange" android:textSize="14sp" />
+        </LinearLayout>
+        <TextView android:id="@+id/agent_reusable_card_discount" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" android:visibility="gone" />
+        <TextView android:id="@+id/agent_after_sale_cancel" android:layout_width="wrap_content" android:layout_height="40dp"
+            android:layout_gravity="end" android:gravity="center" android:paddingHorizontal="16dp" android:textColor="@color/group_buy_muted" android:textSize="14sp" android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>
