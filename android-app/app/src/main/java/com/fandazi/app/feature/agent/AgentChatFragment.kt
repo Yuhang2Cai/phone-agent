@@ -64,7 +64,7 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
         val voiceModel = ViewModelProvider(this, AgentVoiceInputViewModelFactory(application))[AgentVoiceInputViewModel::class.java]
         voiceInput = AgentVoiceInputController(this, view, voiceModel, application.sessionRepository,
             requestPermission = { voicePermission.launch(it) },
-            isSending = { viewModel.uiState.value.isSending },
+            isSending = { viewModel.uiState.value.isSending || viewModel.uiState.value.isRecoveringHistory },
             sendText = { viewModel.sendText(it) })
         if (authenticated) viewModel.openAssistant()
         viewLifecycleOwner.lifecycleScope.launch {
@@ -92,7 +92,7 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
             content.addView(gate)
             return
         }
-        if (state.messages.isEmpty() && state.cards.isEmpty() && state.error == null && !state.isSending) {
+        if (state.messages.isEmpty() && state.cards.isEmpty() && state.error == null && !state.isSending && !state.isRecoveringHistory && state.historyNotice == null) {
             val empty = layoutInflater.inflate(R.layout.item_agent_empty, content, false)
             listOf(R.id.agent_quick_nearby, R.id.agent_quick_deal, R.id.agent_quick_order).forEach { id ->
                 empty.findViewById<TextView>(id).setOnClickListener {
@@ -121,9 +121,12 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
         // 卡片内容由网关补全；每一种业务卡使用独立布局，避免所有卡片退化为同一个文本块。
         if (state.messages.none { !it.fromUser && it.cards == state.cards } || state.isSending) renderCards(state.cards)
 
-        // 错误卡保留在当前消息之后，重试由 ViewModel 重新发送最近一次用户输入。
-        (state.error as? AgentError.Server)?.let { renderError(it.message) }
-        (state.error as? AgentError.Network)?.let { renderError(it.message) }
+        // 恢复提示复用已确认的文字气泡；没有错误时不提供重试按钮，避免恢复完成后误重发上一句。
+        if (state.isRecoveringHistory) renderMessage(ChatMessage("正在恢复聊天历史…", false))
+        else if (state.error == null) state.historyNotice?.let { renderMessage(ChatMessage(it, false)) }
+        // 恢复失败的重试只读历史GET；普通消息失败仍沿用原显式重试入口。
+        (state.error as? AgentError.Server)?.let { renderError(state.historyNotice ?: it.message) }
+        (state.error as? AgentError.Network)?.let { renderError(state.historyNotice ?: it.message) }
         (state.error as? AgentError.Authentication)?.let { renderError("登录状态已失效，请重新登录") }
         if (state.messages.isNotEmpty() || state.cards.isNotEmpty() || state.isSending) {
             scroll.post { scroll.fullScroll(View.FOCUS_DOWN) }

@@ -32,6 +32,12 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 interface AgentRepository {
+    /** 旧实现仍支持原三参数发送；展示键只关联用户气泡，不触及模型或交易协议。 */
+    suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?): ApiResult<AgentMessageResult> =
+        sendMessage(sessionId, text, mode)
+    /** 只读恢复V1历史；未实现该能力的旧替身明确失败，不能假称空历史。 */
+    suspend fun loadHistory(sessionId: String, cursor: String? = null, limit: Int = 50): ApiResult<AgentHistoryPage> =
+        ApiResult.Failure(ApiError.Http(503, "当前服务暂不支持聊天历史恢复"))
 // 发送消息。
     suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult>
 // 处理 `streamEvents` 相关逻辑。
@@ -67,14 +73,40 @@ class HttpAgentRepository(
         }
         .build()
 
-// 发送消息。
+    /** 原调用委托新展示关联参数，省略该字段保持旧HTTP契约兼容。 */
     override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult> =
-        executeJson(
-            Request.Builder()
-                .url(url("agent/sessions/$sessionId/messages"))
-                .post(gson.toJson(mapOf("text" to text, "mode" to mode.name)).toRequestBody(JSON))
-                .build()
-        ) { body -> parseMessage(body) }
+        sendMessage(sessionId, text, mode, null)
+
+    /** 发送一次明确输入；可选展示键不充当业务幂等键，不自动重发失败消息。 */
+    override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?): ApiResult<AgentMessageResult> {
+        val fields = mutableMapOf("text" to text, "mode" to mode.name)
+        clientMessageKey?.let { fields["clientMessageKey"] = it }
+        return executeJson(Request.Builder().url(url("agent/sessions/$sessionId/messages"))
+            .post(gson.toJson(fields).toRequestBody(JSON)).build(), ::parseMessage)
+    }
+
+    /** URL编码opaque游标，校验版本与页身份；正文完整解码，嵌套事件继续走原公开脱敏。 */
+    override suspend fun loadHistory(sessionId: String, cursor: String?, limit: Int): ApiResult<AgentHistoryPage> {
+        require(limit in 1..100) { "历史limit必须为1至100" }
+        val address = url("agent/sessions/$sessionId/history").newBuilder()
+            .addQueryParameter("limit", limit.toString()).apply { cursor?.let { addQueryParameter("cursor", it) } }.build()
+        return executeJson(Request.Builder().url(address).get().build()) { body ->
+            val value = JsonParser.parseString(body).asJsonObject
+            require(value.string("schemaVersion") == "1.0" && value.string("sessionId") == sessionId) { "历史版本或会话不匹配" }
+            val rows = value.array("messages").map { row ->
+                val item = row.asJsonObject
+                AgentHistoryMessage(requireNotNull(item.string("publicId")), requireNotNull(item.string("role")),
+                    requireNotNull(item.string("content")), item.string("runId"), item.string("traceId"),
+                    item.string("clientMessageKey"), item.string("createdAt"))
+            }
+            val events = value.array("events").map { it.asJsonObject.toEvent() }
+            require(rows.size+events.size<=limit) { "历史页超过请求预算" }
+            val run = value.objectOrNull("currentRun")
+            AgentHistoryPage(sessionId, rows, events, requireNotNull(value.string("throughEventId")?.toLongOrNull()),
+                value.string("nextCursor"), requireNotNull(value.string("messageHistoryStatus")),
+                run?.string("runId"), run?.string("traceId"), run?.string("status"))
+        }
+    }
 
     /**
      * 按数据库SSE游标订阅公开会话事件，返回有界串行Flow；消费慢时暂停读取，不丢文字或关键终态。

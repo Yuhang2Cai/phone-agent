@@ -27,20 +27,19 @@ class AgentViewModel(
     private val savedState: SavedStateHandle,
     private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
 ) : ViewModel() {
+    /** 构建薄检查点先移除旧大对象，重建时只加载草稿与交互索引，不复活旧业务资格。 */
+    private val checkpoint = AgentStateCheckpoint(savedState)
+    private val historyRecovery = AgentHistoryRecovery(repository)
+    private val identities = AgentEventIdentityIndex()
+    private val archivedTraces = HashSet<String>()
+    private var historyJob: Job? = null
+    private var needsHistory = savedState.get<Boolean>(SESSION_ESTABLISHED) == true
     private val _uiState = MutableStateFlow(AgentUiState(
-        sheetMode = savedState.get<String>(SHEET_MODE)?.let { runCatching { AgentSheetMode.valueOf(it) }.getOrNull() }
-            ?: AgentSheetMode.HIDDEN,
+        sheetMode = savedState.get<String>(SHEET_MODE)?.let { runCatching { AgentSheetMode.valueOf(it) }.getOrNull() } ?: AgentSheetMode.HIDDEN,
         composerText = savedState[COMPOSER] ?: "",
-        messages = savedState.get<ArrayList<ChatMessage>>(MESSAGES)?.toList().orEmpty(),
-        events = savedState.get<ArrayList<AgentEvent>>(EVENTS)?.toList().orEmpty(),
-        candidateCart = savedState[CANDIDATE_CART],
-        confirmation = savedState[CONFIRMATION],
-        authorization = savedState[AUTHORIZATION] ?: AgentAuthorization(),
         lastEventId = savedState[LAST_EVENT_ID] ?: 0L,
-        createdOrderId = savedState[CREATED_ORDER_ID],
-        viewedCard = savedState[VIEWED_CARD],
-        pendingConfirmationCard = savedState[PENDING_CONFIRMATION_CARD],
-        pendingAfterSaleCards = savedState.get<ArrayList<AgentCardPayload>>(PENDING_AFTER_SALE_CARDS)?.toList().orEmpty()
+        scrollAnchorKey = checkpoint.string("agent_scroll_key"),
+        scrollAnchorOffset = savedState.get<Int>("agent_scroll_offset") ?: 0
     ))
     val uiState = _uiState.asStateFlow()
     /**
@@ -56,6 +55,8 @@ class AgentViewModel(
     private var requestGeneration = 0L
     private var sessionId: String = savedState[SESSION_ID] ?: UUID.randomUUID().toString().also { savedState[SESSION_ID] = it }
     private var retryText: String? = null
+    /** 同一用户气泡的网络重试保持展示关联；新输入才生成新键，不据此自动重执交易。 */
+    private var retryMessageKey: String? = null
     /** 重试保留公开资源摘要气泡；完整资源ID只用于原始请求，不因展示优化被截断。 */
     private var retryDisplayText: String? = null
     private var requestedAmountLimit: String? = null
@@ -71,6 +72,11 @@ class AgentViewModel(
         ++requestGeneration
         viewModelScope.coroutineContext.cancelChildren()
         eventsJob = null
+        historyJob = null
+        needsHistory = false
+        identities.reset()
+        archivedTraces.clear()
+        retryMessageKey = null
         synchronized(messageJobs) { messageJobs.clear() }
         retryText = null
         retryDisplayText = null
@@ -86,18 +92,24 @@ class AgentViewModel(
 // 打开assistant。
     fun openAssistant() {
         updateState { it.copy(sheetMode = AgentSheetMode.HALF, error = null) }
-        if (savedState.get<Boolean>(SESSION_ESTABLISHED) == true && eventsJob?.isActive != true) subscribeEvents()
+        if (needsHistory) restoreHistory()
+        else if (savedState.get<Boolean>(SESSION_ESTABLISHED) == true && eventsJob?.isActive != true) subscribeEvents()
     }
 
 // 关闭assistant。
     fun closeAssistant() {
         eventsJob?.cancel()
         eventsJob = null
+        historyJob?.cancel()
+        historyJob = null
         // 离页停止所有尚未完成的HTTP等待；服务器可能已接受写入，保留会话和消息，返回只续接不重发原语句。
         val pending = synchronized(messageJobs) { messageJobs.toList() }
-        if (pending.isNotEmpty()) ++requestGeneration
+        if (pending.isNotEmpty()) {
+            ++requestGeneration
+            needsHistory = true
+        }
         pending.forEach { it.cancel() }
-        updateState { it.copy(sheetMode = AgentSheetMode.HIDDEN) }
+        updateState { it.copy(sheetMode = AgentSheetMode.HIDDEN, isRecoveringHistory = false) }
     }
 
 // 处理 `toggleFullScreen` 相关逻辑。
@@ -106,7 +118,15 @@ class AgentViewModel(
     }
 
 // 更新composer。
-    fun updateComposer(value: String) = updateState { it.copy(composerText = value) }
+    fun updateComposer(value: String) = updateState {
+        it.copy(composerText = value, historyNotice = if (checkpoint.draftExceedsBudget(value))
+            "草稿超过状态保存预算，请发送或自行缩短；当前内容完整保留" else it.historyNotice)
+    }
+
+    /** 列表显式保存稳定消息锚点；列表升级接入时仍不保存整组聊天行。 */
+    fun updateScrollAnchor(messageKey: String?, offset: Int) = updateState {
+        it.copy(scrollAnchorKey = messageKey, scrollAnchorOffset = offset)
+    }
 
 // 处理 `onRecordingStarted` 相关逻辑。
     fun onRecordingStarted() = updateState { it.copy(inputState = AgentInputState.RECORDING, error = null) }
@@ -149,7 +169,7 @@ class AgentViewModel(
     fun isCurrentReplyCard(card: AgentCardPayload?): Boolean {
         if (card?.type == "confirmation") return isCurrentConfirmation(card)
         val state = _uiState.value
-        if (card == null || card.confirmationIdentity == null || state.isSending || state.error != null ||
+        if (card == null || card.historicalReadOnly || card.confirmationIdentity == null || state.isSending || state.error != null ||
             card !in state.pendingAfterSaleCards) return false
         val fields = card.fields
         // 选券只接受服务端明确资格；确认还要求完整摘要及真实截止时间，不以客户端推算替代。
@@ -168,7 +188,7 @@ class AgentViewModel(
     /** 判断按钮此刻是否仍属于有效等待摘要；完整字段相等防止同事件被替换金额/资源后误确认。 */
     fun isCurrentConfirmation(card: AgentCardPayload?): Boolean {
         val state = _uiState.value
-        if (card == null || card.type != "confirmation" || card.confirmationIdentity == null ||
+        if (card == null || card.historicalReadOnly || card.type != "confirmation" || card.confirmationIdentity == null ||
             state.isSending || state.error != null || state.pendingConfirmationCard != card) return false
         val fields = card.fields
         val expiry = runCatching { java.time.OffsetDateTime.parse(fields["expiresAt"]).toInstant() }.getOrNull()
@@ -197,7 +217,12 @@ class AgentViewModel(
     /** 同一失败轮重试沿用原问题气泡；正常新轮仍追加用户输入并清空当前临时进度。 */
     private fun sendRequest(text: String, displayText: String?, appendUser: Boolean) {
         val request = text.trim()
-        if (request.isEmpty() || _uiState.value.isSending) return
+        if (request.isEmpty() || _uiState.value.isSending || _uiState.value.isRecoveringHistory) return
+        // 恢复尚未成功时不得向不完整会话追加写入；先只读恢复，用户之后可重新明确发送。
+        if (needsHistory) { restoreHistory(); return }
+        val messageKey = if (appendUser) UUID.randomUUID().toString() else retryMessageKey ?: UUID.randomUUID().toString()
+        retryMessageKey = messageKey
+        identities.reset()
         // 仅当输入完整匹配当前服务端候选券时显示中文末位摘要，普通输入不解析或猜测资源ID。
         val publicDisplay = displayText ?: if (_uiState.value.cards.any {
             it.type == "after_sale_voucher_choice" && it.fields["voucherId"] == request
@@ -209,7 +234,7 @@ class AgentViewModel(
         updateState {
             it.copy(
                 composerText = "",
-                messages = if (appendUser) it.messages + ChatMessage(publicDisplay, true)
+                messages = if (appendUser) it.messages + ChatMessage(publicDisplay, true, displayKey = "user:$messageKey")
                     else it.messages.filterNot { message -> message.streaming },
                 // 当前卡片清空；历史卡片已随对应助手消息保存，不会丢失或被误认为本轮新结果。
                 cards = emptyList(),
@@ -218,6 +243,7 @@ class AgentViewModel(
                 pendingAfterSaleCards = emptyList(),
                 events = emptyList(),
                 error = null,
+                historyNotice = null,
                 isSending = true
             )
         }
@@ -225,7 +251,7 @@ class AgentViewModel(
         // 记录尝试过的会话使HTTP尚未回包的离页也能回来续接；未被服务器接受时SSE仍按已有404预算结束。
         savedState[SESSION_ESTABLISHED] = true
         val messageJob = viewModelScope.launch(dispatcher, start = CoroutineStart.LAZY) {
-            when (val result = repository.sendMessage(sessionId, request, mode())) {
+            when (val result = repository.sendMessage(sessionId, request, mode(), messageKey)) {
                 is ApiResult.Success -> {
                     if (generation != requestGeneration) return@launch
                     savedState[SESSION_ESTABLISHED] = true
@@ -242,7 +268,10 @@ class AgentViewModel(
     }
 
 // 重试当前数据。
-    fun retry() { retryText?.let { sendRequest(it, retryDisplayText, appendUser = false) } }
+    fun retry() {
+        if (needsHistory) restoreHistory()
+        else retryText?.let { sendRequest(it, retryDisplayText, appendUser = false) }
+    }
 
 // 处理 `consumeCreatedOrder` 相关逻辑。
     fun consumeCreatedOrder() = updateState { it.copy(createdOrderId = null) }
@@ -309,6 +338,42 @@ class AgentViewModel(
         }
     }
 
+    /** 分页收齐后一次应用；同一会话代际仍有效才续接，不重发未完成的原语句。 */
+    private fun restoreHistory() {
+        if (historyJob?.isActive == true || _uiState.value.sheetMode == AgentSheetMode.HIDDEN) return
+        val generation = requestGeneration
+        val restoringSession = sessionId
+        updateState { it.copy(isRecoveringHistory = true, isSending = false, error = null) }
+        historyJob = viewModelScope.launch(dispatcher) {
+            val result = historyRecovery.load(restoringSession)
+            if (generation != requestGeneration || sessionId != restoringSession) return@launch
+            when (result) {
+                is ApiResult.Success -> {
+                    val history = result.value
+                    identities.reset(history.events)
+                    archivedTraces.clear()
+                    // 完整消息本身证明该助手轮已归档；旧事件表可能为空，不能因缺事件接纳其迟到增量。
+                    archivedTraces.addAll(history.archivedTraceIds)
+                    needsHistory = false
+                    // 全历史事件用于索引和旧消息归属；活动事件仅当前trace，避免旧进度串入正在恢复的当前轮。
+                    updateState { it.copy(messages = history.messages, events = history.currentEvents,
+                        lastEventId = history.throughEventId, isSending = history.hasUnfinishedRun,
+                        isRecoveringHistory = false, cards = emptyList(), confirmation = null,
+                        candidateCart = null, authorization = AgentAuthorization(), pendingConfirmationCard = null,
+                        pendingAfterSaleCards = emptyList(), historyNotice = if (history.emptyMessageHistory)
+                            "旧会话没有可恢复的消息记录" else "历史已恢复，历史卡片仅供查看") }
+                    // 已完整应用双上界后才允许新事件进入，快照期间的新内容由此处续接。
+                    if (_uiState.value.sheetMode != AgentSheetMode.HIDDEN) subscribeEvents()
+                }
+                is ApiResult.Failure -> {
+                    updateState { it.copy(isRecoveringHistory = false, isSending = false,
+                        historyNotice = "聊天历史需联网恢复，草稿已保留；不会自动重发原请求") }
+                    showError(result.error)
+                }
+            }
+        }
+    }
+
     /** 每次打开或新轮只建立一个订阅；传输异常不把已暂停/完成的业务回答改成失败。 */
     private fun subscribeEvents() {
         eventsJob = viewModelScope.launch(dispatcher) {
@@ -327,7 +392,8 @@ class AgentViewModel(
     private fun applyResult(result: AgentMessageResult) {
         updateState { state ->
             // HTTP 是 SSE 暂未连接时的可靠回补；原事件身份去重，不能把 sequence 当成 SSE 游标。
-            val allEvents = result.events.fold(state.events) { events, event -> events.addIfNew(event) }
+            val allEvents = state.events + identities.newEvents(result.events)
+            result.events.mapNotNull(AgentEvent::traceId).forEach(archivedTraces::add)
             val cart = result.candidateCart?.withEffectiveAmountLimit()
             val cards = bindConfirmationCards(result.cards, result.events)
             when (result.status) {
@@ -388,11 +454,12 @@ class AgentViewModel(
         val replacesPending = samePendingTrace && event.type in setOf("confirmation_required", "input_required") && event.eventId != identity?.eventId &&
             event.sequence != null && identity?.sequence != null && event.sequence!! > identity.sequence
         // 已归档回复的迟到/重放事件只推进数据库游标，不得被挪到正在输入的新轮。
-        if (!replacesPending && event.traceId != null && state.messages.any { message -> message.events.any { it.traceId == event.traceId } })
+        if (!replacesPending && event.traceId != null && event.traceId in archivedTraces)
             return@updateState state.copy(lastEventId = event.id ?: state.lastEventId,
                 pendingConfirmationCard = if (closesPending) null else state.pendingConfirmationCard,
                 pendingAfterSaleCards = if (closesPending) emptyList() else state.pendingAfterSaleCards)
-        val updated = state.events.addIfNew(event)
+        val isNew = identities.accept(event)
+        val updated = if (isNew) state.events + event else state.events
         // SSE 游标可推进，但重复的原事件不能再次追加文本或卡片。
         if (updated.size == state.events.size) return@updateState state.copy(lastEventId = event.id ?: state.lastEventId)
         // 网关兼容工具审计没有原 eventId，其 status 是工具结果而非任务状态，不能据此提前结束动画。
@@ -413,7 +480,8 @@ class AgentViewModel(
         val streamedMessages = if (delta.isNotEmpty()) {
             val previous = state.messages.lastOrNull()
             if (previous?.streaming == true) state.messages.dropLast(1) + previous.copy(text = previous.text + delta)
-            else state.messages + ChatMessage(delta, false, streaming = true)
+            else state.messages + ChatMessage(delta, false, events=listOf(event), streaming = true,
+                displayKey = event.traceId?.let { "assistant:$it" } ?: UUID.randomUUID().toString())
         } else state.messages
         state.copy(
             events = updated,
@@ -430,21 +498,26 @@ class AgentViewModel(
             lastEventId = event.id ?: state.lastEventId,
             isSending = state.isSending && !paused && !terminal,
             // 等待HTTP期间也立即展示服务端补充提示；相同最终回答不会再次追加同一气泡。
-            messages = if (paused && event.summary.isNotBlank()) streamedMessages.withAssistantReply(event.summary,
+            messages = if ((paused || terminal) && event.summary.isNotBlank()) streamedMessages.withAssistantReply(event.summary,
                 (state.cards + eventCards).distinct(), updated) else streamedMessages,
+            historyNotice = state.historyNotice,
             error = if (paused) null else state.error
         ).also {
             savedState[LAST_EVENT_ID] = it.lastEventId
         }
     }
 
-    /** SSE提示与随后HTTP回答可能相同，只消除相邻同一助手文案，不删除历史会话。 */
+    /** 同trace的SSE/HTTP替换同一气泡；相同文案的不同输入轮必须拥有各自稳定键。 */
     private fun List<ChatMessage>.withAssistantReply(text: String, cards: List<AgentCardPayload> = emptyList(),
-                                                   events: List<AgentEvent> = emptyList()): List<ChatMessage> {
+        events: List<AgentEvent> = emptyList()): List<ChatMessage> {
         val previous = lastOrNull()
-        val reply = ChatMessage(text, false, cards, events)
-        return if (previous?.let { !it.fromUser && (it.text == text || it.streaming) } == true)
-            dropLast(1) + reply else this + reply
+        val trace = events.lastOrNull { it.traceId != null }?.traceId
+        val key = trace?.let { "assistant:$it" } ?: previous?.takeIf { !it.fromUser }?.displayKey ?: UUID.randomUUID().toString()
+        val same = previous != null && !previous.fromUser && (previous.displayKey == key || previous.streaming)
+        // 恢复或重连后内存可能同时见到历史与当前事件；最终气泡只附着自身trace的进度与卡片来源。
+        val ownEvents = if (trace != null) events.filter { it.traceId == trace } else events
+        val reply = ChatMessage(text, false, cards, ownEvents, displayKey = if (same) previous!!.displayKey else key)
+        return if (same) dropLast(1)+reply else this+reply
     }
 
     /**
@@ -472,14 +545,6 @@ class AgentViewModel(
 
 // 处理 `mode` 相关逻辑。
     private fun mode() = if (_uiState.value.authorization.isTaskAuto) AgentMode.THIS_TASK_AUTO else AgentMode.CONFIRM
-    /** 原身份跨 HTTP/SSE 去重；旧事件没有原身份时仍保持既有数据库游标兼容。 */
-    private fun List<AgentEvent>.addIfNew(event: AgentEvent) = if (any {
-        (event.eventId != null && it.eventId == event.eventId) ||
-            (event.id != null && it.id == event.id) ||
-            // 同一暂停任务后续输入会重新从 sequence=0 发流，必须同时匹配 traceId，不能吞掉恢复事件。
-            (event.runId != null && event.traceId != null && event.sequence != null && it.runId == event.runId &&
-                it.traceId == event.traceId && it.sequence == event.sequence)
-    }) this else this + event
     private fun CandidateCart.toConfirmation() = OrderConfirmation(
         merchantName, items, address, deliveryFee, discount, total, requireNotNull(authorizationMode), maxAmount, addressId
     )
@@ -530,21 +595,8 @@ class AgentViewModel(
     private fun String.toAmountOrNull(): BigDecimal? = replace(Regex("[^0-9.]"), "").toBigDecimalOrNull()?.takeIf { it > BigDecimal.ZERO }
     private fun String.requestedAmountLimit(): String? = Regex("(\\d+(?:\\.\\d+)?)\\s*元\\s*以内").find(this)?.groupValues?.get(1)?.let { "¥$it" }
 
-// 处理 `persistState` 相关逻辑。
-    private fun persistState(state: AgentUiState) {
-        savedState[SHEET_MODE] = state.sheetMode.name
-        savedState[COMPOSER] = state.composerText
-        savedState[MESSAGES] = ArrayList(state.messages)
-        savedState[EVENTS] = ArrayList(state.events)
-        savedState[LAST_EVENT_ID] = state.lastEventId
-        savedState[CANDIDATE_CART] = state.candidateCart
-        savedState[CONFIRMATION] = state.confirmation
-        savedState[AUTHORIZATION] = state.authorization
-        savedState[CREATED_ORDER_ID] = state.createdOrderId
-        savedState[VIEWED_CARD] = state.viewedCard
-        savedState[PENDING_CONFIRMATION_CARD] = state.pendingConfirmationCard
-        savedState[PENDING_AFTER_SALE_CARDS] = ArrayList(state.pendingAfterSaleCards)
-    }
+    /** 每次状态更新只比较薄字段；不复制或序列化历史正文/事件/卡片。 */
+    private fun persistState(state: AgentUiState) = checkpoint.save(state)
 
 // 更新状态。
     private inline fun updateState(transform: (AgentUiState) -> AgentUiState) {
@@ -553,7 +605,7 @@ class AgentViewModel(
     }
 
 // 清理视图模型持有的任务与订阅。
-    override fun onCleared() { eventsJob?.cancel(); super.onCleared() }
+    override fun onCleared() { historyJob?.cancel(); eventsJob?.cancel(); identities.reset(); super.onCleared() }
 
     private companion object {
         /** 本地历史所属账号；与服务端强制认证归属分离，禁止客户端跨账号复用会话。 */

@@ -10,7 +10,8 @@ final class AgentContractCompatibility {
     /** 内部凭证与鉴权字段不属于公开事件；包含历史别名以保护已有数据库事件的重放。 */
     private static final java.util.Set<String> PRIVATE_FIELDS = java.util.Set.of(
             "confirmationgrantid", "confirmationgrant", "grantid", "token", "accesstoken", "refreshtoken",
-            "authorization", "password", "secret", "apikey", "jwt", "redemptiontoken", "paymentconfirmationgrantid");
+            "authorization", "password", "secret", "apikey", "jwt", "redemptiontoken", "paymentconfirmationgrantid",
+            "autoauthorize", "autoauthorization", "istaskauto", "taskautogrant");
     /** 禁止实例化，避免在每个工具分支建立各自的兼容规则。 */
     private AgentContractCompatibility() {}
 
@@ -74,9 +75,9 @@ final class AgentContractCompatibility {
     static Map<String, Object> publicEventPayload(Map<String, Object> source) {
         Map<String, Object> result = new LinkedHashMap<>();
         if (source == null) return result;
-        // 逐层处理嵌套对象和候选列表，不能只删除顶层字段而遗漏内部 data 中的凭证。
+        // 逐层处理嵌套对象和候选列表；私有键先统一分隔符与大小写，历史别名不能绕过凭证边界。
         source.forEach((key, value) -> {
-            if (!PRIVATE_FIELDS.contains(key.toLowerCase(java.util.Locale.ROOT))) result.put(key, publicValue(value));
+            if (!PRIVATE_FIELDS.contains(key.replace("_", "").replace("-", "").toLowerCase(java.util.Locale.ROOT))) result.put(key, publicValue(value));
         });
         return result;
     }

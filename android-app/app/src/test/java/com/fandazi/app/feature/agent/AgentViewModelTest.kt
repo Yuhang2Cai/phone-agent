@@ -48,7 +48,8 @@ class AgentViewModelTest {
     fun waitingInputEventStopsProgressWithoutFailureOrNavigation() = runTest {
         val pending = CompletableDeferred<ApiResult<AgentMessageResult>>()
         val repository = object : AgentRepository by FakeAgentRepository() {
-            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode) = pending.await()
+            /** 覆盖生产实际四参数入口，控制原HTTP等待，不因接口委托绕过当前测试替身。 */
+            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?) = pending.await()
         }
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
         viewModel.openAssistant()
@@ -69,7 +70,8 @@ class AgentViewModelTest {
         val replies = listOf(CompletableDeferred<ApiResult<AgentMessageResult>>(), CompletableDeferred())
         var calls = 0
         val repository = object : AgentRepository by FakeAgentRepository() {
-            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode) = replies[calls++].await()
+            /** 覆盖生产实际四参数入口，控制原HTTP等待，不因接口委托绕过当前测试替身。 */
+            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?) = replies[calls++].await()
         }
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
         viewModel.sendText("退款")
@@ -103,7 +105,8 @@ class AgentViewModelTest {
     fun versionedWaitingConfirmationPausesEvenBeforeHttpCompletes() = runTest {
         val pending = CompletableDeferred<ApiResult<AgentMessageResult>>()
         val repository = object : AgentRepository by FakeAgentRepository() {
-            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode) = pending.await()
+            /** 覆盖生产实际四参数入口，控制原HTTP等待，不因接口委托绕过当前测试替身。 */
+            override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?) = pending.await()
         }
         val viewModel = AgentViewModel(repository, SavedStateHandle(), StandardTestDispatcher(testScheduler))
         viewModel.sendText("申请退款")
@@ -158,8 +161,8 @@ class AgentViewModelTest {
     }
 
     @Test
-// 验证 `savedStateRestoresSheetConversationAndConfirmationInANewViewModel` 覆盖场景的预期行为与边界。
-    fun savedStateRestoresSheetConversationAndConfirmationInANewViewModel() = runTest {
+/** 新规格只恢复薄面板索引；正文必须等待后端读取，旧确认及自动授权不能从SavedState复活。 */
+    fun savedStateRestoresOnlyThinSheetAndNeverOldConfirmation() = runTest {
         val savedState = SavedStateHandle()
         val repository = FakeAgentRepository(result = confirmationResult())
         val first = AgentViewModel(repository, savedState, StandardTestDispatcher(testScheduler))
@@ -171,8 +174,9 @@ class AgentViewModelTest {
         val restored = AgentViewModel(repository, savedState, StandardTestDispatcher(testScheduler))
 
         assertEquals(AgentSheetMode.FULL, restored.uiState.value.sheetMode)
-        assertEquals("帮我点清淡午餐", restored.uiState.value.messages.first().text)
-        assertEquals("清粥小菜", restored.uiState.value.confirmation?.merchantName)
+        assertTrue(restored.uiState.value.messages.isEmpty())
+        assertEquals(null, restored.uiState.value.confirmation)
+        assertFalse(restored.uiState.value.authorization.isTaskAuto)
     }
 
     @Test

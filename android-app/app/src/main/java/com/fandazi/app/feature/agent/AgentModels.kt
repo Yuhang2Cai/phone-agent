@@ -42,7 +42,9 @@ data class ChatMessage(
     val fromUser: Boolean,
     val cards: List<AgentCardPayload> = emptyList(),
     val events: List<AgentEvent> = emptyList(),
-    val streaming: Boolean = false
+    val streaming: Boolean = false,
+    /** 首次创建后固定；历史从clientMessageKey或服务端trace恢复，不能用文案或列表位置生成。 */
+    val displayKey: String = java.util.UUID.randomUUID().toString()
 ) : Serializable
 
 data class AgentEvent(
@@ -73,7 +75,9 @@ data class AgentCardPayload(
     val orderPublicId: String? = null,
     val fields: Map<String, String> = emptyMap(),
     /** 原待确认事件身份只用于客户端归属校验，不是授权凭证，不改变服务端工具参数。 */
-    val confirmationIdentity: AgentConfirmationIdentity? = null
+    val confirmationIdentity: AgentConfirmationIdentity? = null,
+    /** 历史卡永远只读；即使摘要未过期也不得因恢复可见而重新获得确认资格。 */
+    val historicalReadOnly: Boolean = false
 ) : Serializable
 
 /** 同run重新准备仍产生新事件版本；trace与eventId共同约束原卡所属摘要，不以runId单独放行。 */
@@ -165,7 +169,14 @@ data class AgentUiState(
     /** 仅真实waiting_confirmation期间保留当前版本；历史消息卡继续显示，但不能因此获得可执行状态。 */
     val pendingConfirmationCard: AgentCardPayload? = null,
     /** 当前售后待输入候选或待确认摘要；历史卡片另存消息，不能凭历史可见性继续执行。 */
-    val pendingAfterSaleCards: List<AgentCardPayload> = emptyList()
+    val pendingAfterSaleCards: List<AgentCardPayload> = emptyList(),
+    /** 服务端历史完整应用之前阻止发送，恢复失败只能重试只读GET。 */
+    val isRecoveringHistory: Boolean = false,
+    /** 原消息表没有保存内容时如实提示，不根据事件反造用户话语。 */
+    val historyNotice: String? = null,
+    /** 稳定消息锚点与像素偏移；由聊天列表读取/更新，不使用绝对列表位置作身份。 */
+    val scrollAnchorKey: String? = null,
+    val scrollAnchorOffset: Int = 0
 )
 
 data class ThisTaskAutoRequest(

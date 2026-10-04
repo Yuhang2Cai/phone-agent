@@ -8,13 +8,27 @@ import org.springframework.stereotype.Service;
 
 @Service public class AgentGatewayService {
     private final AgentSessionService sessions; private final AgentServiceClient client; private final AgentEventService events; private final AgentCardEnrichmentService cards;
+    private AgentHistoryRecordingService messages;
+
+    /** 生产Spring注入记录服务；保留旧四参领域测试构造器，不更改Agent模型协议。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    void attachMessages(AgentHistoryRecordingService messages) { this.messages=messages; }
 // 初始化对象依赖与默认状态。
     public AgentGatewayService(AgentSessionService sessions, AgentServiceClient client, AgentEventService events, AgentCardEnrichmentService cards) { this.sessions=sessions; this.client=client; this.events=events; this.cards=cards; }
 // 处理当前数据。
     public AgentResult handle(Long userId,String sessionId,String text,AgentMode mode) {
+        return handle(userId,sessionId,text,mode,null);
+    }
+
+    /** 可选展示键仅关联用户气泡；合法输入先记录，业务执行与消息记录错误分别处理。 */
+    public AgentResult handle(Long userId,String sessionId,String text,AgentMode mode,String clientMessageKey) {
+        if(text==null || text.isBlank())throw new com.fandazi.feature.DomainException("消息不能为空");
+        if(clientMessageKey!=null && !clientMessageKey.matches("[A-Za-z0-9_-]{1,100}"))throw new com.fandazi.feature.DomainException("消息展示键无效");
         String traceId=UUID.randomUUID().toString(); AgentSession session=sessions.start(userId,sessionId,mode,traceId);
         // 会话实体可能被交错请求更新，必须在外部调用前冻结本轮身份，不能返回后再读取实体。
         String runId = session.getActiveRunId();
+        // 写入完整合法输入；记录故障由独立服务标记，不阻断模型或重执业务。
+        if(messages!=null)messages.recordUser(userId,sessionId,runId,traceId,text,clientMessageKey);
         if (mode == AgentMode.CONFIRM && isConfirmation(text)) sessions.confirm(userId, sessionId);
         // 网关兼容事件也绑定真实输入链路，防止迟到的上一轮兼容终态停止当前轮动画；不伪造原事件身份。
         events.record(userId, sessionId, "parsed", "已接收团购助手请求", null, "running", Map.of("runId", runId, "traceId", traceId));
@@ -44,10 +58,15 @@ import org.springframework.stereotype.Service;
             var outcomePayload = new java.util.LinkedHashMap<>(result.candidateCart());
             outcomePayload.put("runId", runId); outcomePayload.put("traceId", traceId);
             events.record(userId,sessionId,outcome,result.message(),null,result.status().name().toLowerCase(),outcomePayload);
+            // 终态只保存服务端实际完整回复，不把事件摘要或历史按钮当成用户输入。
+            if(messages!=null)messages.recordAssistant(userId,sessionId,runId,traceId,result.message());
             return result;
         } catch (AgentServiceUnavailableException exception) {
             sessions.finishRun(userId, sessionId, runId, AgentResult.Status.FAILED);
-            events.record(userId,sessionId,"failed",exception.getMessage(),null,"retryable",Map.of("runId", runId, "traceId", traceId)); return AgentResult.failed(exception.getMessage());
+            events.record(userId,sessionId,"failed",exception.getMessage(),null,"retryable",Map.of("runId", runId, "traceId", traceId));
+            AgentResult failure=AgentResult.failed(exception.getMessage());
+            if(messages!=null)messages.recordAssistant(userId,sessionId,runId,traceId,failure.message());
+            return failure;
         }
     }
 

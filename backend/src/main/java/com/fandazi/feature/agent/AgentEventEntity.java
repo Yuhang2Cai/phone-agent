@@ -9,9 +9,10 @@ import java.util.Map;
 public class AgentEventEntity {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Column(nullable = false) private Long userId; @Column(nullable = false, length = 100) private String sessionId;
-    @Column(nullable = false, length = 40) private String type; @Column(nullable = false, length = 1000) private String summary;
+    @Column(nullable = false, length = 40) private String type; // 终态摘要可能是完整长回复，不能因事件列上限把成功业务改成失败。
+    @Column(nullable = false, columnDefinition = "LONGTEXT") private String summary;
     @Column(length = 100) private String toolName; @Column(nullable = false, length = 40) private String status;
-    @Convert(converter = StringMapJsonConverter.class) @Column(nullable = false, length = 8000) private Map<String, Object> payload;
+    @Convert(converter = StringMapJsonConverter.class) @Column(nullable = false, columnDefinition = "LONGTEXT") private Map<String, Object> payload;
     @Column(nullable = false) private Instant createdAt;
 // 初始化对象依赖与默认状态。
     protected AgentEventEntity() {}
