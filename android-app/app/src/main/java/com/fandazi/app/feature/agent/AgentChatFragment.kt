@@ -2,11 +2,8 @@
 package com.fandazi.app.feature.agent
 
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.Gravity
 import android.view.View
-import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.ScrollView
 import android.widget.TextView
@@ -14,6 +11,7 @@ import android.widget.ProgressBar
 import android.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -35,8 +33,12 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
     private lateinit var viewModel: AgentViewModel
     private lateinit var content: LinearLayout
     private lateinit var scroll: ScrollView
-    private lateinit var input: EditText
-    private lateinit var send: TextView
+    /** 当前View的语音绑定；销毁时释放监听，草稿由独立ViewModel保存。 */
+    private var voiceInput: AgentVoiceInputController? = null
+    /** 在Fragment创建时注册权限回调，避免onViewCreated之后注册导致生命周期异常。 */
+    private val voicePermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        voiceInput?.onPermissionResult(granted)
+    }
     /** 游客仅渲染登录卡，不订阅私有会话、不调用发送接口。 */
     private val authenticated: Boolean get() = (requireActivity() as MainActivity).applicationSession().state.value is SessionState.Authenticated
 
@@ -48,8 +50,6 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
         )[AgentViewModel::class.java]
         content = view.findViewById(R.id.agent_chat_content)
         scroll = view.findViewById(R.id.agent_chat_scroll)
-        input = view.findViewById(R.id.agent_chat_input)
-        send = view.findViewById(R.id.agent_chat_send)
 
         // Figma 右上角为更多菜单，不冒充关闭；退出只取消页面订阅，不清除历史。
         view.findViewById<View>(R.id.agent_chat_close).setOnClickListener { anchor ->
@@ -59,19 +59,13 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
                 show()
             }
         }
-        send.setOnClickListener {
-            if (!authenticated) return@setOnClickListener
-            viewModel.sendText(input.text.toString())
-            input.setText("")
-        }
-        // 输入内容变化时同步发送按钮状态，避免空文本触发无效请求。
-        input.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(text: CharSequence?, start: Int, count: Int, after: Int) = Unit
-            override fun onTextChanged(text: CharSequence?, start: Int, before: Int, count: Int) {
-                send.isEnabled = authenticated && !viewModel.uiState.value.isSending && !text.isNullOrBlank()
-            }
-            override fun afterTextChanged(editable: Editable?) = Unit
-        })
+        // ASR只处理本地录音和草稿，唯一业务发送委托仍是既有sendText，不注入语音消息仓库。
+        val application = requireActivity().application as FandaziApplication
+        val voiceModel = ViewModelProvider(this, AgentVoiceInputViewModelFactory(application))[AgentVoiceInputViewModel::class.java]
+        voiceInput = AgentVoiceInputController(this, view, voiceModel, application.sessionRepository,
+            requestPermission = { voicePermission.launch(it) },
+            isSending = { viewModel.uiState.value.isSending },
+            sendText = { viewModel.sendText(it) })
         if (authenticated) viewModel.openAssistant()
         viewLifecycleOwner.lifecycleScope.launch {
             viewModel.uiState.collectLatest(::render)
@@ -86,8 +80,8 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
      */
     private fun render(state: AgentUiState) {
         content.removeAllViews()
-        input.isEnabled = authenticated
-        send.isEnabled = authenticated && !state.isSending && input.text.toString().isNotBlank()
+        // 输入资格由语音绑定同时核对登录、业务发送和录音状态，避免消息重绘重新启用活动录音输入。
+        voiceInput?.refreshComposer()
         if (!authenticated) {
             // 不显示其他账号遗留历史或结果，登录成功由 Activity 回到同一聊天入口。
             val gate = layoutInflater.inflate(R.layout.item_agent_login_gate, content, false)
@@ -101,7 +95,10 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
         if (state.messages.isEmpty() && state.cards.isEmpty() && state.error == null && !state.isSending) {
             val empty = layoutInflater.inflate(R.layout.item_agent_empty, content, false)
             listOf(R.id.agent_quick_nearby, R.id.agent_quick_deal, R.id.agent_quick_order).forEach { id ->
-                empty.findViewById<TextView>(id).setOnClickListener { viewModel.sendText((it as TextView).text.toString()) }
+                empty.findViewById<TextView>(id).setOnClickListener {
+                    // 快捷问题同样是显式发送；录音/识别/合并期间不跳过当前草稿确认。
+                    if (voiceInput?.canSendQuickQuery() == true) viewModel.sendText((it as TextView).text.toString())
+                }
             }
             content.addView(empty)
         }
@@ -265,6 +262,9 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
 
     /** 离开唯一聊天页时释放 SSE；保留消息历史，回来后从原数据库游标继续。 */
     override fun onDestroyView() {
+        // View监听和权限迟到回调先解除，取消本轮语音但不清除同账号文字草稿。
+        voiceInput?.close()
+        voiceInput = null
         viewModel.closeAssistant()
         super.onDestroyView()
     }

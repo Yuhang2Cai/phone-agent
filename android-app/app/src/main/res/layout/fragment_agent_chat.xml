@@ -64,6 +64,26 @@
             android:orientation="vertical" />
     </ScrollView>
 
+    <!-- 本地语音状态独立于消息列表，不把录音进度伪装成服务端聊天事件。 -->
+    <LinearLayout android:id="@+id/agent_voice_panel" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp" android:layout_marginBottom="8dp" android:padding="16dp"
+        android:orientation="vertical" android:background="@drawable/agent_voice_panel_background" android:visibility="gone">
+        <TextView android:id="@+id/agent_voice_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/group_buy_green" android:textSize="16sp" android:textStyle="bold" />
+        <TextView android:id="@+id/agent_voice_message" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+            <TextView android:id="@+id/agent_voice_cancel" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1"
+                android:gravity="center" android:text="@string/agent_voice_cancel_recording" android:textSize="14sp"
+                android:textColor="@color/surface_card" android:background="@drawable/agent_voice_secondary_background" />
+            <TextView android:id="@+id/agent_voice_finish" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1"
+                android:layout_marginStart="8dp" android:gravity="center" android:text="@string/agent_voice_finish_recording" android:textSize="14sp"
+                android:textColor="@color/surface_card" android:background="@drawable/agent_voice_primary_background" />
+        </LinearLayout>
+    </LinearLayout>
+    <TextView android:id="@+id/agent_voice_notice" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" android:visibility="gone" />
+
     <LinearLayout
         android:id="@+id/agent_chat_composer"
         android:layout_width="match_parent"
@@ -72,7 +92,10 @@
         android:paddingHorizontal="16dp"
         android:paddingTop="8dp"
         android:paddingBottom="12dp">
-        <!-- 正式文字输入没有附件或语音入口，避免展示未实现能力。 -->
+        <!-- 点击麦克风才申请录音权限；游客入口禁用，触控区域保持44dp。 -->
+        <ImageButton android:id="@+id/agent_chat_voice" android:layout_width="44dp" android:layout_height="44dp"
+            android:layout_marginEnd="8dp" android:padding="10dp" android:src="@drawable/ic_agent_voice"
+            android:background="@drawable/agent_chat_input_background" android:contentDescription="@string/agent_voice_start" />
         <EditText
             android:id="@+id/agent_chat_input"
             android:layout_width="0dp"
@@ -90,12 +113,12 @@
             android:id="@+id/agent_chat_send"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:layout_marginStart="14dp"
-            android:background="@drawable/agent_send_background"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/agent_voice_send_background"
             android:contentDescription="发送消息"
             android:gravity="center"
             android:text="›"
-            android:textColor="@color/group_buy_muted"
+            android:textColor="@color/surface_card"
             android:textSize="24sp" />
     </LinearLayout>
 </LinearLayout>

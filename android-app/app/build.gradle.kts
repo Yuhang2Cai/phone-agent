@@ -1,4 +1,6 @@
 // 构建配置：声明模块、插件和依赖的装配方式。
+import java.security.MessageDigest as AsrMessageDigest
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -59,10 +61,17 @@ android {
         buildConfig = true
         viewBinding = true
     }
+    // 固定redBook模型沿用未压缩资产，避免读取ONNX时重复解压；不改变既有ABI范围。
+    androidResources { noCompress += listOf("onnx", "txt") }
     testOptions.unitTests.isIncludeAndroidResources = true
 }
 
 dependencies {
+    // 固定来源AAR仅负责本地推理，不迁移Hilt、网络音频或redBook消息依赖。
+    implementation(files("libs/sherpa-onnx-1.12.39.aar"))
+    // 设备测试入口版本固定；本轮只构建入口，现场识别仍待用户人工验收。
+    androidTestImplementation("androidx.test:runner:1.6.2")
+    androidTestImplementation("androidx.test.ext:junit:1.2.1")
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.12.0")
@@ -83,3 +92,32 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
 }
+
+// 固定ASR资源必须由受控来源导入，防止缺模型时静默产出只有按钮的不可用APK。
+// 模型许可未闭合，文件不进入公开提交；每个隔离构建先运行Import-RedBookAsr.ps1 -IncludeLocalModel。
+val asrResourceHashes = mapOf(
+    "libs/sherpa-onnx-1.12.39.aar" to "D228A731EC3125170C962E2D52AD3FE012F3616E5047A87E2743D851D69C176D",
+    "src/main/assets/sherpa-onnx/sherpa-onnx-paraformer-zh-small-2024-03-09/sherpa-onnx-paraformer-zh-small-2024-03-09/model.int8.onnx" to "3EF6C19369B912F7CAF3CEF8E545C5CCD1A33D9D7EC792A46668DC41C4B229EC",
+    "src/main/assets/sherpa-onnx/sherpa-onnx-paraformer-zh-small-2024-03-09/sherpa-onnx-paraformer-zh-small-2024-03-09/tokens.txt" to "4B2D964E18B9CF139B473003B6698FB2ED9A2A5EC55B93DAA677B28F578897AA"
+)
+val verifyLocalAsrAssets = tasks.register("verifyLocalAsrAssets") {
+    doLast {
+        // 先检查存在性，再逐块计算摘要；缺失/替换时明确失败，不下载其他模型或忽略检查。
+        asrResourceHashes.forEach { (relativePath, expectedHash) ->
+            val resource = file(relativePath)
+            check(resource.isFile) { "缺少固定ASR资源，请运行 scripts/Import-RedBookAsr.ps1 -IncludeLocalModel：$relativePath" }
+            val digest = AsrMessageDigest.getInstance("SHA-256")
+            resource.inputStream().use { input ->
+                val buffer = ByteArray(8192)
+                while (true) {
+                    val count = input.read(buffer)
+                    if (count < 0) break
+                    digest.update(buffer, 0, count)
+                }
+            }
+            val actualHash = digest.digest().joinToString("") { "%02X".format(it) }
+            check(actualHash == expectedHash) { "固定ASR资源摘要不符：$relativePath" }
+        }
+    }
+}
+tasks.named("preBuild") { dependsOn(verifyLocalAsrAssets) }

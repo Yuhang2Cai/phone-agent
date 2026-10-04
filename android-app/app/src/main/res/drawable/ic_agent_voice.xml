@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 24dp麦克风图标：仅标明显式录音入口，按钮拥有独立44dp触控区域。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:fillColor="@android:color/transparent" android:strokeColor="@color/group_buy_green" android:strokeWidth="1.8" android:strokeLineCap="round" android:pathData="M12,2C10.34,2 9,3.34 9,5L9,11C9,12.66 10.34,14 12,14C13.66,14 15,12.66 15,11L15,5C15,3.34 13.66,2 12,2Z M6,10L6,12C6,15.31 8.69,18 12,18C15.31,18 18,15.31 18,12L18,10 M12,18L12,22 M8,22L16,22" />
+</vector>

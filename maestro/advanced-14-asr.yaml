@@ -1,0 +1,42 @@
+# Task14语音输入负面场景入口，本轮不运行：登录由人工/受控运行器预先准备，不能写真实账号。
+# 现场识别成功、追加/替换、断网和30条指标由人工另测；本流程不把静音录音当作成功识别。
+appId: com.fandazi.app
+---
+- launchApp
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_chat_input"
+    timeout: 10000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_login_gate"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_voice"
+# 保留纯验收草稿，操作取消后仍应存在；此文字不发送到AI服务。
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "asr-review-draft"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_voice"
+# 如出现首次权限说明，应由人工确认并完成系统权限弹窗，再从录音场景继续。
+- runFlow:
+    when:
+      visible: "允许使用麦克风"
+    commands:
+      - tapOn: "继续文字输入"
+      - assertVisible: "asr-review-draft"
+# 权限已预先授权时覆盖录音取消；权限未授予时此分支不运行，不能据此判场景通过。
+- runFlow:
+    when:
+      visible:
+        id: "com.fandazi.app:id/agent_voice_cancel"
+    commands:
+      - assertVisible: "取消录音"
+      - tapOn:
+          id: "com.fandazi.app:id/agent_voice_cancel"
+      - assertVisible: "asr-review-draft"
+      - assertNotVisible: "正在本机识别…"
+# 仅截图不会自动发送草稿或调用业务确认；运行器须另记录实际执行/未覆盖分支。
+- takeScreenshot: advanced-14-asr-cancel-draft
