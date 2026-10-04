@@ -1,6 +1,13 @@
 // 团购券模块：封装订单、团购券和演示核销接口，页面只消费真实后端数据。
 package com.fandazi.app.feature.voucher
 
+import android.os.Trace
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import com.fandazi.app.core.network.ApiClient
 import com.fandazi.app.core.network.ApiResult
 import com.google.gson.Gson
@@ -23,27 +30,31 @@ interface VoucherRepository {
 }
 
 /** 基于统一 ApiClient 的真实 HTTP 实现。 */
-class HttpVoucherRepository(private val api: ApiClient, private val gson: Gson = Gson()) : VoucherRepository {
+class HttpVoucherRepository(
+    private val api: ApiClient, private val gson: Gson = Gson(),
+    // 原构造参数位置兼容；订单CPU解析默认后台，不新增私人缓存。
+    private val parsingDispatcher: CoroutineDispatcher = Dispatchers.Default,
+) : VoucherRepository {
     /** 解析全部本人订单；同一公开身份重复意味着协议无效，不能展示两个同资源入口。 */
-    override suspend fun listOrders(): ApiResult<List<GroupOrderSummary>> = api.get("group-orders").mapJson { body ->
-        JsonParser.parseString(body).asJsonArray.map { it.asJsonObject.toGroupOrder() }.also { orders ->
+    override suspend fun listOrders(): ApiResult<List<GroupOrderSummary>> = api.get("group-orders").mapJson { body, checkActive ->
+        JsonParser.parseString(body).asJsonArray.map { checkActive(); it.asJsonObject.toGroupOrder(checkActive) }.also { orders ->
             require(orders.map { it.orderId }.distinct().size == orders.size) { "重复订单身份" }
         }
     }
 
     /** 详情必须返回请求的同一公开订单号，错误响应不能静默替换成其他资源。 */
-    override suspend fun getOrder(orderId: String): ApiResult<GroupOrderSummary> = api.get("group-orders/${orderId.urlEncoded()}").mapJson {
-        JsonParser.parseString(it).asJsonObject.toGroupOrder().also { order -> require(order.orderId == orderId) { "订单身份不匹配" } }
+    override suspend fun getOrder(orderId: String): ApiResult<GroupOrderSummary> = api.get("group-orders/${orderId.urlEncoded()}").mapJson { body, checkActive ->
+        JsonParser.parseString(body).asJsonObject.toGroupOrder(checkActive).also { order -> require(order.orderId == orderId) { "订单身份不匹配" } }
     }
 
     /** 本人券详情同样核对请求身份；页面失败可重试，不拿第一张券兜底。 */
-    override suspend fun getVoucher(voucherId: String): ApiResult<VoucherSummary> = api.get("vouchers/${voucherId.urlEncoded()}").mapJson {
-        JsonParser.parseString(it).asJsonObject.toVoucher().also { voucher -> require(voucher.publicId == voucherId) { "团购券身份不匹配" } }
+    override suspend fun getVoucher(voucherId: String): ApiResult<VoucherSummary> = api.get("vouchers/${voucherId.urlEncoded()}").mapJson { body, _ ->
+        JsonParser.parseString(body).asJsonObject.toVoucher().also { voucher -> require(voucher.publicId == voucherId) { "团购券身份不匹配" } }
     }
 
     /** 只读取申请身份；绑定原券并拒绝空 ID，防止错误申请被展示为另一个券的进度入口。 */
     override suspend fun getRefundLink(voucherId: String): ApiResult<VoucherRefundLink> =
-        api.get("refunds/by-voucher/${voucherId.urlEncoded()}").mapJson { body ->
+        api.get("refunds/by-voucher/${voucherId.urlEncoded()}").mapJson { body, _ ->
             val value = JsonParser.parseString(body).asJsonObject
             val link = VoucherRefundLink(value.get("requestId").asString, value.get("voucherId").asString)
             // 服务端仍负责归属；客户端只验证响应与请求一致，不猜状态或申请编号。
@@ -51,15 +62,17 @@ class HttpVoucherRepository(private val api: ApiClient, private val gson: Gson =
             link
         }
 
+    /** 原延期接口保留：成功写响应在后台解析；本轮只读页面不会调用或申请核销凭证。 */
     override suspend fun createDisplayToken(voucherId: String): ApiResult<VoucherDisplayToken> =
-        api.postJson("vouchers/${voucherId.urlEncoded()}/display-token", "{}").mapJson {
-            val value = JsonParser.parseString(it).asJsonObject
+        api.postJson("vouchers/${voucherId.urlEncoded()}/display-token", "{}").mapJson { body, _ ->
+            val value = JsonParser.parseString(body).asJsonObject
             VoucherDisplayToken(value["voucherId"].asString, value["token"].asString, value["expiresAt"]?.asString)
         }
 
+    /** 原延期写接口保持请求和资格语义，仅迁移响应解析；本轮不运行核销调用。 */
     override suspend fun redeem(token: String, storeId: String): ApiResult<VoucherSummary> = api.postJson(
         "vouchers/demo-redemption", gson.toJson(mapOf("token" to token, "storeId" to storeId))
-    ).mapJson { JsonParser.parseString(it).asJsonObject.toVoucher() }
+    ).mapJson { body, _ -> JsonParser.parseString(body).asJsonObject.toVoucher() }
 
     /** 对公开身份编码，防止资源值改变路径结构；不截断或生成替代 ID。 */
     private fun String.urlEncoded() = java.net.URLEncoder.encode(this, Charsets.UTF_8.name())
@@ -82,10 +95,11 @@ class HttpVoucherRepository(private val api: ApiClient, private val gson: Gson =
     }
 
     /** 解析订单和所属券；核对数量、身份与分摊守恒，非法输出不能继续导航或展示资格。 */
-    private fun com.google.gson.JsonObject.toGroupOrder() = GroupOrderSummary(
+    private fun com.google.gson.JsonObject.toGroupOrder(checkActive: () -> Unit) = GroupOrderSummary(
         get("orderId").asString, get("dealId").asString, get("storeId").asString,
         get("quantity").asBigDecimal.intValueExact(), cents("totalCents") ?: error("缺少订单金额"), get("status").asString, get("voucherCount").asBigDecimal.intValueExact(),
-        getAsJsonArray("vouchers").map { it.asJsonObject.toVoucher() }, requiredBoolean("canReview"),
+        // 嵌套券逐项检查取消，节点复用；保持归属和整数金额校验。
+        getAsJsonArray("vouchers").map { checkActive(); it.asJsonObject.toVoucher() }, requiredBoolean("canReview"),
         getNullable("createdAt"), getNullable("storeName").orEmpty(), getNullable("dealTitle").orEmpty(),
         getNullable("imageUrl"), getNullable("imageAlt"),
         // 页面金额保持整数分且实付允许 null，避免 totalCents 被误当支付事实。
@@ -117,13 +131,27 @@ class HttpVoucherRepository(private val api: ApiClient, private val gson: Gson =
 
     /** 合法空值保留缺失，不把 JSON null 展示为业务文字。 */
     private fun com.google.gson.JsonObject.getNullable(name: String): String? = get(name)?.takeUnless { it.isJsonNull }?.asString
-}
-
-/** 将 ApiClient 的文本响应统一转换为业务对象，同时保留原始错误结果。 */
-private suspend inline fun <T> ApiResult<String>.mapJson(crossinline parser: (String) -> T): ApiResult<T> = when (this) {
-    is ApiResult.Success -> runCatching { ApiResult.Success(parser(value)) }.getOrElse { exception ->
-        // 解析失败时保留异常类型，便于区分后端协议变更和网络返回空内容；不记录响应正文，避免泄漏券数据。
-        ApiResult.Failure(com.fandazi.app.core.network.ApiError.Network("响应格式无效：${exception::class.java.simpleName}"))
+    /** 后台完成JSON转换与业务校验；取消原样传播，原HTTP和格式错误类别保持。 */
+    private suspend fun <T> ApiResult<String>.mapJson(parser: (String, () -> Unit) -> T): ApiResult<T> = when (this) {
+        is ApiResult.Failure -> this
+        is ApiResult.Success -> withContext(parsingDispatcher) {
+            // 输入已通过网络边界；只在当前作用域解析，trace核对线程且不记录响应正文。
+            val context = currentCoroutineContext()
+            context.ensureActive()
+            Trace.beginSection("fdz.parse.vouchers")
+            try {
+                val result = parser(value) { context.ensureActive() }
+                // 结果构造前检查取消，旧页面工作不能以空列表或完整成功返回。
+                context.ensureActive()
+                ApiResult.Success(result)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (invalid: Exception) {
+                ApiResult.Failure(com.fandazi.app.core.network.ApiError.Network("响应格式无效："+invalid::class.java.simpleName))
+            } finally {
+                Trace.endSection()
+            }
+        }
     }
-    is ApiResult.Failure -> this
+
 }

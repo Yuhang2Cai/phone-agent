@@ -68,4 +68,14 @@ class CatalogRepositoryTest {
         server.enqueue(MockResponse().setBody("[{\"publicId\":\"store-001\",\"name\":\"旧示例\"}]"))
         assertTrue(repository.stores(CatalogQuery()) is ApiResult.Failure)
     }
+    /** 非法UUID及跨店嵌套套餐沿用格式失败，不允许CPU优化跳过资源边界。 */
+    @Test fun invalidUuidAndForeignNestedDealRemainFailures() = runBlocking {
+        val id="00000000-0000-0000-0000-000000000001"
+        val base="""{"publicId":"$id","name":"合成门店","cityCode":"fixture","category":"火锅","averageSpendCents":100,"reviewCount":0,"reviewDistribution":[0,0,0,0,0],"featuredDeal":null}"""
+        server.enqueue(MockResponse().setBody("["+base.replace(id,"非法身份")+"]"))
+        server.enqueue(MockResponse().setBody("["+base.replace("\"featuredDeal\":null","\"featuredDeal\":{\"storePublicId\":\"00000000-0000-0000-0000-000000000002\"}")+"]"))
+        assertTrue(repository.stores(CatalogQuery()) is ApiResult.Failure)
+        assertTrue(repository.stores(CatalogQuery()) is ApiResult.Failure)
+    }
+
 }

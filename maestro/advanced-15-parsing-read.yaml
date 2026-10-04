@@ -1,0 +1,36 @@
+# 后台解析只读回归：身份和金额来自既有合成账号的真实接口，不创建订单、不退款或核销。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible: "order-card-${PARSE_ORDER_ID}"
+    timeout: 30000
+- takeScreenshot: parsing-real-orders
+- tapOn: "order-card-${PARSE_ORDER_ID}"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_number"
+    timeout: 30000
+- assertVisible: ".*${PARSE_ORDER_ID}.*"
+- takeScreenshot: parsing-real-order-detail
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/group_order_show_vouchers"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- scrollUntilVisible:
+    element:
+      text: "团购券 1 ${PARSE_VOUCHER_ID}"
+    direction: DOWN
+- tapOn: "团购券 1 ${PARSE_VOUCHER_ID}"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/voucher_detail_info"
+    timeout: 30000
+- assertVisible: ".*${PARSE_VOUCHER_ID}.*"
+- assertVisible: ".*${PARSE_ORDER_ID}.*"
+- assertNotVisible: "展示核销二维码"
+- takeScreenshot: parsing-real-voucher

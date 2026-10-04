@@ -1,6 +1,13 @@
 // 团购目录网络模块：统一读取 Spring 公开浏览接口，依赖现有 ApiClient/Gson 与套餐解析器。
 package com.fandazi.app.feature.store
 
+import android.os.Trace
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import com.fandazi.app.core.network.ApiClient
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.network.ApiResult
@@ -8,6 +15,7 @@ import com.fandazi.app.feature.deal.DealPackage
 import com.fandazi.app.feature.deal.DealPackagePayloadParser
 import com.google.gson.Gson
 import com.google.gson.JsonParser
+import com.google.gson.JsonObject
 import java.net.URLEncoder
 
 /** 独立查询状态；关键词、分类、排序、城市与坐标分别编码，禁止把控件文案当业务关键词。 */
@@ -46,39 +54,65 @@ interface CatalogRepository {
 }
 
 /** 复用认证、超时和 URL 配置；JSON 非法时显式失败，不把异常变成空业务结果。 */
-class HttpCatalogRepository(private val api: ApiClient) : CatalogRepository {
+class HttpCatalogRepository(
+    private val api: ApiClient,
+    // CPU解析独立于网络IO，默认后台；允许测试注入固定线程而不改变生产装配。
+    private val parsingDispatcher: CoroutineDispatcher = Dispatchers.Default,
+) : CatalogRepository {
     private val gson = Gson()
     /** 查询公开目录，顺序保持服务端结果。 */
-    override suspend fun stores(query: CatalogQuery) = api.get("stores?${query.parameters()}").decode { body ->
-        JsonParser.parseString(body).asJsonArray.map { parseStore(it.toString()) }
+    override suspend fun stores(query: CatalogQuery) = api.get("stores?${query.parameters()}").decode { body, checkActive ->
+        JsonParser.parseString(body).asJsonArray.map {
+            // 每条观察取消，直接复用节点而不转成字符串重解析。
+            checkActive(); parseStore(it.asJsonObject)
+        }
     }
     /** 指定 UUID 的详情不存在时让 ApiClient 返回错误，禁止替换为首家门店。 */
-    override suspend fun store(id: String, query: CatalogQuery) = api.get("stores/${encode(id)}?${query.parameters()}").decode(::parseStore)
+    override suspend fun store(id: String, query: CatalogQuery) = api.get("stores/${encode(id)}?${query.parameters()}").decode { body, _ -> parseStore(JsonParser.parseString(body).asJsonObject) }
     /** 解析实际城市选项。 */
-    override suspend fun cities() = api.get("stores/cities").decode { body -> parseList(body, CatalogCity::class.java) }
+    override suspend fun cities() = api.get("stores/cities").decode { body, check -> parseList(body, CatalogCity::class.java, check) }
     /** 菜单仅使用当前门店的公开路径。 */
-    override suspend fun dishes(id: String) = api.get("stores/${encode(id)}/dishes").decode { body -> parseList(body, CatalogDish::class.java) }
+    override suspend fun dishes(id: String) = api.get("stores/${encode(id)}/dishes").decode { body, check -> parseList(body, CatalogDish::class.java, check) }
     /** 评价仅使用当前门店的公开路径。 */
-    override suspend fun reviews(id: String) = api.get("stores/${encode(id)}/reviews").decode { body -> parseList(body, CatalogReview::class.java) }
+    override suspend fun reviews(id: String) = api.get("stores/${encode(id)}/reviews").decode { body, check -> parseList(body, CatalogReview::class.java, check) }
 
-    /** 规范化摘要嵌套套餐使用已存在解析器，避免 Gson 将缺失业务字段默认为零。 */
-    private fun parseStore(body: String): CatalogStore {
-        val value = JsonParser.parseString(body).asJsonObject
+    /** 嵌套套餐保持原解析规则并核对门店归属；直接消费节点以去除重复字符串转换。 */
+    private fun parseStore(value: JsonObject): CatalogStore {
         listOf("publicId", "name", "cityCode", "category", "averageSpendCents", "reviewCount", "reviewDistribution")
             .forEach { require(value.has(it) && !value[it].isJsonNull) { "目录字段缺失：$it" } }
         val base = gson.fromJson(value, CatalogStore::class.java)
         java.util.UUID.fromString(base.publicId)
-        val deal = value.get("featuredDeal")?.takeUnless { it.isJsonNull }?.let { DealPackagePayloadParser.parseDetail(it.toString()) }
+        val deal = value.get("featuredDeal")?.takeUnless { it.isJsonNull }?.let { DealPackagePayloadParser.parseDetail(it.asJsonObject) }
         require(deal == null || deal.storePublicId == base.publicId) { "套餐不属于当前门店" }
         return base.copy(featuredDeal = deal)
     }
     /** 泛型数组按各 DTO 解析，不制造补充字段。 */
-    private fun <T> parseList(body: String, type: Class<T>): List<T> = JsonParser.parseString(body).asJsonArray.map { gson.fromJson(it, type) }
-    /** 成功载荷格式错误转换为可重试状态；原 HTTP 错误保持不变。 */
-    private fun <T> ApiResult<String>.decode(parse: (String) -> T): ApiResult<T> = when (this) {
-        is ApiResult.Success -> runCatching { ApiResult.Success(parse(value)) }.getOrElse { ApiResult.Failure(ApiError.Network("目录数据格式无效")) }
+    private fun <T> parseList(body: String, type: Class<T>, checkActive: () -> Unit): List<T> =
+        JsonParser.parseString(body).asJsonArray.map { checkActive(); gson.fromJson(it, type) }
+
+    /** 后台完成JSON转换与业务校验；取消原样传播，原HTTP和格式错误类别保持。 */
+    private suspend fun <T> ApiResult<String>.decode(parser: (String, () -> Unit) -> T): ApiResult<T> = when (this) {
         is ApiResult.Failure -> this
+        is ApiResult.Success -> withContext(parsingDispatcher) {
+            // 输入已通过网络边界；只在当前作用域解析，trace核对线程且不记录响应正文。
+            val context = currentCoroutineContext()
+            context.ensureActive()
+            Trace.beginSection("fdz.parse.catalog")
+            try {
+                val result = parser(value) { context.ensureActive() }
+                // 结果构造前检查取消，旧页面工作不能以空列表或完整成功返回。
+                context.ensureActive()
+                ApiResult.Success(result)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (invalid: Exception) {
+                ApiResult.Failure(ApiError.Network("目录数据格式无效"))
+            } finally {
+                Trace.endSection()
+            }
+        }
     }
+
 }
 
 /** 编码公开路径和查询值，防止用户关键词中的 & 或 ? 改写其他筛选条件。 */

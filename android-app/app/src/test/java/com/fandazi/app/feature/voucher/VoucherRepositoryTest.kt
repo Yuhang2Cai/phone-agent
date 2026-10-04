@@ -92,4 +92,29 @@ class VoucherRepositoryTest {
 
     /** 合成状态输入只验证金额标签，不创建或改变真实业务事实。 */
     private fun order(status: String, paid: Int?) = GroupOrderSummary("o", "d", "s", 1, 10001, status, 0, emptyList(), paidTotalCents = paid)
+    /** 分摊金额拒绝小数和负数，整数分事实不能在后台转换时被截断。 */
+    @Test fun fractionalAndNegativeMoneyRemainProtocolFailures() = runBlocking {
+        val server=MockWebServer().also { it.start() }
+        try {
+            val repository=HttpVoucherRepository(ApiClient(server.url("/api/").toString(), {null}))
+            for(amount in listOf("1.5","-1")) {
+                server.enqueue(MockResponse().setBody(voucher("v1","o1",false).replace("\"amountCents\":10001","\"amountCents\":$amount")))
+                assertTrue(repository.getVoucher("v1") is ApiResult.Failure)
+            }
+        } finally { server.shutdown() }
+    }
+
+    /** 订单嵌套券必须绑定本订单，实付分摊和集合身份保持原校验。 */
+    @Test fun wrongOwnershipAndWrongPaymentAllocationRemainFailures() = runBlocking {
+        val server=MockWebServer().also { it.start() }
+        try {
+            val repository=HttpVoucherRepository(ApiClient(server.url("/api/").toString(), {null}))
+            for((owner,paid) in listOf("other" to 10001,"o1" to 10002)) {
+                val row="""{"orderId":"o1","dealId":"d","storeId":"s","storeName":"合成门店","dealTitle":"合成套餐","quantity":1,"totalCents":10001,"paidTotalCents":$paid,"status":"PAID","voucherCount":1,"canReview":false,"vouchers":[${voucher("v1",owner,false)}]}"""
+                server.enqueue(MockResponse().setBody("[$row]"))
+                assertTrue(repository.listOrders() is ApiResult.Failure)
+            }
+        } finally { server.shutdown() }
+    }
+
 }
