@@ -6,7 +6,11 @@
     android:layout_width="match_parent" android:layout_height="match_parent"
     android:background="@color/group_buy_green" android:paddingTop="24dp">
     <!-- 仍只有一个有界纵向滚动容器，摘要/页签/评分/业务行都由同一Adapter回收。 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/group_buy_background">
+    <!-- 套餐列表的显式对比入口，实际选择/数量在已确认选择页管理。 -->
+    <TextView android:id="@+id/store_compare_open" style="@style/CompareButton" android:text="选择套餐对比" android:layout_marginHorizontal="12dp" android:layout_marginVertical="8dp" />
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/store_content" android:layout_width="match_parent" android:layout_height="match_parent"
+        android:id="@+id/store_content" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
         android:background="@color/group_buy_background" android:clipToPadding="false" android:paddingBottom="16dp" />
+</LinearLayout>
 </FrameLayout>

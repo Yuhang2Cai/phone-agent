@@ -44,6 +44,8 @@ public class DealPackageService {
     @Transactional(readOnly = true)
     public DealPackageResponse detail(String publicId) {
         // require 返回的关联可能是懒加载代理；页面 DTO 必须在此读取真实门店信息，避免 Controller 中触发无会话异常。
-        return DealPackageResponse.from(require(publicId));
+        // 公开详情是只读事实，允许展示下架/售罄状态；写入、报价及工具购买仍通过原require/资格检查。
+        DealPackageEntity deal=deals.findByPublicId(publicId).orElseThrow(()->new DomainException("套餐不存在"));
+        return DealPackageResponse.from(deal);
     }
 }

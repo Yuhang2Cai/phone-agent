@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI16G加载专属动作：状态来自在途只读请求，按钮不可操作；返回仍保留公开选择。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+<TextView android:id="@+id/compare_loading_action" style="@style/CompareButton" android:enabled="false" android:background="@android:color/transparent" android:textColor="@color/group_buy_muted" android:text="加载中" />
+<TextView style="@style/CompareCaption" android:layout_marginTop="12dp" android:text="返回选择时会保留已选套餐。" />
+</LinearLayout>

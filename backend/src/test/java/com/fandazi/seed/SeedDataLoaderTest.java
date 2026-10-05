@@ -166,17 +166,37 @@ class SeedDataLoaderTest {
         }
     }
 
+    /** 已确认Task13用版本化项目餐图取代旧OSS占位；逐项检查真实打包资源及内容指纹，防止空引用或错图。 */
     @Test
-    void everySeedImageReferenceUsesTheProjectOssAssetPrefix() throws IOException {
+    void everySeedImageReferenceUsesApprovedVersionedCatalogAsset() throws Exception {
         JsonNode templates = mapper.readTree(Files.newInputStream(FIXTURE_DIRECTORY.resolve("dishes.json")));
-
         for (JsonNode template : templates) {
             String imageUrl = template.required("imageUrl").asText();
             URI imageUri = URI.create(imageUrl);
-            assertThat(imageUri.getScheme()).as(imageUrl).isEqualTo("https");
-            assertThat(imageUri.getHost()).as(imageUrl).isEqualTo("redbook-hang.oss-cn-shanghai.aliyuncs.com");
-            assertThat(imageUri.getPath()).as(imageUrl).startsWith("/fandazi/seed-food/");
-            assertThat(imageUri.getPath()).as(imageUrl).matches(".*\\.(?:jpg|jpeg|png)$");
+            // 图片只能指向已审核的项目静态资源，无外部主机、查询串或任意路径；不恢复旧占位域名。
+            assertThat(imageUri.getScheme()).as(imageUrl).isNull();
+            assertThat(imageUri.getHost()).as(imageUrl).isNull();
+            assertThat(imageUrl).matches("^/catalog-images/v[0-9]+/full/[a-z0-9-]+-[a-f0-9]{12}\\.jpg$");
+            var resource = new org.springframework.core.io.ClassPathResource("static" + imageUrl);
+            assertThat(resource.exists()).as("实际打包图片：" + imageUrl).isTrue();
+            // 版本取取得源图的SHA256，项目JPEG经过规范化，不能误把两种字节指纹当作同一值。
+            JsonNode manifest;
+            try (var stream = new org.springframework.core.io.ClassPathResource("fixtures/catalog-images-v1.json").getInputStream()) {
+                manifest = mapper.readTree(stream);
+            }
+            JsonNode approved = StreamSupport.stream(manifest.required("images").spliterator(), false)
+                    .filter(row -> row.path("url").asText().equals(imageUrl)).findFirst().orElseThrow();
+            assertThat(approved.path("contentReviewed").asBoolean()).isTrue();
+            assertThat(approved.path("licenseName").asText()).isNotBlank();
+            assertThat(approved.path("sourceSha256").asText()).matches("[A-Fa-f0-9]{64}");
+            assertThat(imageUrl).endsWith("-" + approved.path("sourceSha256").asText().substring(0, 12).toLowerCase(java.util.Locale.ROOT) + ".jpg");
+            // 实际资源必须能解码为有尺寸照片，不能只凭清单和非空URL冒充已打包图片。
+            try (var stream = resource.getInputStream()) {
+                var image = javax.imageio.ImageIO.read(stream);
+                assertThat(image).isNotNull();
+                assertThat(image.getWidth()).isPositive();
+                assertThat(image.getHeight()).isPositive();
+            }
         }
     }
 
@@ -248,7 +268,8 @@ class SeedDataLoaderTest {
     @Test
     void seedMetadataTablesAreCreatedByMigration() {
         DataSource migrationDataSource = new org.springframework.jdbc.datasource.DriverManagerDataSource(
-                "jdbc:h2:mem:seed-migration-test;DB_CLOSE_DELAY=-1", "sa", "");
+                // 生产采用MySQL；与既有development测试保持相同兼容模式，让H2按MySQL语法实际执行全部前向迁移。
+                "jdbc:h2:mem:seed-migration-test;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "");
         Flyway flyway = Flyway.configure().dataSource(migrationDataSource).locations("classpath:db/migration").load();
         flyway.migrate();
         JdbcTemplate migrationJdbc = new JdbcTemplate(migrationDataSource);

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 已确认图片8dp圆角，仅裁剪真实动态图片，不替换或绘制餐图。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@color/surface_card"/><corners android:radius="8dp"/></shape>

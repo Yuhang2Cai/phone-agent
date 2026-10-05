@@ -37,6 +37,12 @@ public class DealPackageEntity {
     @Column(name = "image_url", length = 1000) private String imageUrl;
     @Column(name = "image_alt", length = 255) private String imageAlt;
 
+    // 三项均允许未知，迁移不回填猜测事实；人数只由运营权威数据明确提供。
+    @Column(name="people_count") private Integer peopleCount;
+    @jakarta.persistence.Convert(converter=DealContentsConverter.class)
+    @Column(name="contents_json",columnDefinition="TEXT") private java.util.List<DealContent> contents;
+    @Column(name="usage_rules",length=2000) private String usageRules;
+
     protected DealPackageEntity() {}
 
     /** 创建一个固定价格的团购套餐。 */
@@ -62,6 +68,23 @@ public class DealPackageEntity {
     public boolean isActive() { return active; }
     public int getPurchaseLimit() { return purchaseLimit; }
     public int getVersion() { return version; }
+
+    /** 返回明确提供的人数；未知为null，不能按套餐标题推算。 */
+    public Integer getPeopleCount(){return peopleCount;}
+    /** 返回不可变公开内容快照；未提供为null，不触发任何远程或业务写入。 */
+    public java.util.List<DealContent> getContents(){return contents==null?null:java.util.List.copyOf(contents);}
+    /** 返回运营使用规则，未提供为null。 */
+    public String getUsageRules(){return usageRules;}
+    /** 原子校验三项公开资料后替换；非法人数/规模/规则抛参数异常，价格库存与版本保持。 */
+    public void replaceCompareFacts(Integer peopleCount,java.util.List<DealContent> contents,String usageRules){
+        // 输入先完整校验，不允许第一项写入后第二项失败造成半更新。
+        if(peopleCount!=null && (peopleCount<1 || peopleCount>10000))throw new IllegalArgumentException("套餐人数无效");
+        if(contents!=null && (contents.size()>100 || contents.stream().anyMatch(java.util.Objects::isNull)))throw new IllegalArgumentException("套餐内容无效");
+        if(usageRules!=null && usageRules.length()>2000)throw new IllegalArgumentException("套餐规则过长");
+        // 空白规则规范化为未提供；保留真实数量与原始内容，不解析标题/描述。
+        this.peopleCount=peopleCount;this.contents=contents==null?null:java.util.List.copyOf(contents);
+        this.usageRules=usageRules==null || usageRules.isBlank()?null:usageRules;
+    }
 
     /** 返回该套餐真实图片 URL，未提供图片返回 null；不执行网络请求。 */
     public String getImageUrl() { return imageUrl; }

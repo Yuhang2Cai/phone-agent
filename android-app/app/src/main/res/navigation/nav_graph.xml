@@ -49,4 +49,9 @@
     </fragment>
     <!-- 本人记忆正式入口；延期核销节点不纳入Task10提交。 -->
     <fragment android:id="@+id/memoryFragment" android:name="com.fandazi.app.feature.memory.MemoryFragment" android:label="AI记忆" />
+    <!-- 已确认套餐对比四个只读页面；共享Activity仅保存有序公开ID。 -->
+    <fragment android:id="@+id/compareSelectionFragment" android:name="com.fandazi.app.feature.compare.CompareSelectionFragment" android:label="选择套餐" />
+    <fragment android:id="@+id/dealCompareFragment" android:name="com.fandazi.app.feature.compare.DealCompareFragment" android:label="套餐对比" />
+    <fragment android:id="@+id/compareQuestionFragment" android:name="com.fandazi.app.feature.compare.CompareQuestionFragment" android:label="问AI" />
+    <fragment android:id="@+id/comparePurchaseFragment" android:name="com.fandazi.app.feature.compare.ComparePurchaseFragment" android:label="查看购买" />
 </navigation>

@@ -46,6 +46,11 @@
             android:textSize="28sp" />
     </LinearLayout>
 
+    <!-- 比较上下文可见且可清除，后续普通消息不得隐式携带旧资源引用。 -->
+    <LinearLayout android:id="@+id/agent_compare_context" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingHorizontal="16dp" android:visibility="gone">
+        <TextView android:id="@+id/agent_compare_context_text" style="@style/CompareCaption" android:layout_width="0dp" android:layout_weight="1" />
+        <TextView android:id="@+id/agent_compare_clear" style="@style/CompareText" android:layout_width="80dp" android:layout_height="44dp" android:gravity="center" android:text="清除对比" android:textColor="@color/group_buy_green" />
+    </LinearLayout>
     <!-- 唯一消息滚动容器，保持列表外头部和Task14输入；四类Holder以稳定身份回收。 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/agent_chat_scroll"

@@ -1,0 +1,397 @@
+# Task16真实界面流程：凭据与公开夹具ID由私有运行器环境注入，禁止语音/麦克风操作。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "selection"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      # 在比较之前建立真实普通文字草稿，后续UI16I必须保留原输入，不能填设计示例。
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: compare existing draft
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/store_name
+          index: 0
+      - tapOn:
+          id: com.fandazi.app:id/store_compare_open
+      - extendedWaitUntil:
+          visible: 已选0项；至少选择2项才可对比。
+          timeout: 60000
+      - assertVisible:
+          id: com.fandazi.app:id/compare_start
+          enabled: false
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_1}
+          direction: DOWN
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_1}
+      - assertVisible: 已选1项 · 开始对比
+      - assertVisible:
+          id: com.fandazi.app:id/compare_start
+          enabled: false
+      - takeScreenshot: compare-one-selected
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_2}
+          direction: DOWN
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_2}
+      - assertVisible: 已选2项 · 开始对比
+      - tapOn:
+          id: com.fandazi.app:id/compare_start
+      - extendedWaitUntil:
+          visible: 可查看购买
+          timeout: 30000
+      - assertVisible: compare-column-${MAESTRO_DEAL_1}
+      - assertVisible: compare-column-${MAESTRO_DEAL_2}
+      - assertVisible: ¥88.00
+      - assertVisible: ¥90.00
+      - takeScreenshot: compare-two-real-facts
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "third"}
+    commands:
+      - back
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_3}
+          direction: DOWN
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_3}
+      - assertVisible: 已选3项 · 开始对比
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_4}
+          direction: DOWN
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_4}
+      - assertVisible: 最多对比3个不同套餐，第四项保持未选；请先移除一项。
+      - assertVisible: 已选3项 · 开始对比
+      - takeScreenshot: compare-fourth-rejected
+      - tapOn:
+          id: com.fandazi.app:id/compare_start
+      - extendedWaitUntil:
+          visible: 3项 · 左右滑动查看第三项。
+          timeout: 30000
+      - swipe:
+          start: 85%, 40%
+          end: 15%, 40%
+          duration: 700
+      - assertVisible: compare-column-${MAESTRO_DEAL_3}
+      - assertVisible: 未提供
+      - takeScreenshot: compare-third-unknown
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "question"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/compare_ask
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_question_send
+            enabled: true
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/compare_question_input
+          text: compare existing draft
+      - takeScreenshot: compare-question-retained-draft
+      # 实际点击可能把游标放在中间；先全选再删除，必须核对发送前完整正文。
+      - longPressOn:
+          id: com.fandazi.app:id/compare_question_input
+      - tapOn: Select all
+      - eraseText: 1
+      - setClipboard: 帮我比较这几个套餐，哪个更适合两个人？
+      - pasteText
+      - setClipboard: ""
+      - assertVisible:
+          id: com.fandazi.app:id/compare_question_input
+          text: 帮我比较这几个套餐，哪个更适合两个人？
+      - scrollUntilVisible:
+          element:
+            id: com.fandazi.app:id/compare_question_send
+          direction: DOWN
+      - takeScreenshot: compare-question-edited
+      - tapOn:
+          id: com.fandazi.app:id/compare_question_send
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_chat_input
+          timeout: 30000
+      - assertVisible: 正在比较3个已选套餐；清除后恢复普通聊天。
+      - assertVisible: 帮我比较这几个套餐，哪个更适合两个人？
+      - takeScreenshot: compare-ai-explicit-send
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_message_text
+            text: .*未提供.*
+          timeout: 120000
+      - takeScreenshot: compare-ai-consumer-reply
+      - tapOn:
+          id: com.fandazi.app:id/agent_compare_clear
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_compare_context
+      # 系统返回可能仅关闭键盘；仅仍留聊天页时再返回一次，不能无条件多次弹栈。
+      - back
+      - runFlow:
+          when:
+            visible:
+              id: com.fandazi.app:id/agent_chat_input
+          commands:
+            - back
+      - assertVisible:
+          id: com.fandazi.app:id/compare_question_input
+          text: 输入想比较的问题
+      - back
+      - extendedWaitUntil:
+          visible: 3项 · 左右滑动查看第三项。
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "purchase"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/compare_buy
+      - extendedWaitUntil:
+          visible: 当前价格已重新读取；请到详情核对最新报价并确认购买。
+          timeout: 30000
+      - takeScreenshot: compare-purchase-real-facts
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_1}
+          direction: UP
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_1}
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/deal_purchase_bar
+            enabled: true
+          timeout: 30000
+      - takeScreenshot: compare-return-latest-detail
+      - tapOn:
+          id: com.fandazi.app:id/deal_purchase_bar
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/checkout_quantity
+          timeout: 30000
+      - takeScreenshot: compare-latest-explicit-quote
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "recover-question"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: compare existing draft
+      - hideKeyboard
+      - back
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_question_input
+          timeout: 30000
+      - back
+      - extendedWaitUntil:
+          visible: 3项 · 左右滑动查看第三项。
+          timeout: 30000
+      - takeScreenshot: compare-before-question-retry
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "restored"}
+    commands:
+      - extendedWaitUntil:
+          visible: 3项 · 左右滑动查看第三项。
+          timeout: 30000
+      - assertVisible: compare-column-${MAESTRO_DEAL_1}
+      - assertVisible: compare-column-${MAESTRO_DEAL_2}
+      - assertVisible: ¥92.00
+      - takeScreenshot: compare-process-new-price-and-order
+      - swipe:
+          start: 85%, 40%
+          end: 15%, 40%
+          duration: 700
+      - assertVisible: compare-column-${MAESTRO_DEAL_3}
+      - takeScreenshot: compare-process-third-preserved
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "inactive"}
+    commands:
+      - back
+      - tapOn:
+          id: com.fandazi.app:id/compare_start
+      - extendedWaitUntil:
+          visible: 一项套餐已失效，暂不可购买。
+          timeout: 30000
+      - assertVisible: 已失效 · 购买不可用
+      - takeScreenshot: compare-inactive-read-only
+
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "rotation"}
+    commands:
+      - setOrientation: LANDSCAPE_LEFT
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_ask
+            enabled: true
+          timeout: 30000
+      - assertVisible: compare-column-${MAESTRO_DEAL_1}
+      - assertVisible: compare-column-${MAESTRO_DEAL_2}
+      - assertVisible: '¥(88|92)\.00'
+      - assertVisible: ¥90.00
+      - takeScreenshot: compare-landscape-selection-order
+      - setOrientation: PORTRAIT
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_ask
+            enabled: true
+          timeout: 30000
+      - assertVisible: compare-column-${MAESTRO_DEAL_1}
+      - takeScreenshot: compare-portrait-selection-order
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "error-start"}
+    commands:
+      - back
+      - tapOn:
+          id: com.fandazi.app:id/compare_start
+      - extendedWaitUntil:
+          visible: 暂时无法读取套餐信息
+          timeout: 30000
+      - assertNotVisible:
+          id: com.fandazi.app:id/compare_ask
+      - assertNotVisible:
+          id: com.fandazi.app:id/compare_buy
+      - takeScreenshot: compare-whole-error-disabled-actions
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "error-retry"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/compare_retry_all
+      - extendedWaitUntil:
+          visible: 3项 · 左右滑动查看第三项。
+          timeout: 30000
+      - assertVisible: compare-column-${MAESTRO_DEAL_1}
+      - takeScreenshot: compare-error-recovered-real-facts
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "unavailable"}
+    commands:
+      - back
+      - tapOn:
+          id: com.fandazi.app:id/compare_start
+      - extendedWaitUntil:
+          visible: ¥92.00
+          timeout: 30000
+      - takeScreenshot: compare-unavailable-other-column-kept
+      - swipe:
+          start: 85%, 40%
+          end: 15%, 40%
+          duration: 700
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_column_retry
+          timeout: 30000
+      - assertVisible: compare-column-${MAESTRO_DEAL_3}
+      - assertVisible:
+          id: com.fandazi.app:id/compare_ask
+          enabled: false
+      - takeScreenshot: compare-one-resource-unavailable
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "local-retry"}
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: com.fandazi.app:id/compare_column_retry
+          direction: RIGHT
+      - tapOn:
+          id: com.fandazi.app:id/compare_column_retry
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_ask
+            enabled: true
+          timeout: 30000
+      - takeScreenshot: compare-local-retry-current-resource
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "cancel-quote"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/checkout_close
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+      - takeScreenshot: compare-explicit-quote-cancelled
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "confirm-order"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/deal_purchase_bar
+      - extendedWaitUntil:
+          visible: 提交订单
+          timeout: 30000
+      # 既有确认页金额格式去掉整数元的小数零；验证92元，交易事实另以整数分核对。
+      - assertVisible: ¥92
+      - doubleTapOn:
+          id: com.fandazi.app:id/checkout_action
+      - extendedWaitUntil:
+          visible: 确认支付
+          timeout: 30000
+      - assertVisible: 本页面仅用于演示，不会产生真实支付。
+      - takeScreenshot: compare-explicit-single-order
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "pay-order"}
+    commands:
+      - doubleTapOn:
+          id: com.fandazi.app:id/group_payment_action
+      - extendedWaitUntil:
+          visible: 支付成功
+          timeout: 30000
+      - assertVisible: 已生成 1 张团购券
+      - takeScreenshot: compare-owned-mock-payment-success
+
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "image-empty"}
+    commands:
+      - back
+      - tapOn:
+          id: com.fandazi.app:id/compare_start
+      - extendedWaitUntil:
+          visible: 暂无图片，点击刷新
+          timeout: 30000
+      - assertVisible: ¥92.00
+      - assertVisible: ¥90.00
+      - takeScreenshot: compare-real-missing-image
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "image-retry"}
+    commands:
+      - tapOn: 暂无图片，点击刷新
+      - extendedWaitUntil:
+          visible: ${MAESTRO_IMAGE_ALT}
+          timeout: 30000
+      - assertNotVisible: 暂无图片，点击刷新
+      - assertVisible: ¥92.00
+      - assertVisible: ¥90.00
+      - takeScreenshot: compare-image-only-real-recovery
+
+- runFlow:
+    when:
+      true: ${MAESTRO_COMPARE_PHASE == "purchase-recover"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/compare_purchase_return
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_ask
+            enabled: true
+          timeout: 30000
+      - assertVisible: ¥92.00
+      - takeScreenshot: compare-purchase-read-recovered

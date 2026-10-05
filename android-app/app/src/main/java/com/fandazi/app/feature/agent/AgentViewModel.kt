@@ -77,6 +77,8 @@ class AgentViewModel(
         identities.reset()
         archivedTraces.clear()
         retryMessageKey = null
+        // 账号变化必须清比较会话上下文与重试快照，不能让新账号继续上一轮输入。
+        clearComparison();retryComparisonIds=null
         synchronized(messageJobs) { messageJobs.clear() }
         retryText = null
         retryDisplayText = null
@@ -90,6 +92,23 @@ class AgentViewModel(
     }
 
 // 打开assistant。
+    /** 对比仅薄保存公开引用；进入页面不自动发送、不覆盖已有草稿或获取交易授权。 */
+    private var comparisonIds:List<String>?=savedState.get<List<String>>("agent_compare_ids")?.let{com.fandazi.app.feature.compare.CompareSelection.restore(it).takeIf{selection->selection.canCompare}?.ids}
+    private var retryComparisonIds:List<String>?=null
+
+    /** 用户显式带入2–3个套餐；同一集合返回不重复发请求，损坏/不足数量拒绝。 */
+    fun setComparison(ids:List<String>) {
+        val selected=com.fandazi.app.feature.compare.CompareSelection.restore(ids)
+        require(selected.canCompare && selected.ids.size==ids.size){"对比引用无效"}
+        comparisonIds=selected.ids;savedState["agent_compare_ids"]=selected.ids
+    }
+
+    /** 用户清除比较或退出该上下文后，之后普通消息不再携带旧资源引用。 */
+    fun clearComparison(){comparisonIds=null;savedState.remove<List<String>>("agent_compare_ids")}
+
+    /** 只读引用供正式页面明确显示所选上下文，不包含价格/人数或私人数据。 */
+    fun comparisonSelection():List<String> = comparisonIds.orEmpty()
+
     fun openAssistant() {
         updateState { it.copy(sheetMode = AgentSheetMode.HALF, error = null) }
         if (needsHistory) restoreHistory()
@@ -228,6 +247,9 @@ class AgentViewModel(
             it.type == "after_sale_voucher_choice" && it.fields["voucherId"] == request
         }) "选择券号末8位：${request.takeLast(8).uppercase()}" else request
         val generation = ++requestGeneration
+        // 本轮冻结用户选择，HTTP/SSE交错或之后切换选择不能改写该轮重试资源。
+        val selectedForRequest=if(appendUser)comparisonIds else retryComparisonIds
+        retryComparisonIds=selectedForRequest
         retryText = request
         retryDisplayText = publicDisplay
         requestedAmountLimit = request.requestedAmountLimit()
@@ -251,7 +273,10 @@ class AgentViewModel(
         // 记录尝试过的会话使HTTP尚未回包的离页也能回来续接；未被服务器接受时SSE仍按已有404预算结束。
         savedState[SESSION_ESTABLISHED] = true
         val messageJob = viewModelScope.launch(dispatcher, start = CoroutineStart.LAZY) {
-            when (val result = repository.sendMessage(sessionId, request, mode(), messageKey)) {
+            // 普通消息继续原四参入口，避免旧替身/协议行为变化；有比较引用才走兼容新入口。
+            val response=if(selectedForRequest==null)repository.sendMessage(sessionId,request,mode(),messageKey)
+                else repository.sendMessage(sessionId,request,mode(),messageKey,selectedForRequest)
+            when (val result = response) {
                 is ApiResult.Success -> {
                     if (generation != requestGeneration) return@launch
                     savedState[SESSION_ESTABLISHED] = true

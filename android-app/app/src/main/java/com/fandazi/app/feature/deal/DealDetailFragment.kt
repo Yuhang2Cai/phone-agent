@@ -49,6 +49,13 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
         view.findViewById<View>(R.id.deal_store).setOnClickListener {
             selectedDeal?.let { deal -> view.findNavController().navigate(R.id.storeFragment, Bundle().apply { putString("storePublicId", deal.storePublicId) }) }
         }
+        // 当前详情仅贡献公开ID，用户可返回跨店继续选择；第四项拒绝后原选择不变。
+        view.findViewById<View>(R.id.deal_compare_add).setOnClickListener {
+            val deal=selectedDeal ?: return@setOnClickListener
+            val selection=androidx.lifecycle.ViewModelProvider(requireActivity())[com.fandazi.app.feature.compare.CompareSelectionViewModel::class.java]
+            if(selection.add(deal.publicId))view.findNavController().navigate(R.id.compareSelectionFragment)
+            else android.widget.Toast.makeText(requireContext(),"最多对比3项，请先移除一项",android.widget.Toast.LENGTH_SHORT).show()
+        }
         // 购买栏作为一个整体接收点击，避免底部栏中的展示型 TextView 抢占触摸事件导致购买无响应。
         view.findViewById<View>(R.id.deal_purchase_bar).setOnClickListener {
             val currentDealId = selectedDeal?.publicId.orEmpty()
@@ -92,6 +99,7 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
         }
         renderDealOptions(view,state)
         view.findViewById<View>(R.id.deal_purchase_bar).isEnabled=state.purchaseReady
+        view.findViewById<View>(R.id.deal_compare_add).isEnabled=state.detail!=null
         // 只读首屏不能自动恢复购买；重新登录后仍需成功加载同店可售列表并重新报价。
         val deal=state.detail
         if(state.purchaseReady && deal!=null && arguments?.getBoolean("resumePurchase")==true &&

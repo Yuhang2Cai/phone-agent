@@ -65,7 +65,10 @@ class Task2DevelopmentFixtureTest {
                 case "no_candidates" -> {
                     assertThat(vouchers).allSatisfy(voucher -> assertThat(voucher.get("canRefund")).isEqualTo(false));
                     assertThat(order.get("canReview")).isEqualTo(false);
-                    assertThat(order.get("imageUrl")).isNull();
+                    // 无可退款候选由券资格决定；Task13已补齐真实餐图，不能继续要求图片缺失。
+                    String imageUrl = (String) order.get("imageUrl");
+                    assertThat(imageUrl).matches("^/catalog-images/v[0-9]+/full/[a-z0-9-]+-[a-f0-9]{12}\\.jpg$");
+                    assertThat(new org.springframework.core.io.ClassPathResource("static" + imageUrl).exists()).isTrue();
                 }
                 default -> throw new AssertionError("未知开发场景：" + state);
             }

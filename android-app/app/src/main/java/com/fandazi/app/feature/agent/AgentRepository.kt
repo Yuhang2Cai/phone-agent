@@ -32,6 +32,9 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 interface AgentRepository {
+    /** 旧替身兼容入口；正式HTTP实现发送独立公开ID字段，普通null引用沿旧行为。 */
+    suspend fun sendMessage(sessionId:String,text:String,mode:AgentMode,clientMessageKey:String?,compareDealIds:List<String>?):ApiResult<AgentMessageResult> = sendMessage(sessionId,text,mode,clientMessageKey)
+
     /** 旧实现仍支持原三参数发送；展示键只关联用户气泡，不触及模型或交易协议。 */
     suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?): ApiResult<AgentMessageResult> =
         sendMessage(sessionId, text, mode)
@@ -77,9 +80,18 @@ class HttpAgentRepository(
     override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode): ApiResult<AgentMessageResult> =
         sendMessage(sessionId, text, mode, null)
 
-    /** 发送一次明确输入；可选展示键不充当业务幂等键，不自动重发失败消息。 */
-    override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?): ApiResult<AgentMessageResult> {
-        val fields = mutableMapOf("text" to text, "mode" to mode.name)
+    /** 普通消息省略对比引用，旧调用与HTTP载荷保持兼容。 */
+    override suspend fun sendMessage(sessionId: String, text: String, mode: AgentMode, clientMessageKey: String?): ApiResult<AgentMessageResult> = sendMessage(sessionId,text,mode,clientMessageKey,null)
+
+    /** 只发送有序公开ID与原问题，资格/价格由Spring重查；失败不自动重发。 */
+    override suspend fun sendMessage(sessionId:String,text:String,mode:AgentMode,clientMessageKey:String?,compareDealIds:List<String>?):ApiResult<AgentMessageResult> {
+        val fields = mutableMapOf<String,Any>("text" to text, "mode" to mode.name)
+        if(compareDealIds!=null) {
+            // 发送边界再次核对数量与UUID，损坏恢复状态不能沿默认首项执行。
+            val selected=com.fandazi.app.feature.compare.CompareSelection.restore(compareDealIds)
+            require(selected.canCompare && selected.ids.size==compareDealIds.size){"对比引用无效"}
+            fields["compareDealIds"]=selected.ids
+        }
         clientMessageKey?.let { fields["clientMessageKey"] = it }
         return executeJson(Request.Builder().url(url("agent/sessions/$sessionId/messages"))
             .post(gson.toJson(fields).toRequestBody(JSON)).build(), ::parseMessage)

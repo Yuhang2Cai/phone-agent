@@ -57,6 +57,9 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
     override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
         viewEpoch++;ownerInitialized=false;rendered=null;following=true;sendFocus.cancel()
         viewModel=ViewModelProvider(requireActivity(),AgentViewModelFactory((requireActivity().application as FandaziApplication).agentRepository))[AgentViewModel::class.java]
+        // 只有用户比较发送后带入上下文，明确展示数量及清除入口；不会自动再次发送。
+        fun renderComparison(){val ids=viewModel.comparisonSelection();view.findViewById<View>(R.id.agent_compare_context).visibility=if(ids.isEmpty())View.GONE else View.VISIBLE;view.findViewById<android.widget.TextView>(R.id.agent_compare_context_text).text="正在比较${ids.size}个已选套餐；清除后恢复普通聊天。"}
+        renderComparison();view.findViewById<View>(R.id.agent_compare_clear).setOnClickListener{viewModel.clearComparison();renderComparison()}
         restoreKey=viewModel.uiState.value.scrollAnchorKey;restoreOffset=viewModel.uiState.value.scrollAnchorOffset
         list=view.findViewById(R.id.agent_chat_scroll);manager=LinearLayoutManager(requireContext());list!!.layoutManager=manager
         // 关闭变化动画避免token交叉闪烁，保留回收和差量比较。
@@ -125,6 +128,10 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
     }
     /** 主线程冻结数据、捕获底部/首行锚点；异步Diff后仅同代且没有新拖动才定位。 */
     private fun renderNow(state:AgentUiState) {
+        // 账号切换/显式清除后即时隐藏旧比较提示，不能只在第一次创建时决定可见性。
+        val ids=viewModel.comparisonSelection()
+        view?.findViewById<View>(R.id.agent_compare_context)?.visibility=if(ids.isEmpty())View.GONE else View.VISIBLE
+        view?.findViewById<android.widget.TextView>(R.id.agent_compare_context_text)?.text="正在比较${ids.size}个已选套餐；清除后恢复普通聊天。"
         val recycler=list ?: return;val currentAdapter=adapter ?: return;val layout=manager ?: return
         // 首次恢复定位已经提交但尚未布局时，canScrollVertically仍是空列表值；沿用用户/恢复意图，防止下一StateFlow把上翻恢复抢到底部。
         val started=SystemClock.elapsedRealtimeNanos();val anchor=captureAnchor();val wasBottom=following

@@ -65,7 +65,10 @@ class MainActivity : AppCompatActivity() {
         onBackPressedDispatcher.addCallback(this, topLevelBack)
         navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
             // 只拦截非首页业务根；搜索/门店/订单详情/认证/首页退出不被此回调改变。
-            topLevelBack.isEnabled = destination.id in setOf(R.id.ordersFragment, R.id.profileFragment, R.id.agentChatFragment)
+            // 比较输入显式发送后进入聊天属于业务子链，系统返回须回原输入/对比，而不是被Tab根返回吞掉。
+            val fromCompareInput = destination.id == R.id.agentChatFragment &&
+                navHost.navController.previousBackStackEntry?.destination?.id == R.id.compareQuestionFragment
+            topLevelBack.isEnabled = !fromCompareInput && destination.id in setOf(R.id.ordersFragment, R.id.profileFragment, R.id.agentChatFragment)
             if (destination.id != R.id.authFragment && pendingProtectedDestination != null) {
                 pendingProtectedDestination = null
                 pendingProtectedArguments = null
@@ -149,6 +152,8 @@ class MainActivity : AppCompatActivity() {
             R.id.homeFragment, R.id.searchFragment, R.id.storeFragment, R.id.ordersFragment,
             R.id.profileFragment,
             R.id.agentChatFragment, R.id.dealDetailFragment, R.id.dealCheckoutBottomSheetFragment,
+            // 对比属于公开目录路由，会话普通派发不能误退首页丢失当前选择。
+            R.id.compareSelectionFragment, R.id.dealCompareFragment, R.id.compareQuestionFragment, R.id.comparePurchaseFragment,
             // Task7 本人订单/券详情属于已登录业务路由，状态重新派发时不能丢失当前资源退回首页。
             R.id.groupBuyPaymentFragment, R.id.paymentSuccessFragment,
             R.id.groupOrderDetailFragment, R.id.voucherDetailFragment, R.id.memoryFragment -> SessionRoute.HOME

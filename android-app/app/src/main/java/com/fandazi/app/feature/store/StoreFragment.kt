@@ -33,6 +33,8 @@ class StoreFragment:Fragment(R.layout.fragment_store) {
     /** 创建有界纵向容器；摘要/页签全宽，内容区原12dp边距由装饰保留。 */
     override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
         val binding=FragmentStoreBinding.bind(view)
+        // 列表入口只导航选择页，不预选第一项，也不发送AI或产生交易请求。
+        view.findViewById<View>(R.id.store_compare_open).setOnClickListener{view.findNavController().navigate(R.id.compareSelectionFragment)}
         // 输入系统状态栏Insets，固定根容器安全区；Header滚动离屏时仍不能让菜品文字进入系统栏。
         ViewCompat.setOnApplyWindowInsetsListener(view) { root,insets ->
             root.updatePadding(top=insets.getInsets(WindowInsetsCompat.Type.statusBars()).top)

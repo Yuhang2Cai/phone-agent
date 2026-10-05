@@ -58,6 +58,14 @@ agentRunRequest:
         timezone: {type: string, const: "Asia/Shanghai"}
         selectedStoreId: {type: [string, "null"], minLength: 1}
         selectedDealId: {type: [string, "null"], minLength: 1}
+        # 只能由Spring按用户显式选择的2–3个公开ID重新查询构造；Android不得发送缓存价格。
+        # 对比回答是只读流程，不签发确认凭证，也不能替代工具返回的实时购买资格。
+        comparisonDeals:
+          type: array
+          minItems: 2
+          maxItems: 3
+          uniqueItems: true
+          items: {$ref: "#/compareDealFacts"}
         mode: {type: string, enum: [confirm, this_task_auto, recommend]}
         # 只能由可信 Spring 根据本轮明确确认计算；端上自报或模型输出均不能决定该值。
         # 它仅传递流程状态，不能替代写工具的 confirmationGrantId、动作、金额、归属和有效期校验。
@@ -414,3 +422,34 @@ compatibility:
   adapterOnly: true
   canonicalFields: {query: query, cardType: cardType, confirmationGrantId: confirmationGrantId}
   legacyAliases: {text: query, type: cardType, confirmationGrant: confirmationGrantId, grantId: confirmationGrantId}
+
+# 对比只读权威资料：人数、完整内容和规则可空，缺失不能从标题推算；金额保持整数分。
+compareDealFacts:
+  type: object
+  additionalProperties: false
+  required: [publicId, storePublicId, storeName, title, description, priceCents, originalPriceCents, inventory, active, purchaseLimit, validFrom, validTo, peopleCount, contents, usageRules]
+  properties:
+    publicId: {type: string, format: uuid}
+    storePublicId: {type: string, format: uuid}
+    storeName: {type: string, minLength: 1}
+    title: {type: string, minLength: 1}
+    description: {type: string}
+    priceCents: {type: integer, minimum: 0}
+    originalPriceCents: {type: integer, minimum: 0}
+    inventory: {type: integer, minimum: 0}
+    active: {type: boolean}
+    purchaseLimit: {type: integer, minimum: 1}
+    validFrom: {type: string, format: date}
+    validTo: {type: string, format: date}
+    peopleCount: {type: [integer, "null"], minimum: 1, maximum: 10000}
+    usageRules: {type: [string, "null"], maxLength: 2000}
+    contents:
+      type: [array, "null"]
+      maxItems: 100
+      items:
+        type: object
+        additionalProperties: false
+        required: [name, quantity]
+        properties:
+          name: {type: string, minLength: 1, maxLength: 255}
+          quantity: {type: integer, minimum: 1, maximum: 10000}

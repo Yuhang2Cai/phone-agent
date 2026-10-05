@@ -19,6 +19,11 @@ data class DealPackage(
     // 图片字段可空；无图不能替换成其他套餐的固定餐图。
     val imageUrl: String? = null,
     val imageAlt: String? = null,
+    // 三项均来自Spring权威可空字段；缺失不能按title/description解析或伪造。
+    val peopleCount: Int? = null,
+    val contents: List<DealContent>? = null,
+    val usageRules: String? = null,
+    val storeName: String? = null,
 ) {
     /** 将分转换为页面展示金额，统一保留两位以内的小数。 */
     fun priceText(): String = formatCents(priceCents)
@@ -33,3 +38,6 @@ data class DealPackage(
         return if (fen == 0) "¥$yuan" else "¥$yuan.${fen.toString().padStart(2, '0').trimEnd('0')}"
     }
 }
+
+/** 运营明确提供的套餐内容；名称及正份数由协议解析校验，不兼容外卖规格或购物车。 */
+data class DealContent(val name:String,val quantity:Int)

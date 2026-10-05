@@ -9,6 +9,10 @@ import org.springframework.stereotype.Service;
 @Service public class AgentGatewayService {
     private final AgentSessionService sessions; private final AgentServiceClient client; private final AgentEventService events; private final AgentCardEnrichmentService cards;
     private AgentHistoryRecordingService messages;
+    private AgentCompareContextService comparisons;
+    /** 生产装配只读可信对比服务；旧测试不带对比字段时继续原调用路径。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    void attachComparisons(AgentCompareContextService comparisons){this.comparisons=comparisons;}
 
     /** 生产Spring注入记录服务；保留旧四参领域测试构造器，不更改Agent模型协议。 */
     @org.springframework.beans.factory.annotation.Autowired
@@ -22,21 +26,31 @@ import org.springframework.stereotype.Service;
 
     /** 可选展示键仅关联用户气泡；合法输入先记录，业务执行与消息记录错误分别处理。 */
     public AgentResult handle(Long userId,String sessionId,String text,AgentMode mode,String clientMessageKey) {
+        return handle(userId,sessionId,text,mode,clientMessageKey,null);
+    }
+
+    /** 可选对比引用在任务建立/历史写入之前校验并重读；对比只读，不赋予确认权限。 */
+    public AgentResult handle(Long userId,String sessionId,String text,AgentMode mode,String clientMessageKey,List<String> compareDealIds) {
         if(text==null || text.isBlank())throw new com.fandazi.feature.DomainException("消息不能为空");
         if(clientMessageKey!=null && !clientMessageKey.matches("[A-Za-z0-9_-]{1,100}"))throw new com.fandazi.feature.DomainException("消息展示键无效");
+        // 非法比较资源不能触发模型、创建任务或记录一半用户输入；普通消息保留原行为。
+        if(compareDealIds!=null && comparisons==null)throw new com.fandazi.feature.DomainException("对比服务暂不可用");
+        var trustedContext=new java.util.LinkedHashMap<String,Object>();
+        if(compareDealIds!=null)trustedContext.putAll(comparisons.build(compareDealIds));
+        trustedContext.put("confirmationAccepted",compareDealIds==null && mode==AgentMode.CONFIRM && isConfirmation(text));
         String traceId=UUID.randomUUID().toString(); AgentSession session=sessions.start(userId,sessionId,mode,traceId);
         // 会话实体可能被交错请求更新，必须在外部调用前冻结本轮身份，不能返回后再读取实体。
         String runId = session.getActiveRunId();
         // 写入完整合法输入；记录故障由独立服务标记，不阻断模型或重执业务。
         if(messages!=null)messages.recordUser(userId,sessionId,runId,traceId,text,clientMessageKey);
-        if (mode == AgentMode.CONFIRM && isConfirmation(text)) sessions.confirm(userId, sessionId);
+        if (compareDealIds==null && mode == AgentMode.CONFIRM && isConfirmation(text)) sessions.confirm(userId, sessionId);
         // 网关兼容事件也绑定真实输入链路，防止迟到的上一轮兼容终态停止当前轮动画；不伪造原事件身份。
         events.record(userId, sessionId, "parsed", "已接收团购助手请求", null, "running", Map.of("runId", runId, "traceId", traceId));
         try {
             // 将用户身份、会话和模式作为 Spring 已校验的上下文传给独立 Agent，模型不能自行伪造这些字段。
             AgentResult result=client.run(new AgentRunRequest(userId.toString(),sessionId,text,
                     mode == AgentMode.THIS_TASK_AUTO ? "this_task_auto" : "confirm",traceId,
-                    runId, Map.of("confirmationAccepted", mode == AgentMode.CONFIRM && isConfirmation(text))));
+                    runId, trustedContext));
             // 模型只提交公开 ID；网关在返回 Android 前重新查询真实资源，防止客户端展示过期或伪造字段。
             result = enrichCards(userId, sessionId, result);
             // 只接受新团购摘要；旧购物车/地址确认被明确拒绝，不再重查或授权外卖交易。

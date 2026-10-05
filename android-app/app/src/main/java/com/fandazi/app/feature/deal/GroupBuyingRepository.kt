@@ -88,6 +88,13 @@ object DealPackagePayloadParser {
             field.asBigDecimal.intValueExact()
         }
         val active=value.get("active");require(active!=null && active.isJsonPrimitive && active.asJsonPrimitive.isBoolean){"套餐启用字段无效"}
+        // 新增可空事实先严格校验类型和规模；未知保留null，非法零人数不能被当作可信除数。
+        value.get("peopleCount")?.takeUnless{it.isJsonNull}?.let{require(it.isJsonPrimitive && it.asJsonPrimitive.isNumber && it.asBigDecimal.intValueExact() in 1..10000){"套餐人数字段无效"}}
+        listOf("usageRules","storeName").forEach{key->value.get(key)?.takeUnless{it.isJsonNull}?.let{require(it.isJsonPrimitive && it.asJsonPrimitive.isString){"套餐对比文字无效"}}}
+        value.get("contents")?.takeUnless{it.isJsonNull}?.let{rows->
+            require(rows.isJsonArray && rows.asJsonArray.size()<=100){"套餐内容字段无效"}
+            rows.asJsonArray.forEach{item->require(item.isJsonObject){"套餐内容项无效"};val row=item.asJsonObject;val name=row.get("name");val quantity=row.get("quantity");require(name!=null && name.isJsonPrimitive && name.asJsonPrimitive.isString && name.asString.isNotBlank()){"套餐内容名称无效"};require(quantity!=null && quantity.isJsonPrimitive && quantity.asJsonPrimitive.isNumber && quantity.asBigDecimal.intValueExact() in 1..10000){"套餐内容份数无效"}}
+        }
         // 结果构造仅映射服务器原字段；UUID和门店归属由各调用流程核对，解析不替换资源。
         return value.toDealPackage()
     }
@@ -108,6 +115,10 @@ object DealPackagePayloadParser {
         // 保留服务器缺图语义，供目录及套餐页面加载真实原图或明确占位。
         imageUrl = get("imageUrl")?.takeUnless { it.isJsonNull }?.asString,
         imageAlt = get("imageAlt")?.takeUnless { it.isJsonNull }?.asString,
+        peopleCount = get("peopleCount")?.takeUnless{it.isJsonNull}?.asInt,
+        contents = get("contents")?.takeUnless{it.isJsonNull}?.asJsonArray?.map{row->DealContent(row.asJsonObject.get("name").asString,row.asJsonObject.get("quantity").asInt)},
+        usageRules = get("usageRules")?.takeUnless{it.isJsonNull}?.asString,
+        storeName = get("storeName")?.takeUnless{it.isJsonNull}?.asString,
     )
 
     /** 必需文本已通过前置校验；此处读取原值，不补造文案。 */
