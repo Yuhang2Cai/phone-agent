@@ -52,4 +52,15 @@ object CatalogImageMetadataRefresh {
         }
         render(url,alt)
     }
+    /** Holder回收/页面销毁释放当前图片读取、令牌、Drawable和事件；不影响共享公开磁盘缓存。 */
+    fun release(image:ImageView) {
+        (image.getTag(R.id.catalog_image_metadata_token) as? Binding)?.job?.cancel()
+        image.setTag(R.id.catalog_image_metadata_token,null)
+        // RecyclerView缓存Holder可能在Activity已销毁后才回收；此时不能再次获取该Activity的管理器。
+        // 应用管理器仅执行clear，Glide按目标已有请求委派原管理器取消，不新增跨生命周期图片加载。
+        com.bumptech.glide.Glide.with(image.context.applicationContext).clear(image)
+        image.setOnClickListener(null);image.isClickable=false;image.setImageDrawable(null)
+        image.contentDescription=null;image.imageTintList=null
+    }
+
 }

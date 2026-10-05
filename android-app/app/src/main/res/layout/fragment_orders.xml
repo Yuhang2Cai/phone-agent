@@ -10,15 +10,11 @@
         android:text="查看团购订单和使用状态" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
     <com.google.android.material.tabs.TabLayout android:id="@+id/orders_segments" android:layout_width="match_parent" android:layout_height="48dp" android:background="@color/group_buy_background" />
     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
-        <ScrollView android:id="@+id/orders_content" android:layout_width="match_parent" android:layout_height="match_parent"
-            android:clipToPadding="false" android:paddingHorizontal="16dp" android:paddingBottom="24dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
-                <TextView android:id="@+id/order_status" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:gravity="center" android:padding="16dp" android:textColor="@color/after_sale_muted" android:textSize="14sp" />
-                <LinearLayout android:id="@+id/order_list" android:layout_width="match_parent" android:layout_height="wrap_content"
-                    android:orientation="vertical" />
-            </LinearLayout>
-        </ScrollView>
+        <!-- 状态文本与有界RV并列，不以无限ScrollView测量全部订单。 -->
+        <LinearLayout android:id="@+id/orders_content" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+            <TextView android:id="@+id/order_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:padding="16dp" android:textColor="@color/after_sale_muted" android:textSize="14sp" />
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/order_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingHorizontal="16dp" android:paddingBottom="24dp" />
+        </LinearLayout>
         <include layout="@layout/view_orders_empty" />
         <include layout="@layout/view_error_retry" />
         <include layout="@layout/view_network_error" />

@@ -1,0 +1,291 @@
+# O4六类列表按步骤验收：规模夹具明确标为合成HTTP；真实Spring/Figma及资格刷新另由运行器分列。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "fixture"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - extendedWaitUntil:
+          visible: "store-card-00000000-0000-0000-0000-000000000001"
+          timeout: 30000
+      - takeScreenshot: "lists-${LIST_SIZE}-home"
+      # 排序必须把当前后端最后资源移到首位，不能仅验证按钮变色或客户端自行补排。
+      - tapOn:
+          id: com.fandazi.app:id/sort_average
+      - tapOn: "人均从高到低"
+      - extendedWaitUntil:
+          visible: "store-card-${LAST_STORE_ID}"
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/sort_average
+      - tapOn: "人均从低到高"
+      - extendedWaitUntil:
+          visible: "store-card-00000000-0000-0000-0000-000000000001"
+          timeout: 30000
+      - scrollUntilVisible:
+          element: "store-card-00000000-0000-0000-0000-000000000010"
+          direction: DOWN
+          timeout: 30000
+      - tapOn: "store-card-00000000-0000-0000-0000-000000000010"
+      - extendedWaitUntil:
+          visible: "合成门店010"
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/store_back
+      - extendedWaitUntil:
+          visible: "store-card-00000000-0000-0000-0000-000000000010"
+          timeout: 30000
+      - takeScreenshot: "lists-${LIST_SIZE}-home-return-anchor"
+      - tapOn:
+          id: com.fandazi.app:id/home_search_button
+      - tapOn:
+          id: com.fandazi.app:id/search_input
+      - inputText: "advanced-no-match"
+      - tapOn:
+          id: com.fandazi.app:id/search_button
+      - extendedWaitUntil:
+          visible: "没有符合条件的门店"
+          timeout: 30000
+      - assertNotVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: "lists-${LIST_SIZE}-search-empty"
+      - tapOn:
+          id: com.fandazi.app:id/clear_search
+      - extendedWaitUntil:
+          visible: "找到相关门店 ${LIST_SIZE} 个"
+          timeout: 30000
+      - takeScreenshot: "lists-${LIST_SIZE}-search"
+      - tapOn: "store-card-00000000-0000-0000-0000-000000000001"
+      - extendedWaitUntil:
+          visible: "store-deal-00000000-0000-0000-0000-000000010001"
+          timeout: 30000
+      - takeScreenshot: "lists-${LIST_SIZE}-deals"
+      - swipe:
+          start: "50%,75%"
+          end: "50%,35%"
+          duration: 400
+      - scrollUntilVisible:
+          element:
+            id: com.fandazi.app:id/store_tab_dishes
+          direction: UP
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/store_tab_dishes
+      - extendedWaitUntil:
+          visible: "store-dish-00000000-0000-0000-0000-000000020001"
+          timeout: 30000
+      - takeScreenshot: "lists-${LIST_SIZE}-dishes"
+      - tapOn:
+          id: com.fandazi.app:id/store_tab_reviews
+      - extendedWaitUntil:
+          visible: "store-review-00000000-0000-0000-0000-000000030001"
+          timeout: 30000
+      - takeScreenshot: "lists-${LIST_SIZE}-reviews"
+      - tapOn:
+          id: com.fandazi.app:id/store_back
+      - assertVisible: "找到相关门店 ${LIST_SIZE} 个"
+      - tapOn:
+          id: com.fandazi.app:id/search_back
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible: "order-card-00000000-0000-0000-0000-000000040001"
+          timeout: 30000
+      - takeScreenshot: "lists-${LIST_SIZE}-orders"
+      - tapOn: "已完成"
+      - assertVisible: "该状态暂无订单"
+      - assertNotVisible:
+          id: com.fandazi.app:id/group_order_title
+      - tapOn: "全部"
+      - assertVisible: "order-card-00000000-0000-0000-0000-000000040001"
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn: "退出登录"
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - assertNotVisible:
+          id: com.fandazi.app:id/group_order_title
+      - takeScreenshot: "lists-${LIST_SIZE}-logout-private-cleared"
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "public-failure"}
+    commands:
+      - launchApp:
+          clearState: true
+      - tapOn:
+          id: com.fandazi.app:id/skip_login_button
+      - extendedWaitUntil:
+          visible: "门店加载失败，点击重试"
+          timeout: 30000
+      - assertNotVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: "lists-public-read-failure-no-old-facts"
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "public-retry"}
+    commands:
+      - tapOn: "门店加载失败，点击重试"
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - assertNotVisible: "门店加载失败，点击重试"
+      - takeScreenshot: "lists-public-read-retry-real-facts"
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "order-failure"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible: "页面加载失败"
+          timeout: 30000
+      - assertNotVisible:
+          id: com.fandazi.app:id/group_order_title
+      - takeScreenshot: "lists-order-read-failure-no-old-qualification"
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "order-retry"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/orders_error_retry
+      - extendedWaitUntil:
+          visible: "暂无订单"
+          timeout: 30000
+      - assertNotVisible: "页面加载失败"
+      - takeScreenshot: "lists-order-read-retry-real-empty"
+
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "transaction-before"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible: "order-card-${ORDER_ID}"
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/group_order_state
+          text: "待支付"
+      - takeScreenshot: lists-real-before-payment
+      - tapOn: "order-card-${ORDER_ID}"
+      - extendedWaitUntil:
+          visible: "订单号 ${ORDER_ID}"
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "transaction-after"}
+    commands:
+      # 后端真实模拟支付发生在详情可见时；返回必须重新读付款事实，不能复用待支付快照。
+      - back
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/group_order_state
+            text: "待使用"
+          timeout: 30000
+      - tapOn: "待使用"
+      - assertVisible: "order-card-${ORDER_ID}"
+      - takeScreenshot: lists-real-payment-return-refreshed
+      - tapOn: "order-card-${ORDER_ID}"
+      - extendedWaitUntil:
+          visible: "订单号 ${ORDER_ID}"
+          timeout: 30000
+      - scrollUntilVisible:
+          element:
+            id: com.fandazi.app:id/group_order_refund
+          direction: DOWN
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/group_order_refund
+      - takeScreenshot: lists-real-refund-eligible
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "transaction-refund"}
+    commands:
+      # 请求已由实际隔离Spring受理；订单返回后重新进入详情必须移除旧退款资格。
+      - back
+      - extendedWaitUntil:
+          visible: "order-card-${ORDER_ID}"
+          timeout: 30000
+      - tapOn: "order-card-${ORDER_ID}"
+      - extendedWaitUntil:
+          visible: "订单号 ${ORDER_ID}"
+          timeout: 30000
+      - swipe:
+          start: "50%,80%"
+          end: "50%,25%"
+          duration: 400
+      - assertNotVisible:
+          id: com.fandazi.app:id/group_order_refund
+      - takeScreenshot: lists-real-after-sale-qualification-refreshed
+      - back
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn: "退出登录"
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - assertNotVisible: "order-card-${ORDER_ID}"
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "account-changed"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible: "暂无订单"
+          timeout: 30000
+      - assertNotVisible: "order-card-${ORDER_ID}"
+      - takeScreenshot: lists-real-new-account-no-old-private-rows
+
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "restore-prepare"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn:
+          id: com.fandazi.app:id/home_search_button
+      - tapOn:
+          id: com.fandazi.app:id/search_input
+      - inputText: advanced-match
+      - tapOn:
+          id: com.fandazi.app:id/search_button
+      - extendedWaitUntil:
+          visible: "找到相关门店 500 个"
+          timeout: 30000
+      - scrollUntilVisible:
+          element: store-card-00000000-0000-0000-0000-000000000020
+          direction: DOWN
+          timeout: 30000
+      - tapOn: store-card-00000000-0000-0000-0000-000000000020
+      - extendedWaitUntil:
+          visible: 合成门店020
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/store_tab_dishes
+      - scrollUntilVisible:
+          element: store-dish-00000000-0000-0000-0000-000000020020
+          direction: DOWN
+          timeout: 30000
+      - takeScreenshot: lists-process-before-public-anchor
+- runFlow:
+    when:
+      true: ${LIST_PHASE == "restore-after"}
+    commands:
+      - extendedWaitUntil:
+          visible: store-dish-00000000-0000-0000-0000-000000020020
+          timeout: 30000
+      - takeScreenshot: lists-process-after-public-anchor
+      - back
+      - extendedWaitUntil:
+          visible: store-card-00000000-0000-0000-0000-000000000020
+          timeout: 30000
+      - assertVisible: advanced-match
+      - assertVisible: "找到相关门店 500 个"
+      - takeScreenshot: lists-process-search-query-anchor

@@ -1,55 +1,67 @@
-// 浏览状态模块：保存查询与真实结果，依赖 CatalogRepository；视图重建不会遗失分类或城市选择。
+// 浏览状态模块：保留条件及薄锚点，公开业务事实重新读取；依赖CatalogRepository与SavedStateHandle。
 package com.fandazi.app.feature.home
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.feature.store.*
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/** 浏览加载状态，错误与空目录是两个不同状态。 */
-data class CatalogState(val query: CatalogQuery = CatalogQuery(), val stores: List<CatalogStore> = emptyList(),
-    val loading: Boolean = false, val error: String? = null)
+/** 查询状态不把加载失败当空结果；整个列表的后端顺序和内容是一次不可变快照。 */
+data class CatalogState(val query:CatalogQuery=CatalogQuery(),val stores:List<CatalogStore> = emptyList(),val loading:Boolean=false,val error:String?=null)
 
-/** 一页一个 ViewModel；取消旧查询并核对条件，防止慢响应覆盖用户刚选的新分类。 */
-class CatalogViewModel(private val repository: CatalogRepository) : ViewModel() {
-    private val mutable = MutableStateFlow(CatalogState())
-    /** 页面仅观察状态，不能自行修改服务器结果或排序。 */
-    val state = mutable.asStateFlow()
-    private var request: Job? = null
-    private var initialized = false
-    /** 当前页面滚动偏移，仅保存浏览状态而非业务事实；详情返回时恢复局部浏览位置。 */
-    var scrollY: Int = 0
-        private set
-
-    /** 视图销毁前保存实际偏移，不触发结果重绘；负值规范为页面顶部。 */
-    fun rememberScroll(offset: Int) { scrollY = offset.coerceAtLeast(0) }
-
-    /** 首次按导航条件加载；返回已有页面时继续保留其查询状态。 */
-    fun initialize(query: CatalogQuery) { if (!initialized) { initialized = true; load(query) } }
-
-    /** 查询前清掉旧业务结果；失败显示重试，不把旧集合当本次成功结果。 */
-    fun load(query: CatalogQuery = mutable.value.query) {
-        request?.cancel()
-        // 条件变化从新结果顶部开始；原查询重试或页面恢复不丢掉用户已浏览的位置。
-        if (query != mutable.value.query) scrollY = 0
-        mutable.value = CatalogState(query, loading = true)
-        request = viewModelScope.launch {
-            when (val result = repository.stores(query)) {
-                is ApiResult.Success -> mutable.value = CatalogState(query, result.value)
-                is ApiResult.Failure -> mutable.value = CatalogState(query, error = "门店加载失败，点击重试")
-            }
+/** 每个页面独立持有查询代次，外部读取不合作取消时也不能交付过期成功或失败。 */
+class CatalogViewModel(private val repository:CatalogRepository,private val saved:SavedStateHandle=SavedStateHandle()):ViewModel() {
+    private val mutable=MutableStateFlow(CatalogState(restoredQuery() ?: CatalogQuery()))
+    /** 只读状态供当前视图观察，后台回调不持有Fragment或XML控件。 */
+    val state=mutable.asStateFlow()
+    private var request:Job?=null
+    private var generation=0L
+    private var initialized=false
+    /** 保存首个可见公开资源和像素偏移，无列表、价格或用户资格进入Bundle。 */
+    val anchor:ListAnchor get()=ListAnchor(saved["anchor.key"],saved["anchor.offset"] ?: 0)
+    /** 列表滑动及离开时调用，重建只恢复位置引用，不恢复旧业务事实。 */
+    fun rememberAnchor(value:ListAnchor) {saved["anchor.key"]=value.key;saved["anchor.offset"]=value.offset}
+    /** 首次优先使用已经保存的查询；导航参数只用于无历史状态的新页面。 */
+    fun initialize(query:CatalogQuery) {if(!initialized){initialized=true;load(restoredQuery() ?: query)}}
+    /** 查询切换清空旧行及旧锚点；相同条件重试保留锚点，成功才有可点击新结果。 */
+    fun load(query:CatalogQuery=mutable.value.query) {
+        val ticket=++generation;request?.cancel()
+        if(query!=mutable.value.query) rememberAnchor(ListAnchor())
+        persistQuery(query);mutable.value=CatalogState(query,loading=true)
+        request=viewModelScope.launch {
+            try {
+                val result=repository.stores(query)
+                // 取消只是资源控制，代次/条件才是交付边界；迟到旧结果保持当前页面不变。
+                if(ticket!=generation || mutable.value.query!=query) return@launch
+                mutable.value=when(result) {
+                    is ApiResult.Success -> CatalogState(query,CatalogRowIdentity.stores(result.value))
+                    is ApiResult.Failure -> CatalogState(query,error="门店加载失败，点击重试")
+                }
+            } catch(cancelled:CancellationException){throw cancelled}
+            catch(invalid:Exception){if(ticket==generation)mutable.value=CatalogState(query,error="门店加载失败，点击重试")}
         }
     }
-
-    /** 向 Android 生命周期提供现有仓库实例，不初始化另一服务地址。 */
-    class Factory(private val repository: CatalogRepository) : ViewModelProvider.Factory {
-        /** 只创建本模块 ViewModel，生命周期由 Fragment 管理。 */
+    /** 保存独立条件的原始字段，位置未知保持null，不序列化业务集合或默认坐标。 */
+    private fun persistQuery(query:CatalogQuery) {
+        saved["query.ready"]=true;saved["query.keyword"]=query.keyword;saved["query.category"]=query.category
+        saved["query.sort"]=query.sort;saved["query.city"]=query.cityCode;saved["query.lat"]=query.latitude;saved["query.lon"]=query.longitude
+    }
+    /** 恢复薄条件后按原接口重新校验事实，不将缓存身份误认成当前业务成功。 */
+    private fun restoredQuery():CatalogQuery?=if(saved.get<Boolean>("query.ready")!=true)null else CatalogQuery(
+        saved["query.keyword"] ?: "",saved["query.category"] ?: "推荐",saved["query.sort"] ?: "RECOMMENDED",saved["query.city"],saved["query.lat"],saved["query.lon"])
+    /** 原生产仓库和Fragment保存注册表统一装配，不建立第二个服务地址。 */
+    class Factory(private val repository:CatalogRepository):ViewModelProvider.Factory {
+        /** 生命周期提供的CreationExtras绑定当前页面的薄状态保存。 */
         @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T = CatalogViewModel(repository) as T
+        override fun <T:ViewModel> create(modelClass:Class<T>,extras:CreationExtras):T=CatalogViewModel(repository,extras.createSavedStateHandle()) as T
     }
 }

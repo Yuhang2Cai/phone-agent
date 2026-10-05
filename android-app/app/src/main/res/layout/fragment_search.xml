@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- 通过AppCompat着色兼容API26；图标及Figma色值不变。 -->
 <!-- 搜索与筛选结果 UI-02：复用首页分类、排序和团购门店卡片。 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:orientation="vertical">
     <LinearLayout android:layout_width="match_parent" android:layout_height="76dp" android:background="@color/group_buy_green" android:gravity="bottom|center_vertical" android:orientation="horizontal" android:paddingStart="8dp" android:paddingEnd="10dp" android:paddingBottom="8dp">
@@ -19,7 +20,6 @@
     <TextView android:id="@+id/result_count" android:layout_width="match_parent" android:layout_height="32dp" android:gravity="center_vertical" android:paddingStart="14dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" />
     <TextView android:id="@+id/search_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingStart="14dp" android:paddingEnd="14dp" android:textColor="@color/group_buy_muted" android:textSize="11sp" />
     <!-- 固定视图身份配合页面状态保存偏移，详情返回不丢失原局部浏览位置。 -->
-    <ScrollView android:id="@+id/search_scroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="16dp">
-        <LinearLayout android:id="@+id/search_results" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
-    </ScrollView>
+    <!-- 有界纵向回收列表保留原结果区内边距，固定筛选控件不进入重复业务行。 -->
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/search_results" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingTop="4dp" android:paddingEnd="12dp" android:paddingBottom="16dp" />
 </LinearLayout>

@@ -15,6 +15,9 @@ import com.fandazi.app.databinding.FragmentHomeBinding
 import com.fandazi.app.feature.store.CatalogQuery
 import com.fandazi.app.feature.store.CatalogRenderer
 import kotlinx.coroutines.launch
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.fandazi.app.feature.store.*
 
 /** 游客可浏览；分类、排序及城市改变独立查询条件，所有卡片事实只来自服务器。 */
 class HomeFragment : Fragment(R.layout.fragment_home) {
@@ -26,6 +29,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     /** 绑定既有 UI 入口并观察生命周期内状态，页面离开后不保留旧视图的网络回调。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentHomeBinding.bind(view)
+        // Adapter只存数据与当前导航闭包；视图销毁时释放回收池和附着图片。
+        val adapter=StoreListAdapter({ store,query ->
+            view.findNavController().navigate(R.id.storeFragment,Bundle().apply {
+                putString("storePublicId",store.publicId)
+                if(query.latitude!=null && query.longitude!=null){putDouble("latitude",query.latitude);putDouble("longitude",query.longitude)}
+            })
+        },{model.load()})
+        binding.homeStoreList.layoutManager=LinearLayoutManager(requireContext())
+        binding.homeStoreList.adapter=adapter
+        binding.homeStoreList.addOnScrollListener(object:RecyclerView.OnScrollListener(){
+            override fun onScrolled(list:RecyclerView,dx:Int,dy:Int) {
+                if(adapter.currentList.any{it is StoreListRow.Store})model.rememberAnchor(BusinessListAnchor.capture(list,adapter::rowKey))
+            }
+        })
         val categories = listOf(binding.categoryRecommend, binding.categoryDrink, binding.categoryFastFood,
             binding.categoryHotpot, binding.categoryBarbecue, binding.categoryLocal)
         categories.zip(CatalogControls.CATEGORIES).forEach { (item, category) ->
@@ -52,14 +69,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     categories.zip(CatalogControls.CATEGORIES).forEach { (item, label) -> CatalogRenderer.selection(item, label == state.query.category) }
                     binding.homeCity.text = state.query.cityCode ?: "选择城市"
                     binding.sortAverage.text = when (state.query.sort) { "PRICE_ASC" -> "人均↑"; "PRICE_DESC" -> "人均↓"; else -> "人均⌄" }
-                    when {
-                        state.loading -> CatalogRenderer.status(binding.homeStoreList, "正在加载门店")
-                        state.error != null -> CatalogRenderer.status(binding.homeStoreList, state.error) { model.load() }
-                        state.stores.isEmpty() -> CatalogRenderer.status(binding.homeStoreList, "没有符合条件的门店")
-                        else -> {
-                            CatalogRenderer.stores(binding.homeStoreList, state.stores, state.query) { model.load() }
-                            binding.homeScroll.post { binding.homeScroll.scrollTo(0, model.scrollY) }
-                        }
+                    val anchor=model.anchor
+                    adapter.submitState(state) {
+                        // 差量提交后按公开键恢复；加载/错误不把状态行位置覆盖成功列表锚点。
+                        if(!state.loading && state.error==null && state.stores.isNotEmpty())
+                            BusinessListAnchor.restore(binding.homeStoreList,anchor,adapter.currentList.map{it.key})
                     }
                 }
             }
@@ -69,7 +83,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
     /** 详情/搜索离开前记录真实偏移，返回时由相同 ViewModel 恢复，不重新生成业务结果。 */
     override fun onDestroyView() {
-        view?.findViewById<android.widget.ScrollView>(R.id.home_scroll)?.let { model.rememberScroll(it.scrollY) }
+        view?.findViewById<RecyclerView>(R.id.home_store_list)?.let { list ->
+            (list.adapter as? StoreListAdapter)?.let { adapter ->
+                if(adapter.currentList.any{it is StoreListRow.Store})model.rememberAnchor(BusinessListAnchor.capture(list,adapter::rowKey))
+                for(i in 0 until list.childCount)adapter.release(list.getChildViewHolder(list.getChildAt(i)))
+            }
+            list.clearOnScrollListeners();list.adapter=null;list.recycledViewPool.clear()
+        }
         super.onDestroyView()
     }
 }

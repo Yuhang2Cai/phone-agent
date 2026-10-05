@@ -35,9 +35,9 @@ data class CatalogStore(val publicId: String, val name: String, val cityCode: St
 /** 服务器返回的城市代码及可用显示名称。 */
 data class CatalogCity(val cityCode: String, val name: String)
 /** 公开菜单只用于展示，无外卖加购和库存写入能力。 */
-data class CatalogDish(val name: String, val description: String, val priceCents: Int, val imageUrl: String?)
+data class CatalogDish(val name: String, val description: String, val priceCents: Int, val imageUrl: String?, val publicId: String)
 /** 评价时间是 UTC 瞬间，视图按上海时区显示；无头像字段时使用明确头像占位。 */
-data class CatalogReview(val reviewerName: String, val rating: Double, val content: String, val createdAt: String)
+data class CatalogReview(val reviewerName: String, val rating: Double, val content: String, val createdAt: String, val publicId: String, val storePublicId: String)
 
 /** 浏览网络边界，公开接口游客可读；网络和协议错误必须传给页面重试。 */
 interface CatalogRepository {
@@ -62,26 +62,29 @@ class HttpCatalogRepository(
     private val gson = Gson()
     /** 查询公开目录，顺序保持服务端结果。 */
     override suspend fun stores(query: CatalogQuery) = api.get("stores?${query.parameters()}").decode { body, checkActive ->
-        JsonParser.parseString(body).asJsonArray.map {
+        CatalogRowIdentity.stores(JsonParser.parseString(body).asJsonArray.map {
             // 每条观察取消，直接复用节点而不转成字符串重解析。
             checkActive(); parseStore(it.asJsonObject)
-        }
+        })
     }
     /** 指定 UUID 的详情不存在时让 ApiClient 返回错误，禁止替换为首家门店。 */
-    override suspend fun store(id: String, query: CatalogQuery) = api.get("stores/${encode(id)}?${query.parameters()}").decode { body, _ -> parseStore(JsonParser.parseString(body).asJsonObject) }
+    override suspend fun store(id: String, query: CatalogQuery) = api.get("stores/${encode(id)}?${query.parameters()}").decode { body, _ ->
+        // 详情同时服务于摘要和局部图片刷新；响应身份必须与请求一致，不能展示另一资源的照片。
+        parseStore(JsonParser.parseString(body).asJsonObject).also { require(it.publicId == id) { "门店详情身份无效" } }
+    }
     /** 解析实际城市选项。 */
     override suspend fun cities() = api.get("stores/cities").decode { body, check -> parseList(body, CatalogCity::class.java, check) }
     /** 菜单仅使用当前门店的公开路径。 */
-    override suspend fun dishes(id: String) = api.get("stores/${encode(id)}/dishes").decode { body, check -> parseList(body, CatalogDish::class.java, check) }
+    override suspend fun dishes(id: String) = api.get("stores/${encode(id)}/dishes").decode { body, check -> CatalogRowIdentity.dishes(parseList(body, CatalogDish::class.java, check)) }
     /** 评价仅使用当前门店的公开路径。 */
-    override suspend fun reviews(id: String) = api.get("stores/${encode(id)}/reviews").decode { body, check -> parseList(body, CatalogReview::class.java, check) }
+    override suspend fun reviews(id: String) = api.get("stores/${encode(id)}/reviews").decode { body, check -> CatalogRowIdentity.reviews(parseList(body, CatalogReview::class.java, check),id) }
 
     /** 嵌套套餐保持原解析规则并核对门店归属；直接消费节点以去除重复字符串转换。 */
     private fun parseStore(value: JsonObject): CatalogStore {
         listOf("publicId", "name", "cityCode", "category", "averageSpendCents", "reviewCount", "reviewDistribution")
             .forEach { require(value.has(it) && !value[it].isJsonNull) { "目录字段缺失：$it" } }
         val base = gson.fromJson(value, CatalogStore::class.java)
-        java.util.UUID.fromString(base.publicId)
+        CatalogRowIdentity.publicId(base.publicId)
         val deal = value.get("featuredDeal")?.takeUnless { it.isJsonNull }?.let { DealPackagePayloadParser.parseDetail(it.asJsonObject) }
         require(deal == null || deal.storePublicId == base.publicId) { "套餐不属于当前门店" }
         return base.copy(featuredDeal = deal)

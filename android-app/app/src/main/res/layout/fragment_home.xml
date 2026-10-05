@@ -47,7 +47,6 @@
     </LinearLayout>
 
     <!-- 固定视图身份供返回恢复滚动状态，内容仍由真实目录绑定。 -->
-    <ScrollView android:id="@+id/home_scroll" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingBottom="16dp">
-        <LinearLayout android:id="@+id/home_store_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
-    </ScrollView>
+    <!-- 有界纵向回收列表保留原结果区内边距，固定筛选控件不进入重复业务行。 -->
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/home_store_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingBottom="16dp" />
 </LinearLayout>

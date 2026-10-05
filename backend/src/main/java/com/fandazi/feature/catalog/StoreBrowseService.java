@@ -60,7 +60,7 @@ public class StoreBrowseService {
         if (store.getMerchant() == null) return List.of();
         return dishes.findByMerchantId(store.getMerchant().getId()).stream().filter(DishEntity::isListed)
                 .map(dish -> new Dish(dish.getName(), dish.getDescription(),
-                        dish.getPrice().movePointRight(2).intValueExact(), dish.getImageUrl())).toList();
+                        dish.getPrice().movePointRight(2).intValueExact(), dish.getImageUrl(), dish.getPublicId())).toList();
     }
 
     /** 在只读事务内完成评价 DTO 转换；离开事务后不再访问懒加载的关联门店。 */
@@ -108,5 +108,5 @@ public class StoreBrowseService {
     /** 城市展示选项，代码与名称均由实际目录构造，不保存客户端城市常量。 */
     public record City(String cityCode, String name) {}
     /** 只读菜品展示字段，不暴露旧外卖数值主键、库存写入或加购能力。 */
-    public record Dish(String name, String description, int priceCents, String imageUrl) {}
+    public record Dish(String name, String description, int priceCents, String imageUrl, String publicId) {}
 }

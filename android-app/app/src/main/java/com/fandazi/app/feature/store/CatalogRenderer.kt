@@ -4,13 +4,9 @@ package com.fandazi.app.feature.store
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.graphics.drawable.GradientDrawable
-import android.os.Bundle
-import android.view.LayoutInflater
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
-import androidx.navigation.findNavController
 import com.fandazi.app.R
 import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import com.fandazi.app.FandaziApplication
@@ -19,22 +15,17 @@ import java.util.Locale
 
 /** 共享UI绑定；列表事实来自调用方，缺图仅读取对应对象图片元数据，不查询或重绘整个目录。 */
 object CatalogRenderer {
-    /** 按服务器顺序绑定卡片；缺摘要显示无套餐，点击门店传完整 UUID 和已取得的位置。 */
-    @Suppress("UNUSED_PARAMETER")
-    fun stores(container: LinearLayout, stores: List<CatalogStore>, query: CatalogQuery, retry: () -> Unit) {
-        container.removeAllViews()
-        val inflater = LayoutInflater.from(container.context)
-        stores.forEach { store ->
-            val card = inflater.inflate(R.layout.item_group_buy_store_card, container, false)
+    /** 重绑单个已创建骨架；事实和图片均属于当前公开资源，点击由当前生命周期Fragment接收。 */
+    fun bindStore(card:android.view.View,store:CatalogStore,query:CatalogQuery,open:()->Unit) {
             card.findViewById<TextView>(R.id.store_name).text = store.name
             card.findViewById<TextView>(R.id.store_rating).text = store.rating?.let { "★ $it" } ?: "暂无评分"
             card.findViewById<TextView>(R.id.store_reviews).text = "${store.reviewCount}条评价"
             card.findViewById<TextView>(R.id.store_distance).text = distance(store.distanceMeters)
             // 缺图仅读取这一门店的图片字段，保留原列表、筛选条件与其他卡片文本。
-            val application=container.context.applicationContext as FandaziApplication
+            val application=card.context.applicationContext as FandaziApplication
             CatalogImageMetadataRefresh.bind(card.findViewById(R.id.store_image),store.imageUrl,store.imageAlt) {
                 when(val result=application.catalogRepository.store(store.publicId,query)) {
-                    is ApiResult.Success -> result.value.imageUrl to result.value.imageAlt
+                    is ApiResult.Success -> if(result.value.publicId==store.publicId)result.value.imageUrl to result.value.imageAlt else null
                     is ApiResult.Failure -> null
                 }
             }
@@ -49,34 +40,18 @@ object CatalogRenderer {
             // 套餐不存在时没有可刷新对象，不能用全页刷新或其他套餐照片伪装本图。
             CatalogImageMetadataRefresh.bind(card.findViewById(R.id.deal_image),deal?.imageUrl,deal?.imageAlt,thumbnail=true) {
                 if(deal==null) null else when(val result=application.groupBuyingRepository.loadDeal(deal.publicId)) {
-                    is ApiResult.Success -> result.value.imageUrl to result.value.imageAlt
+                    is ApiResult.Success -> if(result.value.publicId==deal.publicId && result.value.storePublicId==store.publicId)result.value.imageUrl to result.value.imageAlt else null
                     is ApiResult.Failure -> null
                 }
             }
-            card.contentDescription = "store-card-${store.publicId}"
-            card.setOnClickListener {
-                card.findNavController().navigate(R.id.storeFragment, Bundle().apply {
-                    putString("storePublicId", store.publicId)
-                    // 已取得的完整位置对可继续用于详情；不传未知位置的默认零值。
-                    if (query.latitude != null && query.longitude != null) {
-                        putDouble("latitude", query.latitude); putDouble("longitude", query.longitude)
-                    }
-                })
-            }
-            container.addView(card)
-        }
+        card.contentDescription="store-card-${store.publicId}"
+        card.setOnClickListener {open()}
     }
-
-    /** 状态占据结果区域，只有错误才可点击重试；空结果不会被误标成网络失败。 */
-    fun status(container: LinearLayout, message: String, retry: (() -> Unit)? = null) {
-        container.removeAllViews()
-        container.addView(TextView(container.context).apply {
-            text = message; textSize = 15f
-            setTextColor(ContextCompat.getColor(context, R.color.group_buy_muted))
-            val density = resources.displayMetrics.density
-            setPadding((12 * density).toInt(), (24 * density).toInt(), (12 * density).toInt(), (24 * density).toInt())
-            retry?.let { setOnClickListener { it() } }
-        })
+    /** 已附着及进入回收池的卡片共同释放两个图片任务与旧导航监听。 */
+    fun releaseStore(card:android.view.View) {
+        CatalogImageMetadataRefresh.release(card.findViewById(R.id.store_image))
+        CatalogImageMetadataRefresh.release(card.findViewById(R.id.deal_image))
+        card.setOnClickListener(null);card.contentDescription=null
     }
 
     /** 选中态使用设计规定的橙色及下划线，字号不随状态改变，避免横向布局跳动。 */

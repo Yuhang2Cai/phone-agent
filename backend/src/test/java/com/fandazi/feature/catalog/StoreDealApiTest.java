@@ -98,4 +98,29 @@ class StoreDealApiTest {
                 .andExpect(jsonPath("$.imageUrl").value(org.hamcrest.Matchers.startsWith(
                         "/catalog-images/v1/full/mapo-tofu-rice-")));
     }
+    /** 防止投影遗漏新身份：两次真实读取必须返回相同UUID，排序或同名显示不改变身份。 */
+    @Test
+    void dishAndReviewPublicIdentityIsStableAcrossReads() throws Exception {
+        String storeId = publicIds.require("store", "store-001");
+        var mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        for (String kind : java.util.List.of("dishes", "reviews")) {
+            String path = "/api/stores/" + storeId + "/" + kind;
+            var first = mapper.readTree(mockMvc.perform(get(path)).andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString());
+            var second = mapper.readTree(mockMvc.perform(get(path)).andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString());
+            org.junit.jupiter.api.Assertions.assertFalse(first.isEmpty(), "种子应提供实际列表");
+            var identities = new java.util.HashSet<String>();
+            for (int i = 0; i < first.size(); i++) {
+                var row = first.get(i);
+                org.junit.jupiter.api.Assertions.assertTrue(row.hasNonNull("publicId"), "公开列表必须返回稳定publicId:" + kind);
+                String id = row.get("publicId").asText();
+                org.junit.jupiter.api.Assertions.assertEquals(id, java.util.UUID.fromString(id).toString());
+                org.junit.jupiter.api.Assertions.assertTrue(identities.add(id), "不同资源不可共用身份");
+                org.junit.jupiter.api.Assertions.assertEquals(id, second.get(i).get("publicId").asText());
+                org.junit.jupiter.api.Assertions.assertFalse(row.has("id"), "不暴露数据库数值主键");
+            }
+        }
+    }
+
 }

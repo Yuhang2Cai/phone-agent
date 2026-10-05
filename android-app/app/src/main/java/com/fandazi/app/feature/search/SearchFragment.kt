@@ -21,6 +21,9 @@ import com.fandazi.app.feature.home.CatalogViewModel
 import com.fandazi.app.feature.store.CatalogQuery
 import com.fandazi.app.feature.store.CatalogRenderer
 import kotlinx.coroutines.launch
+import androidx.recyclerview.widget.RecyclerView
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.fandazi.app.feature.store.*
 
 /** 搜索与筛选分别表达；返回及视图重建保留 ViewModel 查询，没有演示名单或本地补排。 */
 class SearchFragment : Fragment(R.layout.fragment_search) {
@@ -31,6 +34,20 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
     /** 输入提交才查询，避免每个字都发请求；分类/排序操作只修改各自参数。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         val binding = FragmentSearchBinding.bind(view)
+        // Adapter只存数据与当前导航闭包；视图销毁时释放回收池和附着图片。
+        val adapter=StoreListAdapter({ store,query ->
+            view.findNavController().navigate(R.id.storeFragment,Bundle().apply {
+                putString("storePublicId",store.publicId)
+                if(query.latitude!=null && query.longitude!=null){putDouble("latitude",query.latitude);putDouble("longitude",query.longitude)}
+            })
+        },{model.load()})
+        binding.searchResults.layoutManager=LinearLayoutManager(requireContext())
+        binding.searchResults.adapter=adapter
+        binding.searchResults.addOnScrollListener(object:RecyclerView.OnScrollListener(){
+            override fun onScrolled(list:RecyclerView,dx:Int,dy:Int) {
+                if(adapter.currentList.any{it is StoreListRow.Store})model.rememberAnchor(BusinessListAnchor.capture(list,adapter::rowKey))
+            }
+        })
         val initial = CatalogQuery(keyword = arguments?.getString("initialQuery").orEmpty(),
             category = arguments?.getString("initialCategory") ?: "推荐", sort = arguments?.getString("initialSort") ?: "RECOMMENDED",
             cityCode = arguments?.getString("cityCode"), latitude = arguments?.takeIf { it.containsKey("latitude") }?.getDouble("latitude"),
@@ -70,14 +87,11 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                     binding.resultCount.text = if (state.loading || state.error != null) "" else "找到相关门店 ${state.stores.size} 个"
                     binding.searchStatus.visibility = View.GONE
                     (binding.filterRow.getChildAt(0) as TextView).text = when(state.query.sort) { "PRICE_ASC" -> "人均↑"; "PRICE_DESC" -> "人均↓"; else -> "人均⌄" }
-                    when {
-                        state.loading -> CatalogRenderer.status(binding.searchResults, "正在加载门店")
-                        state.error != null -> CatalogRenderer.status(binding.searchResults, state.error) { model.load() }
-                        state.stores.isEmpty() -> CatalogRenderer.status(binding.searchResults, "没有符合条件的门店")
-                        else -> {
-                            CatalogRenderer.stores(binding.searchResults, state.stores, state.query) { model.load() }
-                            binding.searchScroll.post { binding.searchScroll.scrollTo(0, model.scrollY) }
-                        }
+                    val anchor=model.anchor
+                    adapter.submitState(state) {
+                        // 差量提交后按公开键恢复；加载/错误不把状态行位置覆盖成功列表锚点。
+                        if(!state.loading && state.error==null && state.stores.isNotEmpty())
+                            BusinessListAnchor.restore(binding.searchResults,anchor,adapter.currentList.map{it.key})
                     }
                 }
             }
@@ -86,7 +100,13 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
 
     /** 明确保存结果列表偏移，门店返回时恢复已浏览卡片而不是强制跳回首项。 */
     override fun onDestroyView() {
-        view?.findViewById<android.widget.ScrollView>(R.id.search_scroll)?.let { model.rememberScroll(it.scrollY) }
+        view?.findViewById<RecyclerView>(R.id.search_results)?.let { list ->
+            (list.adapter as? StoreListAdapter)?.let { adapter ->
+                if(adapter.currentList.any{it is StoreListRow.Store})model.rememberAnchor(BusinessListAnchor.capture(list,adapter::rowKey))
+                for(i in 0 until list.childCount)adapter.release(list.getChildViewHolder(list.getChildAt(i)))
+            }
+            list.clearOnScrollListeners();list.adapter=null;list.recycledViewPool.clear()
+        }
         super.onDestroyView()
     }
 
