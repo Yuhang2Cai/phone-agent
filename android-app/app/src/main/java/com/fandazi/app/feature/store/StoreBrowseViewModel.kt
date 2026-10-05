@@ -39,6 +39,12 @@ class StoreBrowseViewModel(private val catalog:CatalogRepository,private val buy
         mutable.value=StoreBrowseState(storeId=id,query=query,tab=mutable.value.tab)
         loadSummary();select(mutable.value.tab,true)
     }
+    /** 业务页面返回必须读取最新摘要及当前页签；明确刷新不受同条件在途/成功去重影响。 */
+    fun refreshAfterBusinessReturn() {
+        if(mutable.value.storeId.isBlank())return
+        // 两个只读请求独立启动，不等待摘要后再读评价；原页签和薄滚动引用保持。
+        loadSummary();select(mutable.value.tab,true)
+    }
     /** 只更新门店摘要；评价在途/成功不因摘要晚到再次读取，评分摘要由独立行差量显示。 */
     fun loadSummary() {
         val before=mutable.value;val ticket=++summaryGeneration;summaryJob?.cancel()

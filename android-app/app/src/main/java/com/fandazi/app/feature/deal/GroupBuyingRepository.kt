@@ -72,12 +72,25 @@ object DealPackagePayloadParser {
     internal fun parseList(body: String, checkActive: () -> Unit): List<DealPackage> =
         JsonParser.parseString(body).asJsonArray.map { checkActive(); parseDetail(it.asJsonObject) }
 
-    /** 解析单个套餐详情，缺失字段由领域模型使用安全默认值承接。 */
+    /** 解析单个套餐详情，必需字段缺失或类型错误直接拒绝；不能把缺价冒充零元事实。 */
     fun parseDetail(body: String): DealPackage =
         parseDetail(JsonParser.parseString(body).asJsonObject)
 
-    /** 嵌套套餐直接复用节点；不重序列化，字段默认值与金额转换规则保持。 */
-    internal fun parseDetail(value: JsonObject): DealPackage = value.toDealPackage()
+    /** 嵌套套餐直接复用节点；不重序列化，必需字段先做存在性和类型校验。 */
+    internal fun parseDetail(value: JsonObject): DealPackage {
+        // 输入校验：Spring公开DTO中的必需文字必须存在且为字符串，图片仍保留可空语义。
+        listOf("publicId","storePublicId","title","description","validFrom","validTo").forEach { key ->
+            val field=value.get(key);require(field!=null && field.isJsonPrimitive && field.asJsonPrimitive.isString){"套餐文字字段无效：$key"}
+        }
+        // 数字必须是明确整数分/数量，不能让Gson将缺字段、数字字符串或小数截断成默认值。
+        listOf("priceCents","originalPriceCents","inventory","purchaseLimit").forEach { key ->
+            val field=value.get(key);require(field!=null && field.isJsonPrimitive && field.asJsonPrimitive.isNumber){"套餐数字字段无效：$key"}
+            field.asBigDecimal.intValueExact()
+        }
+        val active=value.get("active");require(active!=null && active.isJsonPrimitive && active.asJsonPrimitive.isBoolean){"套餐启用字段无效"}
+        // 结果构造仅映射服务器原字段；UUID和门店归属由各调用流程核对，解析不替换资源。
+        return value.toDealPackage()
+    }
 
     /** 将接口对象字段映射为客户端领域模型，金额和库存不在此处修改。 */
     private fun JsonObject.toDealPackage() = DealPackage(
@@ -97,10 +110,10 @@ object DealPackagePayloadParser {
         imageAlt = get("imageAlt")?.takeUnless { it.isJsonNull }?.asString,
     )
 
-    /** 文本缺失保持原默认值，本次不改变协议。 */
+    /** 必需文本已通过前置校验；此处读取原值，不补造文案。 */
     private fun JsonObject.string(name: String): String = get(name)?.takeUnless { it.isJsonNull }?.asString.orEmpty()
-    /** 金额数量沿用原转换，调用方业务校验保持。 */
+    /** 必需整数已通过前置精确校验；零值保留服务器原义。 */
     private fun JsonObject.int(name: String): Int = get(name)?.takeUnless { it.isJsonNull }?.asInt ?: 0
-    /** 启用字段缺失保持原默认值，不猜服务器资格。 */
+    /** 布尔字段已通过前置类型校验，不从其他字段猜资格。 */
     private fun JsonObject.bool(name: String): Boolean = get(name)?.takeUnless { it.isJsonNull }?.asBoolean ?: false
 }

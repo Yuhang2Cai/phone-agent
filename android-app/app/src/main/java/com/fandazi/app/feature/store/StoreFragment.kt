@@ -24,6 +24,12 @@ import kotlinx.coroutines.launch
 class StoreFragment:Fragment(R.layout.fragment_store) {
     private val application get()=requireActivity().application as FandaziApplication
     private val model:StoreBrowseViewModel by viewModels{StoreBrowseViewModel.Factory(application.catalogRepository,application.groupBuyingRepository)}
+    private var resumedBefore=false
+    /** 首次进入由initialize并行读取；再次恢复可见性代表业务/页面返回，需要刷新后端事实。 */
+    override fun onResume() {
+        super.onResume()
+        if(resumedBefore)model.refreshAfterBusinessReturn() else resumedBefore=true
+    }
     /** 创建有界纵向容器；摘要/页签全宽，内容区原12dp边距由装饰保留。 */
     override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
         val binding=FragmentStoreBinding.bind(view)

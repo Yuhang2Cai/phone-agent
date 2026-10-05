@@ -1,0 +1,154 @@
+# O9分阶段详情验收：100ms详情/慢选项、局部失败/重试、错误身份与归属；不触及ASR。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${DETAIL_PHASE == "open-store"}
+    commands:
+      - launchApp:
+          clearState: true
+      - tapOn:
+          id: com.fandazi.app:id/skip_login_button
+      - extendedWaitUntil:
+          visible: store-card-00000000-0000-0000-0000-000000000001
+          timeout: 30000
+      - tapOn: store-card-00000000-0000-0000-0000-000000000001
+      - extendedWaitUntil:
+          visible: store-deal-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${DETAIL_PHASE == "slow-first"}
+    commands:
+      - tapOn: store-deal-00000000-0000-0000-0000-000000010001
+      - extendedWaitUntil:
+          visible: selected-deal-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+      - assertVisible: deal-price-1235
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: false
+      - assertVisible: deal-options-loading
+      - takeScreenshot: detail-readonly-before-options
+- runFlow:
+    when:
+      true: ${DETAIL_PHASE == "slow-full"}
+    commands:
+      - extendedWaitUntil:
+          visible: deal-option-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: true
+      - takeScreenshot: detail-options-ready
+      - tapOn: deal-option-00000000-0000-0000-0000-000000010002
+      - extendedWaitUntil:
+          visible: selected-deal-00000000-0000-0000-0000-000000010002
+          timeout: 30000
+      - assertVisible: deal-price-1236
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: false
+      - takeScreenshot: detail-switch-new-trusted-content
+      - extendedWaitUntil:
+          visible: deal-option-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: true
+      - tapOn:
+          id: com.fandazi.app:id/deal_back
+      - extendedWaitUntil:
+          visible: store-deal-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+      - takeScreenshot: detail-business-return-store
+- runFlow:
+    when:
+      true: ${DETAIL_PHASE == "list-failure"}
+    commands:
+      - tapOn: store-deal-00000000-0000-0000-0000-000000010001
+      - extendedWaitUntil:
+          visible: selected-deal-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+      - assertVisible: deal-price-1235
+      - extendedWaitUntil:
+          visible: deal-options-retry
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: false
+      - takeScreenshot: detail-options-failure-keeps-content
+      - tapOn:
+          id: com.fandazi.app:id/deal_purchase_bar
+      - assertVisible: selected-deal-00000000-0000-0000-0000-000000010001
+      - assertNotVisible:
+          id: com.fandazi.app:id/username_input
+      - assertNotVisible:
+          id: com.fandazi.app:id/checkout_quantity_value
+- runFlow:
+    when:
+      true: ${DETAIL_PHASE == "local-retry"}
+    commands:
+      - tapOn: deal-options-retry
+      - extendedWaitUntil:
+          visible: deal-option-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: true
+      - assertVisible: selected-deal-00000000-0000-0000-0000-000000010001
+      - assertVisible: deal-price-1235
+      - takeScreenshot: detail-options-local-retry-restored
+      - tapOn:
+          id: com.fandazi.app:id/deal_back
+      - extendedWaitUntil:
+          visible: store-deal-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${DETAIL_PHASE == "wrong-list-store"}
+    commands:
+      - tapOn: store-deal-00000000-0000-0000-0000-000000010001
+      - extendedWaitUntil:
+          visible: selected-deal-00000000-0000-0000-0000-000000010001
+          timeout: 30000
+      - assertVisible: deal-price-1235
+      - extendedWaitUntil:
+          visible: deal-options-retry
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: false
+      - assertNotVisible: deal-option-00000000-0000-0000-0000-000000010001
+      - takeScreenshot: detail-rejects-wrong-list-store
+      - tapOn:
+          id: com.fandazi.app:id/deal_back
+- runFlow:
+    when:
+      true: ${DETAIL_PHASE == "wrong-detail-id"}
+    commands:
+      - tapOn: store-deal-00000000-0000-0000-0000-000000010001
+      - extendedWaitUntil:
+          visible: deal-detail-retry
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: false
+      - assertNotVisible: selected-deal-00000000-0000-0000-0000-000000010002
+      - assertNotVisible: deal-price-1236
+      - takeScreenshot: detail-rejects-wrong-detail-id
+      - tapOn:
+          id: com.fandazi.app:id/deal_back
+- runFlow:
+    when:
+      true: ${DETAIL_PHASE == "missing-price"}
+    commands:
+      - tapOn: store-deal-00000000-0000-0000-0000-000000010001
+      - extendedWaitUntil:
+          visible: deal-detail-retry
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: false
+      - assertNotVisible: deal-price-0
+      - takeScreenshot: detail-rejects-missing-price

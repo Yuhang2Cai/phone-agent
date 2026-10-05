@@ -46,8 +46,9 @@ class RepositoryParsingDispatcherTest {
                 assertEquals(count,orders.size)
                 assertEquals((0 until count).map { "o$it" },orders.map { it.orderId })
                 assertTrue(orders.all { it.paidTotalCents==123 && it.vouchers.single().amountCents==123 && !it.canReview })
+                // 使用后端完整必需DTO，不能用缺字段默认值绕过新可信详情边界；原顺序/金额/线程断言保持。
                 server.enqueue(MockResponse().setBody((0 until count).joinToString(prefix="[",postfix="]") { i ->
-                    """{"publicId":"d$i","storePublicId":"s","title":"合成套餐$i","priceCents":123,"originalPriceCents":200}"""
+                    """{"publicId":"d$i","storePublicId":"s","title":"合成套餐$i","description":"合成说明","priceCents":123,"originalPriceCents":200,"inventory":10,"validFrom":"2026-01-01","validTo":"2030-12-31","active":true,"purchaseLimit":2}"""
                 }))
                 val rows=(deals.loadStoreDeals("s") as ApiResult.Success).value
                 assertEquals(count,rows.size);assertEquals("d${count-1}",rows.last().publicId)
