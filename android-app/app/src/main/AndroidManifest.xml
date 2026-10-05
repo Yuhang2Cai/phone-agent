@@ -14,8 +14,10 @@
         android:label="饭搭子 AI"
         android:supportsRtl="true"
         android:theme="@style/Theme.FandaziAi">
+        <!-- 聊天及表单需随真实IME缩小可用窗口，确保输入和发送不被键盘遮挡，不靠测试脚本收键盘掩盖。 -->
         <activity
             android:name=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

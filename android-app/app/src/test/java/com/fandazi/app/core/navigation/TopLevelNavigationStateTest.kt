@@ -76,6 +76,25 @@ class TopLevelNavigationStateTest {
         assertEquals("AI菜单必须映射正式聊天入口",R.id.agentChatFragment,f.nav.currentDestination!!.id)
     }
 
+    /** 对比输入等业务入口直接进入聊天后，首页恢复不能把聊天叶子当作公开浏览分支。 */
+    @Test fun directBusinessChatEntryReturnsHomeWithoutLosingPublicModel() = fixture { f ->
+        val original = f.catalogModel()
+        original.load(CatalogQuery(keyword="business-entry", category="火锅")); f.pump()
+        // 真实对比发送以navigate进入聊天而非点击AI菜单；保留首页根和聊天叶子来复现保存栈归属。
+        f.nav.navigate(R.id.agentChatFragment); f.pump()
+        f.select(R.id.homeFragment)
+        assertEquals("首页菜单不能恢复为跨入口聊天叶子", R.id.homeFragment, f.nav.currentDestination!!.id)
+        assertSame("恢复公开首页须保留原查询模型", original, f.catalogModel())
+        assertEquals("business-entry", f.catalogModel().state.value.query.keyword)
+        // 第一轮纠正之后继续真实四菜单往返，防止后续保存栈又映射到错误根或丢掉首页条目。
+        repeat(20) {
+            f.select(R.id.ordersFragment); f.select(R.id.profileFragment)
+            f.select(R.id.agentAssistantTab); f.select(R.id.homeFragment)
+            assertEquals(R.id.homeFragment, f.nav.currentDestination!!.id)
+            assertSame(original, f.catalogModel())
+        }
+    }
+
     /** 首页所属搜索保存独立查询；完整公开浏览分支恢复，不只恢复默认首页占位。 */
     @Test fun homeSearchBranchRestoresExactQueryAndModel() = fixture { f ->
         f.nav.navigate(R.id.searchFragment,bundleOf("initialKeyword" to "nav-search"));f.pump()

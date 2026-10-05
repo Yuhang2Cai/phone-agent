@@ -32,7 +32,8 @@ fieldTypes:
   catalogImageUrl: &catalogImageUrl
     oneOf:
       - {type: "null"}
-      - {type: string, format: uri}
+      # URI插件缺失时format可能不检查；显式scheme使绝对URI与审核根路径仍互斥，避免oneOf误拒或放行任意相对路径。
+      - {type: string, format: uri, pattern: '^[A-Za-z][A-Za-z0-9+.-]*:'}
       - {type: string, pattern: '^/catalog-images/v[0-9]+/(full|thumb)/[a-z0-9-]+-[a-f0-9]{12}\.jpg$'}
 
 commonRequest:
@@ -320,7 +321,8 @@ definitions:
       storeName: *text
       dealTitle: *text
       expiresAt: *timestamp
-      imageUrl: {type: [string, "null"], format: uri}
+      # 退款结果沿用真实套餐餐图，允许历史完整URL与受控版本路径，任意相对路径仍拒绝。
+      imageUrl: *catalogImageUrl
       imageAlt: {type: [string, "null"]}
   complaint_ticket:
     type: object

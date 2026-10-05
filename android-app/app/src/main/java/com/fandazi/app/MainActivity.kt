@@ -2,6 +2,11 @@
 package com.fandazi.app
 
 import android.os.Bundle
+import android.os.Build
+import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.activity.OnBackPressedCallback
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -21,7 +26,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import com.fandazi.app.feature.auth.SessionState
 
-/** 主导航宿主：观察既有Session，协调四Tab状态及明确认证返回；不保存令牌或重放交易。 */
+/** 主导航宿主：协调会话/四Tab/明确认证返回，并处理真实键盘遮挡安全区；不保存令牌或重放交易。 */
 class MainActivity : AppCompatActivity() {
     private lateinit var navHost: NavHostFragment
     private lateinit var bottomNavigation: com.google.android.material.bottomnavigation.BottomNavigationView
@@ -43,6 +48,39 @@ class MainActivity : AppCompatActivity() {
         override fun handleOnBackPressed() { TopLevelNavigator.select(navHost.navController, R.id.homeFragment) }
     }
 
+    /**
+     * 为所有现有页面保留真实IME以上的可用区域，避免边到边窗口把输入和发送放在键盘下。
+     *
+     * 只增加实际重叠的底部padding；系统已经resize时重叠为0，不重复扣除键盘高度。
+     * 状态栏/导航栏仍按既有页面处理，Insets原样下传；关闭键盘恢复初始padding。
+     */
+    private fun configureImeSafeArea() {
+        val content = findViewById<View>(android.R.id.content)
+        val initialBottom = content.paddingBottom
+        val location = IntArray(2)
+        fun applySafeArea(insets: WindowInsetsCompat) {
+            // Android11以上窗口度量保持完整窗口边界，结合屏幕坐标计算真实遮挡；旧系统由adjustResize处理。
+            val overlap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                content.getLocationOnScreen(location)
+                val keyboardTop = windowManager.currentWindowMetrics.bounds.bottom - insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+                (location[1] + content.height - keyboardTop).coerceAtLeast(0)
+            } else 0
+            val targetBottom = initialBottom + overlap
+            // 相同安全区不再触发布局，防止padding→layout回调循环，也不额外滚动上翻中的历史。
+            if (content.paddingBottom != targetBottom) content.updatePadding(bottom = targetBottom)
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(content) { _, insets ->
+            applySafeArea(insets)
+            // 保留子页状态栏/表单处理，不消费或伪造系统Insets。
+            insets
+        }
+        content.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
+            // 首次Insets可能早于尺寸确定，系统resize也可能随后改变外框；布局后用同一事实复核。
+            ViewCompat.getRootWindowInsets(content)?.let(::applySafeArea)
+        }
+        ViewCompat.requestApplyInsets(content)
+    }
+
 /** 装配正式导航及可见会话观察；只恢复薄入口和公开身份标记，不恢复交易事实。 */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,6 +90,7 @@ class MainActivity : AppCompatActivity() {
         pendingReturnArguments = savedInstanceState?.getBundle("pending_return_arguments")
         restoredNavigationOwner = savedInstanceState?.getString(KEY_NAVIGATION_OWNER)
         setContentView(R.layout.activity_main)
+        configureImeSafeArea()
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         bottomNavigation = findViewById(R.id.bottom_navigation)
         bottomNavigation.setOnItemSelectedListener { item: MenuItem ->

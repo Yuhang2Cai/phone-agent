@@ -1,0 +1,45 @@
+# 综合验收选择前置：保留已有两个公开ID；从空选择建立时每个ID只点一次，不消费旧套餐或订单。
+appId: com.fandazi.app
+---
+- runFlow:
+    file: advanced-17-offline.yaml
+    env:
+      MAESTRO_OFFLINE_PHASE: catalog-home-prepare
+- tapOn:
+    id: com.fandazi.app:id/store_name
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/store_compare_open
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/store_compare_open
+# 完整列表的状态说明出现后才能滚动，不用始终存在的底部按钮代表已加载。
+- extendedWaitUntil:
+    visible: 已选[02]项；至少选择2项才可对比。
+    timeout: 60000
+- runFlow:
+    when:
+      visible: 已选0项；至少选择2项才可对比。
+    commands:
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_1}
+          direction: UP
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_1}
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_2}
+          direction: DOWN
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_2}
+- tapOn:
+    id: com.fandazi.app:id/compare_start
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/compare_buy
+      enabled: true
+    timeout: 30000
+# 若已有两个ID属于其它选择，正向列身份断言会失败，不能把数量正确当身份正确。
+- assertVisible: compare-column-${MAESTRO_DEAL_1}
+- assertVisible: compare-column-${MAESTRO_DEAL_2}
+- takeScreenshot: delivery-real-online-selected-deals

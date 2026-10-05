@@ -55,9 +55,12 @@ object TopLevelNavigator {
             restoreState=true
             popUpTo(controller.graph.id){inclusive=false;saveState=true}
         })
-        // 首页Tab恢复搜索/门店完整公开分支；AI/订单/我的显式入口必须回正式根，不被已保存卡片详情替代。
-        // 原详情的普通返回仍沿原栈；只有用户重新选择顶层入口时才丢弃其已退出的子页。
-        if(target!=R.id.homeFragment && controller.currentDestination?.id!=target)controller.popBackStack(target,false,false)
+        // 首页Tab仍恢复搜索/门店完整公开分支；其业务输入可能直接进入聊天，保存栈会连同聊天叶子恢复。
+        // 恢复后核对叶子归属：首页只有公开分支可保留，跨入口聊天必须弹回原首页，不能只把菜单染成选中。
+        // AI/订单/我的显式入口仍回正式根；正常详情返回不变，清理仅发生在用户明确重选顶层入口时。
+        val restored = controller.currentDestination?.id
+        val needsRoot = if (target == R.id.homeFragment) rootForDestination(restored) != target else restored != target
+        if (needsRoot) controller.popBackStack(target, false, false)
         return true
     }
     /** 薄恢复仅保存身份种类和公开用户名，不保存令牌/邮件/订单事实；令牌版本只在Activity内存比较。 */
