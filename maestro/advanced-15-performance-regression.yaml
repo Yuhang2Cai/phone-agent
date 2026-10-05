@@ -1,0 +1,129 @@
+# 九项组合入口：运行器保持同一实际账号/应用任务，阶段之间只做明确网络故障与真实进程重建。
+# 本流程仅文字聊天与公开浏览；禁止录音、ASR、自动确认或自动交易。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${COMBINATION_PHASE == "burst"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: hello
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - extendedWaitUntil:
+          visible: 组合突发接收完成
+          timeout: 30000
+      - takeScreenshot: combined-burst-terminal
+      - extendedWaitUntil:
+          visible: 你好，我是饭搭子助手。
+          timeout: 60000
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_error_card
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: combined draft retained
+      - hideKeyboard
+      - takeScreenshot: combined-burst-real-http-reply
+- runFlow:
+    when:
+      true: ${COMBINATION_PHASE == "history"}
+    commands:
+      - runFlow: advanced-15-chat-history.yaml
+- runFlow:
+    when:
+      true: ${COMBINATION_PHASE == "tabs"}
+    commands:
+      - repeat:
+          times: 20
+          commands:
+            - tapOn:
+                id: com.fandazi.app:id/homeFragment
+            - extendedWaitUntil:
+                visible:
+                  id: com.fandazi.app:id/store_name
+                timeout: 30000
+            - tapOn:
+                id: com.fandazi.app:id/ordersFragment
+            - extendedWaitUntil:
+                visible:
+                  id: com.fandazi.app:id/orders_empty_state
+                timeout: 30000
+            - tapOn:
+                id: com.fandazi.app:id/profileFragment
+            - tapOn:
+                id: com.fandazi.app:id/agentAssistantTab
+            - assertVisible:
+                id: com.fandazi.app:id/agent_chat_input
+                text: combined draft retained
+      - takeScreenshot: combined-tabs-chat-retained
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+- runFlow:
+    when:
+      true: ${COMBINATION_PHASE == "filter-images"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/category_drink
+      - assertVisible: 正在加载门店
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - takeScreenshot: combined-filter-latest-real-images
+      - tapOn:
+          id: com.fandazi.app:id/store_name
+          index: 0
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/deal_action
+          timeout: 30000
+      - takeScreenshot: combined-real-store-deal-images
+- runFlow:
+    when:
+      true: ${COMBINATION_PHASE == "detail-failure"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/deal_action
+          index: 0
+      - extendedWaitUntil:
+          visible: deal-options-retry
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_title
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: false
+      - takeScreenshot: combined-detail-local-failure
+      - tapOn:
+          id: com.fandazi.app:id/deal_purchase_bar
+      - assertNotVisible:
+          id: com.fandazi.app:id/checkout_quantity_value
+- runFlow:
+    when:
+      true: ${COMBINATION_PHASE == "detail-retry"}
+    commands:
+      - tapOn: deal-options-retry
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/deal_purchase_bar
+            enabled: true
+          timeout: 30000
+      - takeScreenshot: combined-detail-local-retry
+      - tapOn:
+          id: com.fandazi.app:id/deal_back
+      - back
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+          text: combined draft retained
+      - assertNotVisible: 确认支付
+      - assertNotVisible: 确认退款
+      - takeScreenshot: combined-return-no-stale-action

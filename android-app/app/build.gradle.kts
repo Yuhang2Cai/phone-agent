@@ -9,6 +9,11 @@ plugins {
 val debugApiBaseUrl = providers.gradleProperty("debugApiBaseUrl")
     .orElse("http://10.0.2.2:8080/api/")
     .get()
+// 测量可独占本机只读回放端口；使用直连避免全局代理把Perfetto的localhost连接导向业务夹具。
+// 未传专用属性时沿用debug入口，debug和release的业务入口、签名、依赖及压缩策略保持既有装配。
+val benchmarkApiBaseUrl = providers.gradleProperty("benchmarkApiBaseUrl")
+    .orElse(debugApiBaseUrl)
+    .get()
 val releaseApiBaseUrl = providers.gradleProperty("releaseApiBaseUrl")
     .orElse("https://api.example.invalid/api/")
     .get()
@@ -48,13 +53,13 @@ android {
                 "proguard-rules.pro"
             )
         }
-        // 基线与增量使用release相同压缩策略，只增加本机测量签名、18080入口及可分析Manifest。
+        // 测量使用release相同压缩策略，仅增加本机签名、可配置只读回放入口及可分析Manifest。
         create("benchmark") {
             initWith(getByName("release"))
             isDebuggable = false
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release")
-            buildConfigField("String", "API_BASE_URL", "\"$debugApiBaseUrl\"")
+            buildConfigField("String", "API_BASE_URL", "\"$benchmarkApiBaseUrl\"")
         }
     }
 
