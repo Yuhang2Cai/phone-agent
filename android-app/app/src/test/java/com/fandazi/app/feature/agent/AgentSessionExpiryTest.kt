@@ -33,6 +33,8 @@ class AgentSessionExpiryTest {
     @Before fun prepare() {
         server = MockWebServer().also { it.start() }
         app = RuntimeEnvironment.getApplication() as FandaziApplication
+        // 身份失效场景要求请求真实发出；新离线门禁的网络前置明确设为在线。
+        com.fandazi.app.core.cache.CatalogOnlineTestEnvironment.establish(app)
         storage = TestStorage()
         val gateway = object : AuthGateway {
             override suspend fun login(username: String, password: String) =

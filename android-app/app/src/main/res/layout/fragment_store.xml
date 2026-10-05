@@ -9,6 +9,8 @@
     <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/group_buy_background">
     <!-- 套餐列表的显式对比入口，实际选择/数量在已确认选择页管理。 -->
     <TextView android:id="@+id/store_compare_open" style="@style/CompareButton" android:text="选择套餐对比" android:layout_marginHorizontal="12dp" android:layout_marginVertical="8dp" />
+    <!-- 公开缓存来源提示位于现有内容区之外，不增加新的回收列表类型。 -->
+    <include layout="@layout/include_catalog_cache_banner" />
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/store_content" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
         android:background="@color/group_buy_background" android:clipToPadding="false" android:paddingBottom="16dp" />

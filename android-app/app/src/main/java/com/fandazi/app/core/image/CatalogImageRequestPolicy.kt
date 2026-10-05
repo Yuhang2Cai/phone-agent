@@ -21,7 +21,9 @@ enum class CatalogImageRequestMode { NORMAL, RETRY }
 data class CatalogImageRequestOptions(
     val resourceVersion:String?=null,
     val access:CatalogImageAccess=CatalogImageAccess.Public,
-    val mode:CatalogImageRequestMode=CatalogImageRequestMode.NORMAL
+    val mode:CatalogImageRequestMode=CatalogImageRequestMode.NORMAL,
+    // 离线只读公开图片缓存，未命中不能联网补图或绕过版本签名。
+    val onlyFromCache:Boolean=false
 )
 
 /** 输出Glide附加签名与缓存开关；URL仍由Glide作为资源键的一部分，不在这里替换。 */

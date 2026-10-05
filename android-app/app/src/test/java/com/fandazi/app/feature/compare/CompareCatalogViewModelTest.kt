@@ -1,6 +1,8 @@
 // 对比目录状态回归：受控仓库验证完整性、顺序与取消代次，数据仅在测试内合成。
 package com.fandazi.app.feature.compare
 import androidx.lifecycle.*
+import com.fandazi.app.core.cache.*
+import kotlinx.coroutines.flow.flowOf
 import com.fandazi.app.core.network.*
 import com.fandazi.app.feature.deal.*
 import com.fandazi.app.feature.store.*
@@ -30,6 +32,18 @@ class CompareCatalogViewModelTest {
         Dispatchers.setMain(StandardTestDispatcher(testScheduler));val deferred=CompletableDeferred<ApiResult<List<DealPackage>>>();var calls=0
         val vm=CompareCatalogViewModel(Catalog(listOf(store(a))),Buying{calls++;if(calls==1)withContext(NonCancellable){deferred.await()}else ApiResult.Success(listOf(deal(b,a)))})
         try {vm.load();runCurrent();vm.load();assertEquals(1,calls);vm.cancel();vm.load();runCurrent();assertEquals(2,calls);assertEquals(b,vm.state.value.rows.single().deal.publicId);deferred.complete(ApiResult.Success(listOf(deal(a,a))));runCurrent();assertEquals(b,vm.state.value.rows.single().deal.publicId)}finally{deferred.complete(ApiResult.Success(emptyList()));vm.cancel();runCurrent();Dispatchers.resetMain()}
+    }
+    /** 选择仍允许加入公开快照，但其事实不得获得在线资格；进入正式对比会重新读取。 */
+    @Test fun offlineSelectionKeepsSource()=runTest {
+        Dispatchers.setMain(StandardTestDispatcher(testScheduler))
+        val source=object:GroupBuyingRepository,CatalogSourceRepository {
+            override suspend fun loadStoreDeals(id:String)=ApiResult.Success(listOf(deal(a,a)))
+            override suspend fun loadDeal(id:String):ApiResult<DealPackage> = error("不应读取详情")
+            override fun observeStoreDeals(id:String)=flowOf(CatalogRead(ApiResult.Success(listOf(deal(a,a))),CatalogReadMetadata(CatalogReadStatus.OFFLINE,123L)))
+        }
+        val vm=CompareCatalogViewModel(Catalog(listOf(store(a))),source)
+        try {vm.load();runCurrent();assertEquals(CatalogReadStatus.OFFLINE,vm.state.value.rows.single().metadata.status);assertFalse(vm.state.value.rows.single().purchaseAvailable())}
+        finally {vm.cancel();Dispatchers.resetMain()}
     }
     /** 一个门店的接口返回另一门店套餐时，不能构造看似可信的店名/套餐对。 */
     @Test fun wrongOwnershipNeverBecomesSelectableFacts()=runTest {

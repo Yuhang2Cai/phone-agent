@@ -37,8 +37,8 @@ object AfterSaleImageLoader {
         // 售后快照可能含版本化站内路径，失败重试仍使用解析后的同一资源。
         val source = CatalogImageUrls.resolve(url)
         if (source == null) {
-            showState(image, "暂无图片", "点击刷新")
-            image.setOnClickListener { refreshMetadata() }
+            showState(image, if(options.onlyFromCache)"图片未缓存" else "暂无图片", if(options.onlyFromCache)""else "点击刷新")
+            if(!options.onlyFromCache)image.setOnClickListener { refreshMetadata() }
             return
         }
         showState(image, "图片加载中", "")
@@ -46,6 +46,7 @@ object AfterSaleImageLoader {
         // 普通公开餐图复用两级缓存；仅用户点击失败重试或私人访问绕过缓存，签名保持稳定。
         val plan=CatalogImageRequestPolicy.resolve(options)
         Glide.with(image).load(source)
+            .onlyRetrieveFromCache(options.onlyFromCache)
             .placeholder(image.drawable)
             .signature(ObjectKey(plan.signature))
             .skipMemoryCache(!plan.cacheEnabled)
@@ -53,9 +54,10 @@ object AfterSaleImageLoader {
             .listener(object : RequestListener<Drawable> {
                 /** 失败保持原URL与当前归属；下一次用户点击只重试本图，不自动请求。 */
                 override fun onLoadFailed(error: GlideException?, model: Any?, target: Target<Drawable>, first: Boolean): Boolean {
-                    showState(image, "图片加载失败", "点击重试")
+                    if(options.onlyFromCache)com.fandazi.app.core.cache.CatalogCacheBanner.imageMissing(image)
+                    showState(image, if(options.onlyFromCache)"图片未缓存"else "图片加载失败", if(options.onlyFromCache)""else "点击重试")
                     // Glide回调期间不能立刻发起另一请求；用户下一次点击才重新加载，避免自动重试循环。
-                    image.setOnClickListener { load(image, source, alt, options.copy(mode=CatalogImageRequestMode.RETRY), refreshMetadata) }
+                    if(!options.onlyFromCache)image.setOnClickListener { load(image, source, alt, options.copy(mode=CatalogImageRequestMode.RETRY), refreshMetadata) }
                     return true
                 }
 
@@ -85,6 +87,14 @@ object AfterSaleImageLoader {
         override fun draw(canvas: Canvas) {
             val width = bounds.width().toFloat()
             val height = bounds.height().toFloat()
+            // UI17I缺图不是餐图：白底单行说明匹配已确认状态，保留其它既有失败/缺图外观。
+            if(title=="图片未缓存") {
+                paint.color=Color.WHITE;canvas.drawRect(bounds,paint)
+                paint.color=Color.rgb(107,117,133);paint.textAlign=Paint.Align.CENTER
+                paint.textSize=12f*textSize/11f
+                canvas.drawText(title,bounds.exactCenterX(),bounds.exactCenterY()+paint.textSize*.35f,paint)
+                return
+            }
             paint.color = Color.rgb(238, 241, 244)
             canvas.drawRoundRect(bounds.left.toFloat(), bounds.top.toFloat(), bounds.right.toFloat(), bounds.bottom.toFloat(), 8f, 8f, paint)
             val size = (height * .32f).toInt()

@@ -8,6 +8,7 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.fandazi.app.core.network.ApiResult
+import com.fandazi.app.core.cache.*
 import com.fandazi.app.feature.store.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -16,7 +17,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 /** 查询状态不把加载失败当空结果；整个列表的后端顺序和内容是一次不可变快照。 */
-data class CatalogState(val query:CatalogQuery=CatalogQuery(),val stores:List<CatalogStore> = emptyList(),val loading:Boolean=false,val error:String?=null)
+data class CatalogState(val query:CatalogQuery=CatalogQuery(),val stores:List<CatalogStore> = emptyList(),val loading:Boolean=false,val error:String?=null,val metadata:CatalogReadMetadata=CatalogReadMetadata())
 
 /** 每个页面独立持有查询代次，外部读取不合作取消时也不能交付过期成功或失败。 */
 class CatalogViewModel(private val repository:CatalogRepository,private val saved:SavedStateHandle=SavedStateHandle()):ViewModel() {
@@ -36,15 +37,18 @@ class CatalogViewModel(private val repository:CatalogRepository,private val save
     fun load(query:CatalogQuery=mutable.value.query) {
         val ticket=++generation;request?.cancel()
         if(query!=mutable.value.query) rememberAnchor(ListAnchor())
-        persistQuery(query);mutable.value=CatalogState(query,loading=true)
+        // 相同条件恢复/重试保留当前事实，条件切换仍清旧行；缓存先显后由来源流更新。
+        val previous=mutable.value
+        persistQuery(query);mutable.value=CatalogState(query,stores=if(query==previous.query)previous.stores else emptyList(),loading=true,metadata=previous.metadata.copy(status=CatalogReadStatus.REFRESHING))
         request=viewModelScope.launch {
             try {
-                val result=repository.stores(query)
-                // 取消只是资源控制，代次/条件才是交付边界；迟到旧结果保持当前页面不变。
-                if(ticket!=generation || mutable.value.query!=query) return@launch
-                mutable.value=when(result) {
-                    is ApiResult.Success -> CatalogState(query,CatalogRowIdentity.stores(result.value))
-                    is ApiResult.Failure -> CatalogState(query,error="门店加载失败，点击重试")
+                repository.catalogStores(query).collect { read->
+                    // 每次缓存/在线交付都核对代次和完整查询身份，迟到旧响应不能覆盖新条件。
+                    if(ticket!=generation || mutable.value.query!=query)return@collect
+                    mutable.value=when(val result=read.result) {
+                        is ApiResult.Success->CatalogState(query,CatalogRowIdentity.stores(result.value),metadata=read.metadata)
+                        is ApiResult.Failure->CatalogState(query,error="门店加载失败，点击重试",metadata=read.metadata)
+                    }
                 }
             } catch(cancelled:CancellationException){throw cancelled}
             catch(invalid:Exception){if(ticket==generation)mutable.value=CatalogState(query,error="门店加载失败，点击重试")}

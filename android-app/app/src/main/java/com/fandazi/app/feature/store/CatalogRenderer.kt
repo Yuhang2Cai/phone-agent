@@ -20,7 +20,7 @@ object CatalogRenderer {
             card.findViewById<TextView>(R.id.store_name).text = store.name
             card.findViewById<TextView>(R.id.store_rating).text = store.rating?.let { "★ $it" } ?: "暂无评分"
             card.findViewById<TextView>(R.id.store_reviews).text = "${store.reviewCount}条评价"
-            card.findViewById<TextView>(R.id.store_distance).text = distance(store.distanceMeters)
+            card.findViewById<TextView>(R.id.store_distance).text = if(!com.fandazi.app.core.cache.CatalogNetworkAccess.available(card.context))"距离未知"else distance(store.distanceMeters)
             // 缺图仅读取这一门店的图片字段，保留原列表、筛选条件与其他卡片文本。
             val application=card.context.applicationContext as FandaziApplication
             CatalogImageMetadataRefresh.bind(card.findViewById(R.id.store_image),store.imageUrl,store.imageAlt) {

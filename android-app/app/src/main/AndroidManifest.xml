@@ -6,6 +6,8 @@
     <!-- 本地语音仅在已登录用户点击录音后申请权限，音频不上传，页面离开即取消。 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <!-- 公开缓存恢复监听只读连接状态，不申请定位、录音或后台写入能力。 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <application
         android:name=".FandaziApplication"
         android:allowBackup="true"

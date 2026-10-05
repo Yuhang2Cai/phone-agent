@@ -2,6 +2,7 @@
 package com.fandazi.app.feature.deal
 
 import androidx.lifecycle.*
+import com.fandazi.app.core.cache.*
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.feature.store.CatalogRowIdentity
@@ -33,17 +34,18 @@ class DealDetailViewModel(private val repository:GroupBuyingRepository,private v
         saved["selectedDealId"]=id;saved["storeId"]=storeId
         detailJob=viewModelScope.launch {
             try {
-                val result=repository.loadDeal(id)
-                // 协程取消不能替代代次检查：不合作的外部依赖成功/错误均不得改写新对象。
-                if(ticket!=generation)return@launch
-                if(result is ApiResult.Failure){detailFailure(ticket,"套餐详情加载失败，点击重试");return@launch}
-                val actual=(result as ApiResult.Success).value
-                DealDetailValidation.fields(actual)
-                require(actual.publicId==id){"套餐详情身份不匹配"}
-                if(storeId.isNotBlank() && storeId!=actual.storePublicId){detailFailure(ticket,"套餐与门店不匹配");return@launch}
-                // 结果构造：可信标题/价/规则先公布；选项仍在途时购买保持禁用，绝不等待列表再绘首屏。
-                mutable.value=mutable.value.copy(detail=actual,detailLoading=false,detailError=null,optionsLoading=true)
-                loadOptions(actual,ticket)
+                repository.catalogDeal(id).collect { read->
+                    if(ticket!=generation)return@collect
+                    mutable.value=mutable.value.copy(metadata=read.metadata)
+                    val result=read.result
+                    if(result is ApiResult.Failure){detailFailure(ticket,"套餐详情加载失败，点击重试");return@collect}
+                    val actual=(result as ApiResult.Success).value
+                    DealDetailValidation.fields(actual);require(actual.publicId==id){"套餐详情身份不匹配"}
+                    if(storeId.isNotBlank() && storeId!=actual.storePublicId){detailFailure(ticket,"套餐与门店不匹配");return@collect}
+                    // 来源与事实一起先显，缓存不解锁购买；在线/缓存后续交付各重新读取同店选项。
+                    mutable.value=mutable.value.copy(detail=actual,detailLoading=false,detailError=null,optionsLoading=true,metadata=read.metadata)
+                    loadOptions(actual,ticket)
+                }
             }catch(cancelled:CancellationException){throw cancelled}
             catch(invalid:Exception){detailFailure(ticket,"套餐详情信息无效，点击重试")}
         }
@@ -61,13 +63,15 @@ class DealDetailViewModel(private val repository:GroupBuyingRepository,private v
         mutable.value=mutable.value.copy(options=emptyList(),optionsLoading=true,optionsError=null)
         optionsJob=viewModelScope.launch {
             try {
-                val result=repository.loadStoreDeals(actual.storePublicId)
-                if(detailTicket!=generation || ticket!=optionsGeneration || mutable.value.detail?.publicId!=actual.publicId)return@launch
-                if(result is ApiResult.Failure){optionsFailure(detailTicket,ticket,"套餐选项加载失败，点击重试");return@launch}
-                val rows=CatalogRowIdentity.deals((result as ApiResult.Success).value,actual.storePublicId)
-                rows.forEach{DealDetailValidation.fields(it)}
-                // 当前套餐被移除时不借其他成员解锁；顺序沿用后端不可变快照，金额继续由详情和新报价决定。
-                mutable.value=mutable.value.copy(options=rows,optionsLoading=false,optionsError=if(rows.none{it.publicId==actual.publicId})"当前套餐已不可购买，点击重试"else null)
+                repository.catalogStoreDeals(actual.storePublicId).collect { read->
+                    if(detailTicket!=generation || ticket!=optionsGeneration || mutable.value.detail?.publicId!=actual.publicId)return@collect
+                    mutable.value=mutable.value.copy(optionsMetadata=read.metadata)
+                    val result=read.result
+                    if(result is ApiResult.Failure){optionsFailure(detailTicket,ticket,"套餐选项加载失败，点击重试");return@collect}
+                    val rows=CatalogRowIdentity.deals((result as ApiResult.Success).value,actual.storePublicId);rows.forEach{DealDetailValidation.fields(it)}
+                    // 原成员/归属成立也只允许在线事实解锁，恢复购买仍是后续新报价与确认。
+                    mutable.value=mutable.value.copy(options=rows,optionsLoading=false,optionsError=if(rows.none{it.publicId==actual.publicId})"当前套餐已不可购买，点击重试"else null,optionsMetadata=read.metadata)
+                }
             }catch(cancelled:CancellationException){throw cancelled}
             catch(invalid:Exception){optionsFailure(detailTicket,ticket,"套餐选项信息无效，点击重试")}
         }

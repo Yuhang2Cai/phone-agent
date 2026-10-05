@@ -19,6 +19,8 @@ import com.fandazi.app.FandaziApplication
 import com.fandazi.app.R
 import com.fandazi.app.databinding.FragmentStoreBinding
 import kotlinx.coroutines.launch
+import com.fandazi.app.core.cache.*
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 
 /** 所有点击携带完整公开UUID，页签返回恢复锚点，不增加外卖加购或交易写入。 */
 class StoreFragment:Fragment(R.layout.fragment_store) {
@@ -62,11 +64,15 @@ class StoreFragment:Fragment(R.layout.fragment_store) {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.state.collect {state->
+                    val source=if(!state.summaryMetadata.canTransact)state.summaryMetadata else state.metadata
+                    CatalogCacheBanner.bind(view,source,retry={model.refreshAfterBusinessReturn()})
+                    CatalogImageMetadataRefresh.refreshVisible(view)
                     val anchor=model.anchor
                     adapter.submitState(state){if(!state.loading)BusinessListAnchor.restore(list,anchor,adapter.currentList.map{it.key})}
                 }
             }
         }
+        CatalogRecoveryRefresh.attach(this,{CatalogRecoveryRefresh.needed(model.state.value.metadata) || CatalogRecoveryRefresh.needed(model.state.value.summaryMetadata)},{model.refreshAfterBusinessReturn()})
         model.initialize(arguments?.getString("storePublicId").orEmpty(),CatalogQuery(
             latitude=arguments?.takeIf{it.containsKey("latitude")}?.getDouble("latitude"),longitude=arguments?.takeIf{it.containsKey("longitude")}?.getDouble("longitude")))
     }

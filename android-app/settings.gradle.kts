@@ -4,6 +4,8 @@ pluginManagement {
         eachPlugin {
             when (requested.id.id) {
                 "com.android.application", "com.android.test" -> useModule("com.android.tools.build:gradle:${requested.version}")
+                // 直接使用官方KSP插件模块，避免额外marker坐标改变解析来源。
+                "com.google.devtools.ksp" -> useModule("com.google.devtools.ksp:symbol-processing-gradle-plugin:${requested.version}")
                 "org.jetbrains.kotlin.android" -> useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
             }
         }

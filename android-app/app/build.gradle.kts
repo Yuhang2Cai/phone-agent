@@ -4,6 +4,7 @@ import java.security.MessageDigest as AsrMessageDigest
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.devtools.ksp")
 }
 
 val debugApiBaseUrl = providers.gradleProperty("debugApiBaseUrl")
@@ -104,6 +105,10 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.google.code.gson:gson:2.11.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    // 只增公开目录Room，2.7.2适配现有Kotlin/compileSdk35，避免引入工具链升级。
+    implementation("androidx.room:room-runtime:2.7.2")
+    implementation("androidx.room:room-ktx:2.7.2")
+    ksp("androidx.room:room-compiler:2.7.2")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.robolectric:robolectric:4.14.1")
@@ -139,3 +144,6 @@ val verifyLocalAsrAssets = tasks.register("verifyLocalAsrAssets") {
     }
 }
 tasks.named("preBuild") { dependsOn(verifyLocalAsrAssets) }
+
+// 导出真实编译schema供字段审核及版本迁移记录，不保存运行期缓存数据。
+ksp { arg("room.schemaLocation", "$projectDir/schemas") }

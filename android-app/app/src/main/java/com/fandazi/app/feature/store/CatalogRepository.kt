@@ -51,6 +51,15 @@ interface CatalogRepository {
     suspend fun dishes(id: String): ApiResult<List<CatalogDish>>
     /** 读取服务器最新评价，数量摘要由门店接口的全量统计提供。 */
     suspend fun reviews(id: String): ApiResult<List<CatalogReview>>
+    /** 默认无缓存适配，既有实现及测试替身保持原单次读取；装饰器覆盖为缓存先显流。 */
+    fun observeStores(query:CatalogQuery):kotlinx.coroutines.flow.Flow<com.fandazi.app.core.cache.CatalogRead<List<CatalogStore>>> = kotlinx.coroutines.flow.flow {emit(com.fandazi.app.core.cache.CatalogRead.online(stores(query)))}
+    /** 摘要来源与事实一起交付，原错误/取消保留。 */
+    fun observeStore(id:String,query:CatalogQuery):kotlinx.coroutines.flow.Flow<com.fandazi.app.core.cache.CatalogRead<CatalogStore>> = kotlinx.coroutines.flow.flow {emit(com.fandazi.app.core.cache.CatalogRead.online(store(id,query)))}
+    /** 只读菜单来源流不引入交易入口。 */
+    fun observeDishes(id:String):kotlinx.coroutines.flow.Flow<com.fandazi.app.core.cache.CatalogRead<List<CatalogDish>>> = kotlinx.coroutines.flow.flow {emit(com.fandazi.app.core.cache.CatalogRead.online(dishes(id)))}
+    /** 公开评价来源流与私人反馈分离。 */
+    fun observeReviews(id:String):kotlinx.coroutines.flow.Flow<com.fandazi.app.core.cache.CatalogRead<List<CatalogReview>>> = kotlinx.coroutines.flow.flow {emit(com.fandazi.app.core.cache.CatalogRead.online(reviews(id)))}
+
 }
 
 /** 复用认证、超时和 URL 配置；JSON 非法时显式失败，不把异常变成空业务结果。 */

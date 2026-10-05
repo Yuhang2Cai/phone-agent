@@ -17,6 +17,8 @@ class DestroyedCatalogImageReleaseTest {
     /** 先建立真实图片绑定，再销毁宿主，最后清理；应取消令牌/监听并归还Drawable而不抛异常。 */
     @Test fun releaseAfterActivityDestroyedClearsBindingWithoutNewActivityManager() {
         val controller=Robolectric.buildActivity(FragmentActivity::class.java).setup()
+        // 本例验证在线缺图监听释放；离线禁重试另由Task17场景验证。
+        com.fandazi.app.core.cache.CatalogOnlineTestEnvironment.establish(controller.get())
         val image=ImageView(controller.get())
         controller.get().setContentView(image)
         CatalogImageMetadataRefresh.bind(image,null,"合成缺图"){null}

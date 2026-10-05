@@ -43,6 +43,8 @@
                     app:tint="@color/group_buy_text" />
             </FrameLayout>
 
+            <!-- UI17J：来源提示在原详情头部后，购买仍固定底部并保持只读禁用。 -->
+            <include layout="@layout/include_catalog_cache_banner" android:layout_width="match_parent" android:layout_height="70dp" android:layout_marginHorizontal="12dp" android:layout_marginTop="10dp" android:layout_marginBottom="12dp" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

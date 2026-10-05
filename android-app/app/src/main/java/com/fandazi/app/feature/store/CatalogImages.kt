@@ -34,23 +34,24 @@ object CatalogImages {
         // 公开站内小图选择Task13固定派生；私人访问保持原资源路径，不按公开目录约定改写。
         val source = if(options.access==CatalogImageAccess.Public) CatalogImageUrls.thumbnail(url) else CatalogImageUrls.resolve(url)
         if (source == null) {
-            state(image, "暂无图片，点击刷新", android.R.drawable.ic_menu_gallery)
-            image.setOnClickListener { refresh() }
+            state(image, if(options.onlyFromCache)"图片未缓存"else "暂无图片，点击刷新", android.R.drawable.ic_menu_gallery)
+            if(!options.onlyFromCache)image.setOnClickListener { refresh() }
             return
         }
         state(image, "图片加载中", android.R.drawable.ic_menu_gallery)
         image.setOnClickListener(null)
         // 占位只使用图库符号，状态通过无障碍文本表达；小区域不缩放文字或叠放两行说明。
         val plan=CatalogImageRequestPolicy.resolve(options)
-        Glide.with(image).load(source).placeholder(image.drawable)
+        Glide.with(image).load(source).onlyRetrieveFromCache(options.onlyFromCache).placeholder(image.drawable)
             .signature(ObjectKey(plan.signature))
             .skipMemoryCache(!plan.cacheEnabled)
             .diskCacheStrategy(if(plan.cacheEnabled) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
             .listener(object : RequestListener<Drawable> {
                 /** 失败保留中性告警符号，用户点击再请求，避免自动重试循环。 */
                 override fun onLoadFailed(error: GlideException?, model: Any?, target: Target<Drawable>, first: Boolean): Boolean {
-                    state(image, "图片加载失败，点击重试", android.R.drawable.ic_dialog_alert)
-                    image.setOnClickListener { thumbnail(image, source, alt, options.copy(mode=CatalogImageRequestMode.RETRY), refresh) }
+                    if(options.onlyFromCache)com.fandazi.app.core.cache.CatalogCacheBanner.imageMissing(image)
+                    state(image, if(options.onlyFromCache)"图片未缓存"else "图片加载失败，点击重试", android.R.drawable.ic_dialog_alert)
+                    if(!options.onlyFromCache)image.setOnClickListener { thumbnail(image, source, alt, options.copy(mode=CatalogImageRequestMode.RETRY), refresh) }
                     return true
                 }
                 /** 原始图片不应用占位灰色滤镜；图片描述来自当前套餐，不借用其他餐图。 */

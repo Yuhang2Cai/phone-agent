@@ -16,9 +16,13 @@ sealed interface StoreListRow {
     /** 固定结构键或完整公开UUID，供差量比较及薄锚点恢复。 */
     val key:String
     /** 查询随卡片保存，点击沿用本条所对应的定位参数，而不是迟到的外部状态。 */
-    data class Store(val value:CatalogStore,val query:CatalogQuery):StoreListRow {override val key="store:${value.publicId}"}
+    data class Store(val value:CatalogStore,val query:CatalogQuery,
+        // 来源参与差量内容比较，同一DTO从在线转快照也要更新未知距离和图片模式。
+        val source:com.fandazi.app.core.cache.CatalogReadStatus=com.fandazi.app.core.cache.CatalogReadStatus.ONLINE):StoreListRow {override val key="store:${value.publicId}"}
     /** 状态文案是页面结构，retry只表示是否允许当前查询重试，无业务事实。 */
-    data class Status(val message:String,val retry:Boolean=false):StoreListRow {override val key="status"}
+    data class Status(val message:String,val retry:Boolean=false,
+        // UI17E/F/G的空态使用列表内120dp起点，其它原加载/错误样式保持原间距。
+        val offlineEmpty:Boolean=false):StoreListRow {override val key="status"}
 }
 
 /** 实际创建/绑定诊断，供固定设备测量；不能由viewType数量推导帧或内存收益。 */
@@ -37,10 +41,12 @@ class StoreListAdapter(private val open:(CatalogStore,CatalogQuery)->Unit,privat
     /** 条件变化只提交新状态，成功集合预先复制，失败没有可执行旧卡片。 */
     fun submitState(state:CatalogState,committed:()->Unit={}) {
         val rows:List<StoreListRow> = when {
+            // 同条件刷新保留可读行；无缓存/超时效/不完整只显示真实空态。
+            state.stores.isNotEmpty()->CatalogRowIdentity.stores(state.stores).map{StoreListRow.Store(it,state.query,state.metadata.status)}
             state.loading->listOf(StoreListRow.Status("正在加载门店"))
-            state.error!=null->listOf(StoreListRow.Status(state.error,true))
+            state.error!=null->listOf(StoreListRow.Status(if(state.metadata.canTransact)state.error else com.fandazi.app.core.cache.CatalogCacheBanner.empty(state.metadata),true,offlineEmpty=!state.metadata.canTransact))
             state.stores.isEmpty()->listOf(StoreListRow.Status("没有符合条件的门店"))
-            else->CatalogRowIdentity.stores(state.stores).map{StoreListRow.Store(it,state.query)}
+            else->CatalogRowIdentity.stores(state.stores).map{StoreListRow.Store(it,state.query,state.metadata.status)}
         }
         submitList(rows,committed)
     }
@@ -61,6 +67,10 @@ class StoreListAdapter(private val open:(CatalogStore,CatalogQuery)->Unit,privat
         when(val row=getItem(position)) {
             is StoreListRow.Store->CatalogRenderer.bindStore(holder.itemView,row.value,row.query){open(row.value,row.query)}
             is StoreListRow.Status->(holder.itemView as TextView).apply {
+                // 同一状态Holder会跨在线错误/离线空态复用，每次覆盖字号和内边距，避免样式残留。
+                val density=resources.displayMetrics.density
+                setPadding(((if(row.offlineEmpty)16 else 12)*density).toInt(),((if(row.offlineEmpty)120 else 24)*density).toInt(),((if(row.offlineEmpty)16 else 12)*density).toInt(),(24*density).toInt())
+                textSize=if(row.offlineEmpty)16f else 15f
                 text=row.message;setOnClickListener(if(row.retry)View.OnClickListener{retry()} else null);isClickable=row.retry
             }
         }

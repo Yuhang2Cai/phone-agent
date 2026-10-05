@@ -21,6 +21,11 @@ interface GroupBuyingRepository {
 
     /** 按公开套餐 ID 查询详情，禁止由页面自行拼接默认套餐。 */
     suspend fun loadDeal(dealPublicId: String): ApiResult<DealPackage>
+    /** 原仓库默认单次在线事实流；缓存装饰器覆盖，不改既有调用或HTTP协议。 */
+    fun observeDeal(id:String):kotlinx.coroutines.flow.Flow<com.fandazi.app.core.cache.CatalogRead<DealPackage>> = kotlinx.coroutines.flow.flow{emit(com.fandazi.app.core.cache.CatalogRead.online(loadDeal(id)))}
+    /** 门店列表来源必须保留至详情资格校验，不能丢弃缓存标识。 */
+    fun observeStoreDeals(id:String):kotlinx.coroutines.flow.Flow<com.fandazi.app.core.cache.CatalogRead<List<DealPackage>>> = kotlinx.coroutines.flow.flow{emit(com.fandazi.app.core.cache.CatalogRead.online(loadStoreDeals(id)))}
+
 }
 
 /** 通过现有 ApiClient 访问团购目录接口。 */

@@ -14,11 +14,14 @@ data class DealDetailLoadState(
     val options:List<DealPackage> = emptyList(),
     val optionsLoading:Boolean=false,
     val optionsError:String?=null,
+    // 详情和选项各保留来源，任一缓存/在途/失败均不能开放购买。
+    val metadata:com.fandazi.app.core.cache.CatalogReadMetadata=com.fandazi.app.core.cache.CatalogReadMetadata(),
+    val optionsMetadata:com.fandazi.app.core.cache.CatalogReadMetadata=com.fandazi.app.core.cache.CatalogReadMetadata(),
 ) {
     /** 列表归属及成员验证完成后再开放入口；实际购买仍重新请求后端报价、确认和幂等写入。 */
     val purchaseReady:Boolean get() {
         val current=detail ?: return false
-        if(detailLoading || optionsLoading || detailError!=null || optionsError!=null)return false
+        if(!metadata.canTransact || !optionsMetadata.canTransact || detailLoading || optionsLoading || detailError!=null || optionsError!=null)return false
         val listed=options.singleOrNull{it.publicId==current.publicId && it.storePublicId==current.storePublicId} ?: return false
         // 两个只读响应都必须满足原可售条件；设备时间只作保守门槛，后端报价保留最终资格裁定。
         return DealDetailValidation.saleAvailable(current) && DealDetailValidation.saleAvailable(listed)

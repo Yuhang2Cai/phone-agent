@@ -15,7 +15,7 @@ import android.util.Log
 /** 目录公开餐图专用局部刷新，私人图片继续由有账户归属的显式请求入口处理。 */
 object CatalogImageMetadataRefresh {
     /** 当前视图绑定身份与其元数据任务；复用时一起取消，避免旧读取占用网络或覆盖下一条。 */
-    private class Binding { var job:Job?=null }
+    private class Binding { var job:Job?=null;var offline:Boolean=false;var rerender:(()->Unit)?=null }
     /**
      * 首次绑定实际URL；缺图点击调用request仅读取该公开对象的图片字段，null结果表示请求失败。
      * 请求成功只重绑本ImageView，不更新其他文本；新绑定或视图离开后丢弃旧响应。
@@ -27,11 +27,19 @@ object CatalogImageMetadataRefresh {
         val token=Binding()
         image.setTag(R.id.catalog_image_metadata_token,token)
         lateinit var refresh:()->Unit
+        var latestUrl=url;var latestAlt=alt
         fun render(currentUrl:String?,currentAlt:String?) {
-            if(thumbnail) CatalogImages.thumbnail(image,currentUrl,currentAlt,refresh)
-            else AfterSaleImageLoader.load(image,currentUrl,currentAlt,refresh)
+            latestUrl=currentUrl;latestAlt=currentAlt
+            token.offline=!com.fandazi.app.core.cache.CatalogNetworkAccess.available(image.context)
+            val options=CatalogImageRequestOptions(onlyFromCache=token.offline)
+            if(thumbnail) CatalogImages.thumbnail(image,currentUrl,currentAlt,options,refresh)
+            else AfterSaleImageLoader.load(image,currentUrl,currentAlt,options,refresh)
         }
+        // 仅当前附着视图保存局部重绘闭包，销毁release会移除，不建立全局强引用注册表。
+        token.rerender={render(latestUrl,latestAlt)}
         refresh=refresh@{
+            // 离线点击不得绕过图片缓存去获取元数据，也不能启动重试循环。
+            if(!com.fandazi.app.core.cache.CatalogNetworkAccess.available(image.context))return@refresh
             val owner=image.findViewTreeLifecycleOwner() ?: return@refresh
             token.job?.cancel()
             token.job=owner.lifecycleScope.launch {
@@ -51,6 +59,15 @@ object CatalogImageMetadataRefresh {
             }
         }
         render(url,alt)
+    }
+    /** 来源变化只重绑附着图片，后台HTTP失败不会由旧监听偷偷补图。 */
+    fun refreshVisible(view:android.view.View) {
+        if(view is ImageView) {
+            val token=view.getTag(R.id.catalog_image_metadata_token) as? Binding
+            val offline=!com.fandazi.app.core.cache.CatalogNetworkAccess.available(view.context)
+            if(token!=null && token.offline!=offline){token.job?.cancel();token.rerender?.invoke()}
+        }
+        if(view is android.view.ViewGroup)for(i in 0 until view.childCount)refreshVisible(view.getChildAt(i))
     }
     /** Holder回收/页面销毁释放当前图片读取、令牌、Drawable和事件；不影响共享公开磁盘缓存。 */
     fun release(image:ImageView) {

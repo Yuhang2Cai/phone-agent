@@ -21,6 +21,8 @@ import com.fandazi.app.feature.home.CatalogViewModel
 import com.fandazi.app.feature.store.CatalogQuery
 import com.fandazi.app.feature.store.CatalogRenderer
 import kotlinx.coroutines.launch
+import com.fandazi.app.core.cache.*
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fandazi.app.feature.store.*
@@ -80,13 +82,21 @@ class SearchFragment : Fragment(R.layout.fragment_search) {
                 setOnClickListener { when (index) { 0 -> controls.average(); 1 -> controls.distance(); else -> controls.filter() } }
             })
         }
+        CatalogRecoveryRefresh.attach(this,{CatalogRecoveryRefresh.needed(model.state.value.metadata)},{model.load()})
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.state.collect { state ->
+                    CatalogCacheBanner.bind(view,state.metadata,retry={model.load()})
+                    CatalogImageMetadataRefresh.refreshVisible(view)
                     categoryViews.zip(CatalogControls.CATEGORIES).forEach { (item, label) -> CatalogRenderer.selection(item, state.query.category == label) }
                     binding.resultCount.text = if (state.loading || state.error != null) "" else "找到相关门店 ${state.stores.size} 个"
                     binding.searchStatus.visibility = View.GONE
                     (binding.filterRow.getChildAt(0) as TextView).text = when(state.query.sort) { "PRICE_ASC" -> "人均↑"; "PRICE_DESC" -> "人均↓"; else -> "人均⌄" }
+                    // 离线快照没有实时位置和距离资格；搜索页与首页都关闭距离排序，保留其它条件。
+                    binding.filterRow.getChildAt(1).apply {
+                        isEnabled=state.metadata.canTransact && CatalogNetworkAccess.available(requireContext())
+                        alpha=if(isEnabled)1f else .5f
+                    }
                     val anchor=model.anchor
                     adapter.submitState(state) {
                         // 差量提交后按公开键恢复；加载/错误不把状态行位置覆盖成功列表锚点。

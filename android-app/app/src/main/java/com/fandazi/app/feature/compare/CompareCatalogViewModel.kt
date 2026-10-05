@@ -1,6 +1,7 @@
 // 对比选择目录状态：只读加载后端完整门店/套餐列表，保留服务端顺序；依赖原目录仓库，不持久化DTO。
 package com.fandazi.app.feature.compare
 import androidx.lifecycle.*
+import com.fandazi.app.core.cache.*
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.feature.deal.GroupBuyingRepository
 import com.fandazi.app.feature.store.*
@@ -19,15 +20,18 @@ class CompareCatalogViewModel(private val catalog:CatalogRepository,private val 
     fun load(){if(job?.isActive==true)return;val ticket=++generation;mutable.value=mutable.value.copy(loading=true,error=false)
         job=viewModelScope.launch {
             try {
-                when(val result=catalog.stores(CatalogQuery())) {
+                // 门店与套餐都经来源接口读取；旧仓库替身仍由兼容扩展适配，不能丢快照标记。
+                val storeRead=catalog.catalogStores(CatalogQuery()).last()
+                when(val result=storeRead.result) {
                     is ApiResult.Failure->if(ticket==generation)mutable.value=mutable.value.copy(loading=false,error=true)
                     is ApiResult.Success->{
                         // 多门店允许跨店比较；最多四个只读请求并发，awaitAll保持目录与套餐原返回顺序。
                         val limit=Semaphore(4)
-                        val responses=coroutineScope{result.value.map{store->async{limit.withPermit{store to buying.loadStoreDeals(store.publicId)}}}.awaitAll()}
-                        val failed=responses.any{it.second is ApiResult.Failure}
-                        val rows=responses.flatMap{(store,deals)->(deals as? ApiResult.Success)?.value.orEmpty().map{deal->
-                            require(deal.storePublicId==store.publicId){"套餐归属无效"};CompareDealFacts(deal,store.name)
+                        val responses=coroutineScope{result.value.map{store->async{limit.withPermit{store to buying.catalogStoreDeals(store.publicId).last()}}}.awaitAll()}
+                        val failed=responses.any{it.second.result is ApiResult.Failure}
+                        val rows=responses.flatMap{(store,deals)->(deals.result as? ApiResult.Success)?.value.orEmpty().map{deal->
+                            require(deal.storePublicId==store.publicId){"套餐归属无效"};CompareDealFacts(deal,store.name,metadata=
+                                if(!storeRead.metadata.canTransact)storeRead.metadata else deals.metadata)
                         }}
                         require(rows.map{it.deal.publicId}.distinct().size==rows.size){"套餐身份重复"}
                         if(ticket==generation)mutable.value=CompareCatalogState(rows,false,failed)

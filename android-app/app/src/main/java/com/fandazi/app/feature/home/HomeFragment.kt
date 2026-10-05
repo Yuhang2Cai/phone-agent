@@ -16,6 +16,8 @@ import com.fandazi.app.databinding.FragmentHomeBinding
 import com.fandazi.app.feature.store.CatalogQuery
 import com.fandazi.app.feature.store.CatalogRenderer
 import kotlinx.coroutines.launch
+import com.fandazi.app.core.cache.*
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fandazi.app.feature.store.*
@@ -67,12 +69,20 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
             })
         }
+        CatalogRecoveryRefresh.attach(this,{CatalogRecoveryRefresh.needed(model.state.value.metadata)},{model.load()})
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.state.collect { state ->
+                    CatalogCacheBanner.bind(view,state.metadata,retry={model.load()})
+                    CatalogImageMetadataRefresh.refreshVisible(view)
                     categories.zip(CatalogControls.CATEGORIES).forEach { (item, label) -> CatalogRenderer.selection(item, label == state.query.category) }
+                    // 离线范围是当前已选城市的公开快照，不承诺附近实时距离；保留真实cityCode。
+                    binding.homeLocationTitle.text=if(state.metadata.canTransact)"●  附近⌄"else "当前城市"
                     binding.homeCity.text = state.query.cityCode ?: "选择城市"
-                    binding.sortAverage.text = when (state.query.sort) { "PRICE_ASC" -> "人均↑"; "PRICE_DESC" -> "人均↓"; else -> "人均⌄" }
+                    binding.sortAverage.text = when (state.query.sort) { "PRICE_ASC" -> "人均↑"; "PRICE_DESC" -> "人均↓"; else -> if(state.metadata.canTransact)"人均⌄"else "综合排序" }
+                    // 请求状态与实际平台连通性共同约束距离入口，断网回调处理前也不能申请距离排序。
+                    binding.sortDistance.isEnabled=state.metadata.canTransact && CatalogNetworkAccess.available(requireContext())
+                    binding.sortDistance.alpha=if(binding.sortDistance.isEnabled)1f else .5f
                     val anchor=model.anchor
                     adapter.submitState(state) {
                         // 差量提交后按公开键恢复；加载/错误不把状态行位置覆盖成功列表锚点。

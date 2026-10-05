@@ -22,6 +22,7 @@ import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.feature.auth.SessionState
 import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import kotlinx.coroutines.launch
+import com.fandazi.app.core.cache.*
 
 /**
  * 展示后端返回的团购套餐详情。
@@ -86,11 +87,17 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
                 model.state.collect { state -> renderState(view,state) }
             }
         }
+        CatalogRecoveryRefresh.attach(this,{CatalogRecoveryRefresh.needed(model.state.value.metadata) || CatalogRecoveryRefresh.needed(model.state.value.optionsMetadata)},{model.retryDetail()})
         model.initialize(arguments?.getString("dealPublicId").orEmpty(),arguments?.getString("storePublicId").orEmpty())
     }
 
     /** 当前快照按详情/选项/购买三段绘制；恢复购买只有归属及可售门槛通过后才能消费标记。 */
     private fun renderState(view:View,state:DealDetailLoadState) {
+        val source=if(!state.metadata.canTransact)state.metadata else state.optionsMetadata
+        CatalogCacheBanner.bind(view,source,detail=true,retry={model.retryDetail()})
+        CatalogImageMetadataRefresh.refreshVisible(view)
+        // 网络失败撤销登录继续标志；恢复不能自动重放报价或导航，用户需再次明确点购买。
+        if(CatalogRecoveryRefresh.needed(source))arguments?.putBoolean("resumePurchase",false)
         if(state.detail==null) {
             showLoadError(view,state.detailError ?: "正在加载套餐",state.detailError!=null)
             renderedDetail=null
@@ -99,6 +106,10 @@ class DealDetailFragment : Fragment(R.layout.fragment_deal_detail) {
         }
         renderDealOptions(view,state)
         view.findViewById<View>(R.id.deal_purchase_bar).isEnabled=state.purchaseReady
+        view.findViewById<TextView>(R.id.deal_purchase).apply {
+            text=if(!source.canTransact)"联网后购买"else state.detail?.let{"立即购买  ${it.priceText()}"} ?: "立即购买"
+            backgroundTintList=android.content.res.ColorStateList.valueOf(ContextCompat.getColor(context,if(state.purchaseReady)R.color.group_buy_orange else R.color.group_buy_muted))
+        }
         view.findViewById<View>(R.id.deal_compare_add).isEnabled=state.detail!=null
         // 只读首屏不能自动恢复购买；重新登录后仍需成功加载同店可售列表并重新报价。
         val deal=state.detail

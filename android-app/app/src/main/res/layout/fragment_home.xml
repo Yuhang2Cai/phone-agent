@@ -18,7 +18,7 @@
         android:paddingBottom="10dp">
 
         <LinearLayout android:id="@+id/home_location" android:layout_width="88dp" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="vertical">
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●  附近⌄" android:textColor="@color/surface_card" android:textSize="16sp" android:textStyle="bold" />
+            <TextView android:id="@+id/home_location_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●  附近⌄" android:textColor="@color/surface_card" android:textSize="16sp" android:textStyle="bold" />
             <!-- 城市从实际目录选择；初始未选择时不制造北京市或任何默认所在城市。 -->
             <TextView android:id="@+id/home_city" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:text="选择城市" android:textColor="#D1E5DE" android:textSize="11sp" />
         </LinearLayout>
@@ -46,6 +46,8 @@
         <TextView android:id="@+id/open_filter" style="@style/GroupBuyFilter" android:drawableEnd="@drawable/ic_filter" android:drawablePadding="5dp" android:text="筛选" />
     </LinearLayout>
 
+    <!-- 公开缓存来源提示位于现有内容区之外，不增加新的回收列表类型。 -->
+    <include layout="@layout/include_catalog_cache_banner" />
     <!-- 固定视图身份供返回恢复滚动状态，内容仍由真实目录绑定。 -->
     <!-- 有界纵向回收列表保留原结果区内边距，固定筛选控件不进入重复业务行。 -->
     <androidx.recyclerview.widget.RecyclerView android:id="@+id/home_store_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingBottom="16dp" />

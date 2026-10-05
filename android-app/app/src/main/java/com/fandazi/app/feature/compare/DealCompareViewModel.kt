@@ -35,10 +35,11 @@ class DealCompareViewModel(private val repository:DealCompareRepository,private 
         update(id){it.copy(loading=true,error=null)}
         jobs[id]=viewModelScope.launch {
             try {
-                val result=repository.load(id)
-                if(pageTicket!=generation || tickets[id]!=ticket || id !in mutable.value.ids)return@launch
-                when(result){is ApiResult.Success->{require(result.value.deal.publicId.equals(id,true)){"响应套餐不匹配"};update(id){it.copy(facts=result.value,loading=false,error=null)}}
-                    is ApiResult.Failure->update(id){it.copy(loading=false,error="读取失败，点击重试")}}
+                repository.observe(id).collect { read->
+                    if(pageTicket!=generation || tickets[id]!=ticket || id !in mutable.value.ids)return@collect
+                    when(val result=read.result){is ApiResult.Success->{require(result.value.deal.publicId.equals(id,true)){"响应套餐不匹配"};update(id){it.copy(facts=result.value.copy(metadata=read.metadata),loading=false,error=null)}}
+                        is ApiResult.Failure->update(id){it.copy(loading=false,error="读取失败，点击重试")}}
+                }
             }catch(cancelled:CancellationException){throw cancelled}
             catch(invalid:Exception){if(pageTicket==generation && tickets[id]==ticket)update(id){it.copy(loading=false,error="套餐信息无效，点击重试")}}
         }

@@ -4,6 +4,8 @@ package com.fandazi.app.feature.store
 import androidx.lifecycle.*
 import androidx.lifecycle.viewmodel.CreationExtras
 import com.fandazi.app.core.network.ApiResult
+import com.fandazi.app.core.cache.*
+import kotlinx.coroutines.flow.map
 import com.fandazi.app.feature.deal.GroupBuyingRepository
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
@@ -17,7 +19,7 @@ enum class StoreTab(val label:String) {DEALS("优惠"),DISHES("菜品"),REVIEWS(
 /** 摘要及列表各自加载/失败，不因局部失败把其他可信区改成假成功。 */
 data class StoreBrowseState(val storeId:String="",val query:CatalogQuery=CatalogQuery(),val tab:StoreTab=StoreTab.DEALS,
     val summary:CatalogStore?=null,val summaryError:Boolean=false,val summaryLoading:Boolean=true,
-    val loading:Boolean=true,val error:Boolean=false,val rows:List<StoreDetailRow> = emptyList())
+    val loading:Boolean=true,val error:Boolean=false,val rows:List<StoreDetailRow> = emptyList(),val metadata:CatalogReadMetadata=CatalogReadMetadata(),val summaryMetadata:CatalogReadMetadata=CatalogReadMetadata())
 
 /** 页面生命周期保留状态；公开数据只在内存，进程重建仅重读导航门店及薄页签。 */
 class StoreBrowseViewModel(private val catalog:CatalogRepository,private val buying:GroupBuyingRepository,private val saved:SavedStateHandle=SavedStateHandle()):ViewModel() {
@@ -48,44 +50,42 @@ class StoreBrowseViewModel(private val catalog:CatalogRepository,private val buy
     /** 只更新门店摘要；评价在途/成功不因摘要晚到再次读取，评分摘要由独立行差量显示。 */
     fun loadSummary() {
         val before=mutable.value;val ticket=++summaryGeneration;summaryJob?.cancel()
-        mutable.value=before.copy(summaryLoading=true,summaryError=false,summary=null)
+        mutable.value=before.copy(summaryLoading=true,summaryError=false,summaryMetadata=before.summaryMetadata.copy(status=CatalogReadStatus.REFRESHING))
         summaryJob=viewModelScope.launch {
             try {
-                val result=catalog.store(before.storeId,before.query)
-                if(ticket!=summaryGeneration || mutable.value.storeId!=before.storeId)return@launch
-                mutable.value=when(result) {
-                    is ApiResult.Success->{require(result.value.publicId==before.storeId);mutable.value.copy(summary=result.value.copy(reviewDistribution=result.value.reviewDistribution.toList()),summaryLoading=false,summaryError=false)}
-                    is ApiResult.Failure->mutable.value.copy(summary=null,summaryLoading=false,summaryError=true)
+                catalog.catalogStore(before.storeId,before.query).collect { read->
+                    if(ticket!=summaryGeneration || mutable.value.storeId!=before.storeId)return@collect
+                    mutable.value=when(val result=read.result) {
+                        is ApiResult.Success->{require(result.value.publicId==before.storeId);mutable.value.copy(summary=result.value.copy(reviewDistribution=result.value.reviewDistribution.toList()),summaryLoading=false,summaryError=false,summaryMetadata=read.metadata)}
+                        is ApiResult.Failure->mutable.value.copy(summary=null,summaryLoading=false,summaryError=true,summaryMetadata=read.metadata)
+                    }
                 }
             }catch(cancelled:CancellationException){throw cancelled}
             catch(invalid:Exception){if(ticket==summaryGeneration)mutable.value=mutable.value.copy(summary=null,summaryLoading=false,summaryError=true)}
         }
     }
-    /** 切换先清旧行，取消读取并固定门店/页签/代次；force是用户显式重试，不被去重吞掉。 */
+    /** 换页签清旧行，同页签刷新保留完整公开快照及锚点；取消读取并核对门店/页签/代次。 */
     fun select(tab:StoreTab,force:Boolean=false) {
         if(!force && tab==mutable.value.tab && tabJob?.isActive==true)return
         if(!force && tab==mutable.value.tab && !mutable.value.loading && !mutable.value.error)return
         val ticket=++generation;tabJob?.cancel();val id=mutable.value.storeId
-        saved["tab"]=tab.ordinal;mutable.value=mutable.value.copy(tab=tab,loading=true,error=false,rows=emptyList())
+        val before=mutable.value
+        // 恢复或明确重试相同页签时，已有完整集合保持只读；换页签绝不能借用上一页签成员。
+        saved["tab"]=tab.ordinal;mutable.value=before.copy(tab=tab,loading=true,error=false,
+            rows=if(tab==before.tab)before.rows else emptyList(),
+            metadata=before.metadata.copy(status=CatalogReadStatus.REFRESHING))
         tabJob=viewModelScope.launch {
             try {
-                val result:ApiResult<List<StoreDetailRow>> = when(tab) {
-                    StoreTab.DEALS->when(val r=buying.loadStoreDeals(id)) {
-                        is ApiResult.Failure->r
-                        is ApiResult.Success->ApiResult.Success(CatalogRowIdentity.deals(r.value,id).map{StoreDetailRow.Deal(it)})
-                    }
-                    StoreTab.DISHES->when(val r=catalog.dishes(id)) {
-                        is ApiResult.Failure->r
-                        is ApiResult.Success->ApiResult.Success(CatalogRowIdentity.dishes(r.value).map{StoreDetailRow.Dish(it,id)})
-                    }
-                    StoreTab.REVIEWS->when(val r=catalog.reviews(id)) {
-                        is ApiResult.Failure->r
-                        is ApiResult.Success->ApiResult.Success(CatalogRowIdentity.reviews(r.value,id).map{StoreDetailRow.Review(it)})
-                    }
+                val reads=when(tab) {
+                    StoreTab.DEALS->buying.catalogStoreDeals(id).map{r->r.map{CatalogRowIdentity.deals(it,id).map{deal->StoreDetailRow.Deal(deal) as StoreDetailRow}}}
+                    StoreTab.DISHES->catalog.catalogDishes(id).map{r->r.map{CatalogRowIdentity.dishes(it).map{dish->StoreDetailRow.Dish(dish,id) as StoreDetailRow}}}
+                    StoreTab.REVIEWS->catalog.catalogReviews(id).map{r->r.map{CatalogRowIdentity.reviews(it,id).map{review->StoreDetailRow.Review(review) as StoreDetailRow}}}
                 }
-                // 代次校验独立于网络取消，迟到旧门店或旧Tab不得污染当前页面事实。
-                if(ticket!=generation || mutable.value.storeId!=id || mutable.value.tab!=tab)return@launch
-                mutable.value=when(result){is ApiResult.Success->mutable.value.copy(loading=false,error=false,rows=result.value.toList());is ApiResult.Failure->mutable.value.copy(loading=false,error=true,rows=emptyList())}
+                reads.collect { read->
+                    // 同一页签的每个来源阶段均核对门店/代次，不按到达顺序拼接数据。
+                    if(ticket!=generation || mutable.value.storeId!=id || mutable.value.tab!=tab)return@collect
+                    mutable.value=when(val result=read.result){is ApiResult.Success->mutable.value.copy(loading=false,error=false,rows=result.value.toList(),metadata=read.metadata);is ApiResult.Failure->mutable.value.copy(loading=false,error=true,rows=emptyList(),metadata=read.metadata)}
+                }
             }catch(cancelled:CancellationException){throw cancelled}
             catch(invalid:Exception){if(ticket==generation)mutable.value=mutable.value.copy(loading=false,error=true,rows=emptyList())}
         }

@@ -18,6 +18,8 @@ import com.fandazi.app.feature.support.AfterSaleRepository
 import com.fandazi.app.feature.support.HttpAfterSaleRepository
 
 class FandaziApplication : Application() {
+    /** 仅新增公开库懒装配；第一次目录IO调用才打开，不改原加密会话启动策略。 */
+    private val publicCatalogDatabase by lazy { com.fandazi.app.core.cache.CatalogDatabase.create(this) }
     /** 记忆属于独立Agent，Android只通过Spring代理读取和管理。 */
     lateinit var memoryRepository: com.fandazi.app.feature.memory.MemoryRepository
         private set
@@ -45,7 +47,13 @@ class FandaziApplication : Application() {
 // 初始化组件与页面状态。
     override fun onCreate() {
         super.onCreate()
+        // 唯一HTTP客户端仅新增发包前写门禁，公开GET用于恢复，不建立任何待发送队列。
+        val guardedClient=okhttp3.OkHttpClient.Builder()
+            .addInterceptor(com.fandazi.app.core.network.OfflineWriteInterceptor(canWrite={com.fandazi.app.core.cache.CatalogNetworkAccess.available(this)},connected={com.fandazi.app.core.cache.CatalogNetworkAccess.connected(this)}))
+            .addInterceptor { chain->chain.proceed(chain.request()).also {if(it.isSuccessful && (chain.request().method=="GET" || chain.request().url.encodedPath.startsWith("/api/auth/")))com.fandazi.app.core.cache.CatalogNetworkAccess.observedHttpSuccess()} }
+            .build()
         apiClient = ApiClient(
+            okHttpClient=guardedClient,
             baseUrl = BuildConfig.API_BASE_URL,
             tokenProvider = { sessionRepository.tokenOrNull() },
             // 普通业务请求与Agent保持唯一身份源；回调携带实际请求令牌，迟到旧401由身份仓库拒绝误注销。
@@ -53,9 +61,11 @@ class FandaziApplication : Application() {
         )
         sessionRepository = SessionRepository(ApiAuthGateway(apiClient), EncryptedSessionStorage(this))
         memoryRepository = com.fandazi.app.feature.memory.MemoryRepository(apiClient)
-        groupBuyingRepository = HttpGroupBuyingRepository(apiClient)
+        // 公开只读装饰器共享缓存；所有受保护仓库仍直接走原认证客户端。
+        val catalogCache=com.fandazi.app.core.cache.CatalogCacheEngine(com.fandazi.app.core.cache.RoomCatalogCacheStore {publicCatalogDatabase},onStorageFailure={android.util.Log.w("CatalogCache","公开缓存存储失败："+it)})
+        groupBuyingRepository = com.fandazi.app.feature.deal.CachedGroupBuyingRepository(HttpGroupBuyingRepository(apiClient),catalogCache)
         // 复用同一 ApiClient，保留游客公开读取和已登录用户的统一认证处理。
-        catalogRepository = com.fandazi.app.feature.store.HttpCatalogRepository(apiClient)
+        catalogRepository = com.fandazi.app.feature.store.CachedCatalogRepository(com.fandazi.app.feature.store.HttpCatalogRepository(apiClient),catalogCache)
         // Task6 只接入真实 Spring 购买接口，不能使用固定套餐或测试仓库作为运行期兜底。
         purchaseRepository = HttpPurchaseRepository(apiClient)
         // 只接入本人真实订单/券读取，不引入延期二维码或模拟核销调用入口。
@@ -63,6 +73,7 @@ class FandaziApplication : Application() {
         // 售后页面使用统一认证客户端，防止页面自行拼接令牌或维护第二套服务地址。
         afterSaleRepository = HttpAfterSaleRepository(apiClient)
         agentRepository = HttpAgentRepository(
+            client=guardedClient,
             baseUrl = BuildConfig.API_BASE_URL,
             tokenProvider = { sessionRepository.tokenOrNull() },
             // HTTP与SSE认证拒绝同步唯一身份源；401对应旧令牌时由仓库拒绝误注销。

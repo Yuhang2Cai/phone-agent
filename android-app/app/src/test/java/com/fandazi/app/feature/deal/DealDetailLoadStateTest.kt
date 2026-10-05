@@ -76,6 +76,9 @@ class DealDetailLoadStateTest {
         private val activity get()=controller.get()
         private val nav get()=(activity.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment).navController
         fun start() {
+            // 本组测试在线请求/返回时序；平台也必须在线，否则新增离线恢复会真实发起另一次只读刷新。
+            // 保留原summaryCalls与购买门禁断言，不能把环境不一致解释成取消正式恢复逻辑。
+            com.fandazi.app.core.cache.CatalogOnlineTestEnvironment.establish(app)
             fun replace(name:String,value:Any){FandaziApplication::class.java.getDeclaredField(name).apply{isAccessible=true;originals[name]=get(app);set(app,value)}}
             val storage=object:SessionStorage {
                 override val initializationError:Throwable?=null

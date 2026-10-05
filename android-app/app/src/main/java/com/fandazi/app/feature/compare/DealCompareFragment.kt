@@ -11,6 +11,7 @@ import com.fandazi.app.*
 import com.fandazi.app.core.image.CatalogImageMetadataRefresh
 import com.fandazi.app.core.network.ApiResult
 import kotlinx.coroutines.launch
+import com.fandazi.app.core.cache.*
 
 /** 独立列错误可重试，未知人数不推算；返回/重建重新读取实际价格与资格。 */
 class DealCompareFragment:Fragment(R.layout.fragment_deal_compare) {
@@ -24,7 +25,7 @@ class DealCompareFragment:Fragment(R.layout.fragment_deal_compare) {
         view.findViewById<View>(R.id.compare_return).setOnClickListener{findNavController().navigateUp()}
         view.findViewById<View>(R.id.compare_retry_all).setOnClickListener{model.state.value.ids.forEach(model::retry)}
         view.findViewById<View>(R.id.compare_ask).setOnClickListener{
-            if(model.state.value.columns.all{!it.loading && it.error==null && it.facts!=null}) {
+            if(model.state.value.columns.all{!it.loading && it.error==null && it.facts?.metadata?.canTransact==true}) {
                 // 问AI进入可编辑页，只带公开选择，无自动发送或价格授权。
                 val main=requireActivity() as MainActivity
                 if(main.applicationSession().state.value !is com.fandazi.app.feature.auth.SessionState.Authenticated)main.openProtectedDestination(R.id.compareQuestionFragment)
@@ -32,16 +33,20 @@ class DealCompareFragment:Fragment(R.layout.fragment_deal_compare) {
             }
         }
         view.findViewById<View>(R.id.compare_buy).setOnClickListener{if(model.state.value.columns.any{it.canPurchase})findNavController().navigate(R.id.comparePurchaseFragment)}
+        CatalogRecoveryRefresh.attach(this,{model.state.value.columns.any{it.facts?.metadata?.let(CatalogRecoveryRefresh::needed)==true || it.error!=null}},{model.state.value.ids.forEach(model::retry)})
         viewLifecycleOwner.lifecycleScope.launch{viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){model.state.collect{render(view,it)}}}
     }
     /** 每次真正回到页面重读权威事实，薄选择保存顺序，原列读不能赋予交易授权。 */
     override fun onResume(){super.onResume();model.initialize(selection.selection.value.ids)}
     /** 全局加载/全错与逐列成功分开，不按响应到达顺序移动列。 */
     private fun render(view:View,state:DealCompareState) {
+        val snapshot=state.columns.firstOrNull{it.facts!=null && !it.facts.metadata.canTransact}?.facts?.metadata
+        snapshot?.let{CatalogNetworkAccess.record(it)}
+        CatalogImageMetadataRefresh.refreshVisible(view)
         val allLoading=state.columns.isNotEmpty() && state.columns.all{it.loading && it.facts==null}
         val allError=state.columns.isNotEmpty() && state.columns.all{!it.loading && it.error!=null}
         val validCount=state.ids.size in 2..3
-        view.findViewById<TextView>(R.id.compare_hint).text=when{!validCount->"至少选择2个不同套餐";allLoading->"正在读取所选套餐最新信息…";allError->"暂时无法读取套餐信息";state.columns.any{it.facts!=null && !it.canPurchase && !it.loading && it.error==null}->"一项套餐已失效，暂不可购买。";state.ids.size==3->"3项 · 左右滑动查看第三项。";state.columns.any{it.facts?.peopleCount==null && it.facts!=null}->"未提供的字段不参与人均计算。";else->"2项 · 人均按分计算并四舍五入至2位。"}
+        view.findViewById<TextView>(R.id.compare_hint).text=when{snapshot!=null->"离线快照 · 更新于${CatalogCacheBanner.time(snapshot)}";!validCount->"至少选择2个不同套餐";allLoading->"正在读取所选套餐最新信息…";allError->"暂时无法读取套餐信息";state.columns.any{it.facts!=null && !it.canPurchase && !it.loading && it.error==null}->"一项套餐已失效，暂不可购买。";state.ids.size==3->"3项 · 左右滑动查看第三项。";state.columns.any{it.facts?.peopleCount==null && it.facts!=null}->"未提供的字段不参与人均计算。";else->"2项 · 人均按分计算并四舍五入至2位。"}
         view.findViewById<View>(R.id.compare_error).isVisible=allError
         // UI16G/H是已确认的独立状态：加载只有不可操作提示，全错只提供重试/返回，不能残留购买动作。
         view.findViewById<View>(R.id.compare_actions).isVisible=!allLoading && !allError
@@ -66,8 +71,11 @@ class DealCompareFragment:Fragment(R.layout.fragment_deal_compare) {
             state.ids.forEach{id->val card=layoutInflater.inflate(R.layout.item_compare_column,container,false);card.contentDescription="compare-column-$id";cards[id]=card;container.addView(card)}
         }
         state.columns.forEach{column->if(rendered[column.id]!=column){cards[column.id]?.let{bindColumn(it,column)};rendered[column.id]=column}}
-        view.findViewById<TextView>(R.id.compare_ask).compareEnabled(validCount && state.columns.size==state.ids.size && state.columns.all{!it.loading && it.error==null && it.facts!=null},true)
+        view.findViewById<TextView>(R.id.compare_ask).compareEnabled(validCount && state.columns.size==state.ids.size && state.columns.all{!it.loading && it.error==null && it.facts?.metadata?.canTransact==true},true)
         view.findViewById<TextView>(R.id.compare_buy).compareEnabled(state.columns.any{it.canPurchase})
+        view.findViewById<TextView>(R.id.compare_ask).text=if(snapshot!=null)"问AI需联网"else "问AI"
+        view.findViewById<TextView>(R.id.compare_buy).text=if(snapshot!=null)"联网后购买"else "查看购买"
+        view.findViewById<TextView>(R.id.compare_footer_note).text=if(snapshot!=null)"联网后重新核对套餐信息与报价。"else "选择套餐后，到详情核对最新报价。"
     }
     /** 每列全字段覆盖；失效快照可读但购买关闭，局部错误不串另一套餐照片或金额。 */
     private fun bindColumn(view:View,column:CompareColumn) {
@@ -80,7 +88,7 @@ class DealCompareFragment:Fragment(R.layout.fragment_deal_compare) {
         text(R.id.compare_contents,deal?.contents?.takeIf{it.isNotEmpty()}?.joinToString("，"){"${it.name}×${it.quantity}"} ?: "未提供")
         text(R.id.compare_validity,deal?.let{"${it.validFrom}—${it.validTo}"} ?: "未提供")
         text(R.id.compare_applicable,facts?.storeName ?: "未提供");text(R.id.compare_rules,deal?.usageRules?.takeIf{it.isNotBlank()} ?: "未提供")
-        text(R.id.compare_column_status,when{column.loading->"正在读取最新信息…";column.error!=null->column.error;column.canPurchase->"可查看购买";else->"已失效 · 购买不可用"})
+        text(R.id.compare_column_status,when{facts!=null && !facts.metadata.canTransact->"离线快照 · 仅供浏览";column.loading->"正在读取最新信息…";column.error!=null->column.error;column.canPurchase->"可查看购买";else->"已失效 · 购买不可用"})
         view.findViewById<View>(R.id.compare_column_retry).apply{isVisible=column.error!=null;setOnClickListener{model.retry(column.id)}}
         // 图片局部刷新重新核对公开ID与门店，只接受图片字段；失效/缺失保持缺图入口，不借其他列照片。
         CatalogImageMetadataRefresh.bind(view.findViewById(R.id.compare_photo),deal?.imageUrl,deal?.imageAlt){
