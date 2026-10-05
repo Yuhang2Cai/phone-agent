@@ -3,6 +3,8 @@ package com.fandazi.app.feature.search
 
 import android.os.Looper
 import android.view.View
+import androidx.recyclerview.widget.RecyclerView
+import java.util.concurrent.TimeUnit
 import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModel
@@ -107,10 +109,14 @@ class MerchantNavigationPagesTest {
             shadowOf(Looper.getMainLooper()).idle()
             assertEquals(source, host.navController.currentDestination?.id)
             assertEquals(42L, vm.merchantNavigationRequest.value?.merchantId)
-            val cards = activity.findViewById<android.widget.LinearLayout>(if(source == R.id.homeFragment) R.id.home_store_list else R.id.search_results)
-            assertTrue(cards.childCount >= 2)
-            // 点击第二张而不是默认第一张，检查现有卡片绑定到不同真实导航参数，不只检查目的地名。
-            cards.getChildAt(1).performClick()
+            val cards = activity.findViewById<RecyclerView>(if(source == R.id.homeFragment) R.id.home_store_list else R.id.search_results)
+            awaitRows(cards, 2)
+            val adapter = cards.adapter as StoreListAdapter
+            // 正式Adapter完整绑定第二行再点击；异步Diff提交完成后核对原公开ID，不依赖旧LinearLayout子树。
+            // 导航闭包仍来自真实页面View，Holder独立绑定仅替代Robolectric小窗口的不可见第二行布局。
+            val holder = adapter.onCreateViewHolder(cards, adapter.getItemViewType(1))
+            adapter.onBindViewHolder(holder, 1)
+            holder.itemView.performClick()
             shadowOf(Looper.getMainLooper()).idle()
             // 首页与搜索都使用目录第二项的同一个公开身份，不能擅自按本地价格改动顺序。
             assertEquals(R.id.storeFragment, host.navController.currentDestination?.id)
@@ -119,9 +125,12 @@ class MerchantNavigationPagesTest {
             result.complete(if(failLookup) ApiResult.Failure(ApiError.Http(404, "套餐不存在")) else ApiResult.Success(emptyList()))
             shadowOf(Looper.getMainLooper()).idle()
             if(failLookup) {
-                val content = activity.findViewById<android.widget.LinearLayout>(R.id.store_content)
-                assertEquals(1, content.childCount)
-                assertEquals("优惠 加载失败，点击重试", (content.getChildAt(0) as android.widget.TextView).text.toString())
+                val content = activity.findViewById<RecyclerView>(R.id.store_content)
+                awaitStatus(content, "优惠 加载失败，点击重试")
+                val rows = (content.adapter as StoreDetailListAdapter).currentList
+                // 摘要/页签保留可信结构，失败只占局部状态行；错误不能冒充首个套餐或清空整页。
+                assertEquals(3, rows.size)
+                assertEquals("优惠 加载失败，点击重试", (rows.last() as StoreDetailRow.Status).message)
             }
             controller.pause().resume()
             shadowOf(Looper.getMainLooper()).idle()
@@ -131,4 +140,26 @@ class MerchantNavigationPagesTest {
             controller.pause().stop().destroy()
         }
     }
+    /** 等待实际AsyncListDiffer提交；失败有明确期限，环境/线程卡住不当作业务通过。 */
+    private fun awaitRows(list: RecyclerView, minimum: Int) {
+        val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
+        while ((list.adapter?.itemCount ?: 0) < minimum && System.nanoTime() < deadline) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+        }
+        shadowOf(Looper.getMainLooper()).idle()
+        assertTrue("实际Adapter必须完成指定行数提交", (list.adapter?.itemCount ?: 0) >= minimum)
+    }
+
+    /** 加载和失败都保留三行结构，必须等待指定错误事实而不是仅等待行数；断言文案不随实现改变。 */
+    private fun awaitStatus(list: RecyclerView, message: String) {
+        val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5)
+        fun current() = ((list.adapter as? StoreDetailListAdapter)?.currentList?.lastOrNull() as? StoreDetailRow.Status)?.message
+        while (current() != message && System.nanoTime() < deadline) {
+            shadowOf(Looper.getMainLooper()).idle()
+            Thread.sleep(5)
+        }
+        assertEquals(message, current())
+    }
+
 }

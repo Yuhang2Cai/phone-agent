@@ -1,0 +1,111 @@
+# Task6 最新 APK 真实购买：套餐、门店、金额由运行器读取服务；先取消再确认，双击不得多单。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "${MAESTRO_USERNAME}"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "${MAESTRO_PASSWORD}"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_search_button"
+    timeout: 30000
+# 新全链以当前API返回的门店名称搜索，避免目录扩容后靠固定滚动预算寻找独占夹具。
+# 旧Task6/7运行器尚未传名称，保留原入口；两种入口最终均核对真实公开ID，不选第一条结果。
+- runFlow:
+    when:
+      true: ${typeof TASK6_STORE_NAME !== "undefined" && TASK6_STORE_NAME.length > 0}
+    commands:
+      - tapOn:
+          id: "com.fandazi.app:id/home_search_button"
+      - tapOn:
+          id: "com.fandazi.app:id/search_input"
+      - inputText: "${TASK6_STORE_NAME}"
+      - hideKeyboard
+      - tapOn:
+          id: "com.fandazi.app:id/search_button"
+      - extendedWaitUntil:
+          visible: "store-card-${TASK6_STORE_ID}"
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${typeof TASK6_STORE_NAME === "undefined" || TASK6_STORE_NAME.length === 0}
+    commands:
+      - scrollUntilVisible:
+          element:
+            text: "store-card-${TASK6_STORE_ID}"
+          direction: DOWN
+          timeout: 15000
+- tapOn: "store-card-${TASK6_STORE_ID}"
+- extendedWaitUntil:
+    visible: "store-deal-${TASK6_DEAL_ID}"
+    timeout: 30000
+- tapOn: "store-deal-${TASK6_DEAL_ID}"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/deal_purchase_bar"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/deal_purchase_bar"
+- extendedWaitUntil:
+    visible: "提交订单"
+    timeout: 30000
+- takeScreenshot: "UI-07-cancel-before-submit"
+- tapOn:
+    id: "com.fandazi.app:id/checkout_close"
+- assertVisible:
+    id: "com.fandazi.app:id/deal_purchase_bar"
+# 关闭弹窗后重新准备，只在本次明确提交时创建待支付订单。
+- tapOn:
+    id: "com.fandazi.app:id/deal_purchase_bar"
+- extendedWaitUntil:
+    visible: "提交订单"
+    timeout: 30000
+- runFlow:
+    when:
+      true: ${TASK6_QUANTITY == "2"}
+    commands:
+      - tapOn:
+          id: "com.fandazi.app:id/checkout_plus"
+      - extendedWaitUntil:
+          visible: "提交订单"
+          timeout: 30000
+- assertVisible: "${TASK6_TOTAL}"
+- takeScreenshot: "UI-07-confirmation"
+- doubleTapOn:
+    id: "com.fandazi.app:id/checkout_action"
+- extendedWaitUntil:
+    visible: "确认支付"
+    timeout: 30000
+- assertVisible: "${TASK6_TOTAL}"
+- assertVisible: "本页面仅用于演示，不会产生真实支付。"
+- takeScreenshot: "UI-08-payment"
+- doubleTapOn:
+    id: "com.fandazi.app:id/group_payment_action"
+- extendedWaitUntil:
+    visible: "支付成功"
+    timeout: 30000
+- assertVisible: "${TASK6_TOTAL}"
+- assertVisible: "已生成 ${TASK6_QUANTITY} 张团购券"
+- takeScreenshot: "UI-09-success"
+# O8成功后的明确返回订单必须落正式根，系统返回不能复活旧支付确认。
+- tapOn:
+    id: com.fandazi.app:id/payment_success_orders
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/group_order_state
+      text: "待使用"
+    timeout: 30000
+- takeScreenshot: tab-purchase-success-order-root
+- back
+- assertVisible:
+    id: com.fandazi.app:id/home_search_button
+- assertNotVisible: "确认支付"
+- assertNotVisible: "支付成功"
+- takeScreenshot: tab-purchase-return-no-old-payment

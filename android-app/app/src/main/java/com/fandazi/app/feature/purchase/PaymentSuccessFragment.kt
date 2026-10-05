@@ -13,6 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
+import com.fandazi.app.core.navigation.TopLevelNavigator
 import com.fandazi.app.core.network.ApiResult
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.core.image.CatalogImageMetadataRefresh
@@ -26,7 +27,8 @@ class PaymentSuccessFragment : Fragment(R.layout.fragment_payment_success) {
 
     /** 显示真实摘要、金额与全部券身份；多券从订单集合选择，单券直接打开该券。 */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.findViewById<View>(R.id.payment_success_orders).setOnClickListener { findNavController().navigate(R.id.ordersFragment) }
+        // 显式离开付款结果先删除交易叶子，再恢复订单Tab并由onResume读取最新资格；不保存旧确认。
+        view.findViewById<View>(R.id.payment_success_orders).setOnClickListener { TopLevelNavigator.select(findNavController(),R.id.ordersFragment,discardBusinessLeaf=true) }
         view.findViewById<View>(R.id.payment_success_vouchers).setOnClickListener {
             val order = viewModel.state.value.order ?: return@setOnClickListener
             if (order.status != "PAID" || order.vouchers.isEmpty()) return@setOnClickListener

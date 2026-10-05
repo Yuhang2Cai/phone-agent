@@ -4,7 +4,8 @@ package com.fandazi.app.feature.home
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -22,7 +23,10 @@ import com.fandazi.app.feature.store.*
 /** 游客可浏览；分类、排序及城市改变独立查询条件，所有卡片事实只来自服务器。 */
 class HomeFragment : Fragment(R.layout.fragment_home) {
     private val repository get() = (requireActivity().application as FandaziApplication).catalogRepository
-    private val model: CatalogViewModel by viewModels { CatalogViewModel.Factory(repository) }
+    /** 初始根Fragment不保证保留对象；导航条目的ViewModelStore随save/restore复用，薄查询/锚点也归该条目。 */
+    private val model: CatalogViewModel by lazy {
+        ViewModelProvider(findNavController().getBackStackEntry(R.id.homeFragment), CatalogViewModel.Factory(repository))[CatalogViewModel::class.java]
+    }
     // 权限启动器必须在 Fragment 创建前注册，不能等用户点击后才注册。
     private val controls = CatalogControls(this, { repository }, { model.state.value.query }, { model.load(it) })
 

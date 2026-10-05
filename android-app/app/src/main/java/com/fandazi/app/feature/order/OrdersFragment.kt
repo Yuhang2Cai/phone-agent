@@ -6,13 +6,14 @@ import android.view.View
 import android.widget.TextView
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import androidx.lifecycle.*
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.*
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
+import com.fandazi.app.core.navigation.TopLevelNavigator
 import com.fandazi.app.core.network.ApiError
 import com.fandazi.app.feature.store.*
 import com.fandazi.app.feature.voucher.*
@@ -22,7 +23,10 @@ import kotlinx.coroutines.launch
 /** 页面只消费当前认证版本的订单，空态/网络/普通错误沿用已确认原界面。 */
 class OrdersFragment:Fragment(R.layout.fragment_orders) {
     private val application get()=requireActivity().application as FandaziApplication
-    private val model:OrdersViewModel by viewModels{OrdersViewModel.Factory(application.voucherRepository,application.sessionRepository.state)}
+    /** 导航条目保留分段和内存模型；完整账号清栈销毁该Store，事实不进入Bundle/Room，onResume仍强制新读。 */
+    private val model:OrdersViewModel by lazy {
+        ViewModelProvider(findNavController().getBackStackEntry(R.id.ordersFragment),OrdersViewModel.Factory(application.voucherRepository,application.sessionRepository.state))[OrdersViewModel::class.java]
+    }
     /** 只装配一次当前视图；onResume统一首次及交易/售后返回读取，不引入第二次首屏读取。 */
     override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
         val list=view.findViewById<RecyclerView>(R.id.order_list)
@@ -41,7 +45,8 @@ class OrdersFragment:Fragment(R.layout.fragment_orders) {
             override fun onTabUnselected(tab:TabLayout.Tab)=Unit
             override fun onTabReselected(tab:TabLayout.Tab)=Unit
         })
-        view.findViewById<View>(R.id.orders_empty_browse).setOnClickListener{it.findNavController().navigate(R.id.homeFragment)}
+        // 空订单去逛逛恢复公开首页状态，不追加新的首页条目或丢掉筛选。
+        view.findViewById<View>(R.id.orders_empty_browse).setOnClickListener{TopLevelNavigator.select(it.findNavController(),R.id.homeFragment)}
         view.findViewById<View>(R.id.orders_error_retry).setOnClickListener{model.refresh(force=false)}
         view.findViewById<View>(R.id.orders_network_retry).setOnClickListener{model.refresh(force=false)}
         viewLifecycleOwner.lifecycleScope.launch {

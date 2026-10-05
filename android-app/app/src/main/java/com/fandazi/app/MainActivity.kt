@@ -2,6 +2,7 @@
 package com.fandazi.app
 
 import android.os.Bundle
+import androidx.activity.OnBackPressedCallback
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
@@ -14,11 +15,13 @@ import androidx.core.view.isVisible
 import androidx.core.os.bundleOf
 import android.util.Log
 import com.fandazi.app.core.navigation.SessionRoute
+import com.fandazi.app.core.navigation.TopLevelNavigator
 import com.fandazi.app.core.navigation.SessionRouteCoordinator
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import com.fandazi.app.feature.auth.SessionState
 
+/** 主导航宿主：观察既有Session，协调四Tab状态及明确认证返回；不保存令牌或重放交易。 */
 class MainActivity : AppCompatActivity() {
     private lateinit var navHost: NavHostFragment
     private lateinit var bottomNavigation: com.google.android.material.bottomnavigation.BottomNavigationView
@@ -28,29 +31,41 @@ class MainActivity : AppCompatActivity() {
     /** 认证清空旧栈时保留来源页面与导航参数；它们是资源引用，不是价格或授权事实。 */
     private var pendingReturnDestination: Int? = null
     private var pendingReturnArguments: Bundle? = null
+    /** 已处理的公开身份种类与用户名，用于当前Activity和薄恢复的栈隔离。 */
+    private var navigationOwner: String? = null
+    /** 完整令牌只在内存比较认证版本，不进入日志、Bundle或目录缓存。 */
+    private var navigationToken: String? = null
+    private var navigationIdentityInitialized = false
+    private var restoredNavigationOwner: String? = null
+    /** 顶层业务栈完整保存后，非首页根页的系统返回恢复首页；详情仍由NavHost正常逐级返回。 */
+    private val topLevelBack = object : OnBackPressedCallback(false) {
+        /** 只在非首页根页启用；恢复公开浏览栈，其余返回由原NavHost及系统处理。 */
+        override fun handleOnBackPressed() { TopLevelNavigator.select(navHost.navController, R.id.homeFragment) }
+    }
 
-// 初始化组件与页面状态。
+/** 装配正式导航及可见会话观察；只恢复薄入口和公开身份标记，不恢复交易事实。 */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         pendingProtectedDestination = savedInstanceState?.getInt(KEY_PENDING_DESTINATION)?.takeIf { it != 0 }
         pendingProtectedArguments = savedInstanceState?.getBundle("pending_protected_arguments")
         pendingReturnDestination = savedInstanceState?.getInt("pending_return_destination")?.takeIf { it != 0 }
         pendingReturnArguments = savedInstanceState?.getBundle("pending_return_arguments")
+        restoredNavigationOwner = savedInstanceState?.getString(KEY_NAVIGATION_OWNER)
         setContentView(R.layout.activity_main)
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         bottomNavigation = findViewById(R.id.bottom_navigation)
         bottomNavigation.setOnItemSelectedListener { item: MenuItem ->
-            // 游客也进入唯一聊天路由，由 H 登录拦截卡禁用发送；仅点击立即登录才打开认证页。
-            if (item.itemId == R.id.agentAssistantTab) {
-                if (navHost.navController.currentDestination?.id != R.id.agentChatFragment)
-                    navHost.navController.navigate(R.id.agentChatFragment)
-                return@setOnItemSelectedListener false
-            }
-            if (navHost.navController.currentDestination?.id == item.itemId) return@setOnItemSelectedListener true
-            navHost.navController.navigate(item.itemId)
-            true
+            // AI和三个普通菜单统一走明确映射，返回true让实际选中状态与正式目的地保持一致。
+            TopLevelNavigator.select(navHost.navController, item.itemId)
         }
+        bottomNavigation.setOnItemReselectedListener { item ->
+            // 重选仅核对所属Tab，不清查询、丢锚点或追加同页；详情返回仍由原返回控件处理。
+            TopLevelNavigator.select(navHost.navController, item.itemId)
+        }
+        onBackPressedDispatcher.addCallback(this, topLevelBack)
         navHost.navController.addOnDestinationChangedListener { _, destination, _ ->
+            // 只拦截非首页业务根；搜索/门店/订单详情/认证/首页退出不被此回调改变。
+            topLevelBack.isEnabled = destination.id in setOf(R.id.ordersFragment, R.id.profileFragment, R.id.agentChatFragment)
             if (destination.id != R.id.authFragment && pendingProtectedDestination != null) {
                 pendingProtectedDestination = null
                 pendingProtectedArguments = null
@@ -85,16 +100,50 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-// 处理 `navigateForSession` 相关逻辑。
+/** 会话版本变化先清旧栈/任务，再恢复明确登录入口；相同身份的普通派发不重置页面。 */
     private fun navigateForSession(state: SessionState) {
-        // 认证切换时隔离 Activity 级聊天历史；游客与不同账号不复用旧消息、卡片或 SSE 游标。
-        ViewModelProvider(this, com.fandazi.app.feature.agent.AgentViewModelFactory(
-            (application as FandaziApplication).agentRepository
-        ))[com.fandazi.app.feature.agent.AgentViewModel::class.java].bindAuthenticatedOwner(
-            (state as? SessionState.Authenticated)?.user?.username
-        )
-        // 团购身份切换只隔离聊天；旧购物车ViewModel已退役，不创建或读取旧端侧状态。
+        // 聊天/订单401的全局身份广播可能先于页面错误回调。清栈前保留当前明确根入口，避免登录误回首页。
+        // 仅保存目的地ID，不沿用旧订单、聊天、授权或失败语句；登录后新身份重新读取，不重放业务写入。
+        val rejectedRoot = navHost.navController.currentDestination?.id
+        if (state == SessionState.Unauthenticated &&
+            rejectedRoot in setOf(R.id.agentChatFragment, R.id.ordersFragment)) {
+            pendingProtectedDestination = rejectedRoot
+            pendingProtectedArguments = null
+            pendingReturnDestination = null
+            pendingReturnArguments = null
+        }
+        val controller = navHost.navController
+        val owner = TopLevelNavigator.ownerLabel(state)
+        val token = (state as? SessionState.Authenticated)?.token
+        val identityChanged = if (navigationIdentityInitialized) {
+            owner != navigationOwner || token != navigationToken
+        } else {
+            restoredNavigationOwner != null && restoredNavigationOwner != owner
+        }
+        navigationOwner = owner
+        navigationToken = token
+        navigationIdentityInitialized = true
         val desired = SessionRouteCoordinator.routeFor(state)
+        val agent = ViewModelProvider(this, com.fandazi.app.feature.agent.AgentViewModelFactory(
+            (application as FandaziApplication).agentRepository
+        ))[com.fandazi.app.feature.agent.AgentViewModel::class.java]
+        if (identityChanged) {
+            // 同账号新令牌也不能沿用旧确认/SSE/恢复任务；先解绑，随后按当前身份建立空会话。
+            agent.bindAuthenticatedOwner(null)
+            val keepIntent = (state is SessionState.Authenticated && controller.currentDestination?.id == R.id.authFragment) ||
+                (state == SessionState.Unauthenticated && controller.currentDestination?.id in setOf(R.id.agentChatFragment, R.id.ordersFragment))
+            val pending = if (keepIntent) pendingProtectedDestination else null
+            val pendingArgs = if (keepIntent) pendingProtectedArguments else null
+            val returnTo = if (keepIntent) pendingReturnDestination else null
+            val returnArgs = if (keepIntent) pendingReturnArguments else null
+            pendingProtectedDestination = null; pendingProtectedArguments = null
+            pendingReturnDestination = null; pendingReturnArguments = null
+            // 清理保存栈也清理其ViewModel。认证目标只保留用户明确入口，不能由旧Tab顺序决定。
+            TopLevelNavigator.reset(controller, if (desired == SessionRoute.AUTH) R.id.authFragment else R.id.homeFragment)
+            pendingProtectedDestination = pending; pendingProtectedArguments = pendingArgs
+            pendingReturnDestination = returnTo; pendingReturnArguments = returnArgs
+        }
+        agent.bindAuthenticatedOwner((state as? SessionState.Authenticated)?.user?.username)
         val current = when (navHost.navController.currentDestination?.id) {
             R.id.authFragment -> SessionRoute.AUTH
             R.id.homeFragment, R.id.searchFragment, R.id.storeFragment, R.id.ordersFragment,
@@ -130,20 +179,18 @@ class MainActivity : AppCompatActivity() {
             // 使返回仍回到正确业务入口，来源页重新向接口读取，不恢复旧身份或报价。
             if (returnDestination != null && returnDestination != destination &&
                 controller.currentDestination?.id != returnDestination) {
-                controller.navigate(returnDestination, returnArguments, navOptions { launchSingleTop = true })
+                val rootMenu = TopLevelNavigator.menuForRoot(returnDestination)
+                if (rootMenu != null) TopLevelNavigator.select(controller, rootMenu)
+                else controller.navigate(returnDestination, returnArguments, navOptions { launchSingleTop = true })
             }
-            controller.navigate(destination, targetArguments, navOptions { launchSingleTop = true })
+            val rootMenu = TopLevelNavigator.menuForRoot(destination)
+            if (rootMenu != null) TopLevelNavigator.select(controller, rootMenu)
+            else controller.navigate(destination, targetArguments, navOptions { launchSingleTop = true })
             return
         }
         if (!SessionRouteCoordinator.shouldNavigate(current, desired)) return
-        when (desired) {
-            SessionRoute.HOME -> navHost.navController.navigate(R.id.homeFragment, null, navOptions {
-                popUpTo(R.id.authFragment) { inclusive = true }
-            })
-            SessionRoute.AUTH -> navHost.navController.navigate(R.id.authFragment, null, navOptions {
-                popUpTo(R.id.homeFragment) { inclusive = true }
-            })
-        }
+        // 初次恢复到不匹配入口同样销毁保存栈，不能只弹活动页而遗留可restore的私人页面。
+        TopLevelNavigator.reset(controller, if (desired == SessionRoute.AUTH) R.id.authFragment else R.id.homeFragment)
     }
 
 // 处理 `applicationSession` 相关逻辑。
@@ -169,7 +216,10 @@ class MainActivity : AppCompatActivity() {
     /** 打开受保护页面；登录返回保留目标参数，不沿用过期授权或页面金额。 */
     fun openProtectedDestination(destination: Int, arguments: Bundle? = null) {
         if (applicationSession().state.value is SessionState.Authenticated) {
-            navHost.navController.navigate(destination, arguments)
+            // 我的页的订单及聊天明确入口同样复用正式Tab，防止绕过底栏监听追加另一套根页。
+            val rootMenu = TopLevelNavigator.menuForRoot(destination)
+            if (rootMenu != null) TopLevelNavigator.select(navHost.navController, rootMenu)
+            else navHost.navController.navigate(destination, arguments)
         } else {
             pendingProtectedDestination = destination
             pendingProtectedArguments = arguments?.let(::Bundle)
@@ -200,16 +250,19 @@ class MainActivity : AppCompatActivity() {
         navHost.navController.navigate(R.id.authFragment, bundleOf("require_login" to true))
     }
 
-// 处理 `onSaveInstanceState` 相关逻辑。
+/** 保存公开身份标记和明确导航引用；完整认证令牌与业务正文仍不进入Activity保存树。 */
     override fun onSaveInstanceState(outState: Bundle) {
         pendingProtectedDestination?.let { outState.putInt(KEY_PENDING_DESTINATION, it) }
         pendingProtectedArguments?.let { outState.putBundle("pending_protected_arguments", it) }
         pendingReturnDestination?.let { outState.putInt("pending_return_destination", it) }
         pendingReturnArguments?.let { outState.putBundle("pending_return_arguments", it) }
+        outState.putString(KEY_NAVIGATION_OWNER, navigationOwner ?: TopLevelNavigator.ownerLabel(applicationSession().state.value))
         super.onSaveInstanceState(outState)
     }
 
     private companion object {
+        /** 与原薄入口键独立，恢复时只判断公开归属，不提供授权能力。 */
+        const val KEY_NAVIGATION_OWNER = "navigation_public_owner"
         const val KEY_PENDING_DESTINATION = "pending_protected_destination"
     }
 }

@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.fandazi.app.FandaziApplication
 import com.fandazi.app.MainActivity
 import com.fandazi.app.R
+import com.fandazi.app.core.navigation.TopLevelNavigator
 import com.fandazi.app.feature.auth.SessionState
 import kotlinx.coroutines.launch
 
@@ -75,7 +76,8 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
         // 键盘缩放只让原底部用户跟随，不能强迫上翻用户返回底部。
         list!!.addOnLayoutChangeListener{_,_,top,_,bottom,_,oldTop,_,oldBottom->if(bottom-top!=oldBottom-oldTop && following && restoreKey==null && list?.scrollState!=RecyclerView.SCROLL_STATE_DRAGGING)scrollToBottom()}
         view.findViewById<View>(R.id.agent_chat_close).setOnClickListener{anchor->PopupMenu(requireContext(),anchor).apply{
-            menu.add("返回首页");setOnMenuItemClickListener{saveAnchor();findNavController().navigate(R.id.homeFragment);true};show()
+            // 明确返回首页也复用保存栈，避免菜单/引导回调绕过Tab导航另建首页。
+            menu.add("返回首页");setOnMenuItemClickListener{saveAnchor();TopLevelNavigator.select(findNavController(),R.id.homeFragment);true};show()
         }}
         // 保留Task14独立草稿绑定；本任务不触发录音或ASR测试，发送仍委托原业务入口。
         val app=requireActivity().application as FandaziApplication
@@ -155,7 +157,7 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
         recycler.adapter=null;recycler.recycledViewPool.clear()
         adapter=AgentMessageAdapter(::navigate,{viewModel.retry()},
             {(requireActivity() as MainActivity).openProtectedDestination(R.id.agentChatFragment)},
-            {findNavController().navigate(R.id.homeFragment)},
+            {TopLevelNavigator.select(findNavController(),R.id.homeFragment)},
             {if(voiceInput?.canSendQuickQuery()==true){sendFocus.request();viewModel.sendText(it)}})
         recycler.adapter=adapter
     }
