@@ -26,7 +26,8 @@ class AuthControllerConflictMappingTest {
         when(authService.register(any()))
                 .thenThrow(new AuthConflictException("Username or email is already in use"));
 
-        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(authService)).build();
+        // 此场景只验证账号冲突映射，刷新依赖以空行为Mock装配，不改变原断言。
+        MockMvc mockMvc = MockMvcBuilders.standaloneSetup(new AuthController(authService,org.mockito.Mockito.mock(AuthSessionService.class))).build();
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)

@@ -27,6 +27,8 @@ class SecurityErrorDispatchTest {
     @Autowired private MockMvc mvc;
     // 模拟JWT解析仅用于已停用入口拒绝测试，生产签名链由真实HTTP副链另行验证。
     @MockBean private JwtService jwt;
+    // 安全切片不启动会话数据库；新增sid依赖以Mock装配，原ERROR/退役入口边界断言不变。
+    @MockBean private com.fandazi.feature.auth.AuthSessionService sessions;
 
     /** 已鉴权请求的框架ERROR二次分发应保留503，不能改成401误使App清除登录。 */
     @Test

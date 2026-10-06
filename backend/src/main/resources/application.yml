@@ -14,6 +14,11 @@ security:
   jwt:
     secret: ${JWT_SECRET}
     expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+  session:
+    # 刷新成功后移动空闲截止；超过此天数未续期需重新输入密码。
+    idle-days: ${AUTH_SESSION_IDLE_DAYS:30}
+    # 自明确密码登录起固定上限，持续使用也不能无限延长同一会话。
+    absolute-days: ${AUTH_SESSION_ABSOLUTE_DAYS:180}
 
 seed:
   # 正常启动不导入开发数据或旧外卖历史；显式开发夹具另行准备。

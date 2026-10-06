@@ -47,10 +47,14 @@ class FandaziApplication : Application() {
 // 初始化组件与页面状态。
     override fun onCreate() {
         super.onCreate()
-        // 唯一HTTP客户端仅新增发包前写门禁，公开GET用于恢复，不建立任何待发送队列。
-        val guardedClient=okhttp3.OkHttpClient.Builder()
+        // 业务HTTP/SSE共享发包前写门禁，认证客户端独立调度；公开GET用于恢复，不建立待发送队列。
+        val authenticationClient=okhttp3.OkHttpClient.Builder()
             .addInterceptor(com.fandazi.app.core.network.OfflineWriteInterceptor(canWrite={com.fandazi.app.core.cache.CatalogNetworkAccess.available(this)},connected={com.fandazi.app.core.cache.CatalogNetworkAccess.connected(this)}))
             .addInterceptor { chain->chain.proceed(chain.request()).also {if(it.isSuccessful && (chain.request().method=="GET" || chain.request().url.encodedPath.startsWith("/api/auth/")))com.fandazi.app.core.cache.CatalogNetworkAccess.observedHttpSuccess()} }
+            .build()
+        // 密码/刷新请求独立使用无续期客户端，业务和SSE才共享身份续期拦截器，避免递归死锁。
+        val guardedClient=authenticationClient.newBuilder()
+            .addInterceptor(com.fandazi.app.core.network.SessionRenewalInterceptor { rejected -> sessionRepository.renewIfNeeded(rejected) })
             .build()
         apiClient = ApiClient(
             okHttpClient=guardedClient,
@@ -59,7 +63,9 @@ class FandaziApplication : Application() {
             // 普通业务请求与Agent保持唯一身份源；回调携带实际请求令牌，迟到旧401由身份仓库拒绝误注销。
             onUnauthorized = { rejectedToken -> sessionRepository.invalidateToken(rejectedToken) }
         )
-        sessionRepository = SessionRepository(ApiAuthGateway(apiClient), EncryptedSessionStorage(this))
+        // 不共享业务Dispatcher，避免所有普通请求等待续期时刷新被排在同一满队列尾部。
+        val authApi=ApiClient(BuildConfig.API_BASE_URL,{null},com.fandazi.app.core.network.isolatedAuthenticationClient(authenticationClient))
+        sessionRepository = SessionRepository(ApiAuthGateway(authApi), EncryptedSessionStorage(this))
         memoryRepository = com.fandazi.app.feature.memory.MemoryRepository(apiClient)
         // 公开只读装饰器共享缓存；所有受保护仓库仍直接走原认证客户端。
         val catalogCache=com.fandazi.app.core.cache.CatalogCacheEngine(com.fandazi.app.core.cache.RoomCatalogCacheStore {publicCatalogDatabase},onStorageFailure={android.util.Log.w("CatalogCache","公开缓存存储失败："+it)})

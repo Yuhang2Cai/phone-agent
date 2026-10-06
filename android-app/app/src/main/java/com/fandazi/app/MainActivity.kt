@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     private var pendingReturnArguments: Bundle? = null
     /** 已处理的公开身份种类与用户名，用于当前Activity和薄恢复的栈隔离。 */
     private var navigationOwner: String? = null
-    /** 完整令牌只在内存比较认证版本，不进入日志、Bundle或目录缓存。 */
+    /** 稳定sid用于比较身份；历史无sid才使用JWT，均只在内存比较，不进入日志、Bundle或目录缓存。 */
     private var navigationToken: String? = null
     private var navigationIdentityInitialized = false
     private var restoredNavigationOwner: String? = null
@@ -137,6 +137,8 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
+                // 重新打开时只主动维护认证，不重发消息或交易；离线失败保留身份和公开缓存。
+                launch { applicationSession().renewIfNeeded() }
                 applicationSession().state.collect(::navigateForSession)
             }
         }
@@ -156,7 +158,8 @@ class MainActivity : AppCompatActivity() {
         }
         val controller = navHost.navController
         val owner = TopLevelNavigator.ownerLabel(state)
-        val token = (state as? SessionState.Authenticated)?.token
+        // 同一sid的自动续期不等于换账号，不应因JWT字节变化清掉聊天、草稿和保存栈。
+        val token = com.fandazi.app.feature.auth.authenticationIdentity(state)
         val identityChanged = if (navigationIdentityInitialized) {
             owner != navigationOwner || token != navigationToken
         } else {
@@ -170,7 +173,7 @@ class MainActivity : AppCompatActivity() {
             (application as FandaziApplication).agentRepository
         ))[com.fandazi.app.feature.agent.AgentViewModel::class.java]
         if (identityChanged) {
-            // 同账号新令牌也不能沿用旧确认/SSE/恢复任务；先解绑，随后按当前身份建立空会话。
+            // 同账号明确重新登录的新sid也不能沿用旧确认/SSE/恢复任务；正常续期的同sid不进入此分支。
             agent.bindAuthenticatedOwner(null)
             val keepIntent = (state is SessionState.Authenticated && controller.currentDestination?.id == R.id.authFragment) ||
                 (state == SessionState.Unauthenticated && controller.currentDestination?.id in setOf(R.id.agentChatFragment, R.id.ordersFragment))

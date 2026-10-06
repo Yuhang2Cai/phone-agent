@@ -37,6 +37,15 @@ public final class AuthDtos {
         }
     }
 
-    public record AuthResponse(String token, UserResponse user) {
+    /** 刷新包保留旧字段；新增字段只用于加密认证存储，不能进入公开缓存或日志。 */
+    public record AuthResponse(String token, UserResponse user, String sessionId, String refreshToken,
+                               Long accessExpiresAtEpochMs, Long refreshExpiresAtEpochMs) {
+        /** 兼容历史单元构造和老响应，不凭空给旧JWT附加续期资格。 */
+        public AuthResponse(String token, UserResponse user) {this(token,user,null,null,null,null);}
     }
+    /** 请求标识为客户端预先加密落盘的UUID，用于轮换丢响应后的精确恢复。 */
+    public record RefreshRequest(@NotBlank @Size(max=128) String refreshToken,
+                                 @NotBlank @jakarta.validation.constraints.Pattern(regexp="[0-9a-fA-F-]{36}") String requestId) {}
+    /** 撤销只需要持有本会话刷新秘密，不依赖可能已经过期的访问JWT。 */
+    public record LogoutRequest(@NotBlank @Size(max=128) String refreshToken) {}
 }
