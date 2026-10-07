@@ -1,0 +1,13 @@
+{
+  "merge_commit": "ff6e1115c1e56513ba928c52babcd90c33529579",
+  "parents": [
+    "422381fd530daf2d0f6de70ed5c6368363570f6c",
+    "0aad72a325465f35eeb5437f38e1495bcdae7fe8"
+  ],
+  "tree": "4db19a0afbfdffe1ac90b340dc36a4fe4e5960bf",
+  "source_commit": "0aad72a325465f35eeb5437f38e1495bcdae7fe8",
+  "stash_commit": "907c3e3db89b9751388a544ad0610be54dd55664",
+  "feature_changed_files_preserved": 28,
+  "feature_index_preserved": true,
+  "other_master_untracked_preserved": true
+}

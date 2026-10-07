@@ -1,0 +1,20 @@
+{
+  "kind": "backend",
+  "command": [
+    "D:\\software\\IntelliJ IDEA 2025.2.4\\plugins\\maven\\lib\\maven3\\bin\\mvn.cmd",
+    "-o",
+    "package"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 167.8026406764984,
+  "suites": 49,
+  "tests": 200,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "device_run": false,
+  "asr_run": false,
+  "products": {
+    "backend/target/fandazi-backend-0.0.1-SNAPSHOT.jar": "74daf9f4afd1040e1fc7ab8e5f27443359f970edc715f12f0947165cf4abde89"
+  }
+}

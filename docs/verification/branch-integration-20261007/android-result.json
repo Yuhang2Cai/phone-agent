@@ -1,0 +1,34 @@
+{
+  "kind": "android",
+  "command": [
+    "D:\\project\\-Demo-master\\.runtime\\branch-integration\\source\\android-app\\gradlew.bat",
+    "testDebugUnitTest",
+    "lintDebug",
+    "assembleDebug",
+    "assembleDebugAndroidTest",
+    "--offline",
+    "--max-workers=1",
+    "--no-daemon",
+    "-Dorg.gradle.jvmargs=-Xms64m -Xmx768m -XX:MaxMetaspaceSize=512m -XX:ReservedCodeCacheSize=96m -XX:CompressedClassSpaceSize=128m -Dfile.encoding=UTF-8",
+    "-Pkotlin.compiler.execution.strategy=in-process",
+    "-PdebugApiBaseUrl=http://10.0.2.2:18080/api/",
+    "-I",
+    "D:\\project\\-Demo-master\\.runtime\\branch-integration\\source\\scripts\\Exclude-AdvancedAsrTests.init.gradle"
+  ],
+  "exit_code": 0,
+  "elapsed_s": 585.8954877853394,
+  "suites": 75,
+  "tests": 371,
+  "failures": 0,
+  "errors": 0,
+  "skipped": 0,
+  "device_run": false,
+  "asr_run": false,
+  "products": {
+    "android-app/app/build/outputs/apk/debug/app-debug.apk": "d856c44b87214c09a16cbf56e798d34290769a2298537cf641cc3e90e969a27b",
+    "android-app/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk": "c340483b2f63cc24f5e07911fe3179ab8e7cab9a7cbcd2dd39ef1efd2aa28ad7",
+    "backend/target/fandazi-backend-0.0.1-SNAPSHOT.jar": "74daf9f4afd1040e1fc7ab8e5f27443359f970edc715f12f0947165cf4abde89"
+  },
+  "lint_errors": 0,
+  "lint_warnings": 709
+}
