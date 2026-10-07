@@ -33,7 +33,7 @@ object AgentRenderRows {
         if (!authenticated) return listOf(AgentRenderRow.Guide("guide:login", true))
         val rows = mutableListOf<AgentRenderRow>()
         val lastUser = state.messages.lastOrNull { it.fromUser }?.displayKey
-        // 每条消息是父身份，卡片和进度固定归属，插入其他轮不改变其子行键。
+        // 每条消息是父身份，卡片固定归属；历史事件仍留在状态中，但不再作为完成后的进度行展示。
         state.messages.forEach { message ->
             val parent = "message:${message.displayKey}"
             rows += AgentRenderRow.Message(parent, message.text, if (message.fromUser) AgentMessageStyle.USER else AgentMessageStyle.ASSISTANT)
@@ -43,10 +43,10 @@ object AgentRenderRows {
                     AgentMessageStyle.CONTEXT, "上次查看：" + listOfNotNull(card.fields["storeName"],card.fields["title"] ?: card.fields["name"]).joinToString(" · "))
             }
             if (!message.fromUser) {
-                if (message.events.any { it.type == "progress" }) rows += progress(parent, message.events, false)
                 rows += cards(parent, message.cards, isCurrent)
             }
         }
+        // 进度只属于正在处理的当前轮；完成、失败或等待用户补充/确认后隐藏，避免在回答下面重复显示。
         // 当前轮用最近用户键固定归属；没有消息的连接阶段仍保持稳定系统键。
         val current = "message:${lastUser ?: "connection"}:current"
         if (state.isSending) rows += progress(current, state.events, true)
@@ -80,7 +80,7 @@ object AgentRenderRows {
         }
     }
 
-    /** 同run/step保留最后状态，当前与历史拥有各自父键；不让步骤标签承担身份。 */
+    /** 当前轮同run/step保留最后状态；步骤身份独立于展示文案，历史事件不经过此投影。 */
     private fun progress(parent: String, events: List<AgentEvent>, sending: Boolean): AgentRenderRow.Progress {
         val progress = events.filter { it.type == "progress" && !it.payload["stepId"].isNullOrBlank() }
             .asReversed().distinctBy { "${it.runId}:${it.payload["stepId"]}" }.asReversed()
