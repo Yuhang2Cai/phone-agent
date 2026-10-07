@@ -1,0 +1,50 @@
+# 真实账号有一张经后端模拟支付取得的可退款券；全程只准备和取消，不确认退款。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/username_input
+    timeout: 60000
+- tapOn:
+    id: com.fandazi.app:id/username_input
+- eraseText
+- setClipboard: ${MAESTRO_USERNAME}
+- pasteText
+- tapOn:
+    id: com.fandazi.app:id/password_input
+- eraseText
+- setClipboard: ${MAESTRO_PASSWORD}
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: com.fandazi.app:id/submit_button
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- runFlow:
+    file: flows/refund-greeting-phase.yaml
+    env:
+      REFUND_PHASE: voucherId
+- runFlow:
+    file: flows/refund-greeting-phase.yaml
+    env:
+      REFUND_PHASE: reason
+- runFlow:
+    file: flows/refund-greeting-phase.yaml
+    env:
+      REFUND_PHASE: confirmation
+# 再次问候应作为新任务正常完成，不能恢复已经结束的退款。
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 你好
+- extendedWaitUntil:
+    visible: 你好，我是饭搭子助手。
+    timeout: 90000
+- assertNotVisible: 处理进度
+- takeScreenshot: refund-ended-next-greeting

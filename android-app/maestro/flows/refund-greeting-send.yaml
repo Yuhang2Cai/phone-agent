@@ -1,0 +1,23 @@
+# 等输入和键盘布局稳定后点击；清空草稿是消息已真正发出的必要证据。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_input
+- eraseText
+- setClipboard: ${CHAT_TEXT}
+- pasteText
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input
+    text: ${CHAT_TEXT}
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_send
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_chat_input
+      text: ${CHAT_TEXT}
+    timeout: 10000
+- back
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input
