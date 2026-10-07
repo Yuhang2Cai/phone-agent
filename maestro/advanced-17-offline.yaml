@@ -1,0 +1,662 @@
+# Task17真实弱网/离线流程：阶段由私有运行器注入，只读截图不碰麦克风。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "warm"}
+    commands:
+      # 首次创建受控设备基线；此后所有阶段保留真实Room及页面状态。
+      - runFlow: group-buying-05-login.yaml
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - takeScreenshot: online-real-catalog
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: offline retained draft
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/store_name
+          index: 0
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_compare_open
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/store_compare_open
+      # 底部按钮在加载时也存在；等完整公开列表后再滚动，避免分批追加时错过顶部验收ID。
+      - extendedWaitUntil:
+          visible: 已选0项；至少选择2项才可对比。
+          timeout: 60000
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_1}
+          direction: DOWN
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_1}
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_2}
+          direction: DOWN
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_2}
+      - tapOn:
+          id: com.fandazi.app:id/compare_start
+      - extendedWaitUntil:
+          visible: 可查看购买
+          timeout: 30000
+      - takeScreenshot: online-comparison-before-offline
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "compare"}
+    commands:
+      - extendedWaitUntil:
+          visible: 离线快照 · 仅供浏览
+          timeout: 35000
+      - assertVisible:
+          id: com.fandazi.app:id/compare_ask
+          enabled: false
+      - assertVisible:
+          id: com.fandazi.app:id/compare_buy
+          enabled: false
+      - assertVisible: compare-column-${MAESTRO_DEAL_1}
+      - assertVisible: compare-column-${MAESTRO_DEAL_2}
+      - takeScreenshot: offline-readonly-comparison
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "home"}
+    commands:
+      - back
+      - back
+      - back
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible: 离线可浏览
+          timeout: 35000
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - assertVisible: 距离未知
+      - takeScreenshot: offline-warm-home
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "refresh"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/catalog_cache_banner
+          timeout: 10000
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: cache-first-real-refresh
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "home-state"}
+    commands:
+      - launchApp:
+          stopApp: false
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible: ${MAESTRO_EXPECTED_CACHE_TITLE}
+          timeout: 35000
+      - runFlow:
+          when:
+            true: ${MAESTRO_EXPECTED_CACHE_TITLE == "没有离线缓存" || MAESTRO_EXPECTED_CACHE_TITLE == "缓存已超过24小时" || MAESTRO_EXPECTED_CACHE_TITLE == "离线结果不完整"}
+          commands:
+            - assertNotVisible:
+                id: com.fandazi.app:id/store_name
+      - runFlow:
+          when:
+            true: ${MAESTRO_EXPECTED_CACHE_TITLE == "离线过期快照"}
+          commands:
+            - assertVisible:
+                id: com.fandazi.app:id/store_name
+            - assertVisible: 12小时前更新 · 请联网核对最新信息
+      - takeScreenshot: controlled-cache-state
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "recovered"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 35000
+      - assertNotVisible: 离线过期快照
+      - assertNotVisible: 缓存已超过24小时
+      - takeScreenshot: current-query-refreshed
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "draft"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - assertVisible: offline retained draft
+      - takeScreenshot: same-owner-draft-retained
+
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "detail"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/store_name
+          index: 0
+      - extendedWaitUntil:
+          visible: store-deal-${MAESTRO_DEAL_1}
+          timeout: 35000
+      - tapOn: store-deal-${MAESTRO_DEAL_1}
+      - extendedWaitUntil:
+          visible: 离线快照 · 仅供浏览
+          timeout: 35000
+      - assertVisible:
+          id: com.fandazi.app:id/deal_purchase_bar
+          enabled: false
+      - assertVisible: 联网后购买
+      - takeScreenshot: offline-detail-readonly
+      - back
+      - back
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "different-condition"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/category_hotpot
+      - extendedWaitUntil:
+          visible: 没有离线缓存
+          timeout: 35000
+      - assertNotVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: offline-query-isolation
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 35000
+
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "runtime-prepare"}
+    commands:
+      - launchApp:
+          stopApp: false
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - eraseText: 1000
+      - inputText: offline retained draft
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/sort_average
+      - tapOn: 人均从低到高
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - swipe:
+          start: 85%, 75%
+          end: 85%, 43%
+          duration: 700
+      - assertVisible: 人均↑
+      - takeScreenshot: current-sort-scroll-baseline
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "runtime-offline"}
+    commands:
+      - extendedWaitUntil:
+          visible: 离线.*
+          timeout: 35000
+      - assertVisible: 人均↑
+      - assertVisible:
+          id: com.fandazi.app:id/sort_distance
+          enabled: false
+      - takeScreenshot: current-sort-scroll-offline
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "runtime-restored"}
+    commands:
+      - extendedWaitUntil:
+          visible: 网络已恢复
+          timeout: 35000
+      - assertVisible: 人均↑
+      - takeScreenshot: current-sort-scroll-restored
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - assertVisible: offline retained draft
+      - takeScreenshot: continuous-network-draft-retained
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/home_search_button
+      - tapOn:
+          id: com.fandazi.app:id/search_input
+      - inputText: Task10
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/search_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - assertVisible: Task10
+      - assertVisible: 人均↑
+      - takeScreenshot: current-search-filter-online
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "search-offline"}
+    commands:
+      - extendedWaitUntil:
+          visible: 离线.*
+          timeout: 35000
+      - assertVisible: Task10
+      - assertVisible: 人均↑
+      - assertVisible:
+          text: 距离⌄
+          enabled: false
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: same-search-filter-offline
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "search-process"}
+    commands:
+      - launchApp:
+          stopApp: false
+      - extendedWaitUntil:
+          visible: Task10
+          timeout: 35000
+      - assertVisible: 人均↑
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: actual-process-offline-search-restored
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "search-restored"}
+    commands:
+      - extendedWaitUntil:
+          visible: 网络已恢复
+          timeout: 35000
+      - assertVisible: Task10
+      - assertVisible: 人均↑
+      - takeScreenshot: same-search-filter-network-restored
+      - tapOn:
+          id: com.fandazi.app:id/search_back
+
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "account-switch"}
+    commands:
+      - launchApp:
+          stopApp: false
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn:
+          id: com.fandazi.app:id/profile_logout
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/username_input
+      - setClipboard: ${MAESTRO_SWITCH_USERNAME}
+      - pasteText
+      - tapOn:
+          id: com.fandazi.app:id/password_input
+      - setClipboard: ${MAESTRO_SWITCH_PASSWORD}
+      - pasteText
+      - setClipboard: ""
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/submit_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/bottom_navigation
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - assertNotVisible: offline retained draft
+      - takeScreenshot: new-owner-old-draft-cleared
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible: 暂无订单
+          timeout: 30000
+      - takeScreenshot: new-owner-orders-empty-from-actual-backend
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - takeScreenshot: public-catalog-retained-without-clear-data
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "account-offline"}
+    commands:
+      - extendedWaitUntil:
+          visible: 离线.*
+          timeout: 35000
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - assertNotVisible: offline retained draft
+      - takeScreenshot: new-owner-same-public-cache-offline
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "account-restore-owner"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn:
+          id: com.fandazi.app:id/profile_logout
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/username_input
+      - setClipboard: ${MAESTRO_SWITCH_USERNAME}
+      - pasteText
+      - tapOn:
+          id: com.fandazi.app:id/password_input
+      - setClipboard: ${MAESTRO_SWITCH_PASSWORD}
+      - pasteText
+      - setClipboard: ""
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/submit_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/bottom_navigation
+          timeout: 30000
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - takeScreenshot: original-owner-restored-actual-online
+
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "compare-recovery-select"}
+    commands:
+      - launchApp:
+          stopApp: false
+      - runFlow:
+          when:
+            visible:
+              id: com.fandazi.app:id/compare_start
+          commands:
+            - back
+            - back
+      # 已选原ID由真实Activity恢复时直接核对；首次首页进入才建立选择，不反复切换按钮。
+      - runFlow:
+          when:
+            notVisible:
+              id: com.fandazi.app:id/compare_buy
+          commands:
+          - tapOn:
+              id: com.fandazi.app:id/store_name
+              index: 0
+          - extendedWaitUntil:
+              visible:
+                id: com.fandazi.app:id/store_compare_open
+              timeout: 30000
+          - tapOn:
+              id: com.fandazi.app:id/store_compare_open
+          - extendedWaitUntil:
+              visible: 已选0项；至少选择2项才可对比。
+              timeout: 60000
+          - scrollUntilVisible:
+              element: compare-toggle-${MAESTRO_DEAL_1}
+              direction: DOWN
+              timeout: 30000
+          # 账号切换清理旧Activity选择后建立新基线，每个原始ID仅点击一次。
+          - tapOn: compare-toggle-${MAESTRO_DEAL_1}
+          - scrollUntilVisible:
+              element: compare-toggle-${MAESTRO_DEAL_2}
+              direction: DOWN
+              timeout: 30000
+          - tapOn: compare-toggle-${MAESTRO_DEAL_2}
+          - tapOn:
+              id: com.fandazi.app:id/compare_start
+      - extendedWaitUntil:
+          visible: ¥90.00
+          timeout: 30000
+      - assertVisible: compare-column-${MAESTRO_DEAL_1}
+      - assertVisible: compare-column-${MAESTRO_DEAL_2}
+      - takeScreenshot: recovery-selection-real-online
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "compare-recovery-latest"}
+    commands:
+      - extendedWaitUntil:
+          visible: ¥95.00
+          timeout: 35000
+      - assertVisible: compare-column-${MAESTRO_DEAL_1}
+      - assertVisible: compare-column-${MAESTRO_DEAL_2}
+      - assertVisible:
+          id: com.fandazi.app:id/compare_buy
+          enabled: true
+      - takeScreenshot: restored-current-price-without-automatic-quote
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "compare-recovery-inactive"}
+    commands:
+      - extendedWaitUntil:
+          visible: 一项套餐已失效，暂不可购买。
+          timeout: 35000
+      - assertVisible: 已失效 · 购买不可用
+      - takeScreenshot: restored-actual-inactive-deal-readonly
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "compare-recovery-quote"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/compare_buy
+      - extendedWaitUntil:
+          visible: 当前价格已重新读取；请到详情核对最新报价并确认购买。
+          timeout: 30000
+      - scrollUntilVisible:
+          element: compare-toggle-${MAESTRO_DEAL_2}
+          direction: DOWN
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_2}
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/deal_purchase_bar
+            enabled: true
+          timeout: 30000
+      - assertVisible: deal-price-9500
+      - takeScreenshot: latest-detail-before-explicit-quote
+      - tapOn:
+          id: com.fandazi.app:id/deal_purchase_bar
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/checkout_quantity
+          timeout: 30000
+      - assertVisible: ¥95
+      - takeScreenshot: user-explicit-current-quote
+      - tapOn:
+          id: com.fandazi.app:id/checkout_close
+
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "search-process-prepare"}
+    commands:
+      - launchApp:
+          stopApp: false
+      # 正常启动后等实际页面出现，避免初始化/自动化桥接短暂空树误触发系统返回。
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/(homeFragment|search_back|store_back|deal_back|compare_back|checkout_close|username_input)
+          timeout: 15000
+      # 长时验收遇到会话到期时只明确重登原专属身份，不清应用或公开缓存。
+      - runFlow:
+          when:
+            visible:
+              id: com.fandazi.app:id/username_input
+          commands:
+            - runFlow: advanced-17-session-login.yaml
+      # 仪器只结束进程，系统可能恢复原详情/对比叶子；逐级返回保留Room和SavedState。
+      - repeat:
+          times: 8
+          while:
+            notVisible:
+              id: com.fandazi.app:id/homeFragment
+          commands:
+            - back
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - runFlow:
+          when:
+            visible:
+              id: com.fandazi.app:id/search_back
+          commands:
+            - tapOn:
+                id: com.fandazi.app:id/search_back
+      - tapOn:
+          id: com.fandazi.app:id/home_search_button
+      - tapOn:
+          id: com.fandazi.app:id/search_input
+      - eraseText: 1000
+      - inputText: Task10
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/search_button
+      - tapOn: 人均.*
+      - tapOn: 人均从低到高
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - assertVisible: Task10
+      - assertVisible: 人均↑
+      - takeScreenshot: actual-search-before-ordinary-process-death
+
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "catalog-home-prepare"}
+    commands:
+      - launchApp:
+          stopApp: false
+      # 正常启动后等实际页面出现，避免初始化/自动化桥接短暂空树误触发系统返回。
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/(homeFragment|search_back|store_back|deal_back|compare_back|checkout_close|username_input)
+          timeout: 15000
+      # 长时验收遇到会话到期时只明确重登原专属身份，不清应用或公开缓存。
+      - runFlow:
+          when:
+            visible:
+              id: com.fandazi.app:id/username_input
+          commands:
+            - runFlow: advanced-17-session-login.yaml
+      # 原交易/对比叶子正常返回，保留Room；不使用clearState制造冷起点。
+      - repeat:
+          times: 8
+          while:
+            notVisible:
+              id: com.fandazi.app:id/homeFragment
+          commands:
+            - back
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - takeScreenshot: actual-home-warmed-before-controlled-read
+# 短时刷新状态有独立运行入口，原组合入口仍引用同一份断言。
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "loading-cache-first" || MAESTRO_OFFLINE_PHASE == "loading-refresh" || MAESTRO_OFFLINE_PHASE == "loading-restored"}
+    file: advanced-17-loading.yaml
+
+# 网络在首页不可见期间改变，回到首页仍须读取当前网络并保留未发送草稿。
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "hidden-prepare"}
+    commands:
+      - launchApp:
+          stopApp: false
+      # 正常启动后等实际页面出现，避免初始化/自动化桥接短暂空树误触发系统返回。
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/(homeFragment|search_back|store_back|deal_back|compare_back|checkout_close|username_input)
+          timeout: 15000
+      # 长时验收遇到会话到期时只明确重登原专属身份，不清应用或公开缓存。
+      - runFlow:
+          when:
+            visible:
+              id: com.fandazi.app:id/username_input
+          commands:
+            - runFlow: advanced-17-session-login.yaml
+      # 原交易/对比叶子正常返回，保留Room；不使用clearState制造冷起点。
+      - repeat:
+          times: 8
+          while:
+            notVisible:
+              id: com.fandazi.app:id/homeFragment
+          commands:
+            - back
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - takeScreenshot: actual-home-warmed-before-controlled-read
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - eraseText: 1000
+      - inputText: hidden network retained draft
+      - hideKeyboard
+      - takeScreenshot: hidden-page-draft-before-network-loss
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "hidden-offline-return"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - extendedWaitUntil:
+          visible: 离线.*
+          timeout: 35000
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - assertVisible:
+          id: com.fandazi.app:id/sort_distance
+          enabled: false
+      - takeScreenshot: hidden-page-return-reads-current-network
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "hidden-restored"}
+    commands:
+      - extendedWaitUntil:
+          visible: 网络已恢复
+          timeout: 35000
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: hidden-page-current-facts-restored
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - assertVisible: hidden network retained draft
+      - takeScreenshot: hidden-page-unsubmitted-draft-retained

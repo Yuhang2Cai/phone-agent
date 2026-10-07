@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-21A：列表确实为空时展示；正式底栏由 MainActivity 保持订单选中。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/orders_empty_state"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center"
+    android:orientation="vertical" android:visibility="gone" android:background="@android:color/white">
+    <ImageView android:layout_width="210dp" android:layout_height="155dp" android:src="@drawable/after_sale_order_empty"
+        android:contentDescription="空订单插画" />
+    <ImageView android:layout_width="245dp" android:layout_height="30dp" android:layout_marginTop="-16dp" android:src="@drawable/after_sale_empty_shadow" android:importantForAccessibility="no" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp"
+        android:gravity="center" android:text="暂无订单" android:textColor="@color/after_sale_ink"
+        android:textSize="23sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"
+        android:gravity="center" android:text="你还没有任何订单，去发现更多美味吧"
+        android:textColor="@color/after_sale_muted" android:textSize="14sp" />
+    <TextView android:id="@+id/orders_empty_browse" android:layout_width="245dp" android:layout_height="49dp"
+        android:layout_marginTop="43dp" android:background="@drawable/after_sale_primary" android:gravity="center"
+        android:text="去逛逛" android:textColor="@android:color/white" android:textSize="17sp" />
+</LinearLayout>

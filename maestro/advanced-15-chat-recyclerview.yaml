@@ -1,0 +1,58 @@
+# 四类卡片真实链路：输入公开查询→门店/套餐卡→显式详情→返回；数据来自真实Spring/Agent。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_empty_state
+- takeScreenshot: recyclerview-empty-guide
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_input
+- inputText: ${CHAT_STORE_QUERY}
+- hideKeyboard
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_send
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_store_action
+    timeout: 60000
+- takeScreenshot: recyclerview-store-and-progress
+- tapOn:
+    id: com.fandazi.app:id/agent_store_action
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/store_title
+    timeout: 30000
+- takeScreenshot: recyclerview-explicit-store-detail
+- back
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_store_action
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_input
+- inputText: ${CHAT_DEAL_QUERY}
+- hideKeyboard
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_send
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_deal_action
+    timeout: 60000
+- takeScreenshot: recyclerview-deal-and-context
+- tapOn:
+    id: com.fandazi.app:id/agent_deal_action
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/deal_title
+    timeout: 30000
+- takeScreenshot: recyclerview-explicit-deal-detail
+- back
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_deal_action
+    timeout: 30000
+- takeScreenshot: recyclerview-detail-return

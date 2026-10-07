@@ -1,5 +1,7 @@
 # 饭搭子 AI：Android 外卖点餐 Agent 设计
 
+> **历史版本：** 本文档保留 2026-09-09 的原始产品设计记录。当前 Android UI、交互、页面状态、导航和 UI 验收标准以 [`docs/ui-redesign.md`](../../ui-redesign.md) 为准；当前技术架构以 [`docs/architecture.md`](../../architecture.md) 为准。若本文与当前文档冲突，不再作为实现依据。
+
 ## 1. 项目定位
 
 “饭搭子 AI”是一个面向个人作品集和 Android 技术面试的外卖点餐项目。项目同时强调两条主线：一套完整、可安装的 Android 用户端，以及一个能够通过受约束工具完成真实点餐闭环的 AI Agent。

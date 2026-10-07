@@ -1,0 +1,326 @@
+# Task18综合入口：固定最新APK、真实隔离服务及专属合成身份；只由明确UI点击发起消息/报价/订单。
+# 用户明确本轮ASR只实现不验证，以下只用文字编辑；录音、推理及真机性能不得算作通过。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "online"}
+    commands:
+      - runFlow: advanced-18-compare-selection.yaml
+      - tapOn:
+          id: com.fandazi.app:id/compare_ask
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_question_input
+          timeout: 30000
+      # 复用Task16已验收全选编辑/滚动按钮，避免无IME时盲目Back返回；仍不代替人工语音回填验收。
+      - longPressOn:
+          id: com.fandazi.app:id/compare_question_input
+      - runFlow:
+          when:
+            visible: Select all
+          commands:
+            - tapOn: Select all
+      - eraseText: 1
+      - setClipboard: 帮我比较这两个套餐，哪个更适合两个人？
+      - pasteText
+      - setClipboard: ""
+      - assertVisible:
+          id: com.fandazi.app:id/compare_question_input
+          text: 帮我比较这两个套餐，哪个更适合两个人？
+      - scrollUntilVisible:
+          element:
+            id: com.fandazi.app:id/compare_question_send
+          direction: DOWN
+      - takeScreenshot: delivery-explicit-edited-comparison-question
+      - tapOn:
+          id: com.fandazi.app:id/compare_question_send
+      - extendedWaitUntil:
+          visible: 正在比较2个已选套餐；清除后恢复普通聊天。
+          timeout: 30000
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_message_text
+            text: .*未提供.*
+          timeout: 120000
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_error_card
+      - takeScreenshot: delivery-real-readonly-comparison-reply
+      - tapOn:
+          id: com.fandazi.app:id/agent_compare_clear
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_compare_context
+      - longPressOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - runFlow:
+          when:
+            visible: Select all
+          commands:
+            - tapOn: Select all
+      - eraseText: 1
+      - inputText: delivery retained draft
+      - hideKeyboard
+      - takeScreenshot: delivery-unsubmitted-text-draft
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "cards"}
+    commands:
+      - longPressOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - runFlow:
+          when:
+            visible: Select all
+          commands:
+            - tapOn: Select all
+      - eraseText: 1
+      - setClipboard: 我所在城市代码是${MAESTRO_CITY_CODE}，帮我推荐火锅门店
+      - pasteText
+      - setClipboard: ""
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_store_card
+          timeout: 120000
+      - takeScreenshot: delivery-real-store-photo-cards
+      - tapOn:
+          id: com.fandazi.app:id/agent_store_action
+          index: 0
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_back
+          timeout: 30000
+      - back
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+      - longPressOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - runFlow:
+          when:
+            visible: Select all
+          commands:
+            - tapOn: Select all
+      - eraseText: 1
+      - setClipboard: 我所在城市代码是${MAESTRO_CITY_CODE}，帮我推荐火锅团购套餐
+      - pasteText
+      - setClipboard: ""
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_deal_card
+          timeout: 120000
+      - takeScreenshot: delivery-real-deal-photo-cards
+      - tapOn:
+          id: com.fandazi.app:id/agent_deal_action
+          index: 0
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/deal_title
+          timeout: 30000
+      - back
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+      - assertNotVisible: 确认支付
+      - assertNotVisible: 确认退款
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: delivery retained draft
+      - hideKeyboard
+      - takeScreenshot: delivery-card-return-keeps-history-and-draft
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "history"}
+    file: advanced-15-chat-history.yaml
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "tabs"}
+    commands:
+      # 组合返回只验证语义保持，不把这些功能截图当作正式帧耗时或真机性能。
+      - repeat:
+          times: 20
+          commands:
+            - tapOn:
+                id: com.fandazi.app:id/homeFragment
+            - extendedWaitUntil:
+                visible:
+                  id: com.fandazi.app:id/store_name
+                timeout: 30000
+            - tapOn:
+                id: com.fandazi.app:id/ordersFragment
+            - tapOn:
+                id: com.fandazi.app:id/profileFragment
+            - tapOn:
+                id: com.fandazi.app:id/agentAssistantTab
+            - assertVisible:
+                id: com.fandazi.app:id/agent_chat_input
+                text: delivery retained draft
+      - assertNotVisible: 确认退款
+      - assertNotVisible: 确认支付
+      - takeScreenshot: delivery-tabs-preserve-history-and-draft
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "offline-prepare"}
+    commands:
+      - runFlow: advanced-18-compare-selection.yaml
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "offline"}
+    file: advanced-17-offline.yaml
+    env:
+      MAESTRO_OFFLINE_PHASE: compare
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "quote"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/compare_buy
+            enabled: true
+          timeout: 35000
+      - assertVisible: compare-column-${MAESTRO_DEAL_2}
+      - takeScreenshot: delivery-recovered-without-automatic-quote
+      - tapOn:
+          id: com.fandazi.app:id/compare_buy
+      - extendedWaitUntil:
+          visible: 当前价格已重新读取；请到详情核对最新报价并确认购买。
+          timeout: 30000
+      - tapOn: compare-toggle-${MAESTRO_DEAL_2}
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/deal_purchase_bar
+            enabled: true
+          timeout: 30000
+      - assertVisible: deal-price-${MAESTRO_LATEST_PRICE_CENTS}
+      - takeScreenshot: delivery-current-detail-before-new-quote
+      - tapOn:
+          id: com.fandazi.app:id/deal_purchase_bar
+      - extendedWaitUntil:
+          visible: 提交订单
+          timeout: 30000
+      - takeScreenshot: delivery-explicit-fresh-quote
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "confirm"}
+    commands:
+      # 只对本Task专属第二套餐显式提交一单，到模拟支付页即止，绝不点击付款/核销。
+      - tapOn:
+          id: com.fandazi.app:id/checkout_action
+      - extendedWaitUntil:
+          visible: 确认支付
+          timeout: 30000
+      - assertVisible: 本页面仅用于演示，不会产生真实支付。
+      - takeScreenshot: delivery-single-explicit-order-no-payment
+# 真实Agent停止时目录仍走Spring，只对本Task身份明确发送一次；恢复不能自动重发。
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "fault-catalog"}
+    commands:
+      # 失败恢复仪器结束应用后重新打开原任务，只做返回，不清数据或重复交易。
+      - launchApp:
+          stopApp: false
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/(group_payment_back|store_back|homeFragment)
+          timeout: 15000
+      # 明确建单后当前页是待付款页；只返回目录，不点击支付，不重复报价或创建订单。
+      - runFlow:
+          when:
+            visible:
+              id: com.fandazi.app:id/group_payment_back
+          commands:
+            - tapOn:
+                id: com.fandazi.app:id/group_payment_back
+      # 首页多返回栈保留门店叶子是正常行为；先明确返回门店，才查找首页分类。
+      - runFlow:
+          when:
+            visible:
+              id: com.fandazi.app:id/store_back
+          commands:
+            - tapOn:
+                id: com.fandazi.app:id/store_back
+      - runFlow:
+          file: advanced-17-offline.yaml
+          env:
+            MAESTRO_OFFLINE_PHASE: catalog-home-prepare
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: delivery-agent-down-real-catalog-independent
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "fault-chat"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - longPressOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - runFlow:
+          when:
+            visible: Select all
+          commands:
+            - tapOn: Select all
+      - eraseText: 1
+      - inputText: hello
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_error_card
+          timeout: 120000
+      - assertNotVisible: 确认支付
+      - takeScreenshot: delivery-agent-down-real-chat-error
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "fault-restored"}
+    commands:
+      # 紧接同一故障聊天恢复服务；仪器会结束目标进程，必须放在历史和恢复断言之后。
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_chat_input
+          timeout: 30000
+      # 回到同会话后仍显示真实持久失败回复，不点击重试；源端控制器同时核对没有新增POST。
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/store_name
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      # 临时错误卡片在页面打开时清除；失败助手回复必须保留，不把旧状态当作当前服务仍停机。
+      - extendedWaitUntil:
+          visible: Agent 服务暂不可用，请稍后重试
+          timeout: 30000
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_progress_card
+      - takeScreenshot: delivery-agent-restored-without-automatic-resend
+
+# 实际键盘场景不主动收键盘：输入栏和发送必须同屏可用，截图人工核对IME上方位置。
+- runFlow:
+    when:
+      true: ${ADVANCED18_PHASE == "keyboard"}
+    commands:
+      - runFlow:
+          file: advanced-17-offline.yaml
+          env:
+            MAESTRO_OFFLINE_PHASE: catalog-home-prepare
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - longPressOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - runFlow:
+          when:
+            visible: Select all
+          commands:
+            - tapOn: Select all
+      - eraseText: 1
+      - inputText: keyboard retained draft
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+          text: keyboard retained draft
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_send
+          enabled: true
+      - takeScreenshot: delivery-real-keyboard-composer-and-send-visible
+      - hideKeyboard

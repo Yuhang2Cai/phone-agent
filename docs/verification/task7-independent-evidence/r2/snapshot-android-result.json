@@ -1,0 +1,24 @@
+{
+  "phase": "snapshot-android",
+  "cwd": "C:/fdz-build/.runtime/task7-delivery-r2/phone/android-app",
+  "exitCode": 0,
+  "arguments": [
+    "clean",
+    ":app:assembleDebug",
+    ":app:testDebugUnitTest",
+    "--rerun-tasks",
+    "--tests",
+    "com.fandazi.app.feature.voucher.VoucherRepositoryTest",
+    "--tests",
+    "com.fandazi.app.core.navigation.RegisteredBusinessRouteTest",
+    "--tests",
+    "com.fandazi.app.feature.agent.*",
+    "--tests",
+    "com.fandazi.app.feature.purchase.*",
+    "--console=plain"
+  ],
+  "finishedAt": "2026-10-02T12:44:21.1298547+08:00",
+  "executable": "C:/fdz-build/.runtime/task7-delivery-r2/phone/android-app/gradlew.bat",
+  "startedAt": "2026-10-02T12:43:49.6132355+08:00",
+  "apkSha256": "DD6441AD4AEBB8EB87E30283884B4441F80D141B4A43A9D58C262B6D0927FF6C"
+}

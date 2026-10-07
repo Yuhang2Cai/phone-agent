@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 游客登录拦截：不渲染套餐结果，只提供明确的登录入口。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/agent_login_gate"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="180dp"
+    android:background="@drawable/group_buy_card_background"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="28dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="登录后即可使用 AI 助手"
+        android:textColor="@color/group_buy_green"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:text="登录后可以查询订单、购买团购和使用团购券。"
+        android:gravity="center"
+        android:textColor="@color/group_buy_muted"
+        android:textSize="13sp" />
+    <TextView
+        android:id="@+id/agent_login_action"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="28dp"
+        android:background="@drawable/group_buy_primary_button"
+        android:gravity="center"
+        android:text="立即登录"
+        android:textColor="@color/surface_card"
+        android:textSize="14sp" />
+    <TextView android:id="@+id/agent_login_later" android:layout_width="match_parent" android:layout_height="38dp"
+        android:layout_marginTop="10dp" android:gravity="center" android:text="稍后再说"
+        android:textColor="@color/group_buy_orange" android:textSize="14sp" />
+</LinearLayout>

@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-02T19:23:58.5928652+08:00",
+  "initialSpringRefused": true,
+  "mysqlExistingContainerRunning": true,
+  "fixtures": false,
+  "initialDiagnosticAccessDeniedPreserved": true,
+  "jwtMinutes": 60,
+  "generatedLogBytes": 37204,
+  "readyVerified": false,
+  "seedEnabled": false,
+  "started": [
+    {
+      "launcherPid": 42876,
+      "role": "Spring"
+    },
+    {
+      "launcherPid": 20368,
+      "role": "Agent"
+    },
+    {
+      "launcherPid": 39792,
+      "role": "Emulator"
+    }
+  ],
+  "archivedGeneratedLogSha256": "F949EF79CE93CCDCED05202DBD49D32037FEEFB05F923E43644CB3B6F6304A4A",
+  "faults": false,
+  "initialAdbDevices": 0
+}

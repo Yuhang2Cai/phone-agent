@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- J 上下文摘要：仅显示用户确实点击查看过的公开卡片，不伪造模型已选择或已购买。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/agent_context_card" android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:minHeight="128dp" android:layout_marginBottom="14dp" android:padding="16dp"
+    android:orientation="vertical" android:background="@drawable/agent_chat_bot_bubble">
+    <TextView android:id="@+id/agent_context_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textSize="14sp" android:textStyle="bold" android:textColor="@color/group_buy_green" />
+    <TextView android:id="@+id/agent_context_body" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="12dp" android:textSize="13sp" android:textColor="@color/group_buy_muted" />
+</LinearLayout>

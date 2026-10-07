@@ -1,0 +1,112 @@
+appId: com.fandazi.app
+---
+# Task5 真实聊天：随机账号由运行器提供；游客、登录返回、空态、追问、恢复、卡片和多轮均实际操作。
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/bottom_navigation"
+    timeout: 15000
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_chat_input"
+    timeout: 10000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_login_gate"
+- assertVisible: "稍后再说"
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_deal_card"
+- takeScreenshot: "task5-H-guest"
+- tapOn:
+    id: "com.fandazi.app:id/agent_login_later"
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_login_action"
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "${TASK5_USERNAME}"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "${TASK5_PASSWORD}"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_chat_empty_state"
+    timeout: 15000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_empty_state"
+- assertVisible:
+    id: "com.fandazi.app:id/bottom_navigation"
+- takeScreenshot: "task5-A-empty"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "hello"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      text: "你好，我是饭搭子助手。"
+    timeout: 90000
+- assertNotVisible:
+    text: "AI 助手连接中断，请稍后重试"
+- takeScreenshot: "task5-C-text"
+# 使用空态既定快捷输入需要全新会话；本轮直接使用英文请求，不依赖中文输入法注入。
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "recommend group buying deals nearby"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      text: ".*请提供目录中的城市代码.*"
+    timeout: 90000
+- takeScreenshot: "task5-J-needs-input"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "${TASK5_CITY}"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_deal_card"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/bottom_navigation"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_deal_original_discount"
+- takeScreenshot: "task5-E-deals"
+- tapOn:
+    id: "com.fandazi.app:id/agent_deal_action"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/deal_title"
+    timeout: 15000
+- takeScreenshot: "task5-deal-click-only"
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: "task5-history-return"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "hello"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      text: "你好，我是饭搭子助手。"
+    timeout: 90000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_card"
+- takeScreenshot: "task5-J-multi-turn"

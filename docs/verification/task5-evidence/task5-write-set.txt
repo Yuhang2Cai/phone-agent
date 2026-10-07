@@ -1,0 +1,8 @@
+C:/fdz-build/docs/verification/2026-10-02-task5-development.md
+C:/fdz-build/.superpowers/sdd/2026-09-29-group-buying-agent-refactor-implementation/task-5-report.md
+C:/fdz-build/docs/verification/task5-evidence/phone-status-before.txt
+C:/fdz-build/docs/verification/task5-evidence/new-agent-status-before.txt
+C:/fdz-build/docs/verification/task5-evidence/figma-audit.json
+C:/fdz-build/docs/verification/task5-evidence/source-integrity.json
+C:/fdz-build/docs/verification/task5-evidence/preflight-checks.md
+C:/fdz-build/docs/verification/task5-evidence/task5-write-set.txt

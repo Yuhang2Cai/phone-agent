@@ -1,0 +1,18 @@
+{
+  "network": {
+    "active": "Active default network: 123",
+    "airplane": "0",
+    "wifi": "1",
+    "data": "1"
+  },
+  "releasedAt": "2026-10-02T10:49:41.8805806+08:00",
+  "stageOrCommit": false,
+  "servicesRetainedHealthy": [
+    8080,
+    8091
+  ],
+  "independentAcceptance": "待控制端派发全新独立Agent",
+  "ordinaryJwtSeconds": 3600,
+  "noTask8Writes": true,
+  "appForceStopped": true
+}

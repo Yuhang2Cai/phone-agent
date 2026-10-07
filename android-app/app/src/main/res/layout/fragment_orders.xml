@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 订单页保留 MainActivity 的正式底栏；列表、空态和错误态在同一页面切换。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/group_buy_background" android:orientation="vertical">
+    <!-- UI10 真实列表与分段，底栏继续复用正式四图标导航。 -->
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="24dp" android:paddingTop="24dp"
+        android:text="订单" android:textColor="@color/group_buy_green" android:textSize="26sp" android:textStyle="bold" />
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="24dp" android:paddingTop="4dp" android:paddingBottom="16dp"
+        android:text="查看团购订单和使用状态" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
+    <com.google.android.material.tabs.TabLayout android:id="@+id/orders_segments" android:layout_width="match_parent" android:layout_height="48dp" android:background="@color/group_buy_background" />
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <!-- 状态文本与有界RV并列，不以无限ScrollView测量全部订单。 -->
+        <LinearLayout android:id="@+id/orders_content" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical">
+            <TextView android:id="@+id/order_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center" android:padding="16dp" android:textColor="@color/after_sale_muted" android:textSize="14sp" />
+            <androidx.recyclerview.widget.RecyclerView android:id="@+id/order_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingHorizontal="16dp" android:paddingBottom="24dp" />
+        </LinearLayout>
+        <include layout="@layout/view_orders_empty" />
+        <include layout="@layout/view_error_retry" />
+        <include layout="@layout/view_network_error" />
+    </FrameLayout>
+</LinearLayout>

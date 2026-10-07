@@ -1,0 +1,53 @@
+# Task 5 Report
+
+## Delivered
+
+- Added deterministic, synthetic JSON fixtures for 12 merchants and 120 generated dishes, plus synthetic users, addresses, paid-order history, and nine Agent evaluation scenarios.
+- Added a `seed.enabled`-gated `SeedDataLoader` that reads `seed.path` (default `../data/seed`) and uses the synthetic account marker to avoid duplicate loads or touching existing user data.
+- Added `SeedDataLoaderTest` covering catalog quantity, option groups, unavailable dishes, price-change fixture, default/expired-address fixture, and paid historical order.
+
+## Verification
+
+- Red: `SeedDataLoaderTest` failed before implementation with expected merchant count `12` and actual `0`.
+- Green: `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test` (1 test, 0 failures).
+- Full: `mvn -f backend/pom.xml test` (42 tests, 0 failures).
+
+## Notes
+
+- All accounts, addresses, phone numbers, password hashes, menu content, and local placeholder paths are synthetic. No remote image links are used.
+- Address validity and rich dish metadata remain represented in the JSON fixtures for later Agent/domain work; this task does not introduce Agent, Android, or ASR behavior.
+
+## Revision 1
+
+- Replaced the seed password with a 60-character BCrypt hash for the synthetic-only demo account.
+- Orders are now parsed from `orders.json`; the test verifies fixture key-independent item identity and computed total.
+- Added seed-only `seed_dish_metadata` and `seed_address_metadata` entities/tables. Historical price, change flag, rating, spice level, ingredients, allergens, and address validity are persisted for later Agent queries without changing core business entities.
+- Added tests for metadata recognition, repeated execution, category coverage, and `seed.enabled=false`.
+- Revision verification:专项 3/3 and full backend 44/44 tests passed; `git diff --check` is clean.
+
+## Revision 2
+
+- Made the 12 dish templates explicit about rating, spiciness, ingredients, and allergens. The loader validates these fields as positive/non-blank/non-empty instead of substituting defaults, and the integration test verifies structured metadata for all 120 generated dishes.
+- Added a local PNG seed-food placeholder and verified that every fixture image path resolves to a valid PNG resource.
+- Added an integration regression that corrupts the later `orders.json` fixture, verifies transaction rollback leaves no merchant, user, order, option, address, or metadata rows, restores the fixture, and reloads successfully.
+- Added immutable `SeedScenario` records parsed from `agent-scenarios.json`; the seed test verifies all nine scenario IDs are queryable.
+
+## Revision 2 Verification
+
+- Red: fixture completeness/image-path assertions failed; missing structured metadata initially loaded with a default; and the Agent scenario collection API was absent.
+- Green: `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test` (7 tests, 0 failures).
+- Full: `mvn -f backend/pom.xml test` (49 tests, 0 failures).
+
+## Revision 3
+
+- Added Flyway dependencies and `V1__create_seed_metadata.sql` to create the production application schema, including auth, catalog, address, cart, order, collection, and seed metadata tables before Hibernate validation. The migration is tested on a fresh H2 database, while production remains configured with `ddl-auto=validate`.
+- Changed seed dish metadata and `DishResponse` ingredients/allergens to typed `List<String>` values, with a JPA JSON converter for database storage and list assertions across loader, entity, query, and response layers.
+- Extended `orders.json` with username, merchant, and address fields as the complete order fixture source. The loader now resolves and validates each association and builds the order snapshot from the matched address entity; mutation tests reject unknown users, merchants, and addresses.
+
+## Revision 3 Verification
+
+- Red: the new migration/relationship/typed-array tests first failed because the migration, associations, and response list types were absent.
+- Red: migration coverage test failed with only the two seed metadata tables present.
+- Green: `mvn -f backend/pom.xml -Dtest=SeedDataLoaderTest test` (11 tests, 0 failures).
+- Full: `mvn -f backend/pom.xml test` (53 tests, 0 failures).
+- Hygiene: `git diff --check` clean; Maven `target` removed after verification.

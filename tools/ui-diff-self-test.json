@@ -1,0 +1,11 @@
+{
+  "canonical_size": [412, 915],
+  "reference_frame": [0, 0, 941, 1672],
+  "actual_frame": [0, 0, 941, 1672],
+  "masks": [],
+  "default_min_ssim": 0.85,
+  "default_max_diff_area": 0.08,
+  "regions": [
+    {"name": "full-frame", "x": 0, "y": 0, "w": 1, "h": 1, "min_ssim": 0.99, "max_diff_area": 0.001}
+  ]
+}

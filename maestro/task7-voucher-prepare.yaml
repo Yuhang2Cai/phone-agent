@@ -1,0 +1,32 @@
+# 定位真实原券，供中断网络/身份过期子步骤使用；无账号重置或额外业务写入。
+appId: com.fandazi.app
+---
+- launchApp
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible: "order-card-${TASK7_ORDER_A}"
+    timeout: 30000
+- tapOn: "order-card-${TASK7_ORDER_A}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_ORDER_A}.*"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/group_order_show_vouchers"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- scrollUntilVisible:
+    element:
+      text: "团购券 1 ${TASK7_VOUCHER_A}"
+    direction: DOWN
+- tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_VOUCHER_A}.*"
+    timeout: 30000
+- extendedWaitUntil:
+    notVisible: "图片加载中.*"
+    timeout: 30000
+- assertNotVisible: "图片加载失败.*"
+- takeScreenshot: "UI12-image-loaded"

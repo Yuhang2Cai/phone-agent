@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-20B：类型、正文和可选订单真实可交互；提交前必须取得后端确认凭证。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout android:id="@+id/complaint_form"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
+    android:background="@color/after_sale_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical" android:paddingHorizontal="16dp">
+        <TextView android:id="@+id/complaint_back" android:layout_width="44dp" android:layout_height="match_parent" android:gravity="center_vertical"
+            android:text="‹" android:textSize="34sp" android:textColor="@color/after_sale_ink" android:contentDescription="返回帮助" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center" android:text="投诉与反馈" android:textSize="21sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+        <Space android:layout_width="44dp" android:layout_height="1dp" />
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
+            android:paddingHorizontal="12dp" android:paddingBottom="20dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="12dp"
+                android:text="感谢您的反馈，我们会不断改进，为您提供更好的服务。"
+                android:textColor="@color/after_sale_muted" android:textSize="12sp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp"
+                android:background="@drawable/after_sale_card" android:orientation="vertical" android:padding="14dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="问题类型"
+                    android:textColor="@color/after_sale_ink" android:textSize="18sp" android:textStyle="bold" />
+                <!-- 六种目录来自接口；此处只规定三列选项的容器结构。 -->
+                <com.google.android.material.chip.ChipGroup android:id="@+id/complaint_types"
+                    android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                    app:chipSpacingHorizontal="8dp" app:chipSpacingVertical="8dp" app:singleSelection="true" app:selectionRequired="true" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                android:background="@drawable/after_sale_card" android:orientation="vertical" android:padding="14dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="问题描述" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                    <TextView android:id="@+id/complaint_count" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="0/500" android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+                </LinearLayout>
+                <EditText android:id="@+id/complaint_description" android:layout_width="match_parent" android:layout_height="120dp"
+                    android:layout_marginTop="12dp" android:background="@drawable/after_sale_input" android:gravity="top|start"
+                    android:hint="请详细描述遇到的问题、时间和商家名称" android:inputType="textCapSentences|textMultiLine"
+                    android:maxLength="500" android:padding="12dp" android:textSize="13sp" android:textColor="@color/after_sale_ink" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                android:background="@drawable/after_sale_card" android:orientation="vertical" android:padding="14dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="关联订单（选填）"
+                    android:textSize="18sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                <TextView android:id="@+id/complaint_order_picker" android:layout_width="match_parent" android:layout_height="44dp"
+                    android:layout_marginTop="12dp" android:background="@drawable/after_sale_input" android:gravity="center_vertical"
+                    android:paddingHorizontal="12dp" android:text="选择订单    ›" android:textSize="15sp" android:textColor="@color/after_sale_ink" />
+            </LinearLayout>
+            <TextView android:id="@+id/complaint_error" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:textColor="@color/warning_red" android:visibility="gone" />
+            <TextView android:id="@+id/complaint_retry" android:layout_width="match_parent" android:layout_height="40dp" android:gravity="center" android:text="重新加载目录与订单" android:textColor="@color/after_sale_muted" android:visibility="gone" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                android:background="@drawable/after_sale_input" android:padding="12dp"
+                android:text="提交后平台会保存反馈记录；本演示不承诺处理时限。"
+                android:textSize="11sp" android:textColor="@color/after_sale_muted" />
+        </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/complaint_submit" android:layout_width="match_parent" android:layout_height="50dp"
+        android:layout_marginHorizontal="16dp" android:layout_marginBottom="16dp" android:background="@drawable/after_sale_primary"
+        android:gravity="center" android:text="提交反馈" android:textColor="@android:color/white" android:textSize="17sp" android:enabled="false" />
+</LinearLayout>
+    <!-- 后端确认工单写入后才显示成功主体，失败仍留在表单供用户核查和恢复。 -->
+    <include android:id="@+id/complaint_result" layout="@layout/after_sale_success_content"
+        android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+</FrameLayout>

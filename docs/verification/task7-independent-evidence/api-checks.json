@@ -1,0 +1,299 @@
+[
+  {
+    "label": "隔离真实购买两已支付一待支付",
+    "passed": true,
+    "at": "2026-10-02T03:15:04.975975+00:00",
+    "detail": null
+  },
+  {
+    "label": "独立第三账号订单券均为空",
+    "passed": true,
+    "at": "2026-10-02T03:15:05.147540+00:00",
+    "detail": null
+  },
+  {
+    "label": "本人订单券与DB数量一致",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.468715+00:00",
+    "detail": {
+      "orders": 3,
+      "vouchers": 4
+    }
+  },
+  {
+    "label": "所有订单及券公开身份独立",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.469781+00:00",
+    "detail": null
+  },
+  {
+    "label": "列表详情同一事实-dff4196f-849d-40e5-a585-f93463cde60d",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.485620+00:00",
+    "detail": null
+  },
+  {
+    "label": "订单金额与精确DB一致-dff4196f-849d-40e5-a585-f93463cde60d",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.488353+00:00",
+    "detail": null
+  },
+  {
+    "label": "待支付无实付或资格-dff4196f-849d-40e5-a585-f93463cde60d",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.489388+00:00",
+    "detail": null
+  },
+  {
+    "label": "每券详情归属和购买上下文-82e82b5b-1c13-43db-9302-4fa54fd6a7ce",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.501050+00:00",
+    "detail": null
+  },
+  {
+    "label": "只读响应无核销令牌-82e82b5b-1c13-43db-9302-4fa54fd6a7ce",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.502553+00:00",
+    "detail": null
+  },
+  {
+    "label": "列表详情同一事实-adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.515397+00:00",
+    "detail": null
+  },
+  {
+    "label": "订单金额与精确DB一致-adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.518129+00:00",
+    "detail": null
+  },
+  {
+    "label": "实付快照与单券分摊-adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.519136+00:00",
+    "detail": null
+  },
+  {
+    "label": "每券详情归属和购买上下文-8899fdb2-d64b-42a8-adb0-127436d687e3",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.535610+00:00",
+    "detail": null
+  },
+  {
+    "label": "只读响应无核销令牌-8899fdb2-d64b-42a8-adb0-127436d687e3",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.536610+00:00",
+    "detail": null
+  },
+  {
+    "label": "列表详情同一事实-cf7aadd2-31a8-4348-8f24-80f4db27a606",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.552460+00:00",
+    "detail": null
+  },
+  {
+    "label": "订单金额与精确DB一致-cf7aadd2-31a8-4348-8f24-80f4db27a606",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.554465+00:00",
+    "detail": null
+  },
+  {
+    "label": "实付快照与单券分摊-cf7aadd2-31a8-4348-8f24-80f4db27a606",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.555961+00:00",
+    "detail": null
+  },
+  {
+    "label": "每券详情归属和购买上下文-a81f203b-f46b-4da7-be8e-eb11b9d14108",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.571458+00:00",
+    "detail": null
+  },
+  {
+    "label": "只读响应无核销令牌-a81f203b-f46b-4da7-be8e-eb11b9d14108",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.572471+00:00",
+    "detail": null
+  },
+  {
+    "label": "每券详情归属和购买上下文-8f051492-d867-43d5-bfb1-2a0969757afb",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.586430+00:00",
+    "detail": null
+  },
+  {
+    "label": "只读响应无核销令牌-8f051492-d867-43d5-bfb1-2a0969757afb",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.587445+00:00",
+    "detail": null
+  },
+  {
+    "label": "新空账号无订单",
+    "passed": true,
+    "at": "2026-10-02T03:16:14.834420+00:00",
+    "detail": null
+  },
+  {
+    "label": "其他用户拒绝-/group-orders/",
+    "passed": true,
+    "at": "2026-10-02T03:16:15.033860+00:00",
+    "detail": {
+      "http": 400
+    }
+  },
+  {
+    "label": "游客拒绝-/group-orders/",
+    "passed": true,
+    "at": "2026-10-02T03:16:15.034868+00:00",
+    "detail": {
+      "http": 401
+    }
+  },
+  {
+    "label": "其他用户拒绝-/vouchers/",
+    "passed": true,
+    "at": "2026-10-02T03:16:15.246585+00:00",
+    "detail": {
+      "http": 400
+    }
+  },
+  {
+    "label": "游客拒绝-/vouchers/",
+    "passed": true,
+    "at": "2026-10-02T03:16:15.248067+00:00",
+    "detail": {
+      "http": 401
+    }
+  },
+  {
+    "label": "所有只读权限查询业务事实无变化",
+    "passed": true,
+    "at": "2026-10-02T03:16:15.269747+00:00",
+    "detail": null
+  },
+  {
+    "label": "在线只读完成-orders",
+    "passed": true,
+    "at": "2026-10-02T03:17:33.877619+00:00",
+    "detail": {
+      "status": "COMPLETED",
+      "message": "查询到 3 个团购订单"
+    }
+  },
+  {
+    "label": "在线卡片类型与真实资源-orders",
+    "passed": true,
+    "at": "2026-10-02T03:17:33.879129+00:00",
+    "detail": null
+  },
+  {
+    "label": "在线只执行读取工具-orders",
+    "passed": true,
+    "at": "2026-10-02T03:17:33.887753+00:00",
+    "detail": null
+  },
+  {
+    "label": "在线响应不包含私有令牌-orders",
+    "passed": true,
+    "at": "2026-10-02T03:17:33.890277+00:00",
+    "detail": null
+  },
+  {
+    "label": "在线只读完成-vouchers",
+    "passed": true,
+    "at": "2026-10-02T03:17:35.956352+00:00",
+    "detail": {
+      "status": "COMPLETED",
+      "message": "查询到 4 张团购券"
+    }
+  },
+  {
+    "label": "在线卡片类型与真实资源-vouchers",
+    "passed": true,
+    "at": "2026-10-02T03:17:35.957862+00:00",
+    "detail": null
+  },
+  {
+    "label": "在线只执行读取工具-vouchers",
+    "passed": true,
+    "at": "2026-10-02T03:17:35.960362+00:00",
+    "detail": null
+  },
+  {
+    "label": "在线响应不包含私有令牌-vouchers",
+    "passed": true,
+    "at": "2026-10-02T03:17:35.962697+00:00",
+    "detail": null
+  },
+  {
+    "label": "真实Agent查询未改变订单券售后事实",
+    "passed": true,
+    "at": "2026-10-02T03:17:35.987298+00:00",
+    "detail": null
+  },
+  {
+    "label": "真实同会话HTTP与SSE原身份完全一致",
+    "passed": true,
+    "at": "2026-10-02T03:19:30.972038+00:00",
+    "detail": {
+      "httpOriginalEvents": 23,
+      "sseOriginalEvents": 23,
+      "separateRuns": 2
+    }
+  },
+  {
+    "label": "同会话不同轮原事件不重复",
+    "passed": true,
+    "at": "2026-10-02T03:19:30.973636+00:00",
+    "detail": null
+  },
+  {
+    "label": "原业务完整行保护-stores",
+    "passed": true,
+    "at": "2026-10-02T03:40:54.199216+00:00",
+    "detail": null
+  },
+  {
+    "label": "原业务完整行保护-deal_packages",
+    "passed": true,
+    "at": "2026-10-02T03:40:54.213870+00:00",
+    "detail": null
+  },
+  {
+    "label": "原业务完整行保护-group_buy_orders",
+    "passed": true,
+    "at": "2026-10-02T03:40:54.222456+00:00",
+    "detail": null
+  },
+  {
+    "label": "原业务完整行保护-vouchers",
+    "passed": true,
+    "at": "2026-10-02T03:40:54.231981+00:00",
+    "detail": null
+  },
+  {
+    "label": "原业务完整行保护-refund_requests",
+    "passed": true,
+    "at": "2026-10-02T03:40:54.241404+00:00",
+    "detail": null
+  },
+  {
+    "label": "原业务完整行保护-store_reviews",
+    "passed": true,
+    "at": "2026-10-02T03:40:54.264242+00:00",
+    "detail": null
+  },
+  {
+    "label": "只停用本任务套餐-90ddcb5a-034d-472f-918a-236562d4d14e",
+    "passed": true,
+    "at": "2026-10-02T03:40:54.330567+00:00",
+    "detail": null
+  },
+  {
+    "label": "只停用本任务套餐-afddbb90-29a6-4b31-adc2-0c67add4575d",
+    "passed": true,
+    "at": "2026-10-02T03:40:54.352330+00:00",
+    "detail": null
+  }
+]

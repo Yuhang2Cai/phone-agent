@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.agent.AgentAfterSaleCardTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-02T02:36:51.613Z" hostname="CAI" time="4.79">
+  <testcase name="refundRequiresCompleteSummaryAndOnlyClickConfirms" classname="com.fandazi.app.feature.agent.AgentAfterSaleCardTest" time="4.668" />
+  <testcase name="couponUsesBackendStatusAndHasNoBusinessAction" classname="com.fandazi.app.feature.agent.AgentAfterSaleCardTest" time="0.122" />
+</testsuite>

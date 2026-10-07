@@ -1,0 +1,18 @@
+[
+  {
+    "path": "android-app/app/src/main/res/values/colors.xml",
+    "token": "after_sale_ink",
+    "value": "#091D24",
+    "beforeSha256": "28C5AE393C58B7617892616E1DAC87BA646AABAFEFB39E435C0BAEB096F824C3",
+    "frozenSha256": "28C5AE393C58B7617892616E1DAC87BA646AABAFEFB39E435C0BAEB096F824C3",
+    "necessaryUse": "Task7订单列表及三只读状态页的正文/次级说明，ink另供券页描边；不包含其他Task8颜色"
+  },
+  {
+    "path": "android-app/app/src/main/res/values/colors.xml",
+    "token": "after_sale_muted",
+    "value": "#768398",
+    "beforeSha256": "28C5AE393C58B7617892616E1DAC87BA646AABAFEFB39E435C0BAEB096F824C3",
+    "frozenSha256": "28C5AE393C58B7617892616E1DAC87BA646AABAFEFB39E435C0BAEB096F824C3",
+    "necessaryUse": "Task7订单列表及三只读状态页的正文/次级说明，ink另供券页描边；不包含其他Task8颜色"
+  }
+]

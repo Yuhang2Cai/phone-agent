@@ -1,0 +1,101 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    text: "Close app"
+    optional: true
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "maestro_ui_04"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "password123"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_header_search"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "盖饭"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible: "饭搭子盖饭社"
+    timeout: 30000
+- tapOn: "饭搭子盖饭社"
+- extendedWaitUntil:
+    visible: "招牌辣椒鸡盖饭 1"
+    timeout: 30000
+- tapOn: "加入招牌辣椒鸡盖饭 1"
+- assertVisible: "辣度"
+- assertVisible: "加料"
+- tapOn: "选择中辣"
+- tapOn: "选择加蛋"
+- tapOn:
+    id: "com.fandazi.app:id/quantity_plus"
+- assertVisible: "2"
+- takeScreenshot: "ticket-05-dish-options"
+- tapOn:
+    id: "com.fandazi.app:id/add_to_cart"
+- extendedWaitUntil:
+    visible: "去购物车"
+    timeout: 10000
+- tapOn: "去购物车"
+- extendedWaitUntil:
+    visible: "购物车"
+    timeout: 10000
+- assertVisible: "招牌辣椒鸡盖饭 1"
+- assertVisible: "辣度:中辣,加料:加蛋"
+- assertVisible: "¥41.60"
+- tapOn:
+    id: "com.fandazi.app:id/cart_plus"
+- extendedWaitUntil:
+    visible: "¥63.40"
+    timeout: 10000
+- assertVisible: "3"
+- takeScreenshot: "ticket-05-cart"
+- setOrientation: LANDSCAPE_LEFT
+- assertVisible: "¥63.40"
+- setOrientation: PORTRAIT
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_header_search"
+    timeout: 10000
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "盖饭"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- extendedWaitUntil:
+    visible: "饭搭子盖饭社"
+    timeout: 30000
+- tapOn: "饭搭子盖饭社"
+- extendedWaitUntil:
+    visible: "去购物车"
+    timeout: 10000
+- tapOn: "去购物车"
+- assertVisible: "3"
+- assertVisible: "¥63.40"
+- tapOn:
+    id: "com.fandazi.app:id/cart_checkout"
+- extendedWaitUntil:
+    visible: "确认订单"
+    timeout: 10000
+- assertVisible:
+    id: "com.fandazi.app:id/payment_summary"
+- assertVisible:
+    id: "com.fandazi.app:id/payment_primary"

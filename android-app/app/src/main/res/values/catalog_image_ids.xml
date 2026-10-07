@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 图片局部刷新身份标签：与Glide内部标签及业务ID分开，阻止复用视图接收旧响应。 -->
+<resources>
+    <item name="catalog_image_metadata_token" type="id" />
+</resources>

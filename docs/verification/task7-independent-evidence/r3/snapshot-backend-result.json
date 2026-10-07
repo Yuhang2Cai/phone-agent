@@ -1,0 +1,15 @@
+{
+  "cwd": "C:/fdz-build/.runtime/task7-delivery-r2/phone/backend",
+  "phase": "snapshot-backend",
+  "finishedAt": "2026-10-02T13:00:01.3162247+08:00",
+  "executable": "D:/software/IntelliJ IDEA 2025.2.4/plugins/maven/lib/maven3/bin/mvn.cmd",
+  "arguments": [
+    "-q",
+    "-Dtest=GroupOrderSummaryContractTest,VoucherLifecycleTest,PurchaseConfirmationTest,GroupBuyOrderIdempotencyTest,AgentCardEnrichmentTest,InternalV1ToolIntegrationTest,AgentToolFieldBoundaryTest,RefundEligibilityTest",
+    "clean",
+    "test"
+  ],
+  "startedAt": "2026-10-02T12:59:40.0621419+08:00",
+  "exitCode": 0,
+  "apkSha256": null
+}

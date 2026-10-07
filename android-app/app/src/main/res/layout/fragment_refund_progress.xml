@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-18B：状态由退款详情接口决定；不预告审核结果或到账时间。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
+    android:background="@color/after_sale_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical" android:paddingHorizontal="16dp">
+        <TextView android:id="@+id/progress_back" android:layout_width="44dp" android:layout_height="match_parent" android:gravity="center_vertical"
+            android:text="‹" android:textSize="34sp" android:textColor="@color/after_sale_ink" android:contentDescription="返回" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center" android:text="退款进度" android:textSize="21sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+        <Space android:layout_width="44dp" android:layout_height="1dp" />
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="12dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/after_sale_card"
+                android:orientation="horizontal" android:padding="12dp">
+                <!-- 与申请页一致的真实套餐图和订单快照，长订单号允许换行。 -->
+                <ImageView android:id="@+id/progress_image" android:layout_width="101dp" android:layout_height="101dp"
+                    android:scaleType="centerCrop" android:src="@drawable/after_sale_image_placeholder" android:contentDescription="图片信息加载中" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:layout_marginStart="12dp" android:orientation="vertical">
+                <TextView android:id="@+id/progress_store" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textSize="16sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                <TextView android:id="@+id/progress_deal" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textSize="16sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                <TextView android:id="@+id/progress_order" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:textSize="11sp" android:textColor="@color/after_sale_muted" />
+                <TextView android:id="@+id/progress_voucher" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp" android:textSize="11sp" android:textColor="@color/after_sale_muted" />
+                <TextView android:id="@+id/progress_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp" android:textSize="12sp" android:textStyle="bold" android:textColor="@color/group_buy_orange" />
+                <TextView android:id="@+id/progress_amount" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="end" android:textSize="22sp" android:textStyle="bold" android:textColor="@color/group_buy_orange" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp"
+                android:background="@drawable/after_sale_card" android:orientation="vertical" android:padding="16dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="退款进度"
+                    android:textSize="18sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                <!-- 完成节点使用设计稿圆形底色与勾号，不能拿文字圆点替代正式节点。 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:orientation="horizontal" android:gravity="center_vertical">
+                    <TextView android:layout_width="20dp" android:layout_height="20dp" android:background="@drawable/after_sale_step_active" android:gravity="center" android:text="✓" android:textColor="@android:color/white" android:textSize="12sp" android:importantForAccessibility="no" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="24dp" android:text="已提交申请" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                </LinearLayout>
+                <TextView android:id="@+id/progress_created" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginStart="44dp" android:layout_marginTop="5dp" android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="28dp"
+                    android:layout_marginTop="8dp" android:text="申请已记录，等待平台后续处理。" android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+                <!-- 原因也是申请事实，不能用默认原因代替用户提交值。 -->
+                <TextView android:id="@+id/progress_reason" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginStart="28dp" android:layout_marginTop="8dp" android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+                <View android:layout_width="2dp" android:layout_height="24dp" android:layout_marginStart="9dp" android:background="#FF4D33" />
+                <TextView android:id="@+id/progress_next" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/after_sale_step_active" android:drawablePadding="24dp"
+                    android:text="申请待处理" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="28dp"
+                    android:layout_marginTop="8dp" android:text="后续状态以平台实际处理结果为准。" android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+                <!-- 最后一个节点由真实退款状态更新，不能把已处理申请继续写成“待更新”。 -->
+                <View android:layout_width="2dp" android:layout_height="28dp" android:layout_marginStart="9dp" android:background="#E7EAEE" />
+                <TextView android:id="@+id/progress_result" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:drawableStart="@drawable/after_sale_step_pending" android:drawablePadding="24dp"
+                    android:text="处理结果待更新" android:textSize="16sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginStart="28dp"
+                    android:layout_marginTop="8dp" android:text="可在此页刷新真实退款状态。" android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="35dp"
+                    android:background="@drawable/after_sale_input" android:padding="12dp"
+                    android:text="退款结果以实际处理状态为准；如有疑问可通过帮助页提交反馈。"
+                    android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+            </LinearLayout>
+            <TextView android:id="@+id/progress_error" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:textColor="@color/warning_red" android:visibility="gone" />
+            <TextView android:id="@+id/progress_refresh" android:layout_width="match_parent" android:layout_height="40dp"
+                android:layout_marginTop="8dp" android:gravity="center"
+                android:text="刷新进度" android:textColor="@color/after_sale_muted" android:textSize="14sp" />
+            <TextView android:id="@+id/progress_help" android:layout_width="match_parent" android:layout_height="48dp"
+                android:layout_marginTop="10dp" android:layout_marginBottom="16dp" android:background="@drawable/after_sale_outline" android:gravity="center"
+                android:text="联系客服" android:textColor="@color/after_sale_ink" android:textSize="16sp" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

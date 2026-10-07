@@ -1,0 +1,198 @@
+[
+  {
+    "suite": "com.fandazi.app.core.config.ApiBaseUrlBuildTypeTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 1,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.core.config.DebugNetworkPolicyTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 1,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.core.image.AfterSaleImageLoaderTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.core.image.ImageFallbackTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 1,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.core.navigation.SessionRouteCoordinatorTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 4,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.core.network.ApiClientTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 3,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.agent.AgentAfterSaleCardTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.agent.AgentCardRendererTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 1,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.agent.AgentChatStateTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.agent.AgentLoginGateTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 3,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.agent.AgentViewModelTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 26,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.agent.HttpAgentRepositoryTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 10,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.auth.AuthFormProcessorTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 10,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.auth.SessionRepositoryTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 10,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.deal.GroupBuyingRepositoryTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.home.HomePresentationTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 3,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.home.HomeSortTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.merchant.MerchantFeedViewModelTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 9,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.merchant.MerchantMenuPresentationTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.order.FakeApiOrderingFlowTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 1,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.order.OrderPresentationTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.ordering.CheckoutPresentationTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.ordering.OrderingRepositoryTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.ordering.OrderingViewModelTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 30,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.profile.ProfileSettingsBehaviorTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 6,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.search.MerchantNavigationPagesTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 4,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.search.SearchUiPresentationTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 2,
+    "failures": 0
+  },
+  {
+    "suite": "com.fandazi.app.feature.store.CatalogRepositoryTest",
+    "skipped": 0,
+    "errors": 0,
+    "tests": 4,
+    "failures": 0
+  }
+]

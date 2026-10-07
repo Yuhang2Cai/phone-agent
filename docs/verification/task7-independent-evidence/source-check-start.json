@@ -1,0 +1,24 @@
+{
+  "mismatches": [],
+  "manifestSha256": "D82FD356DC35D1F30D0983EDE83B4A6B48A60772FF91E5EB69190162D79ECFCC",
+  "index": {
+    "agent": [],
+    "phone": []
+  },
+  "checkedAt": "2026-10-02T11:10:54.7231189+08:00",
+  "receipt": {
+    "sourceCount": 893,
+    "frozenAt": "2026-10-02T10:49:49.4630385+08:00",
+    "phoneHead": "c386a0555d9091fa2b9c5ec9830e643b6e0c767d",
+    "deltaCount": 48,
+    "agentHead": "c339237fb38f9418f29e70b3ce36c7022215b6b3",
+    "startManifestSha256": "8BFEF83934425D1116D333C4D2520F90FF96D8DE4BA3B80DA3FEC22B509104D8",
+    "apkSha256": "28380CF723C41659ACA0DC7C609F2388F0083FD3344F8DAC4269D9CE67C2FB3D",
+    "sourceManifestSha256": "D82FD356DC35D1F30D0983EDE83B4A6B48A60772FF91E5EB69190162D79ECFCC"
+  },
+  "sources": 893,
+  "heads": {
+    "agent": "c339237fb38f9418f29e70b3ce36c7022215b6b3",
+    "phone": "c386a0555d9091fa2b9c5ec9830e643b6e0c767d"
+  }
+}

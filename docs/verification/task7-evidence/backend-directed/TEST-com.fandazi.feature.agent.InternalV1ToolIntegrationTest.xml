@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="2.925" tests="9" errors="0" skipped="0" failures="0">
+  <testcase name="claimedCouponBusinessDatesBecomeRealUtcValidityBoundaries" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.967">
+  </testcase>
+  <testcase name="faqUsesVersionedEntryAndOnlyCanonicalQuestion" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.046" />
+  <testcase name="executorIdentityAndSessionRunTraceCannotBeSpoofed" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.057" />
+  <testcase name="allReadToolsProjectRealFactsAndUtcWithoutDomainIds" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.173" />
+  <testcase name="streamedConfirmationAuditRechecksAmountsBeforePublishing" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.074" />
+  <testcase name="jwtBindsUserAndRejectsExpiredOrLongLivedCredentials" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.022" />
+  <testcase name="preparationDoesNotWriteAndCreationRecoversQuoteThenSeparatelyConfirmsPayment" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.318" />
+  <testcase name="canonicalCardsReplaceAgentAmountsWithOwnedDomainFacts" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.015" />
+  <testcase name="refundAndComplaintRequireMatchingDisplayedBodyAndReplayOnlyTheSameAction" classname="com.fandazi.feature.agent.InternalV1ToolIntegrationTest" time="0.216" />
+</testsuite>

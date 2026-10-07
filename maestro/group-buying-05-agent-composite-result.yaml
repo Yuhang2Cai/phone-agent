@@ -1,0 +1,13 @@
+appId: com.fandazi.app
+---
+# 仅复验已完成复合请求的结果滚动，不重新发送请求或替换业务结果。
+- scrollUntilVisible:
+    element:
+      text: "(?s).*退款.*未核销.*|(?s).*未核销.*退款.*"
+    direction: UP
+    timeout: 60000
+    centerElement: true
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_text"
+- assertNotVisible: "进行中"
+- takeScreenshot: agent-composite-real-faq-result

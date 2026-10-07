@@ -1,0 +1,20 @@
+{
+  "canonical_size": [412, 915],
+  "reference_frame": [0, 0, 941, 1672],
+  "actual_frame": [0, 0, 511, 1139],
+  "masks": [
+    {"name": "status-bar", "x": 0, "y": 0, "w": 1, "h": 0.055},
+    {"name": "navigation-bar", "x": 0, "y": 0.955, "w": 1, "h": 0.045}
+  ],
+  "default_min_ssim": 0.85,
+  "default_max_diff_area": 0.08,
+  "regions": [
+    {"name": "top-brand-address", "x": 0, "y": 0.055, "w": 1, "h": 0.14, "min_ssim": 0.85, "max_diff_area": 0.12},
+    {"name": "hero", "x": 0, "y": 0.18, "w": 1, "h": 0.31, "min_ssim": 0.90, "max_diff_area": 0.05},
+    {"name": "ai-card", "x": 0.03, "y": 0.49, "w": 0.94, "h": 0.17, "min_ssim": 0.90, "max_diff_area": 0.05},
+    {"name": "quick-suggestions", "x": 0.03, "y": 0.67, "w": 0.94, "h": 0.09, "min_ssim": 0.88, "max_diff_area": 0.08},
+    {"name": "nearby-merchants", "x": 0.03, "y": 0.77, "w": 0.94, "h": 0.18, "min_ssim": 0.88, "max_diff_area": 0.10},
+    {"name": "bottom-navigation", "x": 0, "y": 0.90, "w": 1, "h": 0.055, "min_ssim": 0.85, "max_diff_area": 0.12}
+  ],
+  "required_controls": ["homeSearchButton", "homeNotification", "agentFab", "nearbyMerchant"]
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "normalization": "只为归属比较统一换行，精确字节差异仍由source-start-delta定义",
+    "path": "backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderService.java",
+    "baseBlob": "ca6698dce4e8025ac8644955058ca8ae8a31f12f",
+    "originalDirtyBeforeTask7": false,
+    "beforeSha256": "CEF707BCB1936DE860741ECFA70E327AF56E2882D01852D0AF4799A976C4FF7E",
+    "freezeSha256": "6EF275A6F6A151790F0B91353CB1F8AA32AE5ED756E1865EE367A32C29DC9A6A"
+  },
+  {
+    "normalization": "只为归属比较统一换行，精确字节差异仍由source-start-delta定义",
+    "path": "backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderController.java",
+    "baseBlob": "fdd99577b11a29b14af139744a1c112f33f583b9",
+    "originalDirtyBeforeTask7": false,
+    "beforeSha256": "643B43995C9A5E2C872C9AE45293AE880316A6920E54FAA1CB0281C29A28FDA1",
+    "freezeSha256": "00173AE60602B5FD8EC6BF65F5570FAD4816ADBD8AC63D6B2372531485B55351"
+  },
+  {
+    "normalization": "只为归属比较统一换行，精确字节差异仍由source-start-delta定义",
+    "path": "backend/src/main/java/com/fandazi/feature/voucher/VoucherService.java",
+    "baseBlob": "d9c5a12ea101fab73f8b53ea4dacf048dc72785a",
+    "originalDirtyBeforeTask7": false,
+    "beforeSha256": "F149BFBA40F38E9B5E3225723D52F2729E5EC5F002255499020769A9C9F30636",
+    "freezeSha256": "482108CC8F9B07BB62C2D76273D1FD66CD8DD5F68B52EC4FE35806B8A4355FDD"
+  },
+  {
+    "normalization": "只为归属比较统一换行，精确字节差异仍由source-start-delta定义",
+    "path": "backend/src/main/java/com/fandazi/feature/voucher/VoucherController.java",
+    "baseBlob": "00b01b6226a59a672176cbb1ce729709e587eb66",
+    "originalDirtyBeforeTask7": false,
+    "beforeSha256": "2DECD44252E59005809AE95EE21D378244A82F50AB3E7B8231EAB2343115B243",
+    "freezeSha256": "E3C8EA5D7945350A84AFDBDF5F19D33D046E63D4065FE966730857E18767162B"
+  }
+]

@@ -1,0 +1,46 @@
+# UI17账号密码注册：新合成账号来自控制端；没有验证码或业务演示数据。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/username_input"
+    timeout: 30000
+# 必须等真实认证控件出现，不能把启动器截图当成登录页验收。
+- assertVisible: "登录账号"
+- assertNotVisible:
+    id: "com.fandazi.app:id/nickname_input"
+- takeScreenshot: UI-17A-login
+- tapOn:
+    id: "com.fandazi.app:id/register_mode_button"
+- assertVisible: "创建账号"
+- assertVisible:
+    id: "com.fandazi.app:id/nickname_input"
+- takeScreenshot: UI-17B-register
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- setClipboard: "${REGRESSION_REGISTER_USERNAME}"
+- pasteText
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- setClipboard: "${REGRESSION_REGISTER_PASSWORD}"
+- pasteText
+- tapOn:
+    id: "com.fandazi.app:id/nickname_input"
+- setClipboard: "${REGRESSION_REGISTER_NICKNAME}"
+- pasteText
+- setClipboard: ""
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_search_button"
+    timeout: 30000
+- takeScreenshot: UI-17B-register-completed
+# 昵称只有服务端成功响应进入会话后才显示，不能用原输入在端上冒充保存成功。
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- assertVisible: "${REGRESSION_REGISTER_NICKNAME}"
+- takeScreenshot: UI-17B-nickname-from-backend

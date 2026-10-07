@@ -1,0 +1,16 @@
+[
+  {
+    "repository": "C:/fdz-build",
+    "head": "f2f08035ed23676c88269d083b3536e200741ac0",
+    "indexTree": "1cc8fff9b0077672fd87d26a460a0fda5b7b7996",
+    "snapshot": "C:\\fdz-build\\.runtime\\task8-independent-final\\phone",
+    "frozenFilesChecked": 114
+  },
+  {
+    "repository": "D:/project/-Demo-master",
+    "head": "9fdc5e16146423120bab18a722090643fa0d3203",
+    "indexTree": "0d29e30b066dd0b33d8cf244fa75d71ee3d5995a",
+    "snapshot": "C:\\fdz-build\\.runtime\\task8-independent-final\\-Demo-master",
+    "frozenFilesChecked": 6
+  }
+]

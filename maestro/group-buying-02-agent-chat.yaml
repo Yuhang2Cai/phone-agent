@@ -1,0 +1,68 @@
+appId: com.fandazi.app
+---
+# 从游客状态开始，确认 AI 助手是受保护入口，不会在未登录时展示任何套餐或门店业务结果。
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_login_gate"
+    timeout: 10000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_deal_card"
+- takeScreenshot: UI-15H-guest-login-gate
+# 当前确认设计先展示登录引导，只有明确点击才打开账号密码页，不能沿用旧自动跳转断言。
+- tapOn:
+    id: "com.fandazi.app:id/agent_login_action"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/username_input"
+    timeout: 10000
+- assertNotVisible:
+    text: "经典2-3人餐"
+- assertNotVisible:
+    text: "川味小馆"
+
+# 登录页只验证账号和密码控件存在；测试账号通过运行环境注入，仓库不保存真实凭据。
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- setClipboard: "${AGENT_TEST_USERNAME}"
+- pasteText
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- setClipboard: "${AGENT_TEST_PASSWORD}"
+- pasteText
+- setClipboard: ""
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_chat_input"
+    timeout: 30000
+
+# 发送抽象需求，验收聊天页能显示服务端消息区域和输入框，不断言任何本地写死的业务对象。
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "${AGENT_TEST_QUERY}"
+# 隐藏系统键盘后再点击发送，防止测试点击被键盘遮挡；这一步不替代服务端响应断言。
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_chat_content"
+    timeout: 30000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- extendedWaitUntil:
+    visible: ".*你好.*|.*您好.*"
+    timeout: 60000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_card"
+- takeScreenshot: "group-buying-agent-chat"

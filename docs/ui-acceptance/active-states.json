@@ -1,0 +1,4035 @@
+{
+  "schemaVersion": "1",
+  "figmaFile": "FxsWKGs10z7BL1MhFAOqFN",
+  "queriedAt": "2026-10-03",
+  "states": [
+    {
+      "id": "63:2",
+      "name": "UI-01 首页",
+      "width": 393,
+      "height": 852,
+      "page": "02 首页与搜索",
+      "family": "UI-01",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=63-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-01",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-01-home.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\63-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "63:88",
+      "name": "UI-02 搜索与筛选结果",
+      "width": 393,
+      "height": 852,
+      "page": "02 首页与搜索",
+      "family": "UI-02",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=63-88",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-02",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-02-search.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\63-88.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "64:2",
+      "name": "UI-03 门店详情",
+      "width": 393,
+      "height": 852,
+      "page": "03 门店与套餐",
+      "family": "UI-03",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=64-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-03",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-03-store-deals.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\64-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "64:88",
+      "name": "UI-04 门店菜品",
+      "width": 393,
+      "height": 852,
+      "page": "03 门店与套餐",
+      "family": "UI-04",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=64-88",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-04",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-04-store-dishes.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\64-88.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "64:144",
+      "name": "UI-05 门店评价",
+      "width": 393,
+      "height": 852,
+      "page": "03 门店与套餐",
+      "family": "UI-05",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=64-144",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-05",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-05-store-reviews.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\64-144.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "64:225",
+      "name": "UI-06 套餐详情",
+      "width": 393,
+      "height": 852,
+      "page": "03 门店与套餐",
+      "family": "UI-06",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=64-225",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-06",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-06-deal-A.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\64-225.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "29:2",
+      "name": "UI-06 套餐详情",
+      "width": 393,
+      "height": 852,
+      "page": "04 下单与支付",
+      "family": "UI-06",
+      "scope": "superseded",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=29-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-06",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-06-deal-A.png",
+      "result": "SUPERSEDED",
+      "reason": "29:2历史重复；本期套餐主设计为64:225",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "29:41",
+      "name": "UI-07 下单确认",
+      "width": 393,
+      "height": 852,
+      "page": "04 下单与支付",
+      "family": "UI-07",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=29-41",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-07",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-03-purchase.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-07-confirmation.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\29-41.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "29:59",
+      "name": "UI-08 模拟支付",
+      "width": 393,
+      "height": 852,
+      "page": "04 下单与支付",
+      "family": "UI-08",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=29-59",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-08",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-03-purchase.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-08-payment.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\29-59.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "29:82",
+      "name": "UI-09 支付成功",
+      "width": 393,
+      "height": 852,
+      "page": "04 下单与支付",
+      "family": "UI-09",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=29-82",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-09",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-03-purchase.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-09-success.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\29-82.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "31:2",
+      "name": "UI-10 订单列表",
+      "width": 393,
+      "height": 852,
+      "page": "05 订单与团购券",
+      "family": "UI-10",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=31-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-10",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-04-voucher-query.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\side-r5\\group-buying-05-orders-error\\2026-10-03_110514\\group-buying-05-orders-error\\takeScreenshot\\orders-503-retry-real-list.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\31-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "31:43",
+      "name": "UI-11 订单详情",
+      "width": 393,
+      "height": 852,
+      "page": "05 订单与团购券",
+      "family": "UI-11",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=31-43",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-11",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-04-voucher-query.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\purchase-real-vouchers.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\31-43.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "31:70",
+      "name": "UI-12 团购券详情",
+      "width": 393,
+      "height": 852,
+      "page": "05 订单与团购券",
+      "family": "UI-12",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=31-70",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-12",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-04-voucher-query.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-12-purchased-voucher-detail.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\31-70.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "31:96",
+      "name": "UI-13 核销二维码",
+      "width": 393,
+      "height": 852,
+      "page": "05 订单与团购券",
+      "family": "UI-13",
+      "scope": "deferred",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=31-96",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-13",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": null,
+      "result": "DEFERRED",
+      "reason": "既定延期：UI13/14核销或退款完成/拒绝预留；未执行不算通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "31:314",
+      "name": "UI-14 核销结果",
+      "width": 393,
+      "height": 852,
+      "page": "05 订单与团购券",
+      "family": "UI-14",
+      "scope": "deferred",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=31-314",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-14",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-01-browse.yaml",
+      "screenshot": null,
+      "result": "DEFERRED",
+      "reason": "既定延期：UI13/14核销或退款完成/拒绝预留；未执行不算通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "125:3",
+      "name": "UI-11R 已核销订单详情·评价入口",
+      "width": 393,
+      "height": 852,
+      "page": "05 订单与团购券",
+      "family": "UI-11R",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=125-3",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-11R",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-04-voucher-query.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\eligible-order-readonly-r7\\2026-10-03_195257\\order-eligible-readonly\\takeScreenshot\\UI11R-eligible-order-readonly.png",
+      "result": "PARTIAL",
+      "reason": "真实可评价本人订单已付、缺支付时间、可评价入口；完整订单前后不变。实际部分使用，不模拟全核销，纯状态徽标构图未覆盖",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\order-readonly-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-order-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "可评价资格真实呈现",
+        "订单信息/付款事实",
+        "返回与菜单"
+      ],
+      "notCoveredVariants": [
+        "Figma全已核销示例徽标；核销仍延期"
+      ],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\figma\\125-3-current.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "136:2",
+      "name": "UI-11RR 已评价订单详情",
+      "width": 393,
+      "height": 852,
+      "page": "05 订单与团购券",
+      "family": "UI-11RR",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=136-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-11RR",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-04-voucher-query.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-eligibility-refreshed.png",
+      "result": "PARTIAL",
+      "reason": "真实发布后资格关闭及已付/时间未知正确；真实订单为部分使用，不造全核销示例，已发布徽标构图未完整对照",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\pairs-review-r5.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "资格刷新、真实付款记录和缺时间文案"
+      ],
+      "notCoveredVariants": [
+        "全核销示例及徽标构图"
+      ],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\136-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "34:2",
+      "name": "UI-16 游客我的页面",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI-16",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=34-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-16",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory-guest.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-return-r6\\2026-10-03_185330\\auth-return\\takeScreenshot\\startup-guest-profile.png",
+      "result": "PASS",
+      "reason": "最终APKstartup返回游客，游客My不显示业务权限，受保护返回原调用方",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R6最终独立APK亲跑；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\34-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "34:43",
+      "name": "UI-17A 账号密码登录",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI-17A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=34-43",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-17A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-login.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-register-r6\\2026-10-03_185203\\group-buying-12-register\\takeScreenshot\\UI-17A-login.png",
+      "result": "PASS",
+      "reason": "最终APK正式注册前实际登录页；当前Figma结构、无昵称、返回路径已亲跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\pairs-auth-r6.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R6最终独立APK亲跑；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\figma-login-current.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "34:60",
+      "name": "UI-17B 账号密码注册",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI-17B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=34-60",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-17B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-login.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-register-r6\\2026-10-03_185203\\group-buying-12-register\\takeScreenshot\\UI-17B-register.png",
+      "result": "PASS",
+      "reason": "可选昵称实际输入，真注册/My显示/数据库/login/me一致；当前Figma对照通过，IND05关闭",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\pairs-auth-r6.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R6最终独立APK亲跑；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\figma-register-current.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "191:2",
+      "name": "UI22A AI记忆列表",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI22A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=191-2",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI22A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\memory-confirmed-list.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\pairs-main-memory-r5.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\191-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "191:15",
+      "name": "UI22B 待确认记忆",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI22B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=191-15",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI22B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\memory-basics\\2026-10-03_194830\\ui-memory-basics\\takeScreenshot\\UI22B-pending-list.png",
+      "result": "PASS",
+      "reason": "普通pending候选列表、弹窗取消不写入、正式确认保存均亲跑；新等待与ID选择器关闭IND06",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\side-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\memory-diagnosis.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\memory-failure-facts-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\pairs-memory-failure-r6.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-memory-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "普通候选确认",
+        "取消无写入",
+        "正式保存"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\191-15.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "191:27",
+      "name": "UI22C 敏感记忆确认",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI22C",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=191-27",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI22C",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\memory-basics\\2026-10-03_194830\\ui-memory-basics\\takeScreenshot\\UI22C-sensitive-pending-list.png",
+      "result": "PASS",
+      "reason": "真实pending_sensitive列表/明示同意，取消不写入及正式保存已核对；敏感未确认不进入向量",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\side-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\memory-diagnosis.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\memory-failure-facts-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\pairs-memory-failure-r6.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-memory-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "敏感明示同意",
+        "取消/确认",
+        "主向量权限"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\191-27.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "191:39",
+      "name": "UI22D 编辑记忆",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI22D",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=191-39",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI22D",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\memory-basics\\2026-10-03_194830\\ui-memory-basics\\takeScreenshot\\UI22D-edit-dialog.png",
+      "result": "PASS",
+      "reason": "本轮实际编辑弹窗输入结构/取消不写入；编辑保存沿R5独立真写证据复用，同源产品blob未变",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-memory-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "编辑弹窗",
+        "输入/取消",
+        "R5实际编辑保存复用"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\figma\\191-39-current.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "191:61",
+      "name": "UI22E 删除记忆",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI22E",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=191-61",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI22E",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\memory-delete-confirm.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\pairs-main-memory-r5.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\191-61.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "191:83",
+      "name": "UI22F 清空记忆",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI22F",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=191-83",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI22F",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\memory-basics\\2026-10-03_194830\\ui-memory-basics\\takeScreenshot\\UI22G-clear-cancel-dialog.png",
+      "result": "PASS",
+      "reason": "清空明确确认弹窗，取消不写入；本轮正式清空后UI/API为空，旧偏好生产召回排除，MySQL墓碑与Chroma一致",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-memory-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "清空取消",
+        "清空提交",
+        "删除后不召回"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\figma\\191-83-current.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "191:105",
+      "name": "UI22G 记忆空状态",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI22G",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=191-105",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI22G",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\official-memory-tail-r7\\2026-10-03_194433\\group-buying-10-memory-confirm-clear\\takeScreenshot\\memory-cleared.png",
+      "result": "PASS",
+      "reason": "正式尾链亲自清空后空状态截图，公开列表为空；后续本人新建记忆不改变这次清空证据",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\pairs-main-memory-r5.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-memory-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "空列表",
+        "本人清空事实"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\191-105.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "191:111",
+      "name": "UI22H 记忆失败重试",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI22H",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=191-111",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI22H",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\memory-error\\2026-10-03_194927\\ui-memory-error\\takeScreenshot\\UI22H-real-agent-off.png",
+      "result": "PASS",
+      "reason": "真实停止固定Agent时记忆页失败，启动健康后原地重试恢复真实列表，不以假响应代替",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-error-chat-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "真实服务失败",
+        "原地重试恢复"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\figma\\191-111-current.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "192:2",
+      "name": "UI16B 我的已登录与AI记忆",
+      "width": 393,
+      "height": 852,
+      "page": "06 账号与全局状态",
+      "family": "UI16B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=192-2",
+      "confirmationBasis": "Task10按已确认体系派生，独立验收；非新增人工签字",
+      "entry": "UI16B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-10-memory-guest.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-register-r6\\2026-10-03_185203\\group-buying-12-register\\takeScreenshot\\UI-17B-nickname-from-backend.png",
+      "result": "PASS",
+      "reason": "最终APK真实服务端昵称与My登录身份，菜单/权限及截图对照已检查",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\auth-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R6最终独立APK亲跑；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\192-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:2",
+      "name": "UI-15A AI助手·空状态",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\chat-states\\2026-10-03_195013\\ui-chat-states\\takeScreenshot\\UI15A-real-empty-chat.png",
+      "result": "PASS",
+      "reason": "最新独立APK真实空会话、输入栏、导航及无结果卡片已截图对照",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-error-chat-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "空会话",
+        "共享聊天输入"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\figma\\56-2-current.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:46",
+      "name": "UI-15B AI助手·处理中",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-46",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\chat-states\\2026-10-03_195013\\ui-chat-states\\takeScreenshot\\UI15B-real-processing.png",
+      "result": "PARTIAL",
+      "reason": "真实聊天进行中进度态、输入与导航已截图；本次单目标分类阶段，不冒称Figma三工具复合处理中构图已独立运行",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-error-chat-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "真实进行中",
+        "共享进度行"
+      ],
+      "notCoveredVariants": [
+        "Figma三工具同时进行中的具体构图"
+      ],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\figma\\56-46-current.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:95",
+      "name": "UI-15C AI助手·文本回复",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15C",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-95",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15C",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\group-buying-agent-chat.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\56-95.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:134",
+      "name": "UI-15D AI助手·门店卡片",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15D",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-134",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15D",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\official-cards-r7-r2\\2026-10-03_212849\\group-buying-12-chat-cards\\takeScreenshot\\UI-15D-real-store-cards.png",
+      "result": "PASS",
+      "reason": "真实目录门店卡片、输入仍在、不自动跳转；显式查看进入真实门店再返回。首次双模型连接异常保留，同输入正式重试自然exit0",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\cards-safe-r2.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\official-cards-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-cards-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "真实门店事实",
+        "显式导航",
+        "返回聊天"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\56-134.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:180",
+      "name": "UI-15E AI助手·套餐卡片",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15E",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-180",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15E",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r7\\official-cards-r7-r2\\2026-10-03_212849\\group-buying-12-chat-cards\\takeScreenshot\\UI-15E-real-deal-cards.png",
+      "result": "PASS",
+      "reason": "真实套餐/整数分金额、列表卡片；显式进入详情后返回，没有支付/退款确认和订单/支付写入；同输入正式重试自然exit0",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\tail-result-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\extra-ui-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\security-memory-vector.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\delete-clear-recall-safe.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\cards-safe-r2.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\official-cards-r7\\result.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\pairs-cards-r7.png"
+      ],
+      "evidenceOrigin": "R7原验收者亲跑R6独立APK；明确列示的R5编辑保存复用",
+      "coveredComponents": [
+        "真实套餐事实",
+        "显式详情",
+        "无自动支付确认"
+      ],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\56-180.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:225",
+      "name": "UI-15F AI助手·订单卡片",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15F",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-225",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15F",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\agent-own-orders-and-refund-faq.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\56-225.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:269",
+      "name": "UI-15G AI助手·复合任务",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15G",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-269",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15G",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\agent-composite-independent-read.png",
+      "result": "PARTIAL",
+      "reason": "真实复合补城市、工具结果和完成进度已执行；截图是完成态，不等同Figma处理中进度态",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "补城市、多工具结果和完成进度"
+      ],
+      "notCoveredVariants": [
+        "处理中动态构图"
+      ],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\56-269.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:318",
+      "name": "UI-15H AI助手·登录拦截",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15H",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-318",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15H",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\UI-15H-guest-login-gate.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\56-318.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:363",
+      "name": "UI-15I AI助手·错误兜底",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15I",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-363",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15I",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\side-r6-r2\\task5-ai-error\\2026-10-03_190118\\task5-ai-error\\takeScreenshot\\task5-I-error.png",
+      "result": "PASS",
+      "reason": "固定Agent真停机，普通目录200，公开AI FAILED，恢复原地retry成功",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\side-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R6最终独立APK亲跑；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\56-363.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "56:404",
+      "name": "UI-15J AI助手·多轮对话",
+      "width": 393,
+      "height": 852,
+      "page": "07 AI 助手",
+      "family": "UI-15J",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=56-404",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-15J",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-02-agent-chat.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\group-buying-agent-refund-confirmation.png",
+      "result": "PARTIAL",
+      "reason": "真实退款选券/补原因/确认/取消等多轮与聊天历史已执行；未运行套餐内容上下文回指例子",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "追问、历史和明确确认/取消"
+      ],
+      "notCoveredVariants": [
+        "套餐内容上下文回指"
+      ],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\56-404.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "38:2",
+      "name": "UI-18A 退款申请",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=38-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\38-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "38:18",
+      "name": "UI-18B 退款进度",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=38-18",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-progress.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\38-18.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "38:36",
+      "name": "UI-19 发布评价",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=38-36",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\pairs-review-r5.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\38-36.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "38:46",
+      "name": "UI-20A 帮助与 FAQ",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=38-46",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\faq-expanded.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\38-46.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "38:67",
+      "name": "UI-20B 投诉提交",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=38-67",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\38-67.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "90:7",
+      "name": "UI-18B 退款已完成（设计预留，待后端状态支持）",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18B",
+      "scope": "deferred",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=90-7",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-progress.png",
+      "result": "DEFERRED",
+      "reason": "既定延期：UI13/14核销或退款完成/拒绝预留；未执行不算通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "90:41",
+      "name": "UI-18B 退款未通过（设计预留，待后端状态支持）",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18B",
+      "scope": "deferred",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=90-41",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-progress.png",
+      "result": "DEFERRED",
+      "reason": "既定延期：UI13/14核销或退款完成/拒绝预留；未执行不算通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "101:2",
+      "name": "UI-20A FAQ展开/购买团购",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=101-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\faq-expanded.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他分类及每个展开项未逐项运行",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "首问题展开、购买分类×搜索空态与恢复"
+      ],
+      "notCoveredVariants": [
+        "其他分类及每个展开项未逐项运行"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "101:69",
+      "name": "UI-20A FAQ展开/使用团购券",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=101-69",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\faq-expanded.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他分类及每个展开项未逐项运行",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "首问题展开、购买分类×搜索空态与恢复"
+      ],
+      "notCoveredVariants": [
+        "其他分类及每个展开项未逐项运行"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "101:137",
+      "name": "UI-20A FAQ展开/申请退款",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=101-137",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\faq-expanded.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他分类及每个展开项未逐项运行",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "首问题展开、购买分类×搜索空态与恢复"
+      ],
+      "notCoveredVariants": [
+        "其他分类及每个展开项未逐项运行"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "108:2",
+      "name": "UI-20A FAQ展开/账号与登录",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=108-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\faq-expanded.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他分类及每个展开项未逐项运行",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "首问题展开、购买分类×搜索空态与恢复"
+      ],
+      "notCoveredVariants": [
+        "其他分类及每个展开项未逐项运行"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "127:2",
+      "name": "UI-18A 退款申请/已选行程变更",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=127-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "127:51",
+      "name": "UI-18A 退款申请/已选不想要了",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=127-51",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "127:100",
+      "name": "UI-18A 退款申请/已选点错了",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=127-100",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "127:149",
+      "name": "UI-18A 退款申请/已选其他原因",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=127-149",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "128:2",
+      "name": "UI-19 发布评价/1星",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=128-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "128:49",
+      "name": "UI-19 发布评价/2星",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=128-49",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "128:96",
+      "name": "UI-19 发布评价/3星",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=128-96",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "128:143",
+      "name": "UI-19 发布评价/5星",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=128-143",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "130:2",
+      "name": "UI-20B 投诉提交/已选支付问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=130-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "130:73",
+      "name": "UI-20B 投诉提交/已选商家服务",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=130-73",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "130:144",
+      "name": "UI-20B 投诉提交/已选订单问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=130-144",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "130:215",
+      "name": "UI-20B 投诉提交/已选账号问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=130-215",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "130:286",
+      "name": "UI-20B 投诉提交/已选其他问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=130-286",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "131:2",
+      "name": "UI-20A FAQ搜索结果/平台规则",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=131-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\faq-expanded.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他分类及每个展开项未逐项运行",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "首问题展开、购买分类×搜索空态与恢复"
+      ],
+      "notCoveredVariants": [
+        "其他分类及每个展开项未逐项运行"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "134:2",
+      "name": "UI-20C 反馈提交成功",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20C",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=134-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20C",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-submitted.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\pairs-feedback-r5.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\134-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "135:2",
+      "name": "UI-19R 评价发布成功",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19R",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=135-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19R",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-submitted.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\pairs-review-r5.png",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\135-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "138:2",
+      "name": "UI-20B 选单/已填写/商品问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=138-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "138:74",
+      "name": "UI-20B 选单弹层/空描述/商品问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=138-74",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "139:2",
+      "name": "UI-20B 投诉提交/描述已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=139-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "142:2",
+      "name": "UI-19 发布评价/已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=142-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "142:54",
+      "name": "UI-19 发布评价/内容必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=142-54",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "143:2",
+      "name": "UI-20B 投诉提交/描述必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=143-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "144:2",
+      "name": "UI-18A 退款申请/说明已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=144-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "144:56",
+      "name": "UI-18A 退款申请/已选行程变更/说明已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=144-56",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "144:110",
+      "name": "UI-18A 退款申请/已选不想要了/说明已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=144-110",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "144:164",
+      "name": "UI-18A 退款申请/已选点错了/说明已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=144-164",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "144:218",
+      "name": "UI-18A 退款申请/已选其他原因/说明已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-18A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=144-218",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-18A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-refund.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\refund-request.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他原因的同一RadioGroup及说明组件未逐项点选截图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "行程变更说明、金额预览、取消/确认和重启读回"
+      ],
+      "notCoveredVariants": [
+        "其他原因的同一RadioGroup及说明组件未逐项点选截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "153:2",
+      "name": "UI-19 发布评价/1星/已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=153-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "153:54",
+      "name": "UI-19 发布评价/1星/内容必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=153-54",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "153:107",
+      "name": "UI-19 发布评价/2星/已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=153-107",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "153:159",
+      "name": "UI-19 发布评价/2星/内容必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=153-159",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "153:212",
+      "name": "UI-19 发布评价/3星/已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=153-212",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "153:264",
+      "name": "UI-19 发布评价/3星/内容必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=153-264",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "153:317",
+      "name": "UI-19 发布评价/5星/已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=153-317",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "153:369",
+      "name": "UI-19 发布评价/5星/内容必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-19",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=153-369",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-19",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-review.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\review-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他评分×空/填/必填仅共用组件；未逐排列独立抓图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "1–5真实点击、空正文校验、5星正文发布、资格刷新"
+      ],
+      "notCoveredVariants": [
+        "其他评分×空/填/必填仅共用组件；未逐排列独立抓图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:2",
+      "name": "UI-20B 投诉提交/支付问题/描述已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:73",
+      "name": "UI-20B 投诉提交/支付问题/描述必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-73",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:145",
+      "name": "UI-20B 投诉提交/商家服务/描述已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-145",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:216",
+      "name": "UI-20B 投诉提交/商家服务/描述必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-216",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:288",
+      "name": "UI-20B 投诉提交/订单问题/描述已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-288",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:359",
+      "name": "UI-20B 投诉提交/订单问题/描述必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-359",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:431",
+      "name": "UI-20B 投诉提交/账号问题/描述已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-431",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:502",
+      "name": "UI-20B 投诉提交/账号问题/描述必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-502",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:574",
+      "name": "UI-20B 投诉提交/其他问题/描述已填写",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-574",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "157:645",
+      "name": "UI-20B 投诉提交/其他问题/描述必填提示",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=157-645",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:2",
+      "name": "UI-20B 选单/空描述/商品问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:73",
+      "name": "UI-20B 选单/必填提示/商品问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-73",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:145",
+      "name": "UI-20B 选单弹层/已填写/商品问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-145",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:221",
+      "name": "UI-20B 选单/空描述/支付问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-221",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:292",
+      "name": "UI-20B 选单/已填写/支付问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-292",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:363",
+      "name": "UI-20B 选单/必填提示/支付问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-363",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:435",
+      "name": "UI-20B 选单弹层/空描述/支付问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-435",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:511",
+      "name": "UI-20B 选单弹层/已填写/支付问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-511",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:587",
+      "name": "UI-20B 选单/空描述/商家服务",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-587",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:658",
+      "name": "UI-20B 选单/已填写/商家服务",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-658",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:729",
+      "name": "UI-20B 选单/必填提示/商家服务",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-729",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:801",
+      "name": "UI-20B 选单弹层/空描述/商家服务",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-801",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:877",
+      "name": "UI-20B 选单弹层/已填写/商家服务",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-877",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:953",
+      "name": "UI-20B 选单/空描述/订单问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-953",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1024",
+      "name": "UI-20B 选单/已填写/订单问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1024",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1095",
+      "name": "UI-20B 选单/必填提示/订单问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1095",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1167",
+      "name": "UI-20B 选单弹层/空描述/订单问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1167",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1243",
+      "name": "UI-20B 选单弹层/已填写/订单问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1243",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1319",
+      "name": "UI-20B 选单/空描述/账号问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1319",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1390",
+      "name": "UI-20B 选单/已填写/账号问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1390",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1461",
+      "name": "UI-20B 选单/必填提示/账号问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1461",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1533",
+      "name": "UI-20B 选单弹层/空描述/账号问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1533",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1609",
+      "name": "UI-20B 选单弹层/已填写/账号问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1609",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1685",
+      "name": "UI-20B 选单/空描述/其他问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1685",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1756",
+      "name": "UI-20B 选单/已填写/其他问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1756",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1827",
+      "name": "UI-20B 选单/必填提示/其他问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1827",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1899",
+      "name": "UI-20B 选单弹层/空描述/其他问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1899",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "158:1975",
+      "name": "UI-20B 选单弹层/已填写/其他问题",
+      "width": 393,
+      "height": 852,
+      "page": "08 我的与售后",
+      "family": "UI-20B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=158-1975",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-20B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-after-sale.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\complaint-filled.png",
+      "result": "PARTIAL",
+      "reason": "只有真实家族组件证据，不按Frame存在自动PASS；其他类型×输入组合仅共用组件，不计独立整屏通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "六类真实选择、空描述校验、本人选单、返回修改、明确写入"
+      ],
+      "notCoveredVariants": [
+        "其他类型×输入组合仅共用组件，不计独立整屏通过"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "39:2",
+      "name": "UI-21A 订单空状态",
+      "width": 393,
+      "height": 852,
+      "page": "09 空状态与异常状态",
+      "family": "UI-21A",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=39-2",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-21A",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-orders-empty.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\2026-10-03_104218\\group-buying-99-full-regression\\takeScreenshot\\orders-empty.png",
+      "result": "PASS",
+      "reason": "既有独立轮次真实截图与操作通过；按未变产品blob复用，不冒称本轮重跑",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\39-2.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "39:9",
+      "name": "UI-21B 可重试错误",
+      "width": 393,
+      "height": 852,
+      "page": "09 空状态与异常状态",
+      "family": "UI-21B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=39-9",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-21B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-orders-empty.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\side-r6-r2\\group-buying-05-orders-error\\2026-10-03_190052\\group-buying-05-orders-error\\takeScreenshot\\orders-503.png",
+      "result": "PASS",
+      "reason": "本轮真实一次503设备错误页，随后同页真实订单重试成功",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\side-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R6最终独立APK亲跑；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\39-9.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "39:16",
+      "name": "UI-21C 网络错误",
+      "width": 393,
+      "height": 852,
+      "page": "09 空状态与异常状态",
+      "family": "UI-21C",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=39-16",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-21C",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-orders-empty.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r6\\side-r6-r2\\group-buying-05-orders-network\\2026-10-03_185946\\group-buying-05-orders-network\\takeScreenshot\\orders-network-off.png",
+      "result": "PASS",
+      "reason": "系统默认网络none真实断网，设备错误/恢复同页重试通过",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\side-controller-r2.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R6最终独立APK亲跑；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [],
+      "notCoveredVariants": [],
+      "figmaScreenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma\\39-16.png",
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "156:47",
+      "name": "UI-21B 可重试错误/重试加载中",
+      "width": 393,
+      "height": 852,
+      "page": "09 空状态与异常状态",
+      "family": "UI-21B",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=156-47",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-21B",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-orders-empty.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\side-r5\\group-buying-05-orders-error\\2026-10-03_110514\\group-buying-05-orders-error\\takeScreenshot\\orders-503-retry-real-list.png",
+      "result": "PARTIAL",
+      "reason": "真实失败后点击重试并恢复本人订单列表；截图为恢复态，不是重试中瞬态构图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "原地重试和真实数据恢复"
+      ],
+      "notCoveredVariants": [
+        "重试加载中瞬态截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    },
+    {
+      "id": "156:98",
+      "name": "UI-21C 网络错误/重试加载中",
+      "width": 393,
+      "height": 852,
+      "page": "09 空状态与异常状态",
+      "family": "UI-21C",
+      "scope": "active",
+      "figmaUrl": "https://www.figma.com/design/FxsWKGs10z7BL1MhFAOqFN?node-id=156-98",
+      "confirmationBasis": "已确认主设计及Task5/Task8派生状态记录，细节以原验收报告为准",
+      "entry": "UI-21C",
+      "requiredData": "后端目录/本人业务或测试环境真实错误；无端侧业务兜底",
+      "maestro": "group-buying-05-orders-empty.yaml",
+      "screenshot": "C:\\fdz-build\\.runtime\\task12-independent-r5\\side-r5\\group-buying-05-orders-network-recover\\2026-10-03_110438\\group-buying-05-orders-network-recover\\takeScreenshot\\orders-network-recovered.png",
+      "result": "PARTIAL",
+      "reason": "真实失败后点击重试并恢复本人订单列表；截图为恢复态，不是重试中瞬态构图",
+      "evidence": [
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\main-r5\\maestro.log",
+        "C:\\fdz-build\\.runtime\\task12-independent-r5\\figma-frame-inventory.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r6\\build-summary.json",
+        "C:\\fdz-build\\.runtime\\task12-independent-r7\\reuse-audit.json"
+      ],
+      "evidenceOrigin": "R5独立实测复用，非认证业务/资源blob不变；保留原result，不将PARTIAL当PASS；R7逐blob复核产品/资源/配置不变，复用原独立证据",
+      "coveredComponents": [
+        "原地重试和真实数据恢复"
+      ],
+      "notCoveredVariants": [
+        "重试加载中瞬态截图"
+      ],
+      "figmaScreenshot": null,
+      "acceptanceBoundary": "按实际功能/组件证据判定；PARTIAL不计独立整屏PASS，延期待历史示例不造事实"
+    }
+  ],
+  "finalAcceptance": {
+    "report": "D:/project/-Demo-master/docs/verification/2026-10-03-task12-independent-acceptance.md",
+    "scope": "必要独特业务已实际执行；纯视觉派生保留PARTIAL，不当作128独立主屏全部PASS；ASR/核销/退款完成预留延期",
+    "overall": "PASS",
+    "apkSha256": "f0353c70c9c82e524068fc70f8551a09f7afe8561ccef95d544809dd2dd50884",
+    "counts": {
+      "PASS": 41,
+      "SUPERSEDED": 1,
+      "DEFERRED": 4,
+      "PARTIAL": 82
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "fixtures": false,
+  "profile": "default",
+  "jwtMinutes": 60,
+  "entry": "com.fandazi.FandaziApplication",
+  "previousPid": 53180,
+  "faults": false,
+  "at": "2026-10-02T11:40:20.1616719+08:00",
+  "launcherPid": 8160
+}

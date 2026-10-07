@@ -1,0 +1,12 @@
+{
+  "apk": "C:/fdz-build/android-app/app/build/outputs/apk/debug/app-debug.apk",
+  "sha256": "7F80AD4CA37B87BCA0DF2E50656E4D149C2CE5F61E693D5E31DC90DE202CC765",
+  "installedAt": "2026-10-02T03:36:02.0848262+08:00",
+  "installedMetadata": [
+    "    versionCode=1 minSdk=26 targetSdk=35",
+    "    versionName=1.0",
+    "    lastUpdateTime=2026-10-01 19:35:40",
+    "      firstInstallTime=2026-10-01 19:35:40"
+  ],
+  "builtAt": "2026-10-02T03:35:26.8634153+08:00"
+}

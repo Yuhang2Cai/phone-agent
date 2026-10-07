@@ -1,0 +1,9 @@
+# 不以按钮变灰代替行为证据：实际点击旧取消位置，随后只读核对新run仍等待；绝不点击确认。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: "com.fandazi.app:id/agent_after_sale_cancel"
+    index: 0
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_card"
+- takeScreenshot: "task5-fixround1-old-tap-no-change"

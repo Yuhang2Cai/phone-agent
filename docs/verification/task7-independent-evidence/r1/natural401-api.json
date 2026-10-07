@@ -1,0 +1,138 @@
+[
+  {
+    "originalRestored200": 1,
+    "entry": "order",
+    "real401": 1,
+    "originalTarget": "/api/group-orders/cf7aadd2-31a8-4348-8f24-80f4db27a606",
+    "passed": true,
+    "expiry": {
+      "lifetimeSeconds": 120,
+      "actualLoginAt": "2026-10-02T11:59:44+08:00",
+      "entry": "order",
+      "tokenTampered": false,
+      "ordinaryJwt": true,
+      "waitUntil": "2026-10-02T12:01:48+08:00"
+    },
+    "requests": [
+      {
+        "method": "POST",
+        "status": 200,
+        "at": "2026-10-02T11:59:44.0000000+08:00",
+        "path": "/api/auth/login"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T11:59:45.0000000+08:00",
+        "path": "/api/stores"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T11:59:48.0000000+08:00",
+        "path": "/api/group-orders"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T11:59:52.0000000+08:00",
+        "path": "/api/group-orders/cf7aadd2-31a8-4348-8f24-80f4db27a606"
+      },
+      {
+        "method": "GET",
+        "status": 401,
+        "at": "2026-10-02T12:02:03.0000000+08:00",
+        "path": "/api/group-orders/cf7aadd2-31a8-4348-8f24-80f4db27a606"
+      },
+      {
+        "method": "POST",
+        "status": 200,
+        "at": "2026-10-02T12:02:30.0000000+08:00",
+        "path": "/api/auth/login"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T12:02:30.0000000+08:00",
+        "path": "/api/group-orders/cf7aadd2-31a8-4348-8f24-80f4db27a606"
+      }
+    ]
+  },
+  {
+    "originalRestored200": 1,
+    "entry": "voucher",
+    "real401": 1,
+    "originalTarget": "/api/vouchers/a81f203b-f46b-4da7-be8e-eb11b9d14108",
+    "passed": true,
+    "expiry": {
+      "lifetimeSeconds": 120,
+      "actualLoginAt": "2026-10-02T12:03:19+08:00",
+      "entry": "voucher",
+      "tokenTampered": false,
+      "ordinaryJwt": true,
+      "waitUntil": "2026-10-02T12:05:23+08:00"
+    },
+    "requests": [
+      {
+        "method": "POST",
+        "status": 200,
+        "at": "2026-10-02T12:03:19.0000000+08:00",
+        "path": "/api/auth/login"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T12:03:20.0000000+08:00",
+        "path": "/api/stores"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T12:03:23.0000000+08:00",
+        "path": "/api/group-orders"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T12:03:26.0000000+08:00",
+        "path": "/api/group-orders/cf7aadd2-31a8-4348-8f24-80f4db27a606"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T12:03:31.0000000+08:00",
+        "path": "/api/vouchers/a81f203b-f46b-4da7-be8e-eb11b9d14108"
+      },
+      {
+        "method": "GET",
+        "status": 404,
+        "at": "2026-10-02T12:03:31.0000000+08:00",
+        "path": "/api/refunds/by-voucher/a81f203b-f46b-4da7-be8e-eb11b9d14108"
+      },
+      {
+        "method": "GET",
+        "status": 401,
+        "at": "2026-10-02T12:05:44.0000000+08:00",
+        "path": "/api/vouchers/a81f203b-f46b-4da7-be8e-eb11b9d14108"
+      },
+      {
+        "method": "POST",
+        "status": 200,
+        "at": "2026-10-02T12:06:12.0000000+08:00",
+        "path": "/api/auth/login"
+      },
+      {
+        "method": "GET",
+        "status": 200,
+        "at": "2026-10-02T12:06:12.0000000+08:00",
+        "path": "/api/vouchers/a81f203b-f46b-4da7-be8e-eb11b9d14108"
+      },
+      {
+        "method": "GET",
+        "status": 404,
+        "at": "2026-10-02T12:06:12.0000000+08:00",
+        "path": "/api/refunds/by-voucher/a81f203b-f46b-4da7-be8e-eb11b9d14108"
+      }
+    ]
+  }
+]

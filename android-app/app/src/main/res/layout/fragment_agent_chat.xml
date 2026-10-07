@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AI 助手完整聊天页：固定页面骨架，消息、进度和业务卡片由 Agent 服务状态动态填充。
+    页面不保存门店、套餐、订单等业务样例，避免 Android 端与后端数据产生分叉。
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/group_buy_background"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="24dp"
+        android:paddingTop="18dp"
+        android:paddingBottom="10dp">
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="AI助手"
+                android:textColor="@color/group_buy_green"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="帮你发现更好的餐厅"
+                android:textColor="@color/group_buy_muted"
+                android:textSize="13sp" />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/agent_chat_close"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:contentDescription="更多选项"
+            android:gravity="center"
+            android:text="⋮"
+            android:textColor="@color/group_buy_text"
+            android:textSize="28sp" />
+    </LinearLayout>
+
+    <!-- 比较上下文可见且可清除，后续普通消息不得隐式携带旧资源引用。 -->
+    <LinearLayout android:id="@+id/agent_compare_context" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:paddingHorizontal="16dp" android:visibility="gone">
+        <TextView android:id="@+id/agent_compare_context_text" style="@style/CompareCaption" android:layout_width="0dp" android:layout_weight="1" />
+        <TextView android:id="@+id/agent_compare_clear" style="@style/CompareText" android:layout_width="80dp" android:layout_height="44dp" android:gravity="center" android:text="清除对比" android:textColor="@color/group_buy_green" />
+    </LinearLayout>
+    <!-- 唯一消息滚动容器，保持列表外头部和Task14输入；四类Holder以稳定身份回收。 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/agent_chat_scroll"
+        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:clipToPadding="false" android:paddingHorizontal="16dp"
+        android:paddingTop="4dp" android:paddingBottom="16dp" />
+
+    <!-- 本地语音状态独立于消息列表，不把录音进度伪装成服务端聊天事件。 -->
+    <LinearLayout android:id="@+id/agent_voice_panel" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp" android:layout_marginBottom="8dp" android:padding="16dp"
+        android:orientation="vertical" android:background="@drawable/agent_voice_panel_background" android:visibility="gone">
+        <TextView android:id="@+id/agent_voice_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:textColor="@color/group_buy_green" android:textSize="16sp" android:textStyle="bold" />
+        <TextView android:id="@+id/agent_voice_message" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+            <TextView android:id="@+id/agent_voice_cancel" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1"
+                android:gravity="center" android:text="@string/agent_voice_cancel_recording" android:textSize="14sp"
+                android:textColor="@color/surface_card" android:background="@drawable/agent_voice_secondary_background" />
+            <TextView android:id="@+id/agent_voice_finish" android:layout_width="0dp" android:layout_height="44dp" android:layout_weight="1"
+                android:layout_marginStart="8dp" android:gravity="center" android:text="@string/agent_voice_finish_recording" android:textSize="14sp"
+                android:textColor="@color/surface_card" android:background="@drawable/agent_voice_primary_background" />
+        </LinearLayout>
+    </LinearLayout>
+    <TextView android:id="@+id/agent_voice_notice" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" android:visibility="gone" />
+
+    <LinearLayout
+        android:id="@+id/agent_chat_composer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="12dp">
+        <!-- 点击麦克风才申请录音权限；游客入口禁用，触控区域保持44dp。 -->
+        <ImageButton android:id="@+id/agent_chat_voice" android:layout_width="44dp" android:layout_height="44dp"
+            android:layout_marginEnd="8dp" android:padding="10dp" android:src="@drawable/ic_agent_voice"
+            android:background="@drawable/agent_chat_input_background" android:contentDescription="@string/agent_voice_start" />
+        <EditText
+            android:id="@+id/agent_chat_input"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:background="@drawable/agent_chat_input_background"
+            android:hint="有任何美食需求都可以问我…"
+            android:inputType="textMultiLine"
+            android:maxLines="2"
+            android:textSize="14sp"
+            android:paddingHorizontal="16dp"
+            android:textColor="@color/group_buy_text"
+            android:textColorHint="@color/group_buy_muted" />
+        <TextView
+            android:id="@+id/agent_chat_send"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginStart="8dp"
+            android:background="@drawable/agent_voice_send_background"
+            android:contentDescription="发送消息"
+            android:gravity="center"
+            android:text="›"
+            android:textColor="@color/surface_card"
+            android:textSize="24sp" />
+    </LinearLayout>
+</LinearLayout>

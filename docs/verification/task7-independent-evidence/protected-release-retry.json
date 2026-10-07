@@ -1,0 +1,9 @@
+{
+  "unchanged": true,
+  "at": "2026-10-02T11:42:48.0004205+08:00",
+  "firstComparatorIssue": "开始证据额外matchesDevelopment字段，不能比较整个对象序列化",
+  "missingCount": 0,
+  "changedCount": 0,
+  "afterCount": 438,
+  "beforeCount": 438
+}

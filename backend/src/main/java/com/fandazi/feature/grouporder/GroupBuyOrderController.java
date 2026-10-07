@@ -1,0 +1,56 @@
+// 团购订单模块：提供创建待支付订单和模拟支付接口。
+package com.fandazi.feature.grouporder;
+
+import jakarta.validation.constraints.NotBlank;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+
+/** 团购订单接口只接受公开 ID、确认凭证和幂等键，不接受客户端金额。 */
+@RestController
+@RequestMapping("/api/group-orders")
+public class GroupBuyOrderController {
+    /** quoteId 必填并绑定已展示快照；历史套餐/数量字段不能再作为跳过报价的购买入口。 */
+    public record CreateRequest(@NotBlank String quoteId, String dealId, int quantity, @NotBlank String confirmationGrant, @NotBlank String sessionId, @NotBlank String idempotencyKey) {}
+    public record PayRequest(@NotBlank String idempotencyKey) {}
+    private final GroupBuyOrderService orders;
+    private final com.fandazi.feature.purchase.PurchaseQuoteService quotes;
+    /** 可选开发读取钩子仅依赖JDK接口；正式订单模块不因未交付的开发故障实现而无法构建。 */
+    private final org.springframework.beans.factory.ObjectProvider<java.util.function.LongConsumer> failures;
+
+    /** 注入团购订单服务。 */
+    public GroupBuyOrderController(GroupBuyOrderService orders, com.fandazi.feature.purchase.PurchaseQuoteService quotes,
+            @org.springframework.beans.factory.annotation.Qualifier("developmentOrderFailure")
+            org.springframework.beans.factory.ObjectProvider<java.util.function.LongConsumer> failures) {
+        this.orders = orders; this.quotes = quotes; this.failures = failures;
+    }
+
+    /** 消费一次性确认凭证并创建待支付订单。 */
+    @PostMapping
+    public java.util.Map<String, Object> create(@AuthenticationPrincipal Long userId, @jakarta.validation.Valid @RequestBody CreateRequest request) {
+        // 页面提交已展示的报价身份，写事务复核用户、会话、数量、金额、期限和版本。
+        // 公开 HTTP 不退回历史字段写入，缺报价身份由 @Valid 在进入领域事务前拒绝。
+        return orders.createFromQuote(userId, request.sessionId(), quotes.owned(userId, request.quoteId()), request.confirmationGrant(), request.idempotencyKey());
+    }
+
+    /** 执行演示支付，不连接真实支付渠道。 */
+    @PostMapping("/{orderId}/mock-pay")
+    public java.util.Map<String, Object> pay(@AuthenticationPrincipal Long userId, @PathVariable String orderId, @RequestBody PayRequest request) {
+        return orders.pay(userId, orderId, request.idempotencyKey());
+    }
+
+    /** 返回当前用户的团购订单列表。 */
+    @GetMapping
+    public java.util.List<java.util.Map<String, Object>> list(@AuthenticationPrincipal Long userId) {
+        // 只有 development 显式开关且本人已启动验证时才触发一次 503；恢复重试仍读取原订单数据。
+        // 认证缺失仍由正常安全链拒绝；可选钩子不存在时直接读真实领域数据，不加载未来开发模块。
+        if (userId != null) failures.ifAvailable(failure -> failure.accept(userId));
+        return orders.listForPage(userId);
+    }
+
+    /** 返回当前用户指定团购订单详情和券摘要。 */
+    @GetMapping("/{orderId}")
+    public java.util.Map<String, Object> detail(@AuthenticationPrincipal Long userId, @PathVariable String orderId) {
+        // 页面读取包含付款事实，工具仍使用原严格投影，避免三端契约发生隐式扩张。
+        return orders.detailForPage(userId, orderId);
+    }
+}

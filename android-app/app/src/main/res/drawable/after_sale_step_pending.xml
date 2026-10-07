@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma UI-18B 3dd86.svg 的灰色节点；表示尚未取得处理结果。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="#E7EAEE" />
+    <size android:width="20dp" android:height="20dp" />
+</shape>

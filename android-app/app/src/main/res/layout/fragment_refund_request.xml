@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-18A：退款原因和补充说明是可编辑控件，订单信息由真实接口填入。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/after_sale_background" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp"
+        android:gravity="center_vertical" android:paddingHorizontal="16dp">
+        <TextView android:id="@+id/refund_back" android:layout_width="44dp" android:layout_height="match_parent"
+            android:gravity="center_vertical" android:text="‹" android:textColor="@color/after_sale_ink" android:textSize="34sp"
+            android:contentDescription="返回订单详情" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center" android:text="申请退款" android:textColor="@color/after_sale_ink" android:textSize="21sp" android:textStyle="bold" />
+        <Space android:layout_width="44dp" android:layout_height="1dp" />
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:fillViewport="true" android:clipToPadding="false">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:orientation="vertical" android:paddingHorizontal="12dp" android:paddingBottom="20dp">
+            <!-- 这里不写固定门店和价格；加载中只呈现状态，成功后显示当前券信息。 -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:background="@drawable/after_sale_card" android:orientation="horizontal" android:padding="12dp">
+                <!-- 图片只来自本券的套餐摘要，缺图保持区域与可访问描述。 -->
+                <ImageView android:id="@+id/refund_image" android:layout_width="101dp" android:layout_height="105dp"
+                    android:scaleType="centerCrop" android:src="@drawable/after_sale_image_placeholder" android:contentDescription="图片信息加载中" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                    android:layout_marginStart="12dp" android:orientation="vertical">
+                <TextView android:id="@+id/refund_store" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textColor="@color/after_sale_ink" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:id="@+id/refund_deal" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="7dp" android:textColor="@color/after_sale_ink" android:textSize="15sp" />
+                <TextView android:id="@+id/refund_order_id" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:textColor="@color/after_sale_muted" android:textSize="12sp" />
+                <TextView android:id="@+id/refund_amount" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:gravity="end" android:textColor="@color/group_buy_orange" android:textSize="22sp" android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:background="@drawable/after_sale_card"
+                android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="退款原因" android:textColor="@color/after_sale_ink" android:textSize="17sp" android:textStyle="bold" />
+                <!-- RadioGroup 保证一次只有一个原因；整段原因作为后端 reason 的前缀。 -->
+                <RadioGroup android:id="@+id/refund_reasons" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp">
+                    <RadioButton android:id="@+id/refund_reason_schedule" android:layout_width="match_parent" android:layout_height="42dp"
+                        android:buttonTint="@color/group_buy_orange" android:checked="true" android:text="临时有事，无法前往" android:textSize="14sp" />
+                    <RadioButton android:id="@+id/refund_reason_change" android:layout_width="match_parent" android:layout_height="42dp"
+                        android:buttonTint="@color/group_buy_orange" android:text="行程变更" android:textSize="14sp" />
+                    <RadioButton android:id="@+id/refund_reason_unwanted" android:layout_width="match_parent" android:layout_height="42dp"
+                        android:buttonTint="@color/group_buy_orange" android:text="不想要了" android:textSize="14sp" />
+                    <RadioButton android:id="@+id/refund_reason_wrong" android:layout_width="match_parent" android:layout_height="42dp"
+                        android:buttonTint="@color/group_buy_orange" android:text="点错了" android:textSize="14sp" />
+                    <RadioButton android:id="@+id/refund_reason_other" android:layout_width="match_parent" android:layout_height="42dp"
+                        android:buttonTint="@color/group_buy_orange" android:text="其他原因" android:textSize="14sp" />
+                </RadioGroup>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:background="@drawable/after_sale_card"
+                android:orientation="vertical" android:padding="12dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:text="补充说明（选填）" android:textColor="@color/after_sale_ink" android:textSize="16sp" android:textStyle="bold" />
+                <EditText android:id="@+id/refund_note" android:layout_width="match_parent" android:layout_height="96dp"
+                    android:layout_marginTop="12dp" android:background="@drawable/after_sale_input"
+                    android:gravity="top|start" android:hint="请填写退款原因的补充说明（如有）"
+                    android:inputType="textCapSentences|textMultiLine" android:maxLength="200"
+                    android:padding="12dp" android:textColor="@color/after_sale_ink" android:textSize="13sp" />
+                <TextView android:id="@+id/refund_count" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="end" android:text="0/200" android:textColor="@color/after_sale_muted" android:textSize="11sp" />
+            </LinearLayout>
+            <TextView android:id="@+id/refund_error" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:textColor="@color/warning_red" android:textSize="13sp" android:visibility="gone" />
+            <!-- 原地重试不会清空原因和说明。 -->
+            <TextView android:id="@+id/refund_retry" android:layout_width="match_parent" android:layout_height="40dp"
+                android:gravity="center" android:text="重新加载金额与资格" android:textColor="@color/after_sale_muted" />
+        </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/refund_submit" android:layout_width="match_parent" android:layout_height="50dp"
+        android:layout_marginHorizontal="16dp" android:layout_marginBottom="16dp" android:background="@drawable/after_sale_primary"
+        android:gravity="center" android:text="提交退款申请" android:textColor="@android:color/white"
+        android:textSize="17sp" android:enabled="false" android:contentDescription="提交退款申请" />
+</LinearLayout>

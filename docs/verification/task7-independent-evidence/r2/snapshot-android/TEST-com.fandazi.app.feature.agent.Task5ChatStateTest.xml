@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.agent.Task5ChatStateTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-10-02T04:44:20.489Z" hostname="CAI" time="0.024">
+  <properties/>
+  <testcase name="changingAuthenticatedOwnerClearsLocalHistoryAndStartsFreshSession" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.006"/>
+  <testcase name="successfulGatewayToolAuditDoesNotFinishRunningTask" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.001"/>
+  <testcase name="retryDoesNotRepeatUserBubble" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.004"/>
+  <testcase name="resumedRunMayRestartSequenceUnderNewTrace" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.001"/>
+  <testcase name="gatewayCompatibilityReplayDoesNotRepeatArchivedReplyOrCards" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.002"/>
+  <testcase name="httpAndSseMergeOriginalIdentityWithoutReplacingDatabaseCursor" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.001"/>
+  <testcase name="httpEventsRemainVisibleWithoutSse" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.002"/>
+  <testcase name="streamedTextAndCardUseOriginalEventIdentity" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.001"/>
+  <testcase name="historyCardsBelongToOriginalReplyAndSurviveRestore" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.001"/>
+  <testcase name="streamFailureStopsBusyState" classname="com.fandazi.app.feature.agent.Task5ChatStateTest" time="0.005"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

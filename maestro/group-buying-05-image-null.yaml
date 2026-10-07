@@ -1,0 +1,32 @@
+appId: com.fandazi.app
+---
+# 需要控制端提供真实可退且imageUrl=null的隔离资源；不可退/不可评价订单不能为截图绕过资格。保留输入，不提交。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/group_order_title"
+# 订单详情只在用户主动展开后加载券列表，沿用 Task7 已确认入口。
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- tapOn:
+    id: "com.fandazi.app:id/voucher_row_title"
+- tapOn:
+    id: "com.fandazi.app:id/voucher_refund"
+- extendedWaitUntil:
+    visible: "暂无图片，点击刷新"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/refund_note"
+- inputText: "Keep this note when refreshing missing image."
+- hideKeyboard
+- tapOn: "暂无图片，点击刷新"
+- assertVisible: "Keep this note when refreshing missing image."
+- extendedWaitUntil:
+    visible: "暂无图片，点击刷新"
+    timeout: 30000
+- takeScreenshot: refund-null-image-refreshed

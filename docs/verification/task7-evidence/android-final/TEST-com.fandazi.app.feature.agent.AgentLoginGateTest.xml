@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.agent.AgentLoginGateTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-10-02T02:36:56.573Z" hostname="CAI" time="0.009">
+  <testcase name="receivingStoreCardDoesNotNavigateUntilClick" classname="com.fandazi.app.feature.agent.AgentLoginGateTest" time="0.007" />
+  <testcase name="authenticatedSelectingAgentReturnsChatDestination" classname="com.fandazi.app.feature.agent.AgentLoginGateTest" time="0.001" />
+  <testcase name="guestSelectingAgentReturnsLoginDestination" classname="com.fandazi.app.feature.agent.AgentLoginGateTest" time="0.001" />
+</testsuite>

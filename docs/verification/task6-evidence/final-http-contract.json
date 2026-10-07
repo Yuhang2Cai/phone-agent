@@ -1,0 +1,17 @@
+{
+  "missingQuoteHttp": 400,
+  "legacyDidNotCreate": true,
+  "sameQuoteCreateReplayed": true,
+  "samePaymentReplayed": true,
+  "quoteStatus": "CONSUMED",
+  "database": {
+    "public_id": "8ce499ee-0d9d-4a75-a9ff-dee2afee1c47",
+    "quantity": 1,
+    "status": "PAID",
+    "total_amount": "90.00",
+    "paid_total_amount": "90.00",
+    "paid_at": "2026-10-02 08:11:39.192773",
+    "voucher_count": 1,
+    "voucher_paid": "90.00"
+  }
+}

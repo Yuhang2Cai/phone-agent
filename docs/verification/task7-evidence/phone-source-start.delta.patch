@@ -1,0 +1,1901 @@
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/FandaziApplication.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/FandaziApplication.kt
+index 8f98ac6..688dcf0 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/FandaziApplication.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/FandaziApplication.kt
+@@ -43,6 +43,7 @@ class FandaziApplication : Application() {
+     /** Task6 报价与订单共享认证客户端，401 由购买页保留原目标并进入账号密码登录。 */
+     lateinit var purchaseRepository: PurchaseRepository
+         private set
++    /** Task7 本人订单与券只读查询共享认证客户端；原 afterSale 接线属于 Task8。 */
+     lateinit var voucherRepository: VoucherRepository
+         private set
+     lateinit var afterSaleRepository: AfterSaleRepository
+@@ -64,6 +65,7 @@ class FandaziApplication : Application() {
+         catalogRepository = com.fandazi.app.feature.store.HttpCatalogRepository(apiClient)
+         // Task6 只接入真实 Spring 购买接口，不能使用固定套餐或测试仓库作为运行期兜底。
+         purchaseRepository = HttpPurchaseRepository(apiClient)
++        // 只接入本人真实订单/券读取，不引入延期二维码或模拟核销调用入口。
+         voucherRepository = HttpVoucherRepository(apiClient)
+         // 售后页面使用统一认证客户端，防止页面自行拼接令牌或维护第二套服务地址。
+         afterSaleRepository = HttpAfterSaleRepository(apiClient)
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentCardRenderer.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentCardRenderer.kt
+index 4973d63..ad9a9c4 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentCardRenderer.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentCardRenderer.kt
+@@ -41,6 +41,7 @@ object AgentCardRenderer {
+                 "store" -> renderStore(fragment, inflater, container, card, onNavigate)
+                 "deal" -> renderDeal(fragment, inflater, container, card, onNavigate)
+                 "order" -> renderOrder(inflater, container, card, onNavigate)
++                "voucher" -> renderVoucher(inflater, container, card, onNavigate)
+                 "confirmation" -> renderConfirmation(inflater, container, card, isCurrentConfirmation, onNavigate)
+                 "coupon" -> renderCoupon(inflater, container, card)
+                 "after_sale_voucher_choice" -> renderVoucherChoice(inflater, container, card, onNavigate)
+@@ -50,6 +51,28 @@ object AgentCardRenderer {
+         }
+     }
+ 
++    /** 本人券查询卡只展示后端事实；独立公开券号绑定详情，区别于 Task8 的选券回复动作。 */
++    private fun renderVoucher(inflater: LayoutInflater, container: LinearLayout, card: AgentCardPayload,
++                              onNavigate: (AgentNavigationRequest) -> Unit) {
++        val voucherId = card.fields["voucherId"]?.takeIf(String::isNotBlank)
++        val view = inflater.inflate(R.layout.item_agent_order_card, container, false)
++        view.findViewById<TextView>(R.id.agent_order_title).text = listOfNotNull(card.fields["storeName"], card.fields["dealTitle"]).joinToString(" · ")
++        view.findViewById<TextView>(R.id.agent_order_meta).text = listOf(
++            com.fandazi.app.feature.voucher.VoucherPresentation.voucherStatus(card.fields["status"].orEmpty()),
++            "有效期：${BusinessDisplay.time(card.fields["expiresAt"])}", "券号末8位：${voucherId?.takeLast(8).orEmpty()}").joinToString("\n")
++        view.findViewById<TextView>(R.id.agent_order_amount).apply {
++            visibility = View.VISIBLE
++            text = card.fields["amountCents"]?.toIntOrNull()?.let { "本券实付 ${BusinessDisplay.money(it)}" } ?: "本券尚无付款记录"
++        }
++        // 查询卡资格不影响只读详情权限；真正退款入口仍由券详情重读 canRefund 控制。
++        view.findViewById<TextView>(R.id.agent_order_action).apply {
++            text = "查看团购券"
++            isEnabled = voucherId != null
++            setOnClickListener { voucherId?.let { onNavigate(AgentNavigationRequest.Voucher(it)) } }
++        }
++        container.addView(view)
++    }
++
+     /** 待选券卡展示本人券事实；只有后端明确canRefund=true时用户才能点击完整公开券号。 */
+     private fun renderVoucherChoice(inflater: LayoutInflater, container: LinearLayout, card: AgentCardPayload,
+                                     onNavigate: (AgentNavigationRequest) -> Unit) {
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentChatFragment.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentChatFragment.kt
+index 8ad13e8..23f35e1 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentChatFragment.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentChatFragment.kt
+@@ -140,6 +140,7 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
+                 is AgentNavigationRequest.Store -> card.storePublicId == request.storePublicId
+                 is AgentNavigationRequest.Deal -> card.dealPublicId == request.dealPublicId
+                 is AgentNavigationRequest.Order -> card.orderPublicId == request.orderPublicId
++                is AgentNavigationRequest.Voucher -> card.fields["voucherId"] == request.voucherPublicId
+                 else -> false
+             } }?.let(viewModel::rememberViewedCard)
+             when (request) {
+@@ -159,6 +160,9 @@ class AgentChatFragment : Fragment(R.layout.fragment_agent_chat) {
+                 is AgentNavigationRequest.AgentReply -> viewModel.replyToCard(request)
+                 is AgentNavigationRequest.Order -> findNavController().navigate(R.id.groupOrderDetailFragment,
+                     Bundle().apply { putString("orderId", request.orderPublicId) })
++                // 查询结果始终停留聊天；此处仅在用户点击真实券卡之后导航，不消费任何售后资格。
++                is AgentNavigationRequest.Voucher -> findNavController().navigate(R.id.voucherDetailFragment,
++                    Bundle().apply { putString("voucherId", request.voucherPublicId) })
+             }
+         }
+ 
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentModels.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentModels.kt
+index 1988194..07453de 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentModels.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentModels.kt
+@@ -29,6 +29,9 @@ sealed interface AgentNavigationRequest : Serializable {
+     /** 用户主动点击后以服务端本人订单 ID 打开现有订单详情，不创建第二条路由。 */
+     data class Order(val orderPublicId: String) : AgentNavigationRequest
+ 
++    /** 只读券卡的显式点击打开该券详情；不发送退款确认或请求展示令牌。 */
++    data class Voucher(val voucherPublicId: String) : AgentNavigationRequest
++
+     /** 卡片动作携带原公开摘要供状态入口校验；旧售后特定语句保持原默认调用兼容。 */
+     data class AgentReply(val text: String, val sourceCard: AgentCardPayload? = null) : AgentNavigationRequest
+ }
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/order/OrdersFragment.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/order/OrdersFragment.kt
+index aad618b..e526b57 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/order/OrdersFragment.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/order/OrdersFragment.kt
+@@ -10,11 +10,15 @@ import androidx.fragment.app.Fragment
+ import androidx.lifecycle.lifecycleScope
+ import androidx.navigation.findNavController
+ import com.fandazi.app.FandaziApplication
++import com.fandazi.app.MainActivity
+ import com.fandazi.app.R
+ import com.fandazi.app.core.network.ApiResult
+ import com.fandazi.app.core.network.ApiError
+ import com.fandazi.app.core.time.BusinessDisplay
+ import com.fandazi.app.feature.voucher.GroupOrderSummary
++import com.fandazi.app.feature.voucher.OrderSegment
++import com.fandazi.app.feature.voucher.VoucherPresentation
++import com.google.android.material.tabs.TabLayout
+ import kotlinx.coroutines.launch
+ import kotlinx.coroutines.Job
+ 
+@@ -23,9 +27,27 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
+     private val repository by lazy { (requireActivity().application as FandaziApplication).voucherRepository }
+     /** 同一视图只允许一个列表读取；快速重试不并发覆盖错误或真实列表。 */
+     private var loading: Job? = null
++    // 分段保存显示选择，业务集合仅来自最近成功接口；读取失败时清空，避免旧资格继续可点。
++    private var orders: List<GroupOrderSummary> = emptyList()
++    private var segment = OrderSegment.ALL
+ 
+     /** 绑定三个状态的真实操作，重试按钮原地发起同一个订单列表请求。 */
+     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
++        view.findViewById<TabLayout>(R.id.orders_segments).apply {
++            setTabTextColors(resources.getColor(R.color.group_buy_muted, null), resources.getColor(R.color.group_buy_orange, null))
++            setSelectedTabIndicatorColor(resources.getColor(R.color.group_buy_orange, null))
++            // 固定分段是界面结构；每次点击只筛选后端枚举，不改变订单状态或资格。
++            listOf("全部", "待使用", "已完成", "退款/售后").forEach { addTab(newTab().setText(it)) }
++            getTabAt(segment.ordinal)?.select()
++            addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
++                override fun onTabSelected(tab: TabLayout.Tab) {
++                    segment = OrderSegment.entries[tab.position]
++                    if (orders.isNotEmpty()) renderSegment(view)
++                }
++                override fun onTabUnselected(tab: TabLayout.Tab) = Unit
++                override fun onTabReselected(tab: TabLayout.Tab) = Unit
++            })
++        }
+         view.findViewById<View>(R.id.orders_empty_browse).setOnClickListener { it.findNavController().navigate(R.id.homeFragment) }
+         view.findViewById<View>(R.id.orders_error_retry).setOnClickListener { load(view) }
+         view.findViewById<View>(R.id.orders_network_retry).setOnClickListener { load(view) }
+@@ -46,14 +68,21 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
+         setState(view, "loading")
+         status.isVisible = true
+         list.removeAllViews()
++        orders = emptyList()
+         status.text = "正在加载订单…"
+         loading = viewLifecycleOwner.lifecycleScope.launch {
+             when (val result = repository.listOrders()) {
+                 is ApiResult.Success -> {
+-                    setState(view, if (result.value.isEmpty()) "empty" else "list")
+-                    renderOrders(list, status, result.value)
++                    orders = result.value
++                    setState(view, if (orders.isEmpty()) "empty" else "list")
++                    renderSegment(view)
+                 }
+                 is ApiResult.Failure -> {
++                    // 普通身份过期登录后返回订单入口，不能把 401 伪装为空列表。
++                    if ((result.error as? ApiError.Http)?.code == 401) {
++                        (requireActivity() as MainActivity).openPurchaseLogin(R.id.ordersFragment, Bundle(), true)
++                        return@launch
++                    }
+                     val networkError = result.error is ApiError.Network || result.error is ApiError.Timeout
+                     setState(view, if (networkError) "network" else "error")
+                     view.findViewById<TextView>(R.id.orders_error_description).text = "加载暂时失败，请稍后重试"
+@@ -62,6 +91,17 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
+         }
+     }
+ 
++    /** 分段为空时仍保留状态标签可切换；整个账号无订单则展示既有浏览空态。 */
++    private fun renderSegment(view: View) {
++        val filtered = orders.filter { VoucherPresentation.matches(it, segment) }
++        val status = view.findViewById<TextView>(R.id.order_status)
++        renderOrders(view.findViewById(R.id.order_list), status, filtered)
++        if (orders.isNotEmpty() && filtered.isEmpty()) {
++            status.isVisible = true
++            status.text = "该状态暂无订单"
++        }
++    }
++
+     /** 一次只展示一种状态，防止错误层遮挡可点击订单和底部导航。 */
+     private fun setState(view: View, state: String) {
+         view.findViewById<View>(R.id.orders_content).isVisible = state == "list" || state == "loading"
+@@ -76,24 +116,18 @@ class OrdersFragment : Fragment(R.layout.fragment_orders) {
+         status.isVisible = false
+         orders.forEach { order ->
+             val card = LayoutInflater.from(requireContext()).inflate(R.layout.item_group_order_card, container, false)
++            // 无障碍身份绑定本条真实公开编号；辅助服务和端到端测试不依赖重复的门店/套餐文字定位。
++            card.contentDescription = "order-card-${order.orderId}"
+             // 订单卡以响应中的实际套餐名称为标题，不能用固定示例或仅用截断编号替代业务内容。
+-            card.findViewById<TextView>(R.id.group_order_title).text = order.dealTitle.ifBlank { "团购订单 ${order.orderId.takeLast(8)}" }
+-            card.findViewById<TextView>(R.id.group_order_summary).text = "${order.voucherCount} 张团购券 · ${statusLabel(order.status)}"
+-            card.findViewById<TextView>(R.id.group_order_total).text = BusinessDisplay.money(order.totalCents)
++            card.findViewById<TextView>(R.id.group_order_title).text = order.storeName
++            card.findViewById<TextView>(R.id.group_order_deal).text = order.dealTitle
++            card.findViewById<TextView>(R.id.group_order_state).text = VoucherPresentation.orderStatus(order.status)
++            card.findViewById<TextView>(R.id.group_order_time).text = BusinessDisplay.time(order.createdAt)
++            card.findViewById<TextView>(R.id.group_order_summary).text = "数量 ${order.quantity} · ${order.voucherCount} 张团购券"
++            card.findViewById<TextView>(R.id.group_order_total).text = VoucherPresentation.amount(order)
+             card.setOnClickListener { it.findNavController().navigate(R.id.groupOrderDetailFragment, Bundle().apply { putString("orderId", order.orderId) }) }
+             container.addView(card)
+         }
+     }
+ 
+-    /** 将后端状态转换成订单页可读文案，状态值本身仍由后端控制。 */
+-    private fun statusLabel(status: String) = when (status) {
+-        "PENDING_PAYMENT" -> "待支付"
+-        "PAID" -> "待使用"
+-        "PARTIALLY_USED" -> "部分使用"
+-        "USED" -> "已完成"
+-        "REFUNDED" -> "已退款"
+-        "EXPIRED" -> "已过期"
+-        "CANCELLED" -> "已取消"
+-        else -> status
+-    }
+ }
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/voucher/GroupOrderDetailFragment.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/GroupOrderDetailFragment.kt
+index fb399b5..9d6b6cb 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/voucher/GroupOrderDetailFragment.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/GroupOrderDetailFragment.kt
+@@ -1,4 +1,4 @@
+-// 团购订单模块：展示订单详情和该订单生成的每张团购券。
++// 团购订单详情：读取本人订单的付款快照、状态和全部券，依赖统一仓库、图片与登录恢复入口。
+ package com.fandazi.app.feature.voucher
+ 
+ import android.os.Bundle
+@@ -11,52 +11,111 @@ import androidx.fragment.app.Fragment
+ import androidx.lifecycle.lifecycleScope
+ import androidx.navigation.findNavController
+ import com.fandazi.app.FandaziApplication
++import com.fandazi.app.MainActivity
+ import com.fandazi.app.R
++import com.fandazi.app.core.image.AfterSaleImageLoader
++import com.fandazi.app.core.network.ApiError
+ import com.fandazi.app.core.network.ApiResult
++import com.fandazi.app.core.time.BusinessDisplay
++import kotlinx.coroutines.Job
+ import kotlinx.coroutines.launch
+ 
+-/** UI-11：订单详情；每张券使用独立公开 ID，点击后进入对应券详情。 */
++/** UI11：公开订单号来自导航；只读查询和显式点击导航，不支付、不退款或核销。 */
+ class GroupOrderDetailFragment : Fragment(R.layout.fragment_group_order_detail) {
+     private val repository by lazy { (requireActivity().application as FandaziApplication).voucherRepository }
++    private var loading: Job? = null
++    private var expanded = false
+ 
+-    /** 首次加载与返回页面时都重新查询评价资格，避免提交后仍显示旧入口。 */
++    /** 首次和返回都重新读取本人事实；保留用户展开券列表的意图，资格重新取接口。 */
+     override fun onResume() {
+         super.onResume()
+         view?.let(::load)
+     }
+ 
+-    /** 页面创建后保留布局；数据加载在 onResume 统一执行。 */
+-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) = Unit
++    /** 原地重试始终使用原导航 ID，不能在失败时退回固定订单。 */
++    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
++        view.findViewById<View>(R.id.group_order_retry).setOnClickListener { load(view) }
++    }
+ 
+-    /** 根据导航参数请求后端订单详情。 */
++    /** 校验输入、清理旧视图、读取本人资源；401 清除失效身份并登录返回原订单。 */
+     private fun load(view: View) {
++        if (loading?.isActive == true) return
+         val orderId = requireArguments().getString("orderId").orEmpty()
+         val status = view.findViewById<TextView>(R.id.group_order_detail_status)
+-        val list = view.findViewById<LinearLayout>(R.id.group_voucher_list)
+-        viewLifecycleOwner.lifecycleScope.launch {
++        view.findViewById<View>(R.id.group_order_body).isVisible = false
++        view.findViewById<View>(R.id.group_order_retry).isVisible = false
++        status.isVisible = true
++        status.text = "正在加载订单"
++        loading = viewLifecycleOwner.lifecycleScope.launch {
+             when (val result = repository.getOrder(orderId)) {
+-                is ApiResult.Success -> render(view, list, result.value)
+-                is ApiResult.Failure -> status.text = "订单详情加载失败：${result.error}"
++                is ApiResult.Success -> render(view, result.value)
++                is ApiResult.Failure -> {
++                    // 失败不能保留可用券和旧资格；只有真实 401 进入登录，其余错误允许原地重试。
++                    if ((result.error as? ApiError.Http)?.code == 401) {
++                        (requireActivity() as MainActivity).openPurchaseLogin(R.id.groupOrderDetailFragment,
++                            Bundle().apply { putString("orderId", orderId) }, true)
++                    } else {
++                        status.text = "订单详情加载失败，请重试"
++                        view.findViewById<View>(R.id.group_order_retry).isVisible = true
++                    }
++                }
+             }
+         }
+     }
+ 
+-    /** 使用订单响应中的券列表渲染按钮，避免所有入口指向第一张券。 */
+-    private fun render(view: View, container: LinearLayout, order: GroupOrderSummary) {
+-        view.findViewById<TextView>(R.id.group_order_detail_title).text = "订单 ${order.orderId.takeLast(8)}"
+-        view.findViewById<TextView>(R.id.group_order_detail_total).text = "实付 ¥${"%.2f".format(order.totalCents / 100.0)} · ${order.voucherCount} 张团购券"
+-        // 资格由订单详情响应提供；已评价或未核销订单不会出现可点入口。
+-        view.findViewById<TextView>(R.id.group_order_review).apply {
+-            isVisible = order.canReview
+-            setOnClickListener { it.findNavController().navigate(R.id.reviewFragment, Bundle().apply { putString("orderId", order.orderId) }) }
++    /** 渲染真实订单、图片及每张独立券；金额与资格均直接消费服务端字段。 */
++    private fun render(view: View, order: GroupOrderSummary) {
++        view.findViewById<View>(R.id.group_order_detail_status).isVisible = false
++        view.findViewById<View>(R.id.group_order_body).isVisible = true
++        view.findViewById<TextView>(R.id.group_order_number).text = "订单号 " + order.orderId
++        view.findViewById<TextView>(R.id.group_order_state).text = VoucherPresentation.orderStatus(order.status)
++        view.findViewById<TextView>(R.id.group_order_state_description).text = when {
++            order.status == "PENDING_PAYMENT" -> "订单尚未支付"
++            order.paidTotalCents != null -> "已支付；券状态及可操作资格以当前记录为准"
++            else -> "当前没有付款记录"
+         }
++        view.findViewById<TextView>(R.id.group_order_store).text = order.storeName
++        view.findViewById<TextView>(R.id.group_order_deal).text = order.dealTitle
++        view.findViewById<TextView>(R.id.group_order_detail_total).text = "数量 ${order.quantity}  " + VoucherPresentation.amount(order)
++        view.findViewById<TextView>(R.id.group_order_info).text = listOf(
++            "订单编号  ${order.orderId}", "下单时间  ${BusinessDisplay.time(order.createdAt)}",
++            "支付记录  " + if (order.paidAt != null) "模拟支付 · ${BusinessDisplay.time(order.paidAt)}" else "未支付",
++            "有效期  ${BusinessDisplay.time(order.expiresAt)}").joinToString("\n")
++        view.findViewById<TextView>(R.id.group_order_rules).text = order.dealDescription?.takeIf(String::isNotBlank) ?: "使用说明暂未提供"
++        AfterSaleImageLoader.load(view.findViewById(R.id.group_order_image), order.imageUrl, order.imageAlt) { load(view) }
++        val container = view.findViewById<LinearLayout>(R.id.group_voucher_list)
+         container.removeAllViews()
+-        order.vouchers.forEach { voucher ->
++        // 券身份逐项绑定闭包；序号只用于可读选择，不能用下标生成资源 ID。
++        order.vouchers.forEachIndexed { index, voucher ->
+             val item = LayoutInflater.from(requireContext()).inflate(R.layout.item_voucher_row, container, false)
+-            item.findViewById<TextView>(R.id.voucher_row_title).text = voucher.dealTitle
+-            item.findViewById<TextView>(R.id.voucher_row_status).text = if (voucher.status == "UNUSED") "待使用" else "已使用"
+-            item.setOnClickListener { it.findNavController().navigate(R.id.voucherDetailFragment, Bundle().apply { putString("voucherId", voucher.publicId) }) }
++            item.findViewById<TextView>(R.id.voucher_row_title).text = "团购券 ${index + 1}\n${voucher.dealTitle}"
++            item.findViewById<TextView>(R.id.voucher_row_status).text = VoucherPresentation.voucherStatus(voucher.status)
++            item.contentDescription = "团购券 ${index + 1} ${voucher.publicId}"
++            item.setOnClickListener { it.findNavController().navigate(R.id.voucherDetailFragment,
++                Bundle().apply { putString("voucherId", voucher.publicId) }) }
+             container.addView(item)
+         }
++        container.isVisible = expanded
++        view.findViewById<TextView>(R.id.group_order_show_vouchers).apply {
++            isEnabled = order.vouchers.isNotEmpty()
++            text = if (order.vouchers.isEmpty()) "暂无团购券" else "查看团购券"
++            setOnClickListener { expanded = !expanded; container.isVisible = expanded }
++        }
++        // 退款入口只认后端 canRefund；多券明确选择后进入券详情，避免默认退款首券。
++        view.findViewById<TextView>(R.id.group_order_refund).apply {
++            val eligible = order.vouchers.filter { it.canRefund }
++            isVisible = eligible.isNotEmpty()
++            setOnClickListener {
++                if (eligible.size == 1) it.findNavController().navigate(R.id.refundRequestFragment,
++                    Bundle().apply { putString("voucherId", eligible.single().publicId) })
++                else { expanded = true; container.isVisible = true }
++            }
++        }
++        // 原 Task8 评价导航保留，入口仍只消费服务端 canReview；本轮不提交评价。
++        view.findViewById<TextView>(R.id.group_order_review).apply {
++            isVisible = order.canReview
++            setOnClickListener { it.findNavController().navigate(R.id.reviewFragment,
++                Bundle().apply { putString("orderId", order.orderId) }) }
++        }
+     }
+ }
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt
+index 02566bb..29e4747 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt
+@@ -9,16 +9,26 @@ import androidx.fragment.app.Fragment
+ import androidx.lifecycle.lifecycleScope
+ import androidx.navigation.findNavController
+ import com.fandazi.app.FandaziApplication
++import com.fandazi.app.MainActivity
++import com.fandazi.app.core.image.AfterSaleImageLoader
+ import com.fandazi.app.R
+ import com.fandazi.app.core.network.ApiResult
+ import com.fandazi.app.core.network.ApiError
+ import com.fandazi.app.core.time.BusinessDisplay
+ import kotlinx.coroutines.launch
++import kotlinx.coroutines.Job
+ 
+ /** UI-12：团购券详情页；退款资格取后端，QR源码和导航仅预留，不宣称本期可核销。 */
+ class VoucherDetailFragment : Fragment(R.layout.fragment_voucher_detail) {
+     private val app by lazy { requireActivity().application as FandaziApplication }
+     private val repository by lazy { app.voucherRepository }
++    private var loading: Job? = null
++
++    /** 返回详情时重新读取本人资格，售后操作结束后不残留旧按钮。 */
++    override fun onResume() {
++        super.onResume()
++        view?.let(::load)
++    }
+ 
+     /** 加载真实券详情并绑定售后入口；开始加载前就隐藏延期核销操作，避免短暂可见或触发令牌请求。 */
+     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+@@ -27,15 +37,37 @@ class VoucherDetailFragment : Fragment(R.layout.fragment_voucher_detail) {
+             isEnabled = false
+             setOnClickListener(null)
+         }
++        view.findViewById<View>(R.id.voucher_detail_retry).setOnClickListener { load(view) }
++    }
++
++    /** 原资源只读查询；加载或失败隐藏旧业务内容，401 登录回同一公开券号。 */
++    private fun load(view: View) {
++        if (loading?.isActive == true) return
+         val voucherId = requireArguments().getString("voucherId").orEmpty()
+-        val status = view.findViewById<TextView>(R.id.voucher_detail_status)
+-        viewLifecycleOwner.lifecycleScope.launch {
++        val error = view.findViewById<TextView>(R.id.voucher_detail_error)
++        view.findViewById<View>(R.id.voucher_detail_body).isVisible = false
++        view.findViewById<View>(R.id.voucher_detail_retry).isVisible = false
++        error.isVisible = true
++        error.text = "正在加载团购券"
++        loading = viewLifecycleOwner.lifecycleScope.launch {
+             when (val result = repository.getVoucher(voucherId)) {
+                 is ApiResult.Success -> {
+                     val voucher = result.value
++                    error.isVisible = false
++                    view.findViewById<View>(R.id.voucher_detail_body).isVisible = true
+                     view.findViewById<TextView>(R.id.voucher_detail_title).text = voucher.dealTitle
+                     view.findViewById<TextView>(R.id.voucher_detail_store).text = voucher.storeName
+-                    status.text = if (voucher.status == "UNUSED") "待使用 · 有效期至 ${BusinessDisplay.time(voucher.expiresAt)}" else voucher.status
++                    val state = VoucherPresentation.voucherStatus(voucher.status)
++                    view.findViewById<TextView>(R.id.voucher_detail_status).text = state
++                    // 购买金额为该券支付分摊快照，订单数量另列，不能将整单金额作为每券金额。
++                    view.findViewById<TextView>(R.id.voucher_detail_info).text = listOf(
++                        "券码状态  $state", "团购券编号  ${voucher.publicId}", "订单编号  ${voucher.orderId}",
++                        "购买数量  ${voucher.orderQuantity?.let { "$it 份" } ?: "未取得"}",
++                        if (voucher.amountCents != null) "本券实付  ${BusinessDisplay.money(voucher.amountCents)}" else "本券尚无付款记录",
++                        "购买时间  ${BusinessDisplay.time(voucher.orderCreatedAt)}",
++                        "有效期  ${BusinessDisplay.time(voucher.expiresAt)}").joinToString("\n")
++                    view.findViewById<TextView>(R.id.voucher_detail_rules).text = voucher.dealDescription?.takeIf(String::isNotBlank) ?: "使用说明暂未提供"
++                    AfterSaleImageLoader.load(view.findViewById(R.id.voucher_detail_image), voucher.imageUrl, voucher.imageAlt) { load(view) }
+                     // 退款入口只认后端资格，提交页会再做一次归属和状态校验。
+                     view.findViewById<TextView>(R.id.voucher_refund).apply {
+                         isVisible = voucher.canRefund
+@@ -46,7 +78,16 @@ class VoucherDetailFragment : Fragment(R.layout.fragment_voucher_detail) {
+                     // 每次进入独立查询已有申请；即使没有本地返回栈或进程已重启也能恢复真实进度。
+                     loadRefundProgress(view, voucherId)
+                 }
+-                is ApiResult.Failure -> status.text = "团购券加载失败：${result.error}"
++                is ApiResult.Failure -> {
++                    // 身份失效保留原入口，其他接口/网络错误仅显式重试，不补样例券或猜测资格。
++                    if ((result.error as? ApiError.Http)?.code == 401) {
++                        (requireActivity() as MainActivity).openPurchaseLogin(R.id.voucherDetailFragment,
++                            Bundle().apply { putString("voucherId", voucherId) }, true)
++                    } else {
++                        error.text = "团购券加载失败，请重试"
++                        view.findViewById<View>(R.id.voucher_detail_retry).isVisible = true
++                    }
++                }
+             }
+         }
+     }
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt
+index 0d349aa..abb26a9 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt
+@@ -18,7 +18,12 @@ data class VoucherSummary(
+     val amountCents: Int? = null,
+     val createdAt: String? = null,
+     val imageUrl: String? = null,
+-    val imageAlt: String? = null
++    val imageAlt: String? = null,
++    // 页面专用关联由后端查本人订单提供；工具旧摘要可缺这些字段，不能在端上猜测。
++    val orderQuantity: Int? = null,
++    val orderStatus: String? = null,
++    val orderCreatedAt: String? = null,
++    val dealDescription: String? = null
+ )
+ 
+ /** 后端返回的团购订单摘要，列表和详情共用。 */
+@@ -39,7 +44,12 @@ data class GroupOrderSummary(
+     val storeName: String = "",
+     val dealTitle: String = "",
+     val imageUrl: String? = null,
+-    val imageAlt: String? = null
++    val imageAlt: String? = null,
++    // 实付与时间直接取持久化快照；取消或过期状态不代表一定支付过。
++    val paidTotalCents: Int? = null,
++    val paidAt: String? = null,
++    val expiresAt: String? = null,
++    val dealDescription: String? = null
+ )
+ 
+ /** 按需生成的短时二维码展示令牌。 */
+diff --git a/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherPresentation.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherPresentation.kt
+new file mode 100644
+index 0000000..6e000d0
+--- /dev/null
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherPresentation.kt
+@@ -0,0 +1,46 @@
++// 订单与券显示模块：将后端枚举及整数分格式化为中文，依赖公开模型，不授予业务资格。
++package com.fandazi.app.feature.voucher
++
++import com.fandazi.app.core.time.BusinessDisplay
++
++/** 列表分段只映射后端订单状态；取消、过期、待支付留在全部，不能冒充已使用或退款。 */
++enum class OrderSegment { ALL, AVAILABLE, COMPLETED, REFUNDED }
++
++/** 纯显示转换，无网络及持久化副作用；未知状态显示缺值，不根据日期推定状态。 */
++object VoucherPresentation {
++    /** 输入后端订单状态，返回中文标签；只支持实际协议枚举。 */
++    fun orderStatus(status: String): String = when (status) {
++        "PENDING_PAYMENT" -> "待支付"
++        "PAID" -> "待使用"
++        "PARTIALLY_USED" -> "部分使用"
++        "USED" -> "已完成"
++        "REFUNDED" -> "已退款"
++        "EXPIRED" -> "已过期"
++        "CANCELLED" -> "已取消"
++        else -> "状态未取得"
++    }
++
++    /** 输入后端券状态，返回中文标签；未付款信息另用订单事实展示，不将 UNUSED 等同已付款。 */
++    fun voucherStatus(status: String): String = when (status) {
++        "UNUSED" -> "待使用"
++        "REDEEMED" -> "已使用"
++        "REFUNDED" -> "已退款"
++        "EXPIRED" -> "已过期"
++        else -> "状态未取得"
++    }
++
++    /** 根据后端实际状态选出分段；不以 canRefund=false 推测已申请售后。 */
++    fun matches(order: GroupOrderSummary, segment: OrderSegment): Boolean = when (segment) {
++        OrderSegment.ALL -> true
++        OrderSegment.AVAILABLE -> order.status in setOf("PAID", "PARTIALLY_USED")
++        OrderSegment.COMPLETED -> order.status == "USED"
++        OrderSegment.REFUNDED -> order.status == "REFUNDED"
++    }
++
++    /** 实付只能使用明确付款快照；待支付标待支付，其他无付款事实的终态显示合计。 */
++    fun amount(order: GroupOrderSummary): String = when {
++        order.paidTotalCents != null -> "实付 ${BusinessDisplay.money(order.paidTotalCents)}"
++        order.status == "PENDING_PAYMENT" -> "待支付 ${BusinessDisplay.money(order.totalCents)}"
++        else -> "合计 ${BusinessDisplay.money(order.totalCents)}"
++    }
++}
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherRepository.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherRepository.kt
+index f04127d..2dc7475 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherRepository.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherRepository.kt
+@@ -8,22 +8,36 @@ import com.google.gson.JsonParser
+ 
+ /** 团购券数据访问协议，便于后续替换为缓存或分页实现。 */
+ interface VoucherRepository {
++    /** 只读本人订单集合，失败保留认证/网络错误；不缓存资格或创建订单。 */
+     suspend fun listOrders(): ApiResult<List<GroupOrderSummary>>
++    /** 输入后端公开订单号，返回本人详情；无权限和未知资源由服务端统一拒绝。 */
+     suspend fun getOrder(orderId: String): ApiResult<GroupOrderSummary>
++    /** 输入公开券号，读取该券的分摊金额和资格，不申请核销令牌。 */
+     suspend fun getVoucher(voucherId: String): ApiResult<VoucherSummary>
++    /** 原延期设计接口保留兼容，本期只读页面不会调用。 */
+     suspend fun createDisplayToken(voucherId: String): ApiResult<VoucherDisplayToken>
++    /** 原延期核销接口保留兼容，本期无页面调用入口。 */
+     suspend fun redeem(token: String, storeId: String): ApiResult<VoucherSummary>
+ }
+ 
+ /** 基于统一 ApiClient 的真实 HTTP 实现。 */
+ class HttpVoucherRepository(private val api: ApiClient, private val gson: Gson = Gson()) : VoucherRepository {
++    /** 解析全部本人订单；同一公开身份重复意味着协议无效，不能展示两个同资源入口。 */
+     override suspend fun listOrders(): ApiResult<List<GroupOrderSummary>> = api.get("group-orders").mapJson { body ->
+-        JsonParser.parseString(body).asJsonArray.map { it.asJsonObject.toGroupOrder() }
++        JsonParser.parseString(body).asJsonArray.map { it.asJsonObject.toGroupOrder() }.also { orders ->
++            require(orders.map { it.orderId }.distinct().size == orders.size) { "重复订单身份" }
++        }
+     }
+ 
+-    override suspend fun getOrder(orderId: String): ApiResult<GroupOrderSummary> = api.get("group-orders/${orderId.urlEncoded()}").mapJson { JsonParser.parseString(it).asJsonObject.toGroupOrder() }
++    /** 详情必须返回请求的同一公开订单号，错误响应不能静默替换成其他资源。 */
++    override suspend fun getOrder(orderId: String): ApiResult<GroupOrderSummary> = api.get("group-orders/${orderId.urlEncoded()}").mapJson {
++        JsonParser.parseString(it).asJsonObject.toGroupOrder().also { order -> require(order.orderId == orderId) { "订单身份不匹配" } }
++    }
+ 
+-    override suspend fun getVoucher(voucherId: String): ApiResult<VoucherSummary> = api.get("vouchers/${voucherId.urlEncoded()}").mapJson { JsonParser.parseString(it).asJsonObject.toVoucher() }
++    /** 本人券详情同样核对请求身份；页面失败可重试，不拿第一张券兜底。 */
++    override suspend fun getVoucher(voucherId: String): ApiResult<VoucherSummary> = api.get("vouchers/${voucherId.urlEncoded()}").mapJson {
++        JsonParser.parseString(it).asJsonObject.toVoucher().also { voucher -> require(voucher.publicId == voucherId) { "团购券身份不匹配" } }
++    }
+ 
+     override suspend fun createDisplayToken(voucherId: String): ApiResult<VoucherDisplayToken> =
+         api.postJson("vouchers/${voucherId.urlEncoded()}/display-token", "{}").mapJson {
+@@ -35,25 +49,61 @@ class HttpVoucherRepository(private val api: ApiClient, private val gson: Gson =
+         "vouchers/demo-redemption", gson.toJson(mapOf("token" to token, "storeId" to storeId))
+     ).mapJson { JsonParser.parseString(it).asJsonObject.toVoucher() }
+ 
++    /** 对公开身份编码，防止资源值改变路径结构；不截断或生成替代 ID。 */
+     private fun String.urlEncoded() = java.net.URLEncoder.encode(this, Charsets.UTF_8.name())
+ 
++    /** 解析券公开投影；核心金额和资格缺失时抛出解析异常，由统一边界转为可重试失败。 */
+     private fun com.google.gson.JsonObject.toVoucher() = VoucherSummary(
+         get("publicId").asString, get("orderId").asString, get("dealId").asString, get("dealTitle").asString,
+         get("storeId").asString, get("storeName").asString, get("status").asString,
+-        getNullable("expiresAt"), getNullable("redeemedAt"), get("canRefund")?.asBoolean ?: false,
++        getNullable("expiresAt"), getNullable("redeemedAt"), requiredBoolean("canRefund"),
+         // 新摘要字段直接消费接口，null 金额保留原意，不按订单数量重新分摊。
+-        get("amountCents")?.takeUnless { it.isJsonNull }?.asInt, getNullable("createdAt"),
+-        getNullable("imageUrl"), getNullable("imageAlt")
+-    )
++        cents("amountCents"), getNullable("createdAt"),
++        getNullable("imageUrl"), getNullable("imageAlt"),
++        // 所属订单数量/时间来自页面响应；没有值时保留缺失，不用设备时间或固定数量补造。
++        get("orderQuantity")?.takeUnless { it.isJsonNull }?.asInt,
++        getNullable("orderStatus"), getNullable("orderCreatedAt"), getNullable("dealDescription")
++    ).also { voucher ->
++        // 空资源或业务名称不允许形成可点样例卡；状态按后端协议枚举，资格不由端上重算。
++        require(listOf(voucher.publicId, voucher.orderId, voucher.dealId, voucher.storeId, voucher.dealTitle, voucher.storeName).all(String::isNotBlank))
++        require(voucher.status in setOf("UNUSED", "REDEEMED", "REFUNDED", "EXPIRED"))
++    }
+ 
++    /** 解析订单和所属券；核对数量、身份与分摊守恒，非法输出不能继续导航或展示资格。 */
+     private fun com.google.gson.JsonObject.toGroupOrder() = GroupOrderSummary(
+         get("orderId").asString, get("dealId").asString, get("storeId").asString,
+-        get("quantity").asInt, get("totalCents").asInt, get("status").asString, get("voucherCount").asInt,
+-        getAsJsonArray("vouchers").map { it.asJsonObject.toVoucher() }, get("canReview")?.asBoolean ?: false,
++        get("quantity").asBigDecimal.intValueExact(), cents("totalCents") ?: error("缺少订单金额"), get("status").asString, get("voucherCount").asBigDecimal.intValueExact(),
++        getAsJsonArray("vouchers").map { it.asJsonObject.toVoucher() }, requiredBoolean("canReview"),
+         getNullable("createdAt"), getNullable("storeName").orEmpty(), getNullable("dealTitle").orEmpty(),
+-        getNullable("imageUrl"), getNullable("imageAlt")
+-    )
++        getNullable("imageUrl"), getNullable("imageAlt"),
++        // 页面金额保持整数分且实付允许 null，避免 totalCents 被误当支付事实。
++        cents("paidTotalCents"),
++        getNullable("paidAt"), getNullable("expiresAt"), getNullable("dealDescription")
++    ).also { order ->
++        require(order.quantity > 0 && order.voucherCount == order.vouchers.size && order.quantity == order.voucherCount)
++        require(listOf(order.orderId, order.dealId, order.storeId, order.storeName, order.dealTitle).all(String::isNotBlank))
++        require(order.status in setOf("PENDING_PAYMENT", "PAID", "PARTIALLY_USED", "USED", "REFUNDED", "EXPIRED", "CANCELLED"))
++        require(order.vouchers.map { it.publicId }.distinct().size == order.vouchers.size)
++        require(order.vouchers.all { it.orderId == order.orderId && it.storeId == order.storeId && it.dealId == order.dealId })
++        // 实付快照存在时每张券必须有准确分摊，合计不能依赖当前套餐价格。
++        order.paidTotalCents?.let { paid -> require(order.vouchers.all { it.amountCents != null } && order.vouchers.sumOf { it.amountCents!!.toLong() } == paid.toLong()) }
++    }
++
++    /** 布尔资格必须由后端明确给出，缺字段或字符串替代布尔都拒绝。 */
++    private fun com.google.gson.JsonObject.requiredBoolean(name: String): Boolean {
++        val field = get(name) ?: error("资格字段缺失")
++        require(field.isJsonPrimitive && field.asJsonPrimitive.isBoolean)
++        return field.asBoolean
++    }
++
++    /** 金额只接受非负整数分；null 保持未付款语义，不将小数截断成另一笔金额。 */
++    private fun com.google.gson.JsonObject.cents(name: String): Int? {
++        val field = get(name)?.takeUnless { it.isJsonNull } ?: return null
++        require(field.isJsonPrimitive && field.asJsonPrimitive.isNumber)
++        return field.asBigDecimal.intValueExact().also { require(it >= 0) }
++    }
+ 
++    /** 合法空值保留缺失，不把 JSON null 展示为业务文字。 */
+     private fun com.google.gson.JsonObject.getNullable(name: String): String? = get(name)?.takeUnless { it.isJsonNull }?.asString
+ }
+ 
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/MainActivity.kt b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/MainActivity.kt
+index b14bf33..4b89253 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/java/com/fandazi/app/MainActivity.kt
++++ b/C:/fdz-build/android-app/app/src/main/java/com/fandazi/app/MainActivity.kt
+@@ -99,7 +99,9 @@ class MainActivity : AppCompatActivity() {
+             R.id.profileFragment, R.id.addressFragment, R.id.addressEditFragment,
+             R.id.automationSettingsFragment, R.id.cartFragment, R.id.paymentFragment,
+             R.id.agentChatFragment, R.id.dealDetailFragment, R.id.dealCheckoutBottomSheetFragment,
+-            R.id.groupBuyPaymentFragment, R.id.paymentSuccessFragment -> SessionRoute.HOME
++            // Task7 本人订单/券详情属于已登录业务路由，状态重新派发时不能丢失当前资源退回首页。
++            R.id.groupBuyPaymentFragment, R.id.paymentSuccessFragment,
++            R.id.groupOrderDetailFragment, R.id.voucherDetailFragment -> SessionRoute.HOME
+             else -> null
+         }
+         Log.d("FandaziSession", "session navigation: state=${state::class.java.simpleName}, current=$current, desired=$desired")
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/layout/fragment_group_order_detail.xml b/C:/fdz-build/android-app/app/src/main/res/layout/fragment_group_order_detail.xml
+index e552874..c0479b0 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/layout/fragment_group_order_detail.xml
++++ b/C:/fdz-build/android-app/app/src/main/res/layout/fragment_group_order_detail.xml
+@@ -1,12 +1,37 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!-- UI-11 团购订单详情页。 -->
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:orientation="vertical" android:padding="20dp">
+-    <TextView android:id="@+id/group_order_detail_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/brand_ink" android:textSize="26sp" android:textStyle="bold" />
+-    <TextView android:id="@+id/group_order_detail_total" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/brand_muted" android:textSize="16sp" />
+-    <TextView android:id="@+id/group_order_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:textColor="@color/brand_muted" />
+-    <!-- 服务端 canReview 为真时才开放评价入口，默认保持隐藏。 -->
+-    <TextView android:id="@+id/group_order_review" android:layout_width="match_parent" android:layout_height="48dp"
+-        android:layout_marginTop="16dp" android:background="@drawable/after_sale_primary" android:gravity="center"
+-        android:text="发布评价" android:textColor="@android:color/white" android:textSize="16sp" android:visibility="gone" />
+-    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_marginTop="16dp" android:layout_weight="1"><LinearLayout android:id="@+id/group_voucher_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" /></ScrollView>
+-</LinearLayout>
++<!-- UI11 完整结构：状态、套餐、订单信息、使用须知及券操作；滚动适配真实长编号与多券。 -->
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:fillViewport="true">
++    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
++        <TextView android:id="@+id/group_order_detail_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:text="订单详情" android:textColor="@color/group_buy_green" android:textSize="26sp" android:textStyle="bold" />
++        <TextView android:id="@+id/group_order_number" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
++        <!-- 失败时隐藏旧内容，只重试原资源，不残留可执行资格。 -->
++        <TextView android:id="@+id/group_order_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textColor="@color/group_buy_muted" />
++        <TextView android:id="@+id/group_order_retry" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/search_button_background" android:gravity="center" android:text="点击重试" android:textColor="@android:color/white" android:visibility="gone" />
++        <LinearLayout android:id="@+id/group_order_body" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="94dp" android:background="@drawable/group_buy_card_background" android:orientation="vertical" android:padding="16dp">
++                <TextView android:id="@+id/group_order_state" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/group_buy_orange" android:textSize="20sp" />
++                <TextView android:id="@+id/group_order_state_description" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
++            </LinearLayout>
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/group_buy_card_background" android:orientation="horizontal" android:padding="16dp">
++                <ImageView android:id="@+id/group_order_image" android:layout_width="80dp" android:layout_height="80dp" android:scaleType="centerCrop" android:contentDescription="套餐图片" />
++                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:orientation="vertical">
++                    <TextView android:id="@+id/group_order_store" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/group_buy_text" android:textSize="16sp" android:textStyle="bold" />
++                    <TextView android:id="@+id/group_order_deal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/group_buy_text" android:textSize="14sp" />
++                    <TextView android:id="@+id/group_order_detail_total" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:textColor="@color/group_buy_orange" android:textSize="13sp" />
++                </LinearLayout>
++            </LinearLayout>
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/group_buy_card_background" android:orientation="vertical" android:padding="16dp">
++                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="订单信息" android:textColor="@color/group_buy_green" android:textSize="16sp" android:textStyle="bold" />
++                <TextView android:id="@+id/group_order_info" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:lineSpacingExtra="10dp" android:textColor="@color/group_buy_text" android:textSize="12sp" />
++            </LinearLayout>
++            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:paddingHorizontal="8dp" android:text="使用须知" android:textColor="@color/group_buy_green" android:textSize="16sp" android:textStyle="bold" />
++            <TextView android:id="@+id/group_order_rules" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:paddingHorizontal="8dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
++            <TextView android:id="@+id/group_order_show_vouchers" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="24dp" android:background="@drawable/search_button_background" android:gravity="center" android:text="查看团购券" android:textColor="@android:color/white" android:textSize="16sp" />
++            <!-- 多券分别绑定公开身份；退款选券不可默认消费第一张。 -->
++            <LinearLayout android:id="@+id/group_voucher_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical" android:visibility="gone" />
++            <TextView android:id="@+id/group_order_refund" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:background="@drawable/group_buy_card_background" android:gravity="center" android:text="申请退款" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:visibility="gone" />
++            <!-- 原 Task8 评价入口仅在后端资格允许时显示。 -->
++            <TextView android:id="@+id/group_order_review" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:background="@drawable/group_buy_card_background" android:gravity="center" android:text="发布评价" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:visibility="gone" />
++        </LinearLayout>
++    </LinearLayout>
++</ScrollView>
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/layout/fragment_orders.xml b/C:/fdz-build/android-app/app/src/main/res/layout/fragment_orders.xml
+index 2ea51da..1a24be8 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/layout/fragment_orders.xml
++++ b/C:/fdz-build/android-app/app/src/main/res/layout/fragment_orders.xml
+@@ -2,9 +2,13 @@
+ <!-- 订单页保留 MainActivity 的正式底栏；列表、空态和错误态在同一页面切换。 -->
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="match_parent" android:layout_height="match_parent"
+-    android:background="@android:color/white" android:orientation="vertical">
+-    <TextView android:layout_width="match_parent" android:layout_height="64dp" android:gravity="center"
+-        android:text="我的订单" android:textColor="@color/after_sale_ink" android:textSize="22sp" android:textStyle="bold" />
++    android:background="@color/group_buy_background" android:orientation="vertical">
++    <!-- UI10 真实列表与分段，底栏继续复用正式四图标导航。 -->
++    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="24dp" android:paddingTop="24dp"
++        android:text="订单" android:textColor="@color/group_buy_green" android:textSize="26sp" android:textStyle="bold" />
++    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="24dp" android:paddingTop="4dp" android:paddingBottom="16dp"
++        android:text="查看团购订单和使用状态" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
++    <com.google.android.material.tabs.TabLayout android:id="@+id/orders_segments" android:layout_width="match_parent" android:layout_height="48dp" android:background="@color/group_buy_background" />
+     <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+         <ScrollView android:id="@+id/orders_content" android:layout_width="match_parent" android:layout_height="match_parent"
+             android:clipToPadding="false" android:paddingHorizontal="16dp" android:paddingBottom="24dp">
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/layout/fragment_voucher_detail.xml b/C:/fdz-build/android-app/app/src/main/res/layout/fragment_voucher_detail.xml
+index a865ce4..05f6701 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/layout/fragment_voucher_detail.xml
++++ b/C:/fdz-build/android-app/app/src/main/res/layout/fragment_voucher_detail.xml
+@@ -1,17 +1,30 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<!-- UI-12 团购券详情页。 -->
+-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:orientation="vertical" android:padding="24dp">
+-    <TextView android:id="@+id/voucher_detail_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/brand_ink" android:textSize="26sp" android:textStyle="bold" />
+-    <TextView android:id="@+id/voucher_detail_store" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:textColor="@color/brand_muted" android:textSize="17sp" />
+-    <TextView android:id="@+id/voucher_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:textColor="@color/brand_muted" android:textSize="15sp" />
+-    <!-- 核销延期：源码和导航预留，但本期布局加载到接口完成都不开放此入口，也不申请展示token。 -->
+-    <TextView android:id="@+id/voucher_show_code" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="36dp" android:background="@drawable/search_button_background" android:gravity="center" android:text="出示核销码" android:textColor="@android:color/white" android:textSize="17sp" android:textStyle="bold" android:visibility="gone" android:enabled="false" />
+-    <!-- 退款入口由后端 canRefund 控制，不以待使用状态自行推断。 -->
+-    <TextView android:id="@+id/voucher_refund" android:layout_width="match_parent" android:layout_height="50dp"
+-        android:layout_marginTop="16dp" android:background="@drawable/after_sale_outline" android:gravity="center"
+-        android:text="申请退款" android:textColor="@color/after_sale_ink" android:textSize="16sp" android:visibility="gone" />
+-    <!-- 已申请入口每次从本人按券查询得到，不能依赖申请页面的缓存或返回栈。 -->
+-    <TextView android:id="@+id/voucher_refund_progress" android:layout_width="match_parent" android:layout_height="50dp"
+-        android:layout_marginTop="16dp" android:background="@drawable/after_sale_outline" android:gravity="center"
+-        android:text="查看退款进度" android:textColor="@color/after_sale_ink" android:textSize="16sp" android:visibility="gone" />
+-</LinearLayout>
++<!-- UI12：套餐图片、券状态、订单信息和后端套餐说明；延期核销入口始终隐藏，不申请令牌。 -->
++<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:fillViewport="true">
++    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
++        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:text="团购券详情" android:textColor="@color/group_buy_green" android:textSize="26sp" android:textStyle="bold" />
++        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp" android:text="核销暂未开放" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
++        <TextView android:id="@+id/voucher_detail_error" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textColor="@color/group_buy_muted" />
++        <TextView android:id="@+id/voucher_detail_retry" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/search_button_background" android:gravity="center" android:text="点击重试" android:textColor="@android:color/white" android:visibility="gone" />
++        <LinearLayout android:id="@+id/voucher_detail_body" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="112dp" android:background="@drawable/group_buy_card_background" android:orientation="horizontal" android:padding="16dp">
++                <ImageView android:id="@+id/voucher_detail_image" android:layout_width="80dp" android:layout_height="80dp" android:scaleType="centerCrop" android:contentDescription="套餐图片" />
++                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:orientation="vertical">
++                    <TextView android:id="@+id/voucher_detail_store" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/group_buy_text" android:textSize="16sp" android:textStyle="bold" />
++                    <TextView android:id="@+id/voucher_detail_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/group_buy_text" android:textSize="14sp" />
++                    <TextView android:id="@+id/voucher_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:textColor="@color/group_buy_orange" android:textSize="12sp" />
++                </LinearLayout>
++            </LinearLayout>
++            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="18dp" android:background="@drawable/group_buy_card_background" android:orientation="vertical" android:padding="16dp">
++                <TextView android:id="@+id/voucher_detail_info" android:layout_width="match_parent" android:layout_height="wrap_content" android:lineSpacingExtra="12dp" android:textColor="@color/group_buy_text" android:textSize="12sp" />
++            </LinearLayout>
++            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp" android:paddingHorizontal="8dp" android:text="使用规则" android:textColor="@color/group_buy_green" android:textSize="16sp" android:textStyle="bold" />
++            <TextView android:id="@+id/voucher_detail_rules" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:paddingHorizontal="8dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
++            <!-- 退款只导航；原 Task8 进度入口保留，不能据 canRefund=false 推断存在申请。 -->
++            <TextView android:id="@+id/voucher_refund" android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="24dp" android:background="@drawable/after_sale_outline" android:gravity="center" android:text="申请退款" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:visibility="gone" />
++            <TextView android:id="@+id/voucher_refund_progress" android:layout_width="match_parent" android:layout_height="50dp" android:layout_marginTop="16dp" android:background="@drawable/after_sale_outline" android:gravity="center" android:text="查看退款进度" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:visibility="gone" />
++        </LinearLayout>
++        <!-- 保留延期设计源码但无可见调用入口；不将 QR 或核销路由纳入 Task7 交付。 -->
++        <TextView android:id="@+id/voucher_show_code" android:layout_width="match_parent" android:layout_height="56dp" android:visibility="gone" android:enabled="false" />
++    </LinearLayout>
++</ScrollView>
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/layout/item_group_order_card.xml b/C:/fdz-build/android-app/app/src/main/res/layout/item_group_order_card.xml
+index 6e63417..14d4cdc 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/layout/item_group_order_card.xml
++++ b/C:/fdz-build/android-app/app/src/main/res/layout/item_group_order_card.xml
+@@ -1,7 +1,15 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <!-- UI-10 团购订单卡片：字段由后端订单摘要填充。 -->
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:background="@drawable/group_buy_card_background" android:orientation="vertical" android:padding="18dp">
+-    <TextView android:id="@+id/group_order_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/brand_ink" android:textSize="18sp" android:textStyle="bold" />
+-    <TextView android:id="@+id/group_order_summary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/brand_muted" android:textSize="14sp" />
+-    <TextView android:id="@+id/group_order_total" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:textColor="@color/brand_orange" android:textSize="18sp" android:textStyle="bold" />
++    <!-- 长门店名换行，状态保留自己的空间，真实数量与时间不能只以券数替代。 -->
++    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
++        <TextView android:id="@+id/group_order_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/group_buy_text" android:textSize="17sp" android:textStyle="bold" />
++        <TextView android:id="@+id/group_order_state" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:textColor="@color/group_buy_orange" android:textSize="12sp" />
++    </LinearLayout>
++    <TextView android:id="@+id/group_order_deal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/group_buy_text" android:textSize="14sp" />
++    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center_vertical">
++        <TextView android:id="@+id/group_order_time" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/group_buy_muted" android:textSize="12sp" />
++        <TextView android:id="@+id/group_order_total" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:textStyle="bold" />
++    </LinearLayout>
++    <TextView android:id="@+id/group_order_summary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textColor="@color/group_buy_muted" android:textSize="11sp" />
+ </LinearLayout>
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/navigation/nav_graph.xml b/C:/fdz-build/android-app/app/src/main/res/navigation/nav_graph.xml
+index fa19ce7..46d13f9 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/android-app/app/src/main/res/navigation/nav_graph.xml
++++ b/C:/fdz-build/android-app/app/src/main/res/navigation/nav_graph.xml
+@@ -45,6 +45,7 @@
+     </dialog>
+     <fragment android:id="@+id/groupBuyPaymentFragment" android:name="com.fandazi.app.feature.purchase.GroupBuyPaymentFragment" android:label="模拟支付" />
+     <fragment android:id="@+id/paymentSuccessFragment" android:name="com.fandazi.app.feature.purchase.PaymentSuccessFragment" android:label="支付成功" />
++    <!-- Task7 只读入口：订单和券身份从用户显式点击透传；下面原 dirty QR/售后路由不归本任务。 -->
+     <fragment android:id="@+id/groupOrderDetailFragment" android:name="com.fandazi.app.feature.voucher.GroupOrderDetailFragment" android:label="订单详情">
+         <argument android:name="orderId" app:argType="string" />
+     </fragment>
+diff --git a/C:/fdz-build/android-app/app/src/test/java/com/fandazi/app/feature/voucher/VoucherRepositoryTest.kt b/C:/fdz-build/android-app/app/src/test/java/com/fandazi/app/feature/voucher/VoucherRepositoryTest.kt
+new file mode 100644
+index 0000000..84fda50
+--- /dev/null
++++ b/C:/fdz-build/android-app/app/src/test/java/com/fandazi/app/feature/voucher/VoucherRepositoryTest.kt
+@@ -0,0 +1,72 @@
++// Task7 数据边界测试：真实 HTTP 客户端解析合成协议，验证独立身份、付款事实与错误保留；不做 UI 视觉 TDD。
++package com.fandazi.app.feature.voucher
++
++import com.fandazi.app.core.network.ApiClient
++import com.fandazi.app.core.network.ApiError
++import com.fandazi.app.core.network.ApiResult
++import kotlinx.coroutines.runBlocking
++import okhttp3.mockwebserver.MockResponse
++import okhttp3.mockwebserver.MockWebServer
++import org.junit.Assert.*
++import org.junit.Test
++import org.junit.runner.RunWith
++import org.robolectric.RobolectricTestRunner
++import org.robolectric.annotation.Config
++
++/** 网络替身只提供测试 JSON，仓库与错误映射真实执行；不能替代本人权限和真实 DB 验证。 */
++@RunWith(RobolectricTestRunner::class)
++@Config(sdk = [28])
++class VoucherRepositoryTest {
++    /** 缺后端资格必须成为协议错误，禁止默认 false 隐藏非法输出。 */
++    @Test
++    fun missingEligibilityFailsInsteadOfInventingPermission() = runBlocking {
++        val server = MockWebServer()
++        server.start()
++        try {
++            server.enqueue(MockResponse().setBody(voucher("v1", "o1", false).replace(",\"canRefund\":false", "")))
++            val result = HttpVoucherRepository(ApiClient(server.url("/api/").toString(), tokenProvider = { null })).getVoucher("v1")
++            assertTrue(result is ApiResult.Failure)
++        } finally { server.shutdown() }
++    }
++
++    /** 不同券身份原样传到请求；401 保留供登录处理，随后同一资源重试可恢复真实解析。 */
++    @Test
++    fun distinctResourcesAndAuthenticationRetryKeepTheirIdentity() = runBlocking {
++        val server = MockWebServer()
++        server.start()
++        try {
++            server.enqueue(MockResponse().setBody(voucher("v1", "o1", true)))
++            server.enqueue(MockResponse().setResponseCode(401))
++            server.enqueue(MockResponse().setBody(voucher("v2", "o2", false)))
++            val repository = HttpVoucherRepository(ApiClient(server.url("/api/").toString(), tokenProvider = { "test-token" }))
++            assertEquals("o1", (repository.getVoucher("v1") as ApiResult.Success).value.orderId)
++            assertEquals(401, ((repository.getVoucher("v2") as ApiResult.Failure).error as ApiError.Http).code)
++            val recovered = (repository.getVoucher("v2") as ApiResult.Success).value
++            assertEquals("v2", recovered.publicId)
++            assertFalse(recovered.canRefund)
++            assertEquals(listOf("/api/vouchers/v1", "/api/vouchers/v2", "/api/vouchers/v2"),
++                List(3) { server.takeRequest().path })
++        } finally { server.shutdown() }
++    }
++
++    /** 同为过期订单也不能猜是否付过款；显示只依赖 payment 快照，分段只认真实状态。 */
++    @Test
++    fun paymentLabelsAndSegmentsRespectBackendFacts() {
++        val pending = order("PENDING_PAYMENT", null)
++        assertTrue(VoucherPresentation.amount(pending).startsWith("待支付"))
++        assertTrue(VoucherPresentation.amount(order("EXPIRED", null)).startsWith("合计"))
++        assertTrue(VoucherPresentation.amount(order("EXPIRED", 10001)).contains("100.01"))
++        assertTrue(VoucherPresentation.matches(order("USED", 10001), OrderSegment.COMPLETED))
++        assertFalse(VoucherPresentation.matches(pending, OrderSegment.AVAILABLE))
++        assertTrue(VoucherPresentation.matches(order("REFUNDED", 10001), OrderSegment.REFUNDED))
++        assertEquals("已退款", VoucherPresentation.voucherStatus("REFUNDED"))
++        assertEquals("已过期", VoucherPresentation.voucherStatus("EXPIRED"))
++    }
++
++    /** 合成公开响应仅用于字段保留测试，金额/资格明确提供，不指向生产样例。 */
++    private fun voucher(id: String, order: String, refundable: Boolean) =
++        """{"publicId":"$id","orderId":"$order","dealId":"d","dealTitle":"合成套餐","storeId":"s","storeName":"合成门店","status":"UNUSED","canRefund":$refundable,"expiresAt":"2030-01-01T00:00:00Z","redeemedAt":null,"amountCents":10001,"orderQuantity":1,"orderStatus":"PAID","orderCreatedAt":"2026-10-01T00:00:00Z","dealDescription":"合成说明"}"""
++
++    /** 合成状态输入只验证金额标签，不创建或改变真实业务事实。 */
++    private fun order(status: String, paid: Int?) = GroupOrderSummary("o", "d", "s", 1, 10001, status, 0, emptyList(), paidTotalCents = paid)
++}
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderController.java b/C:/fdz-build/backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderController.java
+index fdd9957..383c003 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderController.java
++++ b/C:/fdz-build/backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderController.java
+@@ -42,12 +42,13 @@ public class GroupBuyOrderController {
+     public java.util.List<java.util.Map<String, Object>> list(@AuthenticationPrincipal Long userId) {
+         // 只有 development 显式开关且本人已启动验证时才触发一次 503；恢复重试仍读取原订单数据。
+         failures.ifAvailable(failure -> failure.beforeList(userId));
+-        return orders.list(userId);
++        return orders.listForPage(userId);
+     }
+ 
+     /** 返回当前用户指定团购订单详情和券摘要。 */
+     @GetMapping("/{orderId}")
+     public java.util.Map<String, Object> detail(@AuthenticationPrincipal Long userId, @PathVariable String orderId) {
+-        return orders.detail(userId, orderId);
++        // 页面读取包含付款事实，工具仍使用原严格投影，避免三端契约发生隐式扩张。
++        return orders.detailForPage(userId, orderId);
+     }
+ }
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderService.java b/C:/fdz-build/backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderService.java
+index ca6698d..bf28f0d 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderService.java
++++ b/C:/fdz-build/backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderService.java
+@@ -81,6 +81,33 @@ public class GroupBuyOrderService {
+         return data(orders.findByUserIdAndPublicId(userId, publicId).orElseThrow(() -> new DomainException("团购订单不存在")));
+     }
+ 
++    /** 输入当前认证用户，返回页面列表专用投影；只读数据库，不改变订单或工具协议。 */
++    @Transactional(readOnly = true)
++    public List<Map<String, Object>> listForPage(Long userId) {
++        // 本人过滤在仓储完成，页面补充字段不能扩大到其他用户的订单。
++        return orders.findByUserIdOrderByCreatedAtDesc(userId).stream().map(this::pageData).toList();
++    }
++
++    /** 输入本人用户和公开订单号，读取页面详情；资源不存在或不属于本人时统一拒绝。 */
++    @Transactional(readOnly = true)
++    public Map<String, Object> detailForPage(Long userId, String publicId) {
++        var order = orders.findByUserIdAndPublicId(userId, publicId)
++                .orElseThrow(() -> new DomainException("团购订单不存在"));
++        return pageData(order);
++    }
++
++    /** 页面专用字段来自持久化支付快照及当前套餐说明，合法空值表示尚无付款事实。 */
++    private Map<String, Object> pageData(GroupBuyOrderEntity order) {
++        Map<String, Object> result = new LinkedHashMap<>(data(order));
++        // 不能用订单状态推定实付：取消或过期订单可能从未支付，必须直接读取数据库快照。
++        result.put("paidTotalCents", order.getPaidTotalCents());
++        result.put("paidAt", com.fandazi.core.time.BusinessTime.utc(order.getPaidAt()));
++        result.put("expiresAt", com.fandazi.core.time.BusinessTime.utc(order.getExpiresAt()));
++        // 当前没有独立使用规则字段，原样显示套餐说明；不补 Figma 示例中的自动退款承诺。
++        result.put("dealDescription", order.getDeal().getDescription());
++        return result;
++    }
++
+     /** V1 按真实报价创建订单；锁住套餐后重查版本、金额、日期和库存，任何变化均要求重新报价。 */
+     @Transactional
+     public Map<String, Object> createFromQuote(Long userId, String sessionId, com.fandazi.feature.purchase.PurchaseQuote quote,
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/main/java/com/fandazi/feature/voucher/VoucherController.java b/C:/fdz-build/backend/src/main/java/com/fandazi/feature/voucher/VoucherController.java
+index 00b01b6..b2342da 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/main/java/com/fandazi/feature/voucher/VoucherController.java
++++ b/C:/fdz-build/backend/src/main/java/com/fandazi/feature/voucher/VoucherController.java
+@@ -24,7 +24,10 @@ public class VoucherController {
+ 
+     /** 查询当前用户的券详情。 */
+     @GetMapping("/{publicId}")
+-    public Map<String, Object> detail(@AuthenticationPrincipal Long userId, @PathVariable String publicId) { return service.detail(userId, publicId); }
++    public Map<String, Object> detail(@AuthenticationPrincipal Long userId, @PathVariable String publicId) {
++        // 页面读取需要所属订单信息；Agent 只读工具继续复用既有不带令牌的安全摘要。
++        return service.detailForPage(userId, publicId);
++    }
+ 
+     /** 按需生成短时二维码展示令牌。 */
+     @PostMapping("/{publicId}/display-token")
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/main/java/com/fandazi/feature/voucher/VoucherService.java b/C:/fdz-build/backend/src/main/java/com/fandazi/feature/voucher/VoucherService.java
+index d9c5a12..e80ca81 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/main/java/com/fandazi/feature/voucher/VoucherService.java
++++ b/C:/fdz-build/backend/src/main/java/com/fandazi/feature/voucher/VoucherService.java
+@@ -37,6 +37,22 @@ public class VoucherService {
+                 .orElseThrow(() -> new DomainException("团购券不存在"));
+     }
+ 
++    /** 本人券页面详情补充所属订单事实；输入公开券号，跨用户和未知资源均拒绝，无写入副作用。 */
++    @Transactional(readOnly = true)
++    public Map<String, Object> detailForPage(Long userId, String publicId) {
++        // 先校验本人归属，再读取订单关联；不能接受客户端提供的订单身份或购买数量。
++        var voucher = vouchers.findByUserIdAndPublicId(userId, publicId)
++                .orElseThrow(() -> new DomainException("团购券不存在"));
++        Map<String, Object> result = new LinkedHashMap<>(summary(voucher));
++        var order = voucher.getOrder();
++        result.put("orderQuantity", order.getQuantity());
++        result.put("orderStatus", order.getStatus().name());
++        result.put("orderCreatedAt", com.fandazi.core.time.BusinessTime.utc(order.getCreatedAt()));
++        // 实付为单券分摊快照，订单时间与套餐说明只是展示上下文，不据此授予退款或核销资格。
++        result.put("dealDescription", voucher.getDeal().getDescription());
++        return result;
++    }
++
+     /** 仅为当前用户的指定团购券生成短时二维码展示令牌。 */
+     @Transactional(readOnly = true)
+     public Map<String, Object> displayToken(Long userId, String publicId) {
+diff --git a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/test/java/com/fandazi/feature/grouporder/GroupOrderSummaryContractTest.java b/C:/fdz-build/backend/src/test/java/com/fandazi/feature/grouporder/GroupOrderSummaryContractTest.java
+index 25a6b8d..b7397ec 100644
+--- a/C:/fdz-build/.runtime/task7/source-start/phone/backend/src/test/java/com/fandazi/feature/grouporder/GroupOrderSummaryContractTest.java
++++ b/C:/fdz-build/backend/src/test/java/com/fandazi/feature/grouporder/GroupOrderSummaryContractTest.java
+@@ -26,6 +26,27 @@ class GroupOrderSummaryContractTest {
+     @Autowired private GroupBuyOrderRepository entities;
+     @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbc;
+     @jakarta.persistence.PersistenceContext private jakarta.persistence.EntityManager entityManager;
++    // 页面接口单独暴露实付事实，不能把 totalCents 或券状态当作付款证明。
++    @Autowired private GroupBuyOrderController pages;
++    @Autowired private com.fandazi.feature.voucher.VoucherController voucherPages;
++
++    /** 真实页面读取必须区分待付和实付，并提供券所属订单信息；防止旧详情误标金额。 */
++    @Test
++    void pageQueriesExposePaymentFactsWithoutChangingToolProjection() {
++        Long userId = users.findByUsername("seed_alice").orElseThrow().getId();
++        // 未付款分支保留 null，已付款分支读取持久化快照；两者均不能由页面猜测。
++        var pending = pages.detail(userId, publicIds.require("order", "group-order-pending"));
++        assertThat(pending).containsEntry("paidTotalCents", null).containsEntry("paidAt", null);
++        var paid = pages.detail(userId, publicIds.require("order", "group-order-paid"));
++        // 该种子为两份各 12800 分，整单实付必须为 25600，不能混淆单券与订单金额。
++        assertThat(paid).containsEntry("paidTotalCents", 25600).containsKeys("paidAt", "expiresAt", "dealDescription");
++        @SuppressWarnings("unchecked") var voucher = ((java.util.List<Map<String, Object>>) paid.get("vouchers")).get(0);
++        var detail = voucherPages.detail(userId, voucher.get("publicId").toString());
++        assertThat(detail).containsEntry("orderQuantity", 2).containsEntry("orderStatus", "PAID")
++                .containsKeys("orderCreatedAt", "dealDescription");
++        // 工具读取继续使用原严格契约，不把页面专用字段扩散至既有跨服务输出。
++        assertThat(orders.detail(userId, paid.get("orderId").toString())).doesNotContainKeys("paidTotalCents", "paidAt", "dealDescription");
++    }
+ 
+     /** JPA 真实插入和支付必须读写 DECIMAL 权威列，legacy 列保持 null，不能只添加不使用的新列。 */
+     @Test
+diff --git a/C:/fdz-build/maestro/group-buying-04-voucher-query.yaml b/C:/fdz-build/maestro/group-buying-04-voucher-query.yaml
+new file mode 100644
+index 0000000..0d2e23e
+--- /dev/null
++++ b/C:/fdz-build/maestro/group-buying-04-voucher-query.yaml
+@@ -0,0 +1,108 @@
++# Task7 真实只读链：三个订单、四张券、分段和真实资格；不签发QR、不提交退款、不核销。
++appId: com.fandazi.app
++---
++- launchApp:
++    clearState: true
++- runFlow: task7-login.yaml
++- tapOn: "订单"
++- extendedWaitUntil:
++    visible: "order-card-${TASK7_ORDER_A}"
++    timeout: 30000
++- assertVisible: "order-card-${TASK7_ORDER_B}"
++- assertVisible: "order-card-${TASK7_ORDER_PENDING}"
++- assertVisible: ".*待支付.*71.23"
++- takeScreenshot: "UI10-orders-three-real"
++# 已完成/售后没有伪造已核销资源，真实空分段仍允许切回全部。
++- tapOn: "已完成"
++- assertVisible: "该状态暂无订单"
++- takeScreenshot: "completed-segment-empty"
++- tapOn: "退款/售后"
++- assertVisible: "该状态暂无订单"
++- tapOn: "待使用"
++- assertNotVisible: "order-card-${TASK7_ORDER_PENDING}"
++- assertVisible: "order-card-${TASK7_ORDER_A}"
++- takeScreenshot: "available-segment-two"
++- tapOn: "order-card-${TASK7_ORDER_A}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_ORDER_A}.*"
++    timeout: 30000
++- assertVisible: ".*实付.*142.46"
++- takeScreenshot: "UI11-order-two-vouchers"
++- scrollUntilVisible:
++    element:
++      id: "com.fandazi.app:id/group_order_show_vouchers"
++    direction: DOWN
++- tapOn:
++    id: "com.fandazi.app:id/group_order_show_vouchers"
++- scrollUntilVisible:
++    element:
++      text: "团购券 1 ${TASK7_VOUCHER_A}"
++    direction: DOWN
++- tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/voucher_detail_info"
++    timeout: 30000
++- assertVisible: ".*${TASK7_VOUCHER_A}.*"
++- assertVisible: ".*${TASK7_ORDER_A}.*"
++- assertVisible: ".*本券实付.*71.23.*"
++- assertNotVisible: "展示核销二维码"
++- takeScreenshot: "UI12-voucher-first"
++- back
++- scrollUntilVisible:
++    element:
++      text: "团购券 2 ${TASK7_VOUCHER_B}"
++    direction: DOWN
++- tapOn: "团购券 2 ${TASK7_VOUCHER_B}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_VOUCHER_B}.*"
++    timeout: 30000
++- takeScreenshot: "voucher-second-distinct"
++# 退款只检查后端canRefund资格与入口导航，返回即可，不触发售后写入。
++- scrollUntilVisible:
++    element:
++      id: "com.fandazi.app:id/voucher_refund"
++    direction: DOWN
++- tapOn:
++    id: "com.fandazi.app:id/voucher_refund"
++- assertVisible: "申请退款"
++- takeScreenshot: "eligible-refund-navigation-only"
++- back
++- back
++- back
++- tapOn: "全部"
++- tapOn: "order-card-${TASK7_ORDER_B}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_ORDER_B}.*"
++    timeout: 30000
++- assertVisible: ".*实付.*96.47"
++- takeScreenshot: "order-different-real"
++- back
++- tapOn: "order-card-${TASK7_ORDER_PENDING}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_ORDER_PENDING}.*"
++    timeout: 30000
++- assertVisible: ".*待支付.*71.23"
++- assertNotVisible: ".*实付.*71.23"
++- takeScreenshot: "pending-no-payment-snapshot"
++- scrollUntilVisible:
++    element:
++      id: "com.fandazi.app:id/group_order_show_vouchers"
++    direction: DOWN
++- tapOn:
++    id: "com.fandazi.app:id/group_order_show_vouchers"
++- scrollUntilVisible:
++    element:
++      text: "团购券 1 ${TASK7_PENDING_VOUCHER}"
++    direction: DOWN
++- tapOn: "团购券 1 ${TASK7_PENDING_VOUCHER}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_PENDING_VOUCHER}.*"
++    timeout: 30000
++- assertVisible: ".*尚无付款记录.*"
++- assertNotVisible:
++    id: "com.fandazi.app:id/voucher_refund"
++- takeScreenshot: "pending-voucher-no-eligibility"
++- back
++- back
++- assertVisible: "order-card-${TASK7_ORDER_A}"
+diff --git a/C:/fdz-build/maestro/task7-401-prepare.yaml b/C:/fdz-build/maestro/task7-401-prepare.yaml
+new file mode 100644
+index 0000000..bae4809
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-401-prepare.yaml
+@@ -0,0 +1,38 @@
++# 自然过期准备：普通JWT登录后定位指定真实入口，等待由运行器按登录访问时间完成。
++appId: com.fandazi.app
++---
++- launchApp:
++    clearState: true
++- runFlow: task7-login.yaml
++- tapOn:
++    id: "com.fandazi.app:id/ordersFragment"
++- extendedWaitUntil:
++    visible: "order-card-${TASK7_ORDER_A}"
++    timeout: 30000
++- runFlow:
++    when:
++      true: ${TASK7_ENTRY != "orders"}
++    commands:
++      - tapOn: "order-card-${TASK7_ORDER_A}"
++      - extendedWaitUntil:
++          visible: ".*${TASK7_ORDER_A}.*"
++          timeout: 30000
++- runFlow:
++    when:
++      true: ${TASK7_ENTRY == "voucher"}
++    commands:
++      - scrollUntilVisible:
++          element:
++            id: "com.fandazi.app:id/group_order_show_vouchers"
++          direction: DOWN
++      - tapOn:
++          id: "com.fandazi.app:id/group_order_show_vouchers"
++      - scrollUntilVisible:
++          element:
++            text: "团购券 1 ${TASK7_VOUCHER_A}"
++          direction: DOWN
++      - tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
++      - extendedWaitUntil:
++          visible: ".*${TASK7_VOUCHER_A}.*"
++          timeout: 30000
++- takeScreenshot: "before-natural-expiry"
+diff --git a/C:/fdz-build/maestro/task7-401-return.yaml b/C:/fdz-build/maestro/task7-401-return.yaml
+new file mode 100644
+index 0000000..9116ac8
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-401-return.yaml
+@@ -0,0 +1,34 @@
++# 普通JWT自然过期后onResume产生真实401，重新登录必须回原入口及参数，不能回首页或新订单。
++appId: com.fandazi.app
++---
++- launchApp:
++    stopApp: false
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/username_input"
++    timeout: 30000
++- takeScreenshot: "natural401-login"
++- tapOn:
++    id: "com.fandazi.app:id/username_input"
++- inputText: "${MAESTRO_USERNAME}"
++- tapOn:
++    id: "com.fandazi.app:id/password_input"
++- inputText: "${MAESTRO_PASSWORD}"
++- hideKeyboard
++- tapOn:
++    id: "com.fandazi.app:id/submit_button"
++- extendedWaitUntil:
++    visible:
++      id: "${TASK7_RETURN_ID}"
++    timeout: 30000
++- runFlow:
++    when:
++      true: ${TASK7_ENTRY == "order"}
++    commands:
++      - assertVisible: ".*${TASK7_ORDER_A}.*"
++- runFlow:
++    when:
++      true: ${TASK7_ENTRY == "voucher"}
++    commands:
++      - assertVisible: ".*${TASK7_VOUCHER_A}.*"
++- takeScreenshot: "natural401-original-entry-restored"
+diff --git a/C:/fdz-build/maestro/task7-agent-read.yaml b/C:/fdz-build/maestro/task7-agent-read.yaml
+new file mode 100644
+index 0000000..0ff9cb3
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-agent-read.yaml
+@@ -0,0 +1,57 @@
++# 新Agent实际只读订单/券：响应后仍留聊天，显式点击才导航；不选择售后确认动作。
++appId: com.fandazi.app
++---
++- launchApp
++- tapOn:
++    id: "com.fandazi.app:id/agentAssistantTab"
++- tapOn:
++    id: "com.fandazi.app:id/agent_chat_input"
++- inputText: "show my group buying orders"
++- hideKeyboard
++- tapOn:
++    id: "com.fandazi.app:id/agent_chat_send"
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/agent_order_action"
++    timeout: 90000
++- assertVisible:
++    id: "com.fandazi.app:id/agent_chat_input"
++- assertNotVisible:
++    id: "com.fandazi.app:id/group_order_detail_title"
++- takeScreenshot: "agent-orders-no-auto-navigation"
++- tapOn:
++    id: "com.fandazi.app:id/agent_order_action"
++    index: 0
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/group_order_detail_title"
++    timeout: 30000
++- assertVisible: ".*(${TASK7_ORDER_A}|${TASK7_ORDER_B}|${TASK7_ORDER_PENDING}).*"
++- takeScreenshot: "agent-order-explicit-navigation"
++- back
++- tapOn:
++    id: "com.fandazi.app:id/agent_chat_input"
++- inputText: "show my group buying vouchers"
++- hideKeyboard
++- tapOn:
++    id: "com.fandazi.app:id/agent_chat_send"
++- extendedWaitUntil:
++    visible: "查看团购券"
++    timeout: 90000
++- assertVisible:
++    id: "com.fandazi.app:id/agent_chat_input"
++- assertNotVisible:
++    id: "com.fandazi.app:id/voucher_detail_info"
++- takeScreenshot: "agent-vouchers-no-auto-navigation"
++- tapOn: "查看团购券"
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/voucher_detail_info"
++    timeout: 30000
++- assertVisible: ".*(${TASK7_VOUCHER_A}|${TASK7_VOUCHER_B}|${TASK7_VOUCHER_C}|${TASK7_PENDING_VOUCHER}).*"
++- assertNotVisible: "展示核销二维码"
++- takeScreenshot: "agent-voucher-explicit-navigation"
++- back
++- assertVisible:
++    id: "com.fandazi.app:id/agent_chat_input"
++- takeScreenshot: "agent-return-keeps-history"
+diff --git a/C:/fdz-build/maestro/task7-empty.yaml b/C:/fdz-build/maestro/task7-empty.yaml
+new file mode 100644
+index 0000000..6ddb72c
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-empty.yaml
+@@ -0,0 +1,18 @@
++# Task7 新空账号：真实订单为空，浏览返回与底栏可用，不借旧账号或故障夹具。
++appId: com.fandazi.app
++---
++- launchApp:
++    clearState: true
++- runFlow: task7-login.yaml
++- tapOn:
++    id: "com.fandazi.app:id/ordersFragment"
++- extendedWaitUntil:
++    visible: "暂无订单"
++    timeout: 30000
++- assertNotVisible:
++    id: "com.fandazi.app:id/orders_error_retry"
++- takeScreenshot: "orders-real-empty"
++- tapOn: "去逛逛"
++- assertVisible:
++    id: "com.fandazi.app:id/home_search_button"
++- takeScreenshot: "empty-browse-return"
+diff --git a/C:/fdz-build/maestro/task7-guest.yaml b/C:/fdz-build/maestro/task7-guest.yaml
+new file mode 100644
+index 0000000..cbe27c4
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-guest.yaml
+@@ -0,0 +1,35 @@
++# 游客入口不能读取订单：普通登录拦截后用新空账号登录，返回原订单而非首页。
++appId: com.fandazi.app
++---
++- launchApp:
++    clearState: true
++- tapOn:
++    id: "com.fandazi.app:id/skip_login_button"
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/home_search_button"
++    timeout: 30000
++- tapOn:
++    id: "com.fandazi.app:id/ordersFragment"
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/username_input"
++    timeout: 30000
++- takeScreenshot: "guest-orders-login-intercept"
++- tapOn:
++    id: "com.fandazi.app:id/username_input"
++- inputText: "${MAESTRO_USERNAME}"
++- tapOn:
++    id: "com.fandazi.app:id/password_input"
++- inputText: "${MAESTRO_PASSWORD}"
++- hideKeyboard
++- tapOn:
++    id: "com.fandazi.app:id/submit_button"
++- extendedWaitUntil:
++    visible: "暂无订单"
++    timeout: 30000
++- assertVisible:
++    id: "com.fandazi.app:id/orders_segments"
++- assertNotVisible:
++    id: "com.fandazi.app:id/home_search_button"
++- takeScreenshot: "guest-login-original-orders"
+diff --git a/C:/fdz-build/maestro/task7-image-final.yaml b/C:/fdz-build/maestro/task7-image-final.yaml
+new file mode 100644
+index 0000000..c99cfd0
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-image-final.yaml
+@@ -0,0 +1,12 @@
++# 真实图片完成证据：图来自API原URL；先等待加载状态消失，再保存当前券详情，不替换业务图。
++appId: com.fandazi.app
++---
++- launchApp:
++    stopApp: false
++- extendedWaitUntil:
++    notVisible: "图片加载中.*"
++    timeout: 30000
++- assertNotVisible: "图片加载失败.*"
++- assertVisible:
++    id: "com.fandazi.app:id/voucher_detail_image"
++- takeScreenshot: "UI12-image-loaded"
+diff --git a/C:/fdz-build/maestro/task7-login.yaml b/C:/fdz-build/maestro/task7-login.yaml
+new file mode 100644
+index 0000000..f1ede35
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-login.yaml
+@@ -0,0 +1,16 @@
++# 子流程：登录任务账号，口令只由私有运行器注入；成功后等待真实首页。
++appId: com.fandazi.app
++---
++- tapOn:
++    id: "com.fandazi.app:id/username_input"
++- inputText: "${MAESTRO_USERNAME}"
++- tapOn:
++    id: "com.fandazi.app:id/password_input"
++- inputText: "${MAESTRO_PASSWORD}"
++- hideKeyboard
++- tapOn:
++    id: "com.fandazi.app:id/submit_button"
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/home_search_button"
++    timeout: 30000
+diff --git a/C:/fdz-build/maestro/task7-network-error.yaml b/C:/fdz-build/maestro/task7-network-error.yaml
+new file mode 100644
+index 0000000..1572e41
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-network-error.yaml
+@@ -0,0 +1,16 @@
++# 真实断网：列表及原订单详情必须失败可重试，不能把旧内容留作成功。
++appId: com.fandazi.app
++---
++- tapOn: "order-card-${TASK7_ORDER_A}"
++- extendedWaitUntil:
++    visible: "订单详情加载失败，请重试"
++    timeout: 45000
++- assertVisible:
++    id: "com.fandazi.app:id/group_order_retry"
++- takeScreenshot: "order-real-network-error"
++- back
++- extendedWaitUntil:
++    visible:
++      id: "com.fandazi.app:id/orders_network_retry"
++    timeout: 45000
++- takeScreenshot: "list-real-network-error"
+diff --git a/C:/fdz-build/maestro/task7-network-prepare.yaml b/C:/fdz-build/maestro/task7-network-prepare.yaml
+new file mode 100644
+index 0000000..808c63e
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-network-prepare.yaml
+@@ -0,0 +1,10 @@
++# 断网前保持本人真实订单列表；由运行器关闭网络并采集无活动默认网络证据。
++appId: com.fandazi.app
++---
++- launchApp
++- tapOn:
++    id: "com.fandazi.app:id/ordersFragment"
++- extendedWaitUntil:
++    visible: "order-card-${TASK7_ORDER_A}"
++    timeout: 30000
++- takeScreenshot: "network-before"
+diff --git a/C:/fdz-build/maestro/task7-network-recover.yaml b/C:/fdz-build/maestro/task7-network-recover.yaml
+new file mode 100644
+index 0000000..c16c0c9
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-network-recover.yaml
+@@ -0,0 +1,28 @@
++# 网络恢复后列表原地重试，再按同一订单ID进入详情；只读不能新增订单。
++appId: com.fandazi.app
++---
++- tapOn:
++    id: "com.fandazi.app:id/orders_network_retry"
++- extendedWaitUntil:
++    visible: "order-card-${TASK7_ORDER_A}"
++    timeout: 30000
++- tapOn: "order-card-${TASK7_ORDER_A}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_ORDER_A}.*"
++    timeout: 30000
++- takeScreenshot: "order-network-recovered"
++- scrollUntilVisible:
++    element:
++      id: "com.fandazi.app:id/group_order_show_vouchers"
++    direction: DOWN
++- tapOn:
++    id: "com.fandazi.app:id/group_order_show_vouchers"
++- scrollUntilVisible:
++    element:
++      text: "团购券 1 ${TASK7_VOUCHER_A}"
++    direction: DOWN
++- tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_VOUCHER_A}.*"
++    timeout: 30000
++- takeScreenshot: "voucher-before-network"
+diff --git a/C:/fdz-build/maestro/task7-voucher-network-error.yaml b/C:/fdz-build/maestro/task7-voucher-network-error.yaml
+new file mode 100644
+index 0000000..8c59fc6
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-voucher-network-error.yaml
+@@ -0,0 +1,13 @@
++# 真实断网返回同一券：隐藏旧资格，显示重试，不留可消费券按钮。
++appId: com.fandazi.app
++---
++- launchApp:
++    stopApp: false
++- extendedWaitUntil:
++    visible: "团购券加载失败，请重试"
++    timeout: 45000
++- assertVisible:
++    id: "com.fandazi.app:id/voucher_detail_retry"
++- assertNotVisible:
++    id: "com.fandazi.app:id/voucher_refund"
++- takeScreenshot: "voucher-real-network-error"
+diff --git a/C:/fdz-build/maestro/task7-voucher-network-recover.yaml b/C:/fdz-build/maestro/task7-voucher-network-recover.yaml
+new file mode 100644
+index 0000000..af6b067
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-voucher-network-recover.yaml
+@@ -0,0 +1,10 @@
++# 原券重试读取恢复后仍核对真实编号和金额。
++appId: com.fandazi.app
++---
++- tapOn:
++    id: "com.fandazi.app:id/voucher_detail_retry"
++- extendedWaitUntil:
++    visible: ".*${TASK7_VOUCHER_A}.*"
++    timeout: 30000
++- assertVisible: ".*本券实付.*71.23.*"
++- takeScreenshot: "voucher-network-recovered"
+diff --git a/C:/fdz-build/maestro/task7-voucher-prepare.yaml b/C:/fdz-build/maestro/task7-voucher-prepare.yaml
+new file mode 100644
+index 0000000..17f134f
+--- /dev/null
++++ b/C:/fdz-build/maestro/task7-voucher-prepare.yaml
+@@ -0,0 +1,32 @@
++# 定位真实原券，供中断网络/身份过期子步骤使用；无账号重置或额外业务写入。
++appId: com.fandazi.app
++---
++- launchApp
++- tapOn:
++    id: "com.fandazi.app:id/ordersFragment"
++- extendedWaitUntil:
++    visible: "order-card-${TASK7_ORDER_A}"
++    timeout: 30000
++- tapOn: "order-card-${TASK7_ORDER_A}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_ORDER_A}.*"
++    timeout: 30000
++- scrollUntilVisible:
++    element:
++      id: "com.fandazi.app:id/group_order_show_vouchers"
++    direction: DOWN
++- tapOn:
++    id: "com.fandazi.app:id/group_order_show_vouchers"
++- scrollUntilVisible:
++    element:
++      text: "团购券 1 ${TASK7_VOUCHER_A}"
++    direction: DOWN
++- tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
++- extendedWaitUntil:
++    visible: ".*${TASK7_VOUCHER_A}.*"
++    timeout: 30000
++- extendedWaitUntil:
++    notVisible: "图片加载中.*"
++    timeout: 30000
++- assertNotVisible: "图片加载失败.*"
++- takeScreenshot: "UI12-image-loaded"
+diff --git a/C:/fdz-build/scripts/Freeze-Task7Sources.ps1 b/C:/fdz-build/scripts/Freeze-Task7Sources.ps1
+new file mode 100644
+index 0000000..0d30e4a
+--- /dev/null
++++ b/C:/fdz-build/scripts/Freeze-Task7Sources.ps1
+@@ -0,0 +1,85 @@
++# Task7 冻结台账：对照原工作区字节，不触碰索引；区分本任务增量、必要原dirty和延期共享引用。
++$ErrorActionPreference='Stop'
++$root='C:/fdz-build'
++$public="$root/docs/verification/task7-evidence"
++if(Test-Path "$public/task7-write-set.txt") {throw '冻结写集已存在，禁止覆盖'}
++& "$public/Capture-Task7Source.ps1" -Phase freeze
++$before=Get-Content "$public/source-start.json" -Raw | ConvertFrom-Json
++$after=Get-Content "$public/source-freeze.json" -Raw | ConvertFrom-Json
++$start=@{}
++foreach($file in $before.files) {$start["$($file.repo):$($file.path)"]=$file}
++# 原开始文件消失必须明确停止，不能因为当前枚举缺它就把删除漏出冻结差异包。
++$currentPaths=@{}
++foreach($file in $after.files) {$currentPaths["$($file.repo):$($file.path)"]=$true}
++foreach($key in $start.Keys) {if(!$currentPaths.ContainsKey($key)) {throw "原开始源文件消失：$key"}}
++$delta=@()
++$patches=@{phone=[Collections.Generic.List[string]]::new();agent=[Collections.Generic.List[string]]::new()}
++foreach($file in $after.files) {
++ $key="$($file.repo):$($file.path)"
++ $previous=$start[$key]
++ if(!$previous -or $previous.sha256 -ne $file.sha256) {
++    $delta+=@{repo=$file.repo;path=$file.path;beforeSha256=$previous.sha256;afterSha256=$file.sha256;beforeBytes=$previous.bytes;afterBytes=$file.bytes;protected=$file.protected}
++    # 保护文档可能由控制端更新，只留摘要，不混入实现者产品patch；新源用NUL表示开始不存在。
++    if(!$file.protected) {
++       $repoRoot=if($file.repo -eq 'phone') {$root} else {'D:/project/-Demo-master'}
++       $old=if($previous) {"$root/.runtime/task7/source-start/$($file.repo)/$($file.path)"} else {'NUL'}
++       $current="$repoRoot/$($file.path)"
++       $lines=@(& git -c core.quotePath=false diff --no-index --binary --no-ext-diff -- $old $current 2>$null)
++       if($LASTEXITCODE -gt 1) {throw '开始字节diff生成失败'}
++       $patches[$file.repo].Add(($lines -join "`n"))
++    }
++ }
++}
++# 精确原路径patch用于字节审计/重放原工作区，不是直接套到干净BASE的范围提交patch。
++foreach($repo in @('phone','agent')) {$patches[$repo] -join "`n" | Set-Content "$public/$repo-source-start.delta.patch" -Encoding utf8}
++$delta | ConvertTo-Json -Depth 6 | Set-Content "$public/source-start-delta.json" -Encoding utf8
++
++# Task5 F与Task6成功页原dirty依赖：本任务已经实际验证这些源，不能仅交本轮新改行而丢依赖。
++$needed=@(
++ 'android-app/app/src/main/java/com/fandazi/app/feature/voucher/GroupOrderDetailFragment.kt',
++ 'android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherRepository.kt',
++ 'android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt',
++ 'android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt',
++ 'android-app/app/src/main/res/layout/fragment_group_order_detail.xml',
++ 'android-app/app/src/main/res/layout/fragment_voucher_detail.xml',
++ 'android-app/app/src/main/res/layout/item_voucher_row.xml',
++ 'android-app/app/src/main/res/layout/item_group_order_card.xml',
++ 'android-app/app/src/main/res/drawable/after_sale_outline.xml',
++ 'android-app/app/src/main/res/values/colors.xml',
++ 'android-app/app/src/main/java/com/fandazi/app/FandaziApplication.kt',
++ 'android-app/app/src/main/res/navigation/nav_graph.xml')
++$closure=@()
++foreach($path in $needed) {
++ $previous=$start["phone:$path"]
++ $current=$after.files | Where-Object {$_.repo -eq 'phone' -and $_.path -eq $path} | Select-Object -First 1
++ $closure+=@{path=$path;originalDirtyNecessary=$true;beforeSha256=$previous.sha256;frozenSha256=$current.sha256;ownDelta=($previous.sha256 -ne $current.sha256);mixed=($path -match '(FandaziApplication|nav_graph|VoucherDetailFragment|VoucherRepository|VoucherModels|GroupOrderDetailFragment)')}
++}
++$closure | ConvertTo-Json -Depth 5 | Set-Content "$public/source-closure.json" -Encoding utf8
++# 延期源码只列指纹及归属，不将其计成Task7写闭环通过；供Task8接续闭合当前混合构建引用。
++$deferred=@()
++foreach($file in $after.files) {
++ if($file.repo -eq 'phone' -and $file.path -match 'android-app/app/src/main/(java/.*/feature/(refund/|review/|support/|voucher/(VoucherQrFragment|RedemptionResultFragment))|res/(layout/fragment_(refund|review|help_faq|complaint|voucher_qr|redemption)|drawable/after_sale_|values/after_sale_))') {
++    $old=$start["phone:$($file.path)"]
++    $deferred+=@{path=$file.path;beforeSha256=$old.sha256;frozenSha256=$file.sha256;unchangedSinceStart=($old.sha256 -eq $file.sha256);scope='Task8或延期QR，只读指纹，不纳入Task7写功能验收'}
++ }
++}
++$deferred | ConvertTo-Json -Depth 5 | Set-Content "$public/deferred-source-closure.json" -Encoding utf8
++$text=[Collections.Generic.List[string]]::new()
++$text.Add('Task7 范围写集；开发冻结，待独立验收，禁止以当前混合工作区冒称干净HEAD完整交付。')
++$text.Add("phone BASE $($before.phoneBase) / 当前HEAD $($after.phoneBase)")
++$text.Add("agent BASE $($before.agentBase) / 当前HEAD $($after.agentBase)")
++$text.Add('source-start-delta.json及两份*.delta.patch：精确开始字节差异；原工作区备份只在忽略.runtime/task7/source-start，未stage/commit。')
++$text.Add('必要原dirty：下列source-closure.json项目由Task7实际API/最新APK/Maestro验证，整文件不能盲目git add；未修改的item_voucher_row仍是必要源。')
++foreach($item in $closure) {$text.Add("NECESSARY $($item.path) before=$($item.beforeSha256) freeze=$($item.frozenSha256) ownDelta=$($item.ownDelta) mixed=$($item.mixed)")}
++$text.Add('混合接线：FandaziApplication只投影voucher的import/property/init；afterSale的import/property/init原样留Task8。nav_graph只投影订单详情/券详情两个fragment及参数；QR、核销结果、退款/进度/评价/帮助/投诉路由不纳入Task7。')
++$text.Add('混合源引用：GroupOrderDetailFragment的原评价/退款目标，VoucherDetailFragment原afterSale进度及无调用requestToken，VoucherRepository/Models原displayToken/redeem能力均留存兼容；Task7只有canRefund资格导航，未执行售后提交或任何QR请求。')
++$text.Add('Task8收尾必须继续闭合其AfterSaleRepository、refund/review/support页面、资源与导航；这些原dirty引用仍影响当前工作区构建，不能因本APK成功就声称Task7投影/BASE单独构建已经验证。')
++$text.Add('deferred-source-closure.json为Task8/延期QR原源逐项开始与冻结指纹；只证明未改与当前构建依赖，不宣称售后/核销写入亲跑通过。共享outline同时在必要显示依赖中列出，不能据目录名整体纳入或整体丢掉。')
++$text.Add('复用HEAD已入库AfterSaleImageLoader/BusinessDisplay/ApiClient/购买与Task5身份合并；未作无关重构或重新实现。')
++$text.Add('共享视觉依赖：原dirty after_sale_outline.xml及其after_sale_ink颜色供UI12只读退款导航按钮使用，已实测；colors.xml只需该单色token，其他Task8颜色不因此归Task7。原HEAD的团购背景/卡片和四图标复用。')
++$text.Add('增量清单（protected=true为控制端保护文档变化，只审计、不纳入产品）：')
++foreach($item in $delta) {$text.Add("DELTA $($item.repo):$($item.path) before=$($item.beforeSha256) freeze=$($item.afterSha256) bytes=$($item.beforeBytes)->$($item.afterBytes) protected=$($item.protected)")}
++$text.Add('文档/证据：两份Task7报告、task7-evidence及Agent EXP-018仅文档范围；EXP-014/017等原历史dirty不属于本轮新增实验，不全文件纳入提交。')
++$text | Set-Content "$public/task7-write-set.txt" -Encoding utf8
++@{frozenAt=(Get-Date -Format o);deltaCount=$delta.Count;sourceCount=$after.files.Count;phoneHead=$after.phoneBase;agentHead=$after.agentBase;sourceManifestSha256=(Get-FileHash "$public/source-freeze.json").Hash;startManifestSha256=(Get-FileHash "$public/source-start.json").Hash;apkSha256=(Get-FileHash "$root/android-app/app/build/outputs/apk/debug/app-debug.apk").Hash} | ConvertTo-Json | Set-Content "$public/freeze-receipt.json" -Encoding utf8
++Write-Output "Task7 frozen source=$($after.files.Count) delta=$($delta.Count); no index/commit operations"
+diff --git a/C:/fdz-build/scripts/Install-Task7Apk.ps1 b/C:/fdz-build/scripts/Install-Task7Apk.ps1
+new file mode 100644
+index 0000000..2e5caed
+--- /dev/null
++++ b/C:/fdz-build/scripts/Install-Task7Apk.ps1
+@@ -0,0 +1,23 @@
++# Task7 最新 APK 安装：先卸载产品旧包及干扰包，核对不存在后安装，并比对设备实际 APK 字节。
++$ErrorActionPreference='Stop'
++$adb='C:/Users/caid0/AppData/Local/Android/Sdk/platform-tools/adb.exe'
++$root='C:/fdz-build'
++$apk="$root/android-app/app/build/outputs/apk/debug/app-debug.apk"
++$before=@{}
++foreach($package in @('com.fandazi.app','com.dirror.music')) {
++    $before[$package]=@(& $adb -s emulator-5554 shell pm path $package)
++    $null=& $adb -s emulator-5554 uninstall $package 2>&1
++    if((& $adb -s emulator-5554 shell pm path $package) -match 'package:') { throw '卸载后仍存在旧包' }
++}
++# 设备网络配置只采集状态，不擅自更改；后续断网实验必须恢复本次初始值。
++$network=@{wifi=(& $adb -s emulator-5554 shell settings get global wifi_on);data=(& $adb -s emulator-5554 shell settings get global mobile_data);airplane=(& $adb -s emulator-5554 shell settings get global airplane_mode_on)}
++$result=& $adb -s emulator-5554 install $apk
++if($LASTEXITCODE -ne 0 -or $result -notcontains 'Success') { throw '最新 APK 安装失败' }
++$path=(& $adb -s emulator-5554 shell pm path com.fandazi.app).Trim().Replace('package:','')
++$null=& $adb -s emulator-5554 pull $path "$root/.runtime/task7/device-installed.apk"
++if($LASTEXITCODE -ne 0) { throw '无法取得设备安装字节' }
++$local=(Get-FileHash -LiteralPath $apk).Hash.ToLowerInvariant()
++$device=(Get-FileHash -LiteralPath "$root/.runtime/task7/device-installed.apk").Hash.ToLowerInvariant()
++if($local -ne $device) { throw '本地与设备 APK 摘要不一致' }
++@{installedAt=(Get-Date -Format o);apkSha256=$local;deviceSha256=$device;beforePackages=$before;afterOldPackagesAbsent=$true;initialNetwork=$network} | ConvertTo-Json -Depth 5 | Set-Content "$root/docs/verification/task7-evidence/apk-installed.json" -Encoding utf8
++Write-Output "Task7 APK installed and matched: $local"
+diff --git a/C:/fdz-build/scripts/Run-Task7Query.ps1 b/C:/fdz-build/scripts/Run-Task7Query.ps1
+new file mode 100644
+index 0000000..5b2b9bb
+--- /dev/null
++++ b/C:/fdz-build/scripts/Run-Task7Query.ps1
+@@ -0,0 +1,36 @@
++# Task7 Maestro 运行器：账号口令仅使用本任务私有随机账号，资源身份从真实购买证据取得。
++param([string]$Flow='group-buying-04-voucher-query.yaml',[string]$Label='query',[ValidateSet('account','outsider')][string]$Account='account',[ValidateSet('orders','order','voucher')][string]$Entry='orders')
++$ErrorActionPreference='Stop'
++$env:JAVA_HOME='C:/Users/caid0/.jdks/ms-17.0.17'
++$root='C:/fdz-build'
++$accountData=Get-Content "$root/.runtime/task7/$Account.json" -Raw | ConvertFrom-Json
++if(!$accountData.username.StartsWith('task7_')) { throw '拒绝使用非Task7隔离账号' }
++$orders=Get-Content "$root/.runtime/task7/orders.json" -Raw | ConvertFrom-Json
++$resources=Get-Content "$root/.runtime/task7/resources.json" -Raw | ConvertFrom-Json
++$raw="$root/.runtime/task7/maestro-$Label"
++$output="$root/docs/verification/task7-evidence/maestro-$Label"
++if(Test-Path "$output/result.json") { throw '本次标签已有结果，禁止覆盖首次失败' }
++New-Item -ItemType Directory -Force -Path $raw,$output | Out-Null
++# 构造断言环境只传入真实公开资源和金额；命令及工具调试树可能包含口令，不复制到公开目录。
++$arguments=@('--device','emulator-5554','test','--test-output-dir',$raw,'--debug-output',$raw,
++    '-e',"MAESTRO_USERNAME=$($accountData.username)",'-e',"MAESTRO_PASSWORD=$($accountData.password)",
++    '-e',"TASK7_ORDER_A=$($orders[0].orderId)",'-e',"TASK7_ORDER_B=$($orders[1].orderId)",'-e',"TASK7_ORDER_PENDING=$($orders[2].orderId)",
++    '-e',"TASK7_VOUCHER_A=$($orders[0].vouchers[0].publicId)",'-e',"TASK7_VOUCHER_B=$($orders[0].vouchers[1].publicId)",
++    '-e',"TASK7_VOUCHER_C=$($orders[1].vouchers[0].publicId)",'-e',"TASK7_PENDING_VOUCHER=$($orders[2].vouchers[0].publicId)",
++    '-e',"TASK6_STORE_ID=$($resources[1].storePublicId)",'-e',"TASK6_DEAL_ID=$($resources[1].public_id)",
++    '-e','TASK6_TOTAL=.*96\.47','-e','TASK6_QUANTITY=1','-e','TASK6_VOUCHER_TARGET=com.fandazi.app:id/voucher_detail_status',"$root/maestro/$Flow")
++# 登录恢复断言按显式测试入口选择目标，不改变产品导航或业务状态。
++$returnId=switch($Entry) {'orders' {'com.fandazi.app:id/orders_segments'} 'order' {'com.fandazi.app:id/group_order_detail_title'} 'voucher' {'com.fandazi.app:id/voucher_detail_info'}}
++$arguments=$arguments[0..($arguments.Length-2)]+@('-e',"TASK7_ENTRY=$Entry",'-e',"TASK7_RETURN_ID=$returnId",$arguments[-1])
++$started=Get-Date -Format o
++& 'C:/Users/caid0/.local/maestro/bin/maestro.bat' @arguments *> "$root/.runtime/task7/maestro-$Label.log"
++$code=$LASTEXITCODE
++# 仅导出显式截图和摘要；每次APK摘要绑定具体运行结果，不以YAML存在当作通过。
++Get-ChildItem -LiteralPath $raw -Recurse -File -Filter '*.png' | Where-Object {$_.FullName -match 'takeScreenshot'} | ForEach-Object {
++    $destination=Join-Path $output ([IO.Path]::GetRelativePath($raw,$_.FullName))
++    New-Item -ItemType Directory -Force -Path (Split-Path $destination) | Out-Null
++    Copy-Item -LiteralPath $_.FullName -Destination $destination
++}
++@{exitCode=$code;flow=$Flow;accountRole=$Account;startedAt=$started;finishedAt=(Get-Date -Format o);apkSha256=(Get-FileHash "$root/android-app/app/build/outputs/apk/debug/app-debug.apk").Hash;orderIds=@($orders.orderId);voucherIds=@($orders.vouchers.publicId)} | ConvertTo-Json -Depth 5 | Set-Content "$output/result.json" -Encoding utf8
++Write-Output "Task7 Maestro $Label exit=$code"
++exit $code
+diff --git a/C:/fdz-build/scripts/Start-Task7Services.ps1 b/C:/fdz-build/scripts/Start-Task7Services.ps1
+new file mode 100644
+index 0000000..beec46f
+--- /dev/null
++++ b/C:/fdz-build/scripts/Start-Task7Services.ps1
+@@ -0,0 +1,53 @@
++# Task7 服务运行器：仅重启已核实的新 Agent/Spring，关闭所有开发夹具开关，不操作业务资源。
++param([ValidateSet('Spring','Agent')][string]$Service = 'Spring', [ValidateRange(1,1440)][int]$JwtExpirationMinutes = 60)
++$ErrorActionPreference = 'Stop'
++# 本地双服务和模型请求均禁用环境代理，避免将 localhost 或内部鉴权流量送到外部代理。
++$env:HTTP_PROXY=''; $env:HTTPS_PROXY=''; $env:ALL_PROXY=''; $env:NO_PROXY='*'
++$root = Split-Path -Parent $PSScriptRoot
++$port = if ($Service -eq 'Spring') { 8080 } else { 8091 }
++$expected = if ($Service -eq 'Spring') { 'com.fandazi.FandaziApplication' } else { 'service.app:create_app' }
++# 先核对监听进程职责，仅停止目标端口拥有者，禁止泛杀 Java/Python 或其他任务进程。
++$listener = Get-NetTCPConnection -State Listen -LocalPort $port -ErrorAction SilentlyContinue | Select-Object -First 1
++if ($listener) {
++    $owner = Get-CimInstance Win32_Process -Filter "ProcessId = $($listener.OwningProcess)"
++    if ($owner.CommandLine -notlike "*$expected*") { throw '目标端口拥有者不符合已批准服务，拒绝重启' }
++    Stop-Process -Id $owner.ProcessId
++    Start-Sleep -Seconds 2
++}
++$runtime = Join-Path $root '.runtime'
++if ($Service -eq 'Spring') {
++    . (Join-Path $PSScriptRoot 'Initialize-FandaziEnvironment.ps1')
++    $env:TASK2_FIXTURES_ENABLED = 'false'
++    $env:TASK8_FAILURES_ENABLED = 'false'
++    $env:SEED_ENABLED = 'false'
++    $env:SPRING_PROFILES_ACTIVE = 'default'
++    # 普通 JWT 生命周期配置用于自然过期验证，禁止使用开发故障或夹具开关；结束恢复默认六十分钟。
++    $env:JWT_EXPIRATION_MINUTES = "$JwtExpirationMinutes"
++    # 普通访问日志仅记录时间、方法、路径和状态，核实自然过期产生的真实 401，不记录令牌或请求体。
++    $env:SERVER_TOMCAT_ACCESSLOG_ENABLED = 'true'
++    $env:SERVER_TOMCAT_ACCESSLOG_DIRECTORY = (Join-Path $runtime 'task7-http-access')
++    $env:SERVER_TOMCAT_ACCESSLOG_PATTERN = '%t %m %U %s'
++    $env:SERVER_TOMCAT_ACCESSLOG_BUFFERED = 'false'
++    $env:JAVA_HOME = 'C:/Users/caid0/.jdks/ms-17.0.17'
++    $process = Start-Process -FilePath 'D:/software/IntelliJ IDEA 2025.2.4/plugins/maven/lib/maven3/bin/mvn.cmd' -ArgumentList '-q','spring-boot:run' -WorkingDirectory (Join-Path $root 'backend') -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runtime 'task7-spring.out.log') -RedirectStandardError (Join-Path $runtime 'task7-spring.err.log')
++} else {
++    # Agent 独立数据库/模型配置由其 .env 加载，不能继承 Spring 的业务 DB_URL 覆盖 dianping_intent。
++    foreach ($name in @('DB_URL','DB_USERNAME','DB_PASSWORD')) { Remove-Item -LiteralPath "Env:$name" -ErrorAction SilentlyContinue }
++    $secrets = Get-Content -LiteralPath (Join-Path $runtime 'service-secrets.json') -Raw | ConvertFrom-Json
++    $env:AGENT_INTERNAL_TOKEN = $secrets.internalToken
++    $env:AGENT_BUILD_VERSION = 'c339237-task7-working-tree'
++    $env:LANGCHAIN_TRACING_V2 = 'false'
++    $env:TASK2_FIXTURES_ENABLED = 'false'
++    $env:TASK8_FAILURES_ENABLED = 'false'
++    $process = Start-Process -FilePath 'C:/Users/caid0/anaconda3/envs/pinnT/python.exe' -ArgumentList '-m','uvicorn','service.app:create_app','--factory','--host','127.0.0.1','--port','8091' -WorkingDirectory 'D:/project/-Demo-master' -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $runtime 'task7-agent.out.log') -RedirectStandardError (Join-Path $runtime 'task7-agent.err.log')
++}
++# 输出仅含进程角色与 PID，不输出密钥、账户或数据库连接字符串。
++$health = if ($Service -eq 'Spring') { 'http://127.0.0.1:8080/api/stores/cities' } else { 'http://127.0.0.1:8091/internal/v1/health' }
++# 服务进程创建不等于健康，等待实际接口，防止冷启动窗口被误算成模型/协议失败。
++$ready = $false
++for ($attempt = 0; $attempt -lt 60; $attempt++) {
++    try { $null = Invoke-RestMethod -Uri $health -NoProxy -TimeoutSec 2; $ready = $true; break }
++    catch { Start-Sleep -Seconds 1 }
++}
++if (!$ready) { throw '服务启动后未通过健康接口，请查看忽略目录运行日志' }
++[pscustomobject]@{Service=$Service;LauncherPid=$process.Id;Port=$port} | ConvertTo-Json
+diff --git a/C:/fdz-build/scripts/Summarize-Task7Evidence.ps1 b/C:/fdz-build/scripts/Summarize-Task7Evidence.ps1
+new file mode 100644
+index 0000000..431a843
+--- /dev/null
++++ b/C:/fdz-build/scripts/Summarize-Task7Evidence.ps1
+@@ -0,0 +1,24 @@
++# Task7 结果汇总：读取实际JUnit、Maestro状态和API断言，条件跳过独立计数，不公开敏感调试命令。
++$ErrorActionPreference='Stop'
++$root='C:/fdz-build'
++$public="$root/docs/verification/task7-evidence"
++$runs=@()
++foreach($file in (Get-ChildItem $public -Recurse -Filter 'result.json' -File | Where-Object {$_.Directory.Name -like 'maestro-*'})) {
++ $result=Get-Content $file.FullName -Raw | ConvertFrom-Json
++ $label=$file.Directory.Name.Substring('maestro-'.Length)
++ $commands=Get-ChildItem "$root/.runtime/task7/maestro-$label" -Recurse -File -Filter 'commands.json' | Select-Object -First 1
++ $counts=@{}
++ if($commands) {
++    # 结构化调试JSON只读取metadata.status，不复制evaluatedCommand中的真实口令。
++    foreach($command in (Get-Content $commands.FullName -Raw | ConvertFrom-Json)) {
++       $status=[string]$command.metadata.status
++       if(!$counts.ContainsKey($status)) {$counts[$status]=0}
++       $counts[$status]++
++    }
++ }
++ $runs+=@{label=$label;flow=$result.flow;exitCode=$result.exitCode;apkSha256=$result.apkSha256;startedAt=$result.startedAt;finishedAt=$result.finishedAt;commandsByStatus=$counts}
++}
++$checks=@(Get-Content "$public/api-checks.json" -Raw | ConvertFrom-Json)
++$summary=@{capturedAt=(Get-Date -Format o);maestroRuns=$runs;maestroRunCount=$runs.Count;maestroExit0=@($runs | Where-Object {$_.exitCode -eq 0}).Count;maestroNonzero=@($runs | Where-Object {$_.exitCode -ne 0}).Count;apiAssertions=$checks.Count;apiPassed=@($checks | Where-Object {$_.passed}).Count;apiFailed=@($checks | Where-Object {!$_.passed}).Count;conditionalSkippedNotPassed=$true}
++$summary | ConvertTo-Json -Depth 7 | Set-Content "$public/actual-counts.json" -Encoding utf8
++Write-Output "Task7 Maestro runs=$($runs.Count) exit0=$($summary.maestroExit0) nonzero=$($summary.maestroNonzero); API=$($checks.Count) failed=$($summary.apiFailed)"
+diff --git a/C:/fdz-build/scripts/Test-Task7Health.ps1 b/C:/fdz-build/scripts/Test-Task7Health.ps1
+new file mode 100644
+index 0000000..68f0839
+--- /dev/null
++++ b/C:/fdz-build/scripts/Test-Task7Health.ps1
+@@ -0,0 +1,29 @@
++# Task7 来源健康与普通JWT实测：不输出密钥或令牌，只保存来源、PID、期限、网络和开关声明。
++param([string]$Label='release',[int]$ExpectedLifetimeSeconds=3600)
++$ErrorActionPreference='Stop'
++$root='C:/fdz-build'
++$account=Get-Content "$root/.runtime/task7/account.json" -Raw | ConvertFrom-Json
++if(!$account.username.StartsWith('task7_')) {throw '非本任务账号'}
++$body=@{username=$account.username;password=$account.password} | ConvertTo-Json
++$auth=Invoke-RestMethod -Uri 'http://127.0.0.1:8080/api/auth/login' -Method Post -ContentType 'application/json' -Body $body -NoProxy
++# JWT只解码公开期限字段，绝不修改签名/内容或保存整段令牌到公开证据。
++$part=$auth.token.Split('.')[1].Replace('-','+').Replace('_','/')
++while($part.Length%4) {$part+='='}
++$claims=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String($part)) | ConvertFrom-Json
++$lifetime=[long]$claims.exp-[long]$claims.iat
++if($lifetime -ne $ExpectedLifetimeSeconds) {throw '普通JWT期限不符合当前阶段'}
++$agent=Invoke-RestMethod 'http://127.0.0.1:8091/internal/v1/health' -NoProxy
++if($agent.entryPoint -ne 'service.app:create_app' -or $agent.sourceRoot -ne 'D:\project\-Demo-master') {throw '新Agent来源不符'}
++$processes=@()
++foreach($port in @(8080,8091)) {
++ $listener=Get-NetTCPConnection -State Listen -LocalPort $port | Select-Object -First 1
++ $process=Get-CimInstance Win32_Process -Filter "ProcessId=$($listener.OwningProcess)"
++ $expected=if($port -eq 8080) {'com.fandazi.FandaziApplication'} else {'service.app:create_app'}
++ if($process.CommandLine -notlike "*$expected*") {throw '监听者来源不符'}
++ $processes+=@{port=$port;pid=$process.ProcessId;entryPoint=$expected}
++}
++$adb='C:/Users/caid0/AppData/Local/Android/Sdk/platform-tools/adb.exe'
++$network=(& $adb -s emulator-5554 shell dumpsys connectivity | Select-String 'Active default network').Line
++if($network -match 'none') {throw '尚未恢复网络'}
++@{at=(Get-Date -Format o);ordinaryJwtSeconds=$lifetime;agent=$agent;listeners=$processes;activeDefaultNetwork=$network;task2FixturesEnabled=$false;task8FailuresEnabled=$false;sourceRunnerSha256=(Get-FileHash "$root/scripts/Start-Task7Services.ps1").Hash} | ConvertTo-Json -Depth 6 | Set-Content "$root/docs/verification/task7-evidence/health-$Label.json" -Encoding utf8
++Write-Output "Task7 $Label health verified JWT=$lifetime seconds"
+diff --git a/C:/fdz-build/scripts/Verify-Task7FreezeEvidence.ps1 b/C:/fdz-build/scripts/Verify-Task7FreezeEvidence.ps1
+new file mode 100644
+index 0000000..cc6e995
+--- /dev/null
++++ b/C:/fdz-build/scripts/Verify-Task7FreezeEvidence.ps1
+@@ -0,0 +1,36 @@
++# Task7 交接门禁：核对冻结源码未漂移、原私有清单/业务保护结果、APK一致及公开文本未泄露真实密钥。
++$ErrorActionPreference='Stop'
++$root='C:/fdz-build'
++$public="$root/docs/verification/task7-evidence"
++$manifest=Get-Content "$public/source-freeze.json" -Raw | ConvertFrom-Json
++foreach($file in $manifest.files) {
++ $repo=if($file.repo -eq 'phone') {$root} else {'D:/project/-Demo-master'}
++ $path=Join-Path $repo $file.path
++ if(!(Test-Path -LiteralPath $path) -or (Get-FileHash -LiteralPath $path).Hash -ne $file.sha256) {throw "冻结后源变化：$($file.repo):$($file.path)"}
++}
++if((& git -C $root rev-parse HEAD) -ne $manifest.phoneBase -or (& git -C 'D:/project/-Demo-master' rev-parse HEAD) -ne $manifest.agentBase) {throw '冻结后HEAD变化'}
++if((& git -C $root diff --cached --name-only) -or (& git -C 'D:/project/-Demo-master' diff --cached --name-only)) {throw '索引不为空，必须核对外部暂存来源'}
++# 读取本任务及服务授权秘密只作内存精确比对，不输出值，不读取Task6或Task8账号口令。
++$secrets=@()
++foreach($role in @('account','outsider')) {$value=Get-Content "$root/.runtime/task7/$role.json" -Raw | ConvertFrom-Json;$secrets+=[string]$value.password}
++$service=Get-Content "$root/.runtime/service-secrets.json" -Raw | ConvertFrom-Json
++foreach($property in $service.PSObject.Properties) {if($property.Name -match '(secret|token|key|password)' -and $property.Value -is [string]) {$secrets+=$property.Value}}
++$scanned=0
++foreach($file in (Get-ChildItem -LiteralPath $public -Recurse -File | Where-Object {$_.Extension -in @('.json','.xml','.txt','.md','.patch','.ps1','.py')})) {
++ $text=Get-Content -LiteralPath $file.FullName -Raw
++ foreach($secret in $secrets) {if($secret.Length -gt 8 -and $text.Contains($secret)) {throw "公开文件含真实秘密：$($file.Name)"}}
++ if($text -match 'eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}') {throw "公开文件含JWT：$($file.Name)"}
++ $scanned++
++}
++$installed=Get-Content "$public/apk-installed.json" -Raw | ConvertFrom-Json
++$apk=(Get-FileHash "$root/android-app/app/build/outputs/apk/debug/app-debug.apk").Hash
++if($apk -ne $installed.apkSha256 -or $installed.apkSha256 -ne $installed.deviceSha256) {throw 'APK证据版本不同'}
++$health=Get-Content "$public/health-release.json" -Raw | ConvertFrom-Json
++if($health.ordinaryJwtSeconds -ne 3600 -or $health.activeDefaultNetwork -match 'none') {throw '环境未恢复'}
++$facts=Get-Content "$public/original-facts-after.json" -Raw | ConvertFrom-Json
++foreach($property in $facts.PSObject.Properties) {if($property.Value.before -ne $property.Value.after) {throw '原业务事实变化'}}
++$before=Get-Content "$public/protected-start.json" -Raw | ConvertFrom-Json
++$after=Get-Content "$public/protected-after.json" -Raw | ConvertFrom-Json
++if(($before | ConvertTo-Json -Depth 5 -Compress) -ne ($after | ConvertTo-Json -Depth 5 -Compress)) {throw '原私有清单变化'}
++@{verifiedAt=(Get-Date -Format o);frozenSources=$manifest.files.Count;publicTextFilesScanned=$scanned;knownSecretsMatches=0;protectedPrivateFiles=$before.Count;originalBusinessTables=@($facts.PSObject.Properties).Count;apkSha256=$apk;independentAcceptance='待控制端派发';stageOrCommit=$false} | ConvertTo-Json -Depth 4 | Set-Content "$public/handoff-gate.json" -Encoding utf8
++Write-Output "Task7 freeze/evidence gate PASS sources=$($manifest.files.Count) public=$scanned protected=$($before.Count); independent pending"
+diff --git a/C:/fdz-build/scripts/Wait-Task7NaturalExpiry.ps1 b/C:/fdz-build/scripts/Wait-Task7NaturalExpiry.ps1
+new file mode 100644
+index 0000000..c2457fe
+--- /dev/null
++++ b/C:/fdz-build/scripts/Wait-Task7NaturalExpiry.ps1
+@@ -0,0 +1,19 @@
++# Task7 普通JWT自然过期：按真实成功登录访问时间等待，不改设备令牌或使用故障夹具。
++param([ValidateSet('orders','order','voucher')][string]$Entry,[int]$LifetimeSeconds=180)
++$ErrorActionPreference='Stop'
++$root='C:/fdz-build'
++# 最近一次成功登录是prepare流程设备登录；日志仅路径/状态，不记录用户名口令或JWT。
++$lines=@(Get-ChildItem "$root/.runtime/task7-http-access" -File | Sort-Object LastWriteTime | ForEach-Object {Get-Content $_.FullName})
++$line=$lines | Where-Object {$_ -match 'POST /api/auth/login 200$'} | Select-Object -Last 1
++if($line -notmatch '^\[(?<time>\d{2}/[A-Za-z]{3}/\d{4}:\d{2}:\d{2}:\d{2}) (?<offset>[+-]\d{4})\]') {throw '无法核实设备登录实际时间'}
++$offset=$Matches.offset.Insert(3,':')
++$login=[DateTimeOffset]::ParseExact("$($Matches.time) $offset",'dd/MMM/yyyy:HH:mm:ss zzz',[Globalization.CultureInfo]::InvariantCulture)
++$deadline=$login.AddSeconds($LifetimeSeconds+4)
++@{entry=$Entry;actualLoginAt=$login.ToString('o');lifetimeSeconds=$LifetimeSeconds;waitUntil=$deadline.ToString('o');ordinaryJwt=$true;tokenTampered=$false} | ConvertTo-Json | Set-Content "$root/docs/verification/task7-evidence/expiry-$Entry.json" -Encoding utf8
++# 等待分批进行，控制台每30秒报告余秒；用户新消息不会被单次超长阻塞掩盖。
++while([DateTimeOffset]::Now -lt $deadline) {
++ $remaining=[math]::Ceiling(($deadline-[DateTimeOffset]::Now).TotalSeconds)
++ Write-Output "Task7 natural expiry $Entry remaining=$remaining seconds"
++ Start-Sleep -Seconds ([math]::Min(30,$remaining))
++}
++Write-Output "Task7 natural expiry $Entry reached"

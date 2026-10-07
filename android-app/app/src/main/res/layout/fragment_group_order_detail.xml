@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI11 完整结构：状态、套餐、订单信息、使用须知及券操作；滚动适配真实长编号与多券。 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/group_buy_background" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+        <TextView android:id="@+id/group_order_detail_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="8dp" android:text="订单详情" android:textColor="@color/group_buy_green" android:textSize="26sp" android:textStyle="bold" />
+        <TextView android:id="@+id/group_order_number" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingHorizontal="8dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
+        <!-- 失败时隐藏旧内容，只重试原资源，不残留可执行资格。 -->
+        <TextView android:id="@+id/group_order_detail_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:textColor="@color/group_buy_muted" />
+        <TextView android:id="@+id/group_order_retry" android:layout_width="match_parent" android:layout_height="48dp" android:background="@drawable/search_button_background" android:gravity="center" android:text="点击重试" android:textColor="@android:color/white" android:visibility="gone" />
+        <LinearLayout android:id="@+id/group_order_body" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="94dp" android:background="@drawable/group_buy_card_background" android:orientation="vertical" android:padding="16dp">
+                <TextView android:id="@+id/group_order_state" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/group_buy_orange" android:textSize="20sp" />
+                <TextView android:id="@+id/group_order_state_description" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/group_buy_card_background" android:orientation="horizontal" android:padding="16dp">
+                <ImageView android:id="@+id/group_order_image" android:layout_width="80dp" android:layout_height="80dp" android:scaleType="centerCrop" android:contentDescription="套餐图片" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="16dp" android:orientation="vertical">
+                    <TextView android:id="@+id/group_order_store" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/group_buy_text" android:textSize="16sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/group_order_deal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/group_buy_text" android:textSize="14sp" />
+                    <TextView android:id="@+id/group_order_detail_total" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:textColor="@color/group_buy_orange" android:textSize="13sp" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:background="@drawable/group_buy_card_background" android:orientation="vertical" android:padding="16dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="订单信息" android:textColor="@color/group_buy_green" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:id="@+id/group_order_info" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:lineSpacingExtra="10dp" android:textColor="@color/group_buy_text" android:textSize="12sp" />
+            </LinearLayout>
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:paddingHorizontal="8dp" android:text="使用须知" android:textColor="@color/group_buy_green" android:textSize="16sp" android:textStyle="bold" />
+            <TextView android:id="@+id/group_order_rules" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:paddingHorizontal="8dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
+            <TextView android:id="@+id/group_order_show_vouchers" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="24dp" android:background="@drawable/search_button_background" android:gravity="center" android:text="查看团购券" android:textColor="@android:color/white" android:textSize="16sp" />
+            <!-- 多券分别绑定公开身份；退款选券不可默认消费第一张。 -->
+            <LinearLayout android:id="@+id/group_voucher_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical" android:visibility="gone" />
+            <TextView android:id="@+id/group_order_refund" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:background="@drawable/group_buy_card_background" android:gravity="center" android:text="申请退款" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:visibility="gone" />
+            <!-- 原 Task8 评价入口仅在后端资格允许时显示。 -->
+            <TextView android:id="@+id/group_order_review" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:background="@drawable/group_buy_card_background" android:gravity="center" android:text="发布评价" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

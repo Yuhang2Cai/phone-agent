@@ -1,0 +1,8 @@
+{
+  "entry": "voucher",
+  "ordinaryJwt": true,
+  "lifetimeSeconds": 180,
+  "waitUntil": "2026-10-02T10:43:52.0000000+08:00",
+  "actualLoginAt": "2026-10-02T10:40:48.0000000+08:00",
+  "tokenTampered": false
+}

@@ -1,0 +1,72 @@
+{
+  "tests": 69.0,
+  "failures": 0.0,
+  "skipped": 0.0,
+  "suiteCount": 9,
+  "suites": [
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 1,
+      "name": "com.fandazi.app.core.navigation.RegisteredBusinessRouteTest",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 1,
+      "name": "com.fandazi.app.feature.agent.AgentCardRendererTest",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 3,
+      "name": "com.fandazi.app.feature.agent.AgentLoginGateTest",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 26,
+      "name": "com.fandazi.app.feature.agent.AgentViewModelTest",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 11,
+      "name": "com.fandazi.app.feature.agent.HttpAgentRepositoryTest",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 10,
+      "name": "com.fandazi.app.feature.agent.Task5ChatStateTest",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 9,
+      "name": "com.fandazi.app.feature.agent.Task5ConfirmationActionTest",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 4,
+      "name": "com.fandazi.app.feature.purchase.PurchaseStateTest",
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "skipped": 0,
+      "tests": 4,
+      "name": "com.fandazi.app.feature.voucher.VoucherRepositoryTest",
+      "failures": 0
+    }
+  ],
+  "errors": 0.0
+}

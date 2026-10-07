@@ -1,0 +1,20 @@
+appId: com.fandazi.app
+---
+# 登录后运行器给同账号注入一次真实503；本段不重新登录，也不提前读取订单。
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible: "页面加载失败"
+    timeout: 30000
+- assertVisible:
+    id: "com.fandazi.app:id/orders_error_retry"
+- assertNotVisible:
+    id: "com.fandazi.app:id/group_order_title"
+- takeScreenshot: orders-503
+- tapOn: "重新加载"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- assertNotVisible: "页面加载失败"
+- takeScreenshot: orders-503-retry-real-list

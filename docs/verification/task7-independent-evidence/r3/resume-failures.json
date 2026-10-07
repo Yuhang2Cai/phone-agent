@@ -1,0 +1,14 @@
+{
+  "productFailures": 0,
+  "retainedFailures": [
+    {"check": "snapshot-resume", "kind": "validator-generated-artifact", "exitCode": 1, "evidence": "snapshot-resume.json", "resolution": "原独立pytest时间窗生成日志原样私有归档，resume-retry及end通过"},
+    {"check": "health-r3-resume", "kind": "environment-not-running", "result": "8080拒绝连接，ADB无设备", "resolution": "原入口/原AVD默认开关恢复，未初始化DB，健康检查通过"},
+    {"check": "health-r3-resume-ready", "kind": "environment-cold-start", "result": "8080尚未监听", "resolution": "ready-retry通过"},
+    {"check": "process-diagnostic", "kind": "validator-access-denied", "result": "系统进程命令行拒绝读取", "resolution": "最终诊断只忽略不可访问进程，精确核本轮启动器"},
+    {"check": "compiled-read-probe", "kind": "validator-shell-quoting", "exitCode": 1, "privateLog": "r3/resume/compiled-read-probe.log", "resolution": "JVM参数整体引号"},
+    {"check": "compiled-read-probe-retry", "kind": "validator-mock-registration", "exitCode": 1, "privateLog": "r3/resume/compiled-read-probe-retry.log", "resolution": "Mockito对象注册就绪单例，真实Controller仍走Spring构造"},
+    {"check": "finalize-collect-first", "kind": "validator-timestamp-parser", "exitCode": 1, "resolution": "Python3.10规范化七位小数到六位微秒；首次已落盘统计保留核相等后复用"}
+  ],
+  "allOriginalTestAssertionsPreserved": true,
+  "noAdditionalProductRegressionSuitesRun": true
+}

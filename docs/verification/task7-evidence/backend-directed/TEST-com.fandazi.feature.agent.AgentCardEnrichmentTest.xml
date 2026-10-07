@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.fandazi.feature.agent.AgentCardEnrichmentTest" time="1.32" tests="3" errors="0" skipped="0" failures="0">
+  <testcase name="unknownCardTypeIsRejectedWithoutFallbackData" classname="com.fandazi.feature.agent.AgentCardEnrichmentTest" time="1.236" />
+  <testcase name="storeCardUsesSpringStoreFieldsInsteadOfModelPrice" classname="com.fandazi.feature.agent.AgentCardEnrichmentTest" time="0.052" />
+  <testcase name="dealCardUsesSpringDealFieldsAndOwningStore" classname="com.fandazi.feature.agent.AgentCardEnrichmentTest" time="0.005" />
+</testsuite>

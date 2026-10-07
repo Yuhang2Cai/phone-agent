@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:fillViewport="true">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/dish_sheet_background" android:orientation="vertical" android:paddingBottom="20dp">
+        <FrameLayout android:layout_width="match_parent" android:layout_height="176dp">
+            <ImageView android:id="@+id/dish_hero" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="菜品大图" android:scaleType="centerCrop" />
+            <TextView android:id="@+id/dish_close" android:layout_width="40dp" android:layout_height="40dp" android:layout_gravity="end|top" android:layout_margin="14dp" android:background="@drawable/merchant_favorite_background" android:contentDescription="关闭规格选择" android:gravity="center" android:text="×" android:textColor="#FFFFFF" android:textSize="26sp" />
+        </FrameLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="20dp" android:paddingTop="18dp" android:paddingEnd="20dp">
+            <TextView android:id="@+id/dish_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/brand_ink" android:textSize="22sp" android:textStyle="bold" />
+            <TextView android:id="@+id/dish_description" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textColor="@color/brand_muted" android:textSize="13sp" />
+            <TextView android:id="@+id/dish_tags" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:text="现做现送 · 食材新鲜" android:textColor="@color/success_green" android:textSize="12sp" />
+            <TextView android:id="@+id/dish_price" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/brand_orange" android:textSize="25sp" android:textStyle="bold" />
+            <LinearLayout android:id="@+id/option_groups" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:orientation="vertical" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="8dp" android:gravity="center_vertical" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="数量" android:textColor="@color/brand_ink" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:id="@+id/quantity_minus" android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/dish_option_unselected" android:contentDescription="减少数量" android:gravity="center" android:text="−" android:textSize="22sp" />
+                <TextView android:id="@+id/quantity_value" android:layout_width="46dp" android:layout_height="40dp" android:contentDescription="菜品数量" android:gravity="center" android:text="1" android:textColor="@color/brand_ink" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:id="@+id/quantity_plus" android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/dish_option_selected" android:contentDescription="增加数量" android:gravity="center" android:text="+" android:textColor="@color/brand_orange" android:textSize="22sp" />
+            </LinearLayout>
+            <TextView android:id="@+id/add_to_cart" android:layout_width="match_parent" android:layout_height="56dp" android:layout_marginTop="10dp" android:background="@drawable/search_button_background" android:contentDescription="确认加入购物车" android:gravity="center" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

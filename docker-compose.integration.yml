@@ -1,0 +1,83 @@
+# 独立集成环境：双库不同容器/卷，不复用或清空现有业务库，不启动旧8090。
+services:
+  business-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${INTEGRATION_DB_ROOT_PASSWORD:?需要私有root口令}
+      MYSQL_DATABASE: fandazi_groupbuy_integration
+      MYSQL_USER: fandazi
+      MYSQL_PASSWORD: ${INTEGRATION_DB_PASSWORD:?需要私有业务口令}
+    ports: ["127.0.0.1:13307:3306"]
+    volumes: ["business-data:/var/lib/mysql"]
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 5s
+      retries: 30
+  agent-db:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: ${INTEGRATION_DB_ROOT_PASSWORD:?需要私有root口令}
+      MYSQL_DATABASE: dianping_intent
+      MYSQL_USER: fandazi
+      MYSQL_PASSWORD: ${INTEGRATION_DB_PASSWORD:?需要私有Agent口令}
+    ports: ["127.0.0.1:13308:3306"]
+    # 空库首次启动按既有幂等SQL初始化意图审计；已有卷需按部署说明显式补执行，不清库。
+    volumes:
+      - "agent-data:/var/lib/mysql"
+      - "${NEW_AGENT_SOURCE}/database/schema/001_create_dianping_intent.sql:/docker-entrypoint-initdb.d/001-intent.sql:ro"
+      - "${NEW_AGENT_SOURCE}/database/schema/002_extend_intent_audit.sql:/docker-entrypoint-initdb.d/002-intent.sql:ro"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 --silent"]
+      interval: 5s
+      retries: 30
+  chroma:
+    image: chromadb/chroma:1.5.9
+    ports: ["127.0.0.1:18000:8000"]
+    volumes: ["chroma-data:/data"]
+  agent:
+    build:
+      context: ${NEW_AGENT_SOURCE:?指定独立新Agent源码目录}
+    ports: ["127.0.0.1:18091:8091"]
+    depends_on:
+      agent-db: {condition: service_healthy}
+      chroma: {condition: service_started}
+    environment:
+      DB_URL: mysql+pymysql://fandazi:${INTEGRATION_DB_PASSWORD}@agent-db:3306/dianping_intent
+      DB_USERNAME: fandazi
+      DB_PASSWORD: ${INTEGRATION_DB_PASSWORD}
+      AGENT_INTERNAL_TOKEN: ${AGENT_INTERNAL_TOKEN:?需要共享内部密钥}
+      QWEN_KEY: ${QWEN_KEY:?需要私有模型密钥}
+      QWEN_NAME: ${QWEN_NAME:?需要实际模型名}
+      QWEN_URL: ${QWEN_URL:?需要实际模型地址}
+      DASHSCOPE_API_KEY: ${DASHSCOPE_API_KEY:?需要决策模型密钥}
+      EMBEDDING_KEY: ${EMBEDDING_KEY:?需要私有向量密钥}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:?需要向量模型}
+      CHROMA_HOST: chroma
+      CHROMA_PORT: 8000
+      SPRING_BOOT_BASE_URL: http://spring:8080
+      AGENT_BUILD_VERSION: ${DELIVERY_VERSION:-integration}
+      # 未挂载人工审批文件，生产默认只做本地影子匹配。
+    restart: unless-stopped
+  spring:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports: ["127.0.0.1:18080:8080"]
+    depends_on:
+      business-db: {condition: service_healthy}
+    environment:
+      DB_URL: jdbc:mysql://business-db:3306/fandazi_groupbuy_integration?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      DB_USERNAME: fandazi
+      DB_PASSWORD: ${INTEGRATION_DB_PASSWORD}
+      JWT_SECRET: ${INTEGRATION_JWT_SECRET:?需要私有登录签名}
+      AGENT_INTERNAL_TOKEN: ${AGENT_INTERNAL_TOKEN}
+      AGENT_SERVICE_URL: http://agent:8091
+      SEED_ENABLED: "false"
+      # 仅受控副链显式开启development+故障；默认与生产相同，绝不在APK伪造503。
+      SPRING_PROFILES_ACTIVE: ${INTEGRATION_PROFILE:-default}
+      TASK8_FAILURES_ENABLED: ${INTEGRATION_FAILURES_ENABLED:-false}
+    restart: unless-stopped
+volumes:
+  business-data:
+  agent-data:
+  chroma-data:

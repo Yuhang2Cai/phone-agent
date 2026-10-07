@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" tests="9" skipped="0" failures="0" errors="0" timestamp="2026-10-02T02:02:10.870Z" hostname="CAI" time="0.018">
+  <testcase name="identicalSummaryStillRequiresLatestPreparationEvent" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.003" />
+  <testcase name="forgedSummaryWrongConfirmAndUnboundReplyAreRejected" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.002" />
+  <testcase name="waitingInputAndInFlightInvalidateOldActions" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.002" />
+  <testcase name="sameRunReplacementRejectsOldSummaryVersion" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.002" />
+  <testcase name="sseReplacementReplayAndTerminalRespectCurrentBinding" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.002" />
+  <testcase name="terminalCardCannotConfirmOrCancel" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.001" />
+  <testcase name="cancelledHistoryCannotCancelNewRun" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.002" />
+  <testcase name="restoreKeepsOnlyCurrentEffectiveSummary" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.002" />
+  <testcase name="accountSwitchAndExpiredSummaryRejectCapturedAction" classname="com.fandazi.app.feature.agent.Task5ConfirmationActionTest" time="0.001" />
+</testsuite>

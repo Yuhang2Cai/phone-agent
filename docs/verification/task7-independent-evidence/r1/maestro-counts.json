@@ -1,0 +1,110 @@
+[
+  {
+    "phase": "prepare",
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 18
+      },
+      {
+        "status": "SKIPPED",
+        "count": 1
+      }
+    ],
+    "commands": 19,
+    "exitCode": 0,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "entry": "order",
+    "label": "r1-401-order-prepare",
+    "screenshots": [
+      {
+        "sha256": "BE50CCA796BD2F73DB3CB503F880A304F0DD973F96C4E9E93285B1BDA3E4F118",
+        "path": "maestro-r1-401-order-prepare\\2026-10-02_115832\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+      }
+    ],
+    "startedAt": "2026-10-02T11:58:28.8916518+08:00",
+    "finishedAt": "2026-10-02T11:59:55.8580948+08:00"
+  },
+  {
+    "phase": "return",
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 15
+      },
+      {
+        "status": "SKIPPED",
+        "count": 1
+      }
+    ],
+    "commands": 16,
+    "exitCode": 0,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "entry": "order",
+    "label": "r1-401-order-return",
+    "screenshots": [
+      {
+        "sha256": "18A3DC87A77737A25AF003846B28F0E8ED02E8396C10F76A68224C78AF28AC46",
+        "path": "maestro-r1-401-order-return\\2026-10-02_120151\\task7-401-return\\takeScreenshot\\natural401-login.png"
+      },
+      {
+        "sha256": "F8F359667457682B2D55D73419C4172C24A636A7B8EA6DCE003C1EB744879C86",
+        "path": "maestro-r1-401-order-return\\2026-10-02_120151\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+      }
+    ],
+    "startedAt": "2026-10-02T12:01:48.1819053+08:00",
+    "finishedAt": "2026-10-02T12:02:33.745231+08:00"
+  },
+  {
+    "phase": "prepare",
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 24
+      }
+    ],
+    "commands": 24,
+    "exitCode": 0,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "entry": "voucher",
+    "label": "r1-401-voucher-prepare",
+    "screenshots": [
+      {
+        "sha256": "E3688BA82F871739654AE87D4232C10F1AF63727FF84D1529899DF11652F2D18",
+        "path": "maestro-r1-401-voucher-prepare\\2026-10-02_120236\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+      }
+    ],
+    "startedAt": "2026-10-02T12:02:33.8123959+08:00",
+    "finishedAt": "2026-10-02T12:03:37.9752737+08:00"
+  },
+  {
+    "phase": "return",
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 15
+      },
+      {
+        "status": "SKIPPED",
+        "count": 1
+      }
+    ],
+    "commands": 16,
+    "exitCode": 0,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "entry": "voucher",
+    "label": "r1-401-voucher-return",
+    "screenshots": [
+      {
+        "sha256": "C08D347BA107B8E39371267C5D1169FD77208AB51AB175D6300C7715D2475AAE",
+        "path": "maestro-r1-401-voucher-return\\2026-10-02_120525\\task7-401-return\\takeScreenshot\\natural401-login.png"
+      },
+      {
+        "sha256": "78F0E1D8F4172DAF6267E77D244EA21F8C80B7CF64007B474AEB113E91D87A23",
+        "path": "maestro-r1-401-voucher-return\\2026-10-02_120525\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+      }
+    ],
+    "startedAt": "2026-10-02T12:05:23.4137948+08:00",
+    "finishedAt": "2026-10-02T12:06:14.8715986+08:00"
+  }
+]

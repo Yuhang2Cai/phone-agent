@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 通过AppCompat着色兼容API26；图标及Figma色值不变。 -->
+<!-- 团购套餐详情 UI-06；仅保留返回、套餐信息、团购明细与购买入口。 -->
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/group_buy_background">
+
+    <ScrollView
+        android:id="@+id/deal_scroll"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:paddingBottom="96dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="72dp"
+                android:background="@color/surface_card">
+
+                <ImageButton
+                    android:id="@+id/deal_back"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:layout_gravity="start|bottom"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:background="@android:color/transparent"
+                    android:contentDescription="返回"
+                    android:padding="12dp"
+                    android:src="@drawable/ic_back"
+                    app:tint="@color/group_buy_text" />
+            </FrameLayout>
+
+            <!-- UI17J：来源提示在原详情头部后，购买仍固定底部并保持只读禁用。 -->
+            <include layout="@layout/include_catalog_cache_banner" android:layout_width="match_parent" android:layout_height="70dp" android:layout_marginHorizontal="12dp" android:layout_marginTop="10dp" android:layout_marginBottom="12dp" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/surface_card"
+                android:orientation="vertical"
+                android:paddingStart="18dp"
+                android:paddingEnd="18dp"
+                android:paddingBottom="18dp">
+
+                <TextView
+                    android:id="@+id/deal_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="正在加载套餐"
+                    android:textColor="@color/group_buy_text"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <!-- 用户显式加入当前套餐，跳转已确认选择页；不改变原购买资格。 -->
+                <TextView android:id="@+id/deal_compare_add" style="@style/CompareButton" android:layout_marginTop="12dp" android:text="加入对比" />
+                <TextView
+                    android:id="@+id/deal_meta"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/group_buy_muted"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/deal_rule"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:textColor="@color/group_buy_text"
+                    android:textSize="13sp" />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="96dp"
+                    android:layout_marginTop="18dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/deal_option_list"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal" />
+                </HorizontalScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@color/surface_card"
+                android:orientation="vertical"
+                android:paddingStart="18dp"
+                android:paddingTop="20dp"
+                android:paddingEnd="18dp"
+                android:paddingBottom="28dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="团购详情"
+                    android:textColor="@color/group_buy_text"
+                    android:textSize="22sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/deal_detail_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:orientation="vertical" />
+
+                <!-- 使用限制和内容只由当前套餐 DTO 绑定，不补写后端未提供的退换承诺。 -->
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/deal_purchase_bar"
+        android:layout_width="0dp"
+        android:layout_height="82dp"
+        android:background="@color/surface_card"
+        android:clickable="true"
+        android:elevation="10dp"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="18dp"
+        android:paddingEnd="18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <LinearLayout
+            android:id="@+id/deal_store"
+            android:layout_width="72dp"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawableTop="@drawable/ic_tab_home"
+                android:text="门店"
+                android:textColor="@color/group_buy_muted"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/deal_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/group_buy_orange"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/deal_purchase"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="52dp"
+            android:background="@drawable/group_buy_primary_button"
+            android:gravity="center"
+            android:text="立即购买"
+            android:textColor="@color/surface_card"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

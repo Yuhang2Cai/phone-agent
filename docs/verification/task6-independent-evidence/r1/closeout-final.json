@@ -1,0 +1,51 @@
+{
+  "at": "2026-10-02T09:30:18.5247921+08:00",
+  "sourceCount": 696,
+  "allowedDelta": [
+    {
+      "repo": "phone",
+      "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\purchase\\PurchaseConfirmationTest.java",
+      "sha256": "2679AEAD67A1F6A6E7DA509939743E22928751763D65267DB2D7876F4100839A"
+    }
+  ],
+  "sourceFinalSha256": "F86DF1F2499716B93DBAA4F205E4833B79AD68AFC39A4AFBE9912932A7906566",
+  "protectedFileCount": 277,
+  "protectedChanges": [],
+  "preservedReportSha256": "9E677626FA4B2F43FF6A4A96CE62553463BB25A89A9055D91295E1D650B0C1EF",
+  "r1ManifestSha256": "BC569565D0A47D75FB245AB821E59B19F35FD56C6B4D5B97851DE0244CA385B6",
+  "backendAttempts": [
+    {
+      "path": "Backend-full-summary.json",
+      "exitCode": 1,
+      "suites": 53,
+      "tests": 217.0,
+      "failures": 0.0,
+      "errors": 1.0,
+      "skipped": 0.0
+    },
+    {
+      "path": "backend-attempt2/Backend-full-summary.json",
+      "exitCode": 0,
+      "suites": 53,
+      "tests": 217.0,
+      "failures": 0.0,
+      "errors": 0.0,
+      "skipped": 0.0
+    }
+  ],
+  "device": {
+    "runs": 30,
+    "successfulRuns": 27,
+    "preservedEnvironmentFailures": [
+      "history-old-tap",
+      "history-prepare",
+      "network-pay-recover"
+    ],
+    "apiChecks": 175,
+    "apiFailed": 0,
+    "expiredDeviceQuote": "29471f32-f3c7-49f0-94e1-70f4d0947c26",
+    "freshDeviceQuote": "3c17227f-e02e-424c-a437-839be1332f14",
+    "naturalWaitSeconds": 310.0163629,
+    "expiryOrderWrites": 0
+  }
+}

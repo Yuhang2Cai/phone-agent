@@ -1,0 +1,28 @@
+{
+  "listeners": [
+    {
+      "port": 8080,
+      "entryPoint": "com.fandazi.FandaziApplication",
+      "pid": 42824
+    },
+    {
+      "port": 8091,
+      "entryPoint": "service.app:create_app",
+      "pid": 29884
+    }
+  ],
+  "agent": {
+    "status": "ok",
+    "schemaVersion": "1.1",
+    "service": "group-buying-agent",
+    "sourceRoot": "D:\\project\\-Demo-master",
+    "entryPoint": "service.app:create_app",
+    "buildVersion": "c339237-task7-working-tree"
+  },
+  "task2FixturesEnabled": false,
+  "ordinaryJwtSeconds": 180,
+  "activeDefaultNetwork": "Active default network: 123",
+  "task8FailuresEnabled": false,
+  "at": "2026-10-02T10:29:08.8288631+08:00",
+  "sourceRunnerSha256": "B1100341E724D25C0D01F9E34CC3EB93874D3D0FA817F6BE6C07C7570AA5D9CD"
+}

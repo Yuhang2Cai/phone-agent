@@ -1,0 +1,44 @@
+# Task6 自然401：使用真实账号密码和正常短期JWT，套餐/数量来自当前目录。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "${MAESTRO_USERNAME}"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "${MAESTRO_PASSWORD}"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_search_button"
+    timeout: 30000
+- scrollUntilVisible:
+    element:
+      text: "store-card-${TASK6_STORE_ID}"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "store-card-${TASK6_STORE_ID}"
+- extendedWaitUntil:
+    visible: "store-deal-${TASK6_DEAL_ID}"
+    timeout: 30000
+- tapOn: "store-deal-${TASK6_DEAL_ID}"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/deal_purchase_bar"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/deal_purchase_bar"
+- extendedWaitUntil:
+    visible: "提交订单"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/checkout_plus"
+- extendedWaitUntil:
+    visible: "提交订单"
+    timeout: 30000
+- assertVisible: "${TASK6_TOTAL}"
+- takeScreenshot: "401-before-expiry-quantity2"

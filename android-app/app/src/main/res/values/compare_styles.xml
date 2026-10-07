@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI16复用既有颜色与按钮；字号/行高对应已确认Compare组件，静态内容只含展示结构。 -->
+<resources>
+    <style name="CompareText"><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:textSize">14sp</item><item name="android:textColor">@color/group_buy_text</item><item name="android:includeFontPadding">false</item><item name="android:lineSpacingExtra">2dp</item></style>
+    <style name="CompareCaption" parent="CompareText"><item name="android:textSize">12sp</item><item name="android:textColor">@color/group_buy_muted</item></style>
+    <style name="CompareButton" parent="CompareText"><item name="android:layout_height">44dp</item><item name="android:gravity">center</item><item name="android:background">@drawable/compare_primary</item><item name="android:textColor">@color/surface_card</item><item name="android:clickable">true</item><item name="android:focusable">true</item></style>
+</resources>

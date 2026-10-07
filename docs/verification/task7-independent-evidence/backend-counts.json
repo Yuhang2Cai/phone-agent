@@ -1,0 +1,58 @@
+[
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 3,
+    "failures": 0,
+    "name": "com.fandazi.feature.agent.AgentCardEnrichmentTest",
+    "timestamp": null
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 3,
+    "failures": 0,
+    "name": "com.fandazi.feature.agent.AgentToolFieldBoundaryTest",
+    "timestamp": null
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 9,
+    "failures": 0,
+    "name": "com.fandazi.feature.agent.InternalV1ToolIntegrationTest",
+    "timestamp": null
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 1,
+    "failures": 0,
+    "name": "com.fandazi.feature.grouporder.GroupBuyOrderIdempotencyTest",
+    "timestamp": null
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 4,
+    "failures": 0,
+    "name": "com.fandazi.feature.grouporder.GroupOrderSummaryContractTest",
+    "timestamp": null
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 3,
+    "failures": 0,
+    "name": "com.fandazi.feature.purchase.PurchaseConfirmationTest",
+    "timestamp": null
+  },
+  {
+    "skipped": 0,
+    "errors": 0,
+    "tests": 1,
+    "failures": 0,
+    "name": "com.fandazi.feature.voucher.VoucherLifecycleTest",
+    "timestamp": null
+  }
+]

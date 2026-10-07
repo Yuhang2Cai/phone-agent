@@ -1,0 +1,87 @@
+# 长期登录实际验收：登录只在第一段输入密码；恢复/到期/离线段不得输入或隐式重登，不调用ASR和业务写。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${LOGIN_PHASE == "login"}
+    commands:
+      - launchApp:
+          clearState: false
+      # 冷启动先等待宿主完成认证路由；不能在初始空容器上判定“没有登录表单”并提前点击底栏。
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/(username_input|bottom_navigation)
+          timeout: 60000
+      - runFlow:
+          when:
+            notVisible:
+              id: com.fandazi.app:id/username_input
+          commands:
+            - tapOn:
+                id: com.fandazi.app:id/profileFragment
+            - runFlow:
+                when:
+                  visible:
+                    id: com.fandazi.app:id/profile_logout
+                commands:
+                  - tapOn:
+                      id: com.fandazi.app:id/profile_logout
+            - runFlow:
+                when:
+                  visible:
+                    id: com.fandazi.app:id/profile_login_entry
+                commands:
+                  - tapOn:
+                      id: com.fandazi.app:id/profile_login_entry
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/username_input
+      - setClipboard: "${MAESTRO_USERNAME}"
+      - pasteText
+      - tapOn:
+          id: com.fandazi.app:id/password_input
+      - setClipboard: "${MAESTRO_PASSWORD}"
+      - pasteText
+      - setClipboard: ""
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/submit_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/home_search_button
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${LOGIN_PHASE != "logout"}
+    commands:
+      # 启动由设备控制器实际桌面点击完成，此段只断言，不以launchApp掩盖恢复问题。
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/bottom_navigation
+          timeout: 30000
+      - assertNotVisible:
+          id: com.fandazi.app:id/username_input
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/profile_logout
+          timeout: 30000
+      - assertVisible: "${MAESTRO_USERNAME}"
+      - takeScreenshot: "long-login-${LOGIN_PHASE}"
+- runFlow:
+    when:
+      true: ${LOGIN_PHASE == "logout"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn:
+          id: com.fandazi.app:id/profile_logout
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - takeScreenshot: long-login-explicit-logout

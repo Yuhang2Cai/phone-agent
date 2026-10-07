@@ -1,0 +1,11 @@
+{
+  "passed": true,
+  "expectedVoucherId": "8f051492-d867-43d5-bfb1-2a0969757afb",
+  "orderId": "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+  "orderTailShown": "db27a606",
+  "resourceId": "8f051492-d867-43d5-bfb1-2a0969757afb",
+  "amount": "71.23",
+  "consumed": false,
+  "previewExpiresAtUtc": "2026-10-02T11:35:15.746108",
+  "note": "已注册原页面会POST prepare签发未消费预览凭证；没有提交退款，不能描述为纯GET链"
+}

@@ -1,0 +1,9 @@
+{
+  "localSha256": "DD6441AD4AEBB8EB87E30283884B4441F80D141B4A43A9D58C262B6D0927FF6C",
+  "deviceSha256": "DD6441AD4AEBB8EB87E30283884B4441F80D141B4A43A9D58C262B6D0927FF6C",
+  "passed": true,
+  "oldPackagesAbsentAt": "2026-10-02T19:32:08.1528078+08:00",
+  "installedAt": "2026-10-02T19:32:09.3066022+08:00",
+  "kind": "projection",
+  "source": "C:/fdz-build/.runtime/task7-delivery-r2/phone/android-app/app/build/outputs/apk/debug/app-debug.apk"
+}

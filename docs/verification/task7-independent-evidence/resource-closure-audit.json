@@ -1,0 +1,313 @@
+{
+  "referencedAfterSaleColors": [
+    {
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "token": "after_sale_muted"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "token": "after_sale_ink"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "token": "after_sale_muted"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "token": "after_sale_ink"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "token": "after_sale_muted"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "token": "after_sale_ink"
+    },
+    {
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "token": "after_sale_muted"
+    },
+    {
+      "from": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+      "token": "after_sale_ink"
+    }
+  ],
+  "at": "2026-10-02T11:32:09.8016936+08:00",
+  "edges": [
+    {
+      "to": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_orders.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/search_button_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "declared": "necessary",
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+      "from": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+      "declared": "necessary",
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+      "from": "android-app/app/src/main/res/layout/item_voucher_row.xml",
+      "declared": null,
+      "inHead": true
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_order_empty.png",
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_empty_shadow.png",
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+      "from": "android-app/app/src/main/res/layout/view_orders_empty.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_shadow.png",
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_page.xml",
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_fold.xml",
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_eye.png",
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_eye.png",
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_error_badge.png",
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+      "from": "android-app/app/src/main/res/layout/view_error_retry.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_network_backdrop.png",
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_network_off.png",
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "declared": null,
+      "inHead": false
+    },
+    {
+      "to": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+      "from": "android-app/app/src/main/res/layout/view_network_error.xml",
+      "declared": null,
+      "inHead": false
+    }
+  ],
+  "checkedResourceFiles": 14,
+  "missingNecessaryOriginalDirty": [
+    {
+      "originalDirty": true,
+      "beforeSha256": "2EDF2BA9E17E6EA0B90F5267E8182FCFC48BB7D9425FECE3DFA9D91E9EC6F3A3",
+      "currentSha256": "2EDF2BA9E17E6EA0B90F5267E8182FCFC48BB7D9425FECE3DFA9D91E9EC6F3A3",
+      "frozenSha256": "2EDF2BA9E17E6EA0B90F5267E8182FCFC48BB7D9425FECE3DFA9D91E9EC6F3A3",
+      "path": "android-app/app/src/main/res/layout/view_orders_empty.xml"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "CF3499D2178E90BDDF556F08774B68900337022C71DD80CE00FEE379BB409B41",
+      "currentSha256": "CF3499D2178E90BDDF556F08774B68900337022C71DD80CE00FEE379BB409B41",
+      "frozenSha256": "CF3499D2178E90BDDF556F08774B68900337022C71DD80CE00FEE379BB409B41",
+      "path": "android-app/app/src/main/res/layout/view_error_retry.xml"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "255B3D55AD8BCB3AFDA234962C18774963CE8B7E4AB85310F5992E08BDD7B287",
+      "currentSha256": "255B3D55AD8BCB3AFDA234962C18774963CE8B7E4AB85310F5992E08BDD7B287",
+      "frozenSha256": "255B3D55AD8BCB3AFDA234962C18774963CE8B7E4AB85310F5992E08BDD7B287",
+      "path": "android-app/app/src/main/res/layout/view_network_error.xml"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "25FA94287B1300E14869F82D0AACE8148E13ACA10B8D8A143F44BB7A34DC6E2E",
+      "currentSha256": "25FA94287B1300E14869F82D0AACE8148E13ACA10B8D8A143F44BB7A34DC6E2E",
+      "frozenSha256": "25FA94287B1300E14869F82D0AACE8148E13ACA10B8D8A143F44BB7A34DC6E2E",
+      "path": "android-app/app/src/main/res/drawable/after_sale_order_empty.png"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "250D0D3F0C9A4E6DAB8ED1E31657C0EDD76A6C3BD5FED6C563BB380DE2F14415",
+      "currentSha256": "250D0D3F0C9A4E6DAB8ED1E31657C0EDD76A6C3BD5FED6C563BB380DE2F14415",
+      "frozenSha256": "250D0D3F0C9A4E6DAB8ED1E31657C0EDD76A6C3BD5FED6C563BB380DE2F14415",
+      "path": "android-app/app/src/main/res/drawable/after_sale_empty_shadow.png"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "3FFDAB4B3D4C35D83D426273AF965B72FC4A4EF3D3BB459717E9972C82C70BC9",
+      "currentSha256": "3FFDAB4B3D4C35D83D426273AF965B72FC4A4EF3D3BB459717E9972C82C70BC9",
+      "frozenSha256": "3FFDAB4B3D4C35D83D426273AF965B72FC4A4EF3D3BB459717E9972C82C70BC9",
+      "path": "android-app/app/src/main/res/drawable/after_sale_primary.xml"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "5DE13963183ED0ED7A845E0D12ADD443D876D2442D502EE292547689E6613CBF",
+      "currentSha256": "5DE13963183ED0ED7A845E0D12ADD443D876D2442D502EE292547689E6613CBF",
+      "frozenSha256": "5DE13963183ED0ED7A845E0D12ADD443D876D2442D502EE292547689E6613CBF",
+      "path": "android-app/app/src/main/res/drawable/after_sale_error_shadow.png"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "853FCCEF245379F6E0736D00F8475B6437E9D265CE814DACA6C1D75A4F4673C5",
+      "currentSha256": "853FCCEF245379F6E0736D00F8475B6437E9D265CE814DACA6C1D75A4F4673C5",
+      "frozenSha256": "853FCCEF245379F6E0736D00F8475B6437E9D265CE814DACA6C1D75A4F4673C5",
+      "path": "android-app/app/src/main/res/drawable/after_sale_error_page.xml"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "4558BCC98D41D5603B5B01C61354DCBF072EB2ADE462534A75BF33D19EE371A2",
+      "currentSha256": "4558BCC98D41D5603B5B01C61354DCBF072EB2ADE462534A75BF33D19EE371A2",
+      "frozenSha256": "4558BCC98D41D5603B5B01C61354DCBF072EB2ADE462534A75BF33D19EE371A2",
+      "path": "android-app/app/src/main/res/drawable/after_sale_error_fold.xml"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "79EEDDB1E225A16ADA11CEE07F9B2BAC1FED2A4BE2E59F5D9AE263CDFA0994C0",
+      "currentSha256": "79EEDDB1E225A16ADA11CEE07F9B2BAC1FED2A4BE2E59F5D9AE263CDFA0994C0",
+      "frozenSha256": "79EEDDB1E225A16ADA11CEE07F9B2BAC1FED2A4BE2E59F5D9AE263CDFA0994C0",
+      "path": "android-app/app/src/main/res/drawable/after_sale_error_eye.png"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "DF9A45EA52A0425704A589D60D736987486AF065DAA19DEDE630082CD70DE96F",
+      "currentSha256": "DF9A45EA52A0425704A589D60D736987486AF065DAA19DEDE630082CD70DE96F",
+      "frozenSha256": "DF9A45EA52A0425704A589D60D736987486AF065DAA19DEDE630082CD70DE96F",
+      "path": "android-app/app/src/main/res/drawable/after_sale_error_badge.png"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "4ACBF4D52F685870AE6FC56766B0B06DD8D3FA01182BE6961EF5C9EB33123649",
+      "currentSha256": "4ACBF4D52F685870AE6FC56766B0B06DD8D3FA01182BE6961EF5C9EB33123649",
+      "frozenSha256": "4ACBF4D52F685870AE6FC56766B0B06DD8D3FA01182BE6961EF5C9EB33123649",
+      "path": "android-app/app/src/main/res/drawable/after_sale_network_backdrop.png"
+    },
+    {
+      "originalDirty": true,
+      "beforeSha256": "35FA799D900F3066DEC7FAEF731E3A75C1DC81B4A582430553564020860F39EC",
+      "currentSha256": "35FA799D900F3066DEC7FAEF731E3A75C1DC81B4A582430553564020860F39EC",
+      "frozenSha256": "35FA799D900F3066DEC7FAEF731E3A75C1DC81B4A582430553564020860F39EC",
+      "path": "android-app/app/src/main/res/drawable/after_sale_network_off.png"
+    }
+  ]
+}

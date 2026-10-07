@@ -1,0 +1,40 @@
+# Task17实际请求在途的A/B/H三状态；只查询和截图，不延长产品HTTP超时。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "loading-cache-first"}
+    commands:
+      - launchApp:
+          stopApp: false
+      - extendedWaitUntil:
+          visible: 缓存先显
+          timeout: 10000
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - assertVisible:
+          id: com.fandazi.app:id/sort_distance
+          enabled: false
+      - takeScreenshot: actual-cache-first-while-http-inflight
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "loading-refresh"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/category_recommend
+      - extendedWaitUntil:
+          visible: 在线刷新中
+          timeout: 5000
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: actual-refresh-while-backend-read-inflight
+- runFlow:
+    when:
+      true: ${MAESTRO_OFFLINE_PHASE == "loading-restored"}
+    commands:
+      - extendedWaitUntil:
+          visible: 网络已恢复
+          timeout: 35000
+      - assertVisible:
+          id: com.fandazi.app:id/store_name
+      - takeScreenshot: actual-server-read-restored-with-current-rows

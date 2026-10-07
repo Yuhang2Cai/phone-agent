@@ -1,0 +1,5 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.fandazi.app.feature.agent.AgentChatStateTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-10-02T02:36:56.416Z" hostname="CAI" time="0.155">
+  <testcase name="newTurnClearsPreviousCardsAndKeepsConversation" classname="com.fandazi.app.feature.agent.AgentChatStateTest" time="0.155" />
+  <testcase name="dealCardKeepsDifferentServerDealIdentity" classname="com.fandazi.app.feature.agent.AgentChatStateTest" time="0.0" />
+</testsuite>

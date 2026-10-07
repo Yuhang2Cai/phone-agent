@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-20A：帮助条目和搜索结果从 FAQ 接口生成，投诉入口是独立真实操作。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
+    android:background="@color/after_sale_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical" android:paddingHorizontal="16dp">
+        <TextView android:id="@+id/faq_back" android:layout_width="44dp" android:layout_height="match_parent" android:gravity="center_vertical"
+            android:text="‹" android:textSize="34sp" android:textColor="@color/after_sale_ink" android:contentDescription="返回我的" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center" android:text="帮助与客服" android:textSize="21sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+        <Space android:layout_width="44dp" android:layout_height="1dp" />
+    </LinearLayout>
+    <EditText android:id="@+id/faq_search" android:layout_width="match_parent" android:layout_height="48dp"
+        android:layout_marginHorizontal="16dp" android:layout_marginTop="12dp" android:background="@drawable/after_sale_input"
+        android:hint="搜索问题或关键词" android:inputType="text" android:singleLine="true"
+        android:paddingHorizontal="20dp" android:drawableStart="@drawable/ic_home_search" android:drawablePadding="12dp" android:textSize="15sp" android:textColor="@color/after_sale_ink" />
+    <!-- 真实分类目录可横向滚动，长标签不压缩文字或挤占 FAQ 操作区。 -->
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="56dp" android:scrollbars="none" android:paddingHorizontal="12dp">
+        <com.google.android.material.chip.ChipGroup android:id="@+id/faq_categories" android:layout_width="wrap_content" android:layout_height="match_parent" app:singleLine="true" app:singleSelection="true" app:selectionRequired="true" app:chipSpacingHorizontal="8dp" />
+    </HorizontalScrollView>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
+            android:paddingHorizontal="12dp" android:paddingBottom="20dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp"
+                android:text="常见问题" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+            <LinearLayout android:id="@+id/faq_list" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:background="@drawable/after_sale_card" android:orientation="vertical" android:padding="12dp" />
+            <TextView android:id="@+id/faq_error" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:textColor="@color/warning_red" android:visibility="gone" />
+            <TextView android:id="@+id/faq_retry" android:layout_width="match_parent" android:layout_height="48dp"
+                android:layout_marginTop="12dp" android:background="@drawable/after_sale_outline" android:gravity="center"
+                android:text="重新加载" android:textColor="@color/after_sale_ink" android:visibility="gone" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="28dp"
+                android:text="联系客服" android:textSize="20sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+            <TextView android:id="@+id/faq_contact" android:layout_width="match_parent" android:layout_height="70dp"
+                android:layout_marginTop="12dp" android:background="@drawable/after_sale_card" android:gravity="center_vertical"
+                android:paddingHorizontal="16dp" android:drawableStart="@drawable/faq_contact" android:drawablePadding="12dp" android:text="联系客服    ›\n提交问题反馈，由平台记录处理"
+                android:textSize="15sp" android:textColor="@color/after_sale_ink" />
+            <TextView android:id="@+id/faq_complaint" android:layout_width="match_parent" android:layout_height="70dp"
+                android:layout_marginTop="18dp" android:background="@drawable/after_sale_card" android:gravity="center_vertical"
+                android:paddingHorizontal="16dp" android:drawableStart="@drawable/faq_complaint" android:drawablePadding="12dp" android:text="投诉与反馈    ›\n提交问题与订单反馈"
+                android:textSize="15sp" android:textColor="@color/after_sale_ink" />
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

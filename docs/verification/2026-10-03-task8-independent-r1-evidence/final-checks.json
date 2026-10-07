@@ -1,0 +1,56 @@
+{
+  "at": "2026-10-03T00:39:29.0623540+08:00",
+  "agentHealth": {
+    "status": "ok",
+    "schemaVersion": "1.1",
+    "service": "group-buying-agent",
+    "sourceRoot": "D:\\project\\-Demo-master",
+    "entryPoint": "service.app:create_app",
+    "buildVersion": "9fdc5e1-task8-working-tree"
+  },
+  "frozenTestsUnchanged": true,
+  "imageFaultAbsent": true,
+  "tests": {
+    "live": {
+      "tests": 2,
+      "skipped": 0,
+      "errors": 0,
+      "failures": 0
+    },
+    "guards": {
+      "tests": 3,
+      "skipped": 0,
+      "errors": 0,
+      "failures": 0
+    }
+  },
+  "springHealthy": true,
+  "deviceAppModifiedByR1": false,
+  "indexTreesUnchanged": true,
+  "listeners": [
+    {
+      "pid": 34804,
+      "sourceVerified": true,
+      "port": 8080
+    },
+    {
+      "pid": 47544,
+      "sourceVerified": true,
+      "port": 8091
+    },
+    {
+      "pid": 2464,
+      "sourceVerified": true,
+      "port": 8768
+    }
+  ],
+  "servicesRestartedByR1": false,
+  "oldPrivateJsonUnchanged": 775,
+  "historicalFailedCopyUnchanged": true,
+  "network": {
+    "wifi": "1",
+    "airplane": "disabled",
+    "proxy": "null",
+    "data": "1"
+  }
+}

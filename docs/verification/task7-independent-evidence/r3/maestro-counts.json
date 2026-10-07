@@ -1,0 +1,95 @@
+{
+  "runs": [
+    {
+      "exitCode": 0,
+      "accountRole": "account",
+      "orderIds": [
+        "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+        "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+        "dff4196f-849d-40e5-a585-f93463cde60d"
+      ],
+      "apkSha256": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B",
+      "voucherIds": [
+        "a81f203b-f46b-4da7-be8e-eb11b9d14108",
+        "8f051492-d867-43d5-bfb1-2a0969757afb",
+        "8899fdb2-d64b-42a8-adb0-127436d687e3",
+        "82e82b5b-1c13-43db-9302-4fa54fd6a7ce"
+      ],
+      "startedAt": "2026-10-02T19:29:16.7302779+08:00",
+      "flow": "group-buying-04-voucher-query.yaml",
+      "finishedAt": "2026-10-02T19:30:38.0314563+08:00",
+      "label": "r3-workspace-query",
+      "commands": 75,
+      "statuses": {
+        "COMPLETED": 75
+      },
+      "screenshots": [
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/available-segment-two.png",
+          "sha256": "a3f53958dea3196248fb0a979f0d2f3b1378af7ed7a2cb69c4a713bb44cf9742"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/completed-segment-empty.png",
+          "sha256": "100cb793b525526da073cb1fb5680e212aad3f742764c74523d0f93cdb7d26e1"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/eligible-refund-navigation-only.png",
+          "sha256": "91c42c6de358d70a2d1aadc65fef9d550609b6ed0c703e9269a65989ba12c732"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/order-different-real.png",
+          "sha256": "66cd3fe7568d93670d79ad1ee004bffd322142159139a35b2664d16705945f14"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/pending-no-payment-snapshot.png",
+          "sha256": "ab90910eb40ff8844fff78a749598fdcba0c9577bba076ced9cc2f6ea4cc3bfa"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/pending-voucher-no-eligibility.png",
+          "sha256": "4469cf956c101018af04be3b33156c71c9e947136f99b96bc5aeecffb4081a70"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/UI10-orders-three-real.png",
+          "sha256": "803ab23823ed7755dfca7f2ce3f72880f5b651bad13800d307ebc0160a24979c"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/UI11-order-two-vouchers.png",
+          "sha256": "a2370c9cafbd4c2fca5309ed13c07996f073be5d2c267e30232bada9696b6d58"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/UI12-voucher-first.png",
+          "sha256": "79b36458b5d825e4d9d880b8fc7bbd38f1f1899aea2a1fbf9223e4908e6a1041"
+        },
+        {
+          "path": "maestro-r3-workspace-query/2026-10-02_192917/group-buying-04-voucher-query/takeScreenshot/voucher-second-distinct.png",
+          "sha256": "e675e256e3292466c7dcbcd0d0eb4e75576b0b337fd7e8216a8baef29d5481c0"
+        }
+      ]
+    },
+    {
+      "apkSha256": "DD6441AD4AEBB8EB87E30283884B4441F80D141B4A43A9D58C262B6D0927FF6C",
+      "finishedAt": "2026-10-02T19:33:06.3866884+08:00",
+      "flow": "r3/unregistered-route.yaml",
+      "exitCode": 0,
+      "accountRole": "account",
+      "startedAt": "2026-10-02T19:32:10.6974504+08:00",
+      "label": "r3-unregistered",
+      "commands": 35,
+      "statuses": {
+        "COMPLETED": 35
+      },
+      "screenshots": [
+        {
+          "path": "maestro-r3-unregistered/2026-10-02_193212/unregistered-route/takeScreenshot/unregistered-explicit-unavailable.png",
+          "sha256": "2ada02628b95544d622baab626305ff7e127d875699d993984d647f576aaf674"
+        },
+        {
+          "path": "maestro-r3-unregistered/2026-10-02_193212/unregistered-route/takeScreenshot/unregistered-still-original-voucher.png",
+          "sha256": "2d713122584130c135cc230083e0141bb7d1485562b912ea09bb2272663c193d"
+        }
+      ]
+    }
+  ],
+  "totalCommands": 110,
+  "totalScreenshots": 12
+}

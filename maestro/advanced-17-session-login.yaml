@@ -1,0 +1,21 @@
+# Task17会话前置：仅在认证页显式重登专属验收身份，不clearState，不触发语音或业务交易。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/username_input
+- eraseText: 1000
+- setClipboard: ${MAESTRO_USERNAME}
+- pasteText
+- tapOn:
+    id: com.fandazi.app:id/password_input
+- eraseText: 1000
+- setClipboard: ${MAESTRO_PASSWORD}
+- pasteText
+- setClipboard: ""
+- hideKeyboard
+- tapOn:
+    id: com.fandazi.app:id/submit_button
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000

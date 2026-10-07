@@ -1,0 +1,19 @@
+{
+  "accountRole": "account",
+  "exitCode": 0,
+  "finishedAt": "2026-10-02T11:26:52.6849863+08:00",
+  "orderIds": [
+    "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+    "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+    "dff4196f-849d-40e5-a585-f93463cde60d"
+  ],
+  "voucherIds": [
+    "a81f203b-f46b-4da7-be8e-eb11b9d14108",
+    "8f051492-d867-43d5-bfb1-2a0969757afb",
+    "8899fdb2-d64b-42a8-adb0-127436d687e3",
+    "82e82b5b-1c13-43db-9302-4fa54fd6a7ce"
+  ],
+  "startedAt": "2026-10-02T11:26:35.0877834+08:00",
+  "flow": "task7-voucher-network-recover.yaml",
+  "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37"
+}

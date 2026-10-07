@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<testsuite xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://maven.apache.org/surefire/maven-surefire-plugin/xsd/surefire-test-report.xsd" version="3.0.2" name="com.fandazi.feature.grouporder.GroupOrderSummaryContractTest" time="8.978" tests="4" errors="0" skipped="0" failures="1">
+  <testcase name="pageQueriesExposePaymentFactsWithoutChangingToolProjection" classname="com.fandazi.feature.grouporder.GroupOrderSummaryContractTest" time="0.891">
+    <failure message="&#xA;Expecting map:&#xA;  {&quot;canReview&quot;=false, &quot;createdAt&quot;=&quot;2026-10-02T01:50:48.891687Z&quot;, &quot;dealId&quot;=&quot;85915f0c-a51c-4f68-937a-7d138507e7a1&quot;, &quot;dealTitle&quot;=&quot;双人招牌盖饭套餐 1&quot;, &quot;imageAlt&quot;=&quot;招牌鸡肉盖饭，套餐主食实拍&quot;, &quot;imageUrl&quot;=&quot;https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg&quot;, &quot;orderId&quot;=&quot;5c0abeba-2ee0-4b65-b5a9-cc13bc65bb7d&quot;, &quot;quantity&quot;=1, &quot;status&quot;=&quot;PENDING_PAYMENT&quot;, &quot;storeId&quot;=&quot;0e54326d-2209-47ad-9d5e-5e05b9580e97&quot;, &quot;storeName&quot;=&quot;山海食集春风店&quot;, &quot;totalCents&quot;=8800, &quot;voucherCount&quot;=1, &quot;vouchers&quot;=[{&quot;amountCents&quot;=null, &quot;canRefund&quot;=false, &quot;createdAt&quot;=&quot;2026-10-02T01:50:48.891687Z&quot;, &quot;dealId&quot;=&quot;85915f0c-a51c-4f68-937a-7d138507e7a1&quot;, &quot;dealTitle&quot;=&quot;双人招牌盖饭套餐 1&quot;, &quot;expiresAt&quot;=&quot;2027-12-31T15:59:59Z&quot;, &quot;imageAlt&quot;=&quot;招牌鸡肉盖饭，套餐主食实拍&quot;, &quot;imageUrl&quot;=&quot;https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg&quot;, &quot;orderId&quot;=&quot;5c0abeba-2ee0-4b65-b5a9-cc13bc65bb7d&quot;, &quot;publicId&quot;=&quot;900352bb-026d-4902-b06c-e9244135a33c&quot;, &quot;redeemedAt&quot;=null, &quot;status&quot;=&quot;UNUSED&quot;, &quot;storeId&quot;=&quot;0e54326d-2209-47ad-9d5e-5e05b9580e97&quot;, &quot;storeName&quot;=&quot;山海食集春风店&quot;}]}&#xA;to contain entries:&#xA;  [&quot;paidTotalCents&quot;=null]&#xA;but could not find the following map entries:&#xA;  [&quot;paidTotalCents&quot;=null]" type="java.lang.AssertionError"><![CDATA[java.lang.AssertionError: 
+
+Expecting map:
+  {"canReview"=false, "createdAt"="2026-10-02T01:50:48.891687Z", "dealId"="85915f0c-a51c-4f68-937a-7d138507e7a1", "dealTitle"="双人招牌盖饭套餐 1", "imageAlt"="招牌鸡肉盖饭，套餐主食实拍", "imageUrl"="https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg", "orderId"="5c0abeba-2ee0-4b65-b5a9-cc13bc65bb7d", "quantity"=1, "status"="PENDING_PAYMENT", "storeId"="0e54326d-2209-47ad-9d5e-5e05b9580e97", "storeName"="山海食集春风店", "totalCents"=8800, "voucherCount"=1, "vouchers"=[{"amountCents"=null, "canRefund"=false, "createdAt"="2026-10-02T01:50:48.891687Z", "dealId"="85915f0c-a51c-4f68-937a-7d138507e7a1", "dealTitle"="双人招牌盖饭套餐 1", "expiresAt"="2027-12-31T15:59:59Z", "imageAlt"="招牌鸡肉盖饭，套餐主食实拍", "imageUrl"="https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg", "orderId"="5c0abeba-2ee0-4b65-b5a9-cc13bc65bb7d", "publicId"="900352bb-026d-4902-b06c-e9244135a33c", "redeemedAt"=null, "status"="UNUSED", "storeId"="0e54326d-2209-47ad-9d5e-5e05b9580e97", "storeName"="山海食集春风店"}]}
+to contain entries:
+  ["paidTotalCents"=null]
+but could not find the following map entries:
+  ["paidTotalCents"=null]
+	at com.fandazi.feature.grouporder.GroupOrderSummaryContractTest.pageQueriesExposePaymentFactsWithoutChangingToolProjection(GroupOrderSummaryContractTest.java:39)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+	at java.base/java.util.ArrayList.forEach(ArrayList.java:1511)
+]]></failure>
+  </testcase>
+  <testcase name="voucherSummaryCarriesBackendOwnedDisplayFields" classname="com.fandazi.feature.grouporder.GroupOrderSummaryContractTest" time="0.026" />
+  <testcase name="newOrdersPersistAuthoritativeDecimalAndPaymentSnapshotOnly" classname="com.fandazi.feature.grouporder.GroupOrderSummaryContractTest" time="0.066" />
+  <testcase name="summaryProvidesUtcNullableImagesAndPaymentAllocation" classname="com.fandazi.feature.grouporder.GroupOrderSummaryContractTest" time="0.017" />
+</testsuite>

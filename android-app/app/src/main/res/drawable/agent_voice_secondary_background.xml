@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 取消/继续文字输入为次要操作，保留灰色胶囊与明确中文文本。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/group_buy_muted" />
+    <corners android:radius="22dp" />
+</shape>

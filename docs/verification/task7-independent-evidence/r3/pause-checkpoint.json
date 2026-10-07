@@ -1,0 +1,29 @@
+{
+  "appStopped": true,
+  "airplaneMode": "0",
+  "activeDefaultNetwork": "Active default network: 127",
+  "workspaceApkSha256": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B",
+  "at": "2026-10-02T13:05:50.1993561+08:00",
+  "overallPass": false,
+  "apkInstalled": false,
+  "phoneHead": "c386a0555d9091fa2b9c5ec9830e643b6e0c767d",
+  "agentHead": "c339237fb38f9418f29e70b3ce36c7022215b6b3",
+  "ordinaryJwtMinutes": 60,
+  "status": "PAUSED_BY_USER",
+  "wifi": "1",
+  "released": true,
+  "mobileData": "1",
+  "remaining": [
+    "编译后GET路由/无LongConsumer bean正常路径定向探针",
+    "真实GET404/他人/游客与已有申请200边界",
+    "新APK安装完整券Maestro/注册身份",
+    "拟提交APK未注册Toast实际UI",
+    "结束业务/私有/895源/index保护与最终结论"
+  ],
+  "noNetworkOrServiceSettingsChangedInR3": true,
+  "phoneIndexSha256": "97C664327EB0848A1BB3B18F7CEF75B3ECD788A52C95CE5EA90FECB0427A4098",
+  "sourceFreezeSha256": "F9BC6383643F85CB0060968A77BCD5F22686F2A1E40607313926CB9E3529EE34",
+  "servicesStopped": false,
+  "agentIndexSha256": "5FFA4CFE66941F33168696EAB79F2312A5A03A5BAB033D99C5F1828A2FD4E29C",
+  "ownTestsRunning": 0
+}

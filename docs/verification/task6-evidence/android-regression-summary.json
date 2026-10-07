@@ -1,0 +1,12 @@
+{
+  "command": "./gradlew.bat :app:testDebugUnitTest",
+  "tests": 171,
+  "suites": 31,
+  "failures": 0,
+  "errors": 0,
+  "logSha256": "0138DF6AAAFEDEE734D83E01E727C510FA5A49798E8554CACF96D0E71320555C",
+  "countProvenance": "本次全量运行时XML实际汇总；目录随后被购买定向执行覆盖，原完整XML未留档",
+  "finalDirectedTests": 4,
+  "finalDirectedXml": "android-final-purchase.xml",
+  "finalBuildAndDirectedLogSha256": "52192B9A3F1FB14A6A58CF4A7B1AC3449AF0057CF6DAC0ED96FC6E82BFC51C64"
+}

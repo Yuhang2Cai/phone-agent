@@ -1,0 +1,9 @@
+{
+  "kind": "workspace-final",
+  "passed": true,
+  "deviceSha256": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B",
+  "installedAt": "2026-10-02T19:34:07.5978708+08:00",
+  "localSha256": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B",
+  "source": "C:/fdz-build/android-app/app/build/outputs/apk/debug/app-debug.apk",
+  "oldPackagesAbsentAt": "2026-10-02T19:34:06.4869140+08:00"
+}

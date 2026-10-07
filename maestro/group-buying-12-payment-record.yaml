@@ -1,0 +1,18 @@
+# 真实历史实付快照但缺支付时间：只读已有本轮合成账号，不重新发布评价或购买。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/group_order_title"
+    index: 0
+- extendedWaitUntil:
+    visible: "(?s).*支付记录.*已支付.*支付时间暂未记录.*"
+    timeout: 30000
+- assertNotVisible: "(?s).*支付记录.*未支付.*"
+- takeScreenshot: UI-11RR-paid-time-unknown

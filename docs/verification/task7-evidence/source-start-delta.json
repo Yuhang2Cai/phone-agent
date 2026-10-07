@@ -1,0 +1,434 @@
+[
+  {
+    "repo": "phone",
+    "beforeBytes": 3811,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/FandaziApplication.kt",
+    "afterSha256": "73151B1012B704D6D280994BB38FAC3246329486D8536F6FCBB1DE6A71C3A928",
+    "beforeSha256": "E074A332FEA54E7B7EE73F262AD36309A6C0F4FF4498E89BB2CDC7451D0A86B5",
+    "afterBytes": 4024
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 19135,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentCardRenderer.kt",
+    "afterSha256": "441F14BBF6E73A92109B0D6CD2F8E50DF1E0E628BFC822CBC503028AD6595C76",
+    "beforeSha256": "A71FC01D4507E8A28AADD8B00B9063E7DFD161F00FEDDA5C1EB67DA617543C7B",
+    "afterBytes": 20856
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 15037,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentChatFragment.kt",
+    "afterSha256": "BEB0ABF56AAE023A3DFE693FD902FC69389FE2D9DCC37BF66C401A54D58F203B",
+    "beforeSha256": "E01A07C74BAA55C61483020DA67E87D3B143B6E993C5D617E9C79B58481E9225",
+    "afterBytes": 15474
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 6792,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentModels.kt",
+    "afterSha256": "9582AA4492A389E317DCF14B21F5C886419720695DBA27BF5766096AD7398438",
+    "beforeSha256": "9E04A667D8956E4FC90CA441D6A3617B63F1D1A92A56B53CD0D8307190D9F7A7",
+    "afterBytes": 6975
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 5262,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/order/OrdersFragment.kt",
+    "afterSha256": "C64C3AF385189E961A8C26B044FB4A4D93EA09ED5E96C8D9A42FF6145465F5C0",
+    "beforeSha256": "9490AA35D9C373E5A35B4C138B85A6339481DDDCB19F42FD8F4C12C2647CFF19",
+    "afterBytes": 7684
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 3328,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/GroupOrderDetailFragment.kt",
+    "afterSha256": "47639870A21B7A589B27D9BE3CA5D984C854C00330B96CFADFA4E4BCBC8680FB",
+    "beforeSha256": "AF86E5C451AC57F447F591FF5AEC30E370A26F15F7530122C129814B13F17AE7",
+    "afterBytes": 7287
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 4971,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherDetailFragment.kt",
+    "afterSha256": "79714D5CF86D2CD6CFCE702455083373E99788CBDB3C491A76AA248B7305E5C1",
+    "beforeSha256": "77E84F0EAFBC24DE29465DAF21A716C4FD998790BFECA736AB5F86A1DD97E654",
+    "afterBytes": 7652
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 1860,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherModels.kt",
+    "afterSha256": "A5F0E73BFD5E72C35B2E7A3416B062597E722601DD4A6C26971411163CB0E70E",
+    "beforeSha256": "519C0D2AE0503E424D271C5B2A14C463BB8A3261E3122EFD289D3EA88EE41E3E",
+    "afterBytes": 2376
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherPresentation.kt",
+    "afterSha256": "03ED6C1FC4DB6F9D2E80359D952C723BBB34DBDF6DB8791896DB33EA2326D80D",
+    "beforeSha256": null,
+    "afterBytes": 2238
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 4274,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/feature/voucher/VoucherRepository.kt",
+    "afterSha256": "0AFE4491F563AE4A6657D11DBA846DD2A66DF85DB000A9CDD1144947A642211F",
+    "beforeSha256": "E6B7602C30CB0A2DDA7914DD73E5AAEC4CA99392EB86F6BCAD83B4C412FB7B91",
+    "afterBytes": 8441
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 8814,
+    "protected": false,
+    "path": "android-app/app/src/main/java/com/fandazi/app/MainActivity.kt",
+    "afterSha256": "41ADD497D73B2E6EDC4C458919FDC3F3C0D19C4ECA9728DD4398059B5B3DACB8",
+    "beforeSha256": "E386ECD2AD698FAACEB299E2831CD3258054D1027B014E6CA1C1E839C5C07F71",
+    "afterBytes": 9019
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 1754,
+    "protected": false,
+    "path": "android-app/app/src/main/res/layout/fragment_group_order_detail.xml",
+    "afterSha256": "A2C0E1F36793200B45F5965344BC51EFB80B1D81AA323E4A39483D3CABDCE8E4",
+    "beforeSha256": "BFFDE1A365CA89B939BD1139C3DD34DA2D470F63F9159E43844B3FC9930CFC2B",
+    "afterBytes": 6793
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 1784,
+    "protected": false,
+    "path": "android-app/app/src/main/res/layout/fragment_orders.xml",
+    "afterSha256": "BA69C48E99A31D6C41DA78C7901CF2F06697A153FEBF5DB550A591DB0E7B2038",
+    "beforeSha256": "20FCCA55DA76E53B153DBEA18669F66EF5E7A68DAAEE6856BCA8522142A76842",
+    "afterBytes": 2413
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 2482,
+    "protected": false,
+    "path": "android-app/app/src/main/res/layout/fragment_voucher_detail.xml",
+    "afterSha256": "A3DC5F2ED1D63DB8F8DB9B960BE3A29CFC3D8B0F31B46B7324F71694936FF0B9",
+    "beforeSha256": "26A1D89C01C7152B41A81ACF9C9540DBA393AA3D33C408B547C4D745B9D35EBD",
+    "afterBytes": 5345
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 1102,
+    "protected": false,
+    "path": "android-app/app/src/main/res/layout/item_group_order_card.xml",
+    "afterSha256": "839089C5065E5147DCD3B4287C7171BBF055D5CCBEB0DE1B3BABE240BDAAB566",
+    "beforeSha256": "69DFC5E2B6EB1706F7A484B54F8AFB43AF5122C8F7AD891BBF90F033B72B16F4",
+    "afterBytes": 2244
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 5947,
+    "protected": false,
+    "path": "android-app/app/src/main/res/navigation/nav_graph.xml",
+    "afterSha256": "23776E55191513CC98699493FFD6E87C4A6587B1DA4BFD930FB18B5A19B258B9",
+    "beforeSha256": "4460F74686E9A43144474CAB1F9AAD7063C6CB399E6885A9832F73EBD5052D61",
+    "afterBytes": 6079
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "android-app/app/src/test/java/com/fandazi/app/feature/voucher/VoucherRepositoryTest.kt",
+    "afterSha256": "C6E3276BE31574AD320CF0158577C3009E1057760A3D14117FFFD2543C834BEA",
+    "beforeSha256": null,
+    "afterBytes": 4384
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 3227,
+    "protected": false,
+    "path": "backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderController.java",
+    "afterSha256": "00173AE60602B5FD8EC6BF65F5570FAD4816ADBD8AC63D6B2372531485B55351",
+    "beforeSha256": "643B43995C9A5E2C872C9AE45293AE880316A6920E54FAA1CB0281C29A28FDA1",
+    "afterBytes": 3358
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 13367,
+    "protected": false,
+    "path": "backend/src/main/java/com/fandazi/feature/grouporder/GroupBuyOrderService.java",
+    "afterSha256": "6EF275A6F6A151790F0B91353CB1F8AA32AE5ED756E1865EE367A32C29DC9A6A",
+    "beforeSha256": "CEF707BCB1936DE860741ECFA70E327AF56E2882D01852D0AF4799A976C4FF7E",
+    "afterBytes": 15087
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 1901,
+    "protected": false,
+    "path": "backend/src/main/java/com/fandazi/feature/voucher/VoucherController.java",
+    "afterSha256": "E3C8EA5D7945350A84AFDBDF5F19D33D046E63D4065FE966730857E18767162B",
+    "beforeSha256": "2DECD44252E59005809AE95EE21D378244A82F50AB3E7B8231EAB2343115B243",
+    "afterBytes": 2037
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 3613,
+    "protected": false,
+    "path": "backend/src/main/java/com/fandazi/feature/voucher/VoucherService.java",
+    "afterSha256": "482108CC8F9B07BB62C2D76273D1FD66CD8DD5F68B52EC4FE35806B8A4355FDD",
+    "beforeSha256": "F149BFBA40F38E9B5E3225723D52F2729E5EC5F002255499020769A9C9F30636",
+    "afterBytes": 4708
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": 6088,
+    "protected": false,
+    "path": "backend/src/test/java/com/fandazi/feature/grouporder/GroupOrderSummaryContractTest.java",
+    "afterSha256": "B1439648057F4223E6A7A072B69FEF0567F551AA8A92A983520B7B452AD67E6B",
+    "beforeSha256": "567277A0E703E32F78214036957DED271F27B5DE1395C6BCB027AB5F786BAA25",
+    "afterBytes": 7870
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/group-buying-04-voucher-query.yaml",
+    "afterSha256": "9EBEC27AB2262089700743AA30FD0C668987DF49890A3FF370784B4F9E9BEF95",
+    "beforeSha256": null,
+    "afterBytes": 3469
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-401-prepare.yaml",
+    "afterSha256": "F952B90DE0531AC9D326D6D7F646DFEDCEA7527DC4401181920FE55942B0E7A3",
+    "beforeSha256": null,
+    "afterBytes": 1152
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-401-return.yaml",
+    "afterSha256": "0CAC462E2CCB96251C1BFFC4A8C54DF0BBDAB4B7F820769251582766DCF97AAD",
+    "beforeSha256": null,
+    "afterBytes": 944
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-agent-read.yaml",
+    "afterSha256": "6EE317137C8EF3CC76F3454DC42BE474BED73B64C1E971B636A20098226F37EA",
+    "beforeSha256": null,
+    "afterBytes": 1867
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-empty.yaml",
+    "afterSha256": "32F2D4F32EAE15C6DB8F908D4D2BFC6570B0AF3A61F05947F32C085D36E8285D",
+    "beforeSha256": null,
+    "afterBytes": 550
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-guest.yaml",
+    "afterSha256": "29C9C4661844B7533CE4675A4730FB362C8DAD5A83A63FFB5C1CCEF080498277",
+    "beforeSha256": null,
+    "afterBytes": 1021
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-image-final.yaml",
+    "afterSha256": "777E2D2D0248EEE3248ED6BF8E568857DB32B2B55F2B9B85470B0776DA98B121",
+    "beforeSha256": null,
+    "afterBytes": 412
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-login.yaml",
+    "afterSha256": "7E9FC0608C2C6DFDC4F9D51336AF5BE5D347F19B6DC00C9B0AF1FCAD4EB70859",
+    "beforeSha256": null,
+    "afterBytes": 475
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-network-error.yaml",
+    "afterSha256": "43AC3513645F0485CB73B45F4B3711F2752A103930EAE97EA4A05EB7C869E3EA",
+    "beforeSha256": null,
+    "afterBytes": 522
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-network-prepare.yaml",
+    "afterSha256": "905F0A77A04EB69F1CF95A2E0F0ED242764BADA626A22FDE61B069FE5BA39EC1",
+    "beforeSha256": null,
+    "afterBytes": 318
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-network-recover.yaml",
+    "afterSha256": "59A1D679127311F2DC79DC8E1820DE1A5B276CBD1E5F09A0AD2B7B508D63285F",
+    "beforeSha256": null,
+    "afterBytes": 868
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-voucher-network-error.yaml",
+    "afterSha256": "FB800F23E01DA03080CBF71A4C2BD241DBD1C4B02B9B15150B1F48E4A7060E67",
+    "beforeSha256": null,
+    "afterBytes": 419
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-voucher-network-recover.yaml",
+    "afterSha256": "7DEA711C8973C23EE72FEF4724356583A99FBE55107B4818790C2A6610A3835F",
+    "beforeSha256": null,
+    "afterBytes": 316
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "maestro/task7-voucher-prepare.yaml",
+    "afterSha256": "BD6CAC8F35BE5216B1E9F24EF89A5B16C4AA7EE05CB21B17596C6D03ACD81C63",
+    "beforeSha256": null,
+    "afterBytes": 952
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "scripts/Freeze-Task7Sources.ps1",
+    "afterSha256": "5E147BB3EB35A234F5C8FC7279CC6060BB54575C3DA814CCA0F3C84EC3EB09C8",
+    "beforeSha256": null,
+    "afterBytes": 8235
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "scripts/Install-Task7Apk.ps1",
+    "afterSha256": "7180323454B7764274DD40CD8374C0C8E16E32AE04E8323F69CA1A54900298C4",
+    "beforeSha256": null,
+    "afterBytes": 1907
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "scripts/Run-Task7Query.ps1",
+    "afterSha256": "0A8111370FE4A1B7C075892B16516F75751AA6B071835F034E7F77B9DB8B00F9",
+    "beforeSha256": null,
+    "afterBytes": 3449
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "scripts/Start-Task7Services.ps1",
+    "afterSha256": "B1100341E724D25C0D01F9E34CC3EB93874D3D0FA817F6BE6C07C7570AA5D9CD",
+    "beforeSha256": null,
+    "afterBytes": 4253
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "scripts/Summarize-Task7Evidence.ps1",
+    "afterSha256": "F6E288D47B8CE3E91E5C1802A3233340898C4A7BDAD867B5DC195C1E54087209",
+    "beforeSha256": null,
+    "afterBytes": 1878
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "scripts/Test-Task7Health.ps1",
+    "afterSha256": "0343D193C9B9080DA80AC4ED60049F9E83AFFCA6887F33B04921BF3ECEB35A95",
+    "beforeSha256": null,
+    "afterBytes": 2400
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "scripts/Verify-Task7FreezeEvidence.ps1",
+    "afterSha256": "A187C12F2844BB2F3B64022CF27715B9B728007BFC9CE3D74BCB15A22061E472",
+    "beforeSha256": null,
+    "afterBytes": 3493
+  },
+  {
+    "repo": "phone",
+    "beforeBytes": null,
+    "protected": false,
+    "path": "scripts/Wait-Task7NaturalExpiry.ps1",
+    "afterSha256": "6C2893E170833E7A0111E07D28DBBFF165BB80B3A57F9CAC07FE133D73646A0B",
+    "beforeSha256": null,
+    "afterBytes": 1638
+  },
+  {
+    "repo": "agent",
+    "beforeBytes": 25699,
+    "protected": false,
+    "path": "service/engine.py",
+    "afterSha256": "FA980CBF47D7CBCC694890CA89E547B9D942ADFC6380F527F9787EF2C590577F",
+    "beforeSha256": "AB6F534909DA097CC748F470B080FF27F18D053F0934C58B5ADD8F4BDAE9CEBB",
+    "afterBytes": 26503
+  },
+  {
+    "repo": "agent",
+    "beforeBytes": 2311,
+    "protected": false,
+    "path": "service/models.py",
+    "afterSha256": "BD307E02E22B1439A2E689664D58FE63137AB53E31D7524D631333E1AD422235",
+    "beforeSha256": "646F1D0C93F81F93A7DB644681162C7953C584149F21B330F3EEE36BEA059016",
+    "afterBytes": 2501
+  },
+  {
+    "repo": "agent",
+    "beforeBytes": 5027,
+    "protected": false,
+    "path": "service/providers.py",
+    "afterSha256": "7F1EC40328F29D4DA7D1800C326889BD1B579810D318CA4F5F330728DFC80BE3",
+    "beforeSha256": "ABDE383928D342E79E0F1B0B6C7446F44802D3CF37DF1A65AEDEEE8CCC288D17",
+    "afterBytes": 5187
+  },
+  {
+    "repo": "agent",
+    "beforeBytes": 11702,
+    "protected": false,
+    "path": "tests/test_agent_service_reads.py",
+    "afterSha256": "93DBFFC0F92B105E53A9F7AD72BC927F099652BB494E411CC07D0339522DA76A",
+    "beforeSha256": "181E7F96197DA0D0FE96026A5AA7874E0F061C01B5776675B1E068B918F49C40",
+    "afterBytes": 13136
+  }
+]

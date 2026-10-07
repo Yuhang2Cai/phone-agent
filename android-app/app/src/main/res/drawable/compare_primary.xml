@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 对比设计的8dp圆角与既有主题色，不携带业务事实。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@color/group_buy_orange"/><corners android:radius="8dp"/></shape>

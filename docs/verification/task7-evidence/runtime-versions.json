@@ -1,0 +1,17 @@
+{
+  "androidSdk": "36",
+  "packageVersion": [
+    "versionCode=1 minSdk=26 targetSdk=35",
+    "versionName=1.0"
+  ],
+  "java": [
+    "openjdk version \"17.0.17\" 2025-10-21 LTS",
+    "OpenJDK Runtime Environment Microsoft-12574423 (build 17.0.17+10-LTS)",
+    "OpenJDK 64-Bit Server VM Microsoft-12574423 (build 17.0.17+10-LTS, mixed mode, sharing)"
+  ],
+  "python": "Python 3.10.19",
+  "device": "emulator-5554",
+  "fontScale": "1.0",
+  "androidRelease": "16",
+  "capturedAt": "2026-10-02T10:48:18.0350501+08:00"
+}

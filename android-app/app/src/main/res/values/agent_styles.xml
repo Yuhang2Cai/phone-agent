@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AgentQuickChip">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">44dp</item>
+        <item name="android:layout_marginEnd">8dp</item>
+        <item name="android:background">@drawable/agent_quick_chip_background</item>
+        <item name="android:gravity">center</item>
+        <item name="android:paddingHorizontal">15dp</item>
+        <item name="android:textColor">@color/brand_ink</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+</resources>

@@ -1,0 +1,254 @@
+[
+  {
+    "repo": "phone",
+    "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderController.java",
+    "before": "648A6B78C9800D9191DB16FF8AAC7CE8735E111490088ACBA30B2ABE17964E3C",
+    "after": "643B43995C9A5E2C872C9AE45293AE880316A6920E54FAA1CB0281C29A28FDA1",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderService.java",
+    "before": "86AD2F1F245AD99BA64802AFB3E7917A2A333E5D61FEC02E5CDC83101D217B3C",
+    "after": "CEF707BCB1936DE860741ECFA70E327AF56E2882D01852D0AF4799A976C4FF7E",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\purchase\\PurchaseController.java",
+    "before": "D0D9E908F8C141FF620340E4D758AABB48CD9405ABB44AE161D33C8D7315C8A3",
+    "after": "BAB2D24D4F4FC8476964D5D502A122C9DB0438D8AEE8E13D3D55E3171BE6C982",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "backend\\src\\main\\java\\com\\fandazi\\feature\\purchase\\PurchaseQuoteService.java",
+    "before": "B0A44F20F39D826F8FA88532578753AD2EBC8F69902AA671EBDE1AF36AB1DC96",
+    "after": "4C76BC4BE8C9A5FE22D51F1468D26B499CC1B5941AE59BD0C232DCBFB260C283",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\grouporder\\GroupBuyOrderIdempotencyTest.java",
+    "before": "04DBA5E808077D8F75139E6BC695DEB29916EF2FEF950C8C91B7F96DD1120D50",
+    "after": "ACFC77BD6E5D9601B5A9567DF5B3567DC9DCCBB9D8BA3DB4DE3DF32706222384",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\purchase\\PurchaseConfirmationTest.java",
+    "before": "6F6F1045AC21DCC9F9A44424E91CC517292EBA5661D8565613599AF0AA180523",
+    "after": "CD5D9B40A0516313DC9C1B0AF50E02F97128A1F4737CF2F5C9AEF8560E117760",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "backend\\src\\test\\java\\com\\fandazi\\feature\\purchase\\PurchaseRequestValidationTest.java",
+    "before": null,
+    "after": "6B12C572A33610B19E8CFCCC7C0243631DAB1984D66E07C8F3DF5962114AB365",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\java\\com\\fandazi\\app\\FandaziApplication.kt",
+    "before": "01DC1D8F3A52186EFA27F17DC23543E4C786ABC8C2D82A774C064D553A062793",
+    "after": "E074A332FEA54E7B7EE73F262AD36309A6C0F4FF4498E89BB2CDC7451D0A86B5",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\java\\com\\fandazi\\app\\MainActivity.kt",
+    "before": "383B557300AE5DC76A7D6B4D9B37350548CEFC2115EEC2F8F4EE1A30873FDBD3",
+    "after": "E386ECD2AD698FAACEB299E2831CD3258054D1027B014E6CA1C1E839C5C07F71",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\java\\com\\fandazi\\app\\feature\\deal\\DealDetailFragment.kt",
+    "before": "EF9659FACA641F4271E7DE21DA9A97791B6E7F74A464B992AA46DCB8A813616B",
+    "after": "823F2E2B38D7D7440C360F3F271F5385971F1587F7F06563512998EB6F38AE88",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\java\\com\\fandazi\\app\\feature\\purchase\\DealCheckoutBottomSheetFragment.kt",
+    "before": "8CEAECEEE739A3ABF250264059D7F99D484396341AC7EF4AE3A09006206B3DEF",
+    "after": "3621426386D5984A48EF4C6A68941A11E58E7021935635B70974185D85F56371",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\java\\com\\fandazi\\app\\feature\\purchase\\GroupBuyPaymentFragment.kt",
+    "before": "51731A3B29D0DD9514CFB641599BDC97FCABEEEDA037C5B5E1C601139EDE2CAE",
+    "after": "6CF1F529AF6B4C485AFE265DC46EC37DE474D710A421E8669A2E647B5ED9ACC0",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\java\\com\\fandazi\\app\\feature\\purchase\\PaymentSuccessFragment.kt",
+    "before": "33F44A8F30D0CEC4B3AAF670822A2C6C841341AF403BD4500C48E1A7ECC47E12",
+    "after": "5C07E83277CF90FECE9FCB90CF6593A04585CD6B1BFE7AE4FFDECAB1B102A519",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\java\\com\\fandazi\\app\\feature\\purchase\\PurchaseRepository.kt",
+    "before": "6404CCD94FC876F927F19787C0E72657CA3CCB225B35799784229D186319B13A",
+    "after": "982816FAB5174EA0C4934F67FD4F303DC206BE0FCAE372D9EF804B56F12D47A7",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\java\\com\\fandazi\\app\\feature\\purchase\\PurchaseViewModel.kt",
+    "before": "E5AEBFF3D2A4A564FFDAC320B8D360F7306A290D874C25FA8FB305D84294D9F1",
+    "after": "CBA4C96F06BFB398244790953361E93FB07F113D673ED917860A40D483493C11",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\drawable\\purchase_method.png",
+    "before": null,
+    "after": "2199BDFD156C6D45BA58643A2F1CBD7283DAA50595352125692572DAEB2EA12D",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\drawable\\purchase_selected.png",
+    "before": null,
+    "after": "3EB3F67928259B51197D00AE4C495857A3EBF92686684D9C1320AA80548E42F5",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\drawable\\purchase_sheet.xml",
+    "before": null,
+    "after": "12B2FFB4FF9A07049D334CCAC3BCD6D46AB569A7E890FABA99892646AD96A008",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\drawable\\purchase_success.png",
+    "before": null,
+    "after": "13483DAC69DD20BB00A95852981F45500F85906EAA40B46AA12B731B83BB095A",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\layout\\fragment_group_buy_payment.xml",
+    "before": "5BE489598203B40E1797623A16B99E1EE1FE0D47853B26FFF549941BF9165980",
+    "after": "99A6E16F4343945BFDF67526D19A534BBD2AF8D85B55422648D05165EEC94D06",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\layout\\fragment_payment_success.xml",
+    "before": "C838D592053F8F9B911C72B075E8769D49CAB7C58A023A80843C246BA1ACFBE7",
+    "after": "148383651B072762E8A0C907682B0A6699C1F09984025B38F75AECE2EF949608",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\layout\\sheet_deal_checkout.xml",
+    "before": "3E0E454C38B12C098D558A7A6484AF7EDAE4C18B836D32BC1766B1C299062168",
+    "after": "48EF7370C02F2D01EB8CB11ABBC775906F6D7A198518F742680C84645AE6AD06",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\navigation\\nav_graph.xml",
+    "before": "29855A8DB588B05FB62ABB2B92385AA8764811CA2D89A3DF6EADE5587E814479",
+    "after": "4460F74686E9A43144474CAB1F9AAD7063C6CB399E6885A9832F73EBD5052D61",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\main\\res\\values\\purchase_styles.xml",
+    "before": null,
+    "after": "C9E0BC95AAAA80802C075BC4FAEFA6408115E102F0CF610592D20D21B99755E7",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "android-app\\app\\src\\test\\java\\com\\fandazi\\app\\feature\\purchase\\PurchaseStateTest.kt",
+    "before": null,
+    "after": "998FCE284F455BD20D707D439E0AB7363FBAE07F4BB99D702BFBA8C4E17EA10B",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "maestro\\group-buying-03-purchase.yaml",
+    "before": "26071A8106FEE82D4036E3FF9B5B3DA4CD7F6009586E790692F0C440A8B270CB",
+    "after": "340E6AB20579CF647C7D19777A484084D67E4972B23FE648D8A81FF785A74921",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "phone",
+    "path": "maestro\\task6-purchase-401-prepare.yaml",
+    "before": null,
+    "after": "A59F864CD21F9AE4A10521031F506CB948ED6A628BFDBDF4A572DDCCF196169A",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "maestro\\task6-purchase-401-return.yaml",
+    "before": null,
+    "after": "69543353473DD866562E495ABA2865F55622476077D8085A7553464FF758D8BF",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "scripts\\Audit-Task6Facts.py",
+    "before": null,
+    "after": "753FE6C881B50D7DE80EFC94E3B7B527FC1E55744A42DDFB483E9796B3088823",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "scripts\\Finalize-Task6Evidence.ps1",
+    "before": null,
+    "after": "F706B59646455ADEB3BF330C9464C00E82C16007D0F9BBD8670C79450E330759",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "scripts\\Run-Task6Purchase.ps1",
+    "before": null,
+    "after": "FEA184D392E603E89D328293452ED8B8F8D125B81E5A3DB818E87CE06DF1DDD8",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "scripts\\Start-Task6Services.ps1",
+    "before": null,
+    "after": "8231B45190256BB90E4FCA97954B569C3FB1465D48244CBD801A69AE79A5559A",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "scripts\\task6-live-purchase.py",
+    "before": null,
+    "after": "31EDB1CF473630AE45556271F9C8C037E94E942148A2D3DD41E2ED20D2DDA3E7",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "phone",
+    "path": "scripts\\Test-Task6Regression.ps1",
+    "before": null,
+    "after": "F10FB529D5692BC4F0ACD2CA8D55A39507F3D284E94D4BE18BCC071B309DC121",
+    "alreadyPresentBefore": false
+  },
+  {
+    "repo": "agent",
+    "path": "service\\engine.py",
+    "before": "85D11D17B9FC0E9D9FE508BD14BE8A98FE535ED943A71525606BEA825BE05CB6",
+    "after": "AB6F534909DA097CC748F470B080FF27F18D053F0934C58B5ADD8F4BDAE9CEBB",
+    "alreadyPresentBefore": true
+  },
+  {
+    "repo": "agent",
+    "path": "tests\\test_purchase_workflow.py",
+    "before": null,
+    "after": "B74CFA40E181C617BCE45E8455B0FF9BC54D58FCACD16DE18B5958EB6E76A179",
+    "alreadyPresentBefore": false
+  }
+]

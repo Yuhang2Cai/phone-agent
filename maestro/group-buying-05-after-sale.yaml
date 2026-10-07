@@ -1,0 +1,98 @@
+appId: com.fandazi.app
+---
+# 帮助和投诉使用本人实际目录与订单；退款写入由独立退款流程覆盖，避免复跑误消费资源。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- tapOn:
+    id: "com.fandazi.app:id/profile_help_entry"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/faq_row_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/faq_row_title"
+    index: 0
+- takeScreenshot: faq-expanded
+# 选择真实分类，再以关键词取交集；不匹配返回空结果，清空恢复同一分类。
+- tapOn: "如何购买团购？"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/faq_row_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/faq_search"
+- inputText: "Task8_no_match"
+- hideKeyboard
+- extendedWaitUntil:
+    visible: "没有找到相关问题"
+    timeout: 30000
+- takeScreenshot: faq-category-search-empty
+- tapOn:
+    id: "com.fandazi.app:id/faq_search"
+- eraseText
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/faq_row_title"
+    timeout: 30000
+- takeScreenshot: faq-category-restored
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/faq_complaint"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/faq_complaint"
+- extendedWaitUntil:
+    visible: "支付问题"
+    timeout: 30000
+# 六种目录都必须能选择，空描述仅产生本地错误，不提交工单。
+- tapOn: "商品问题"
+- tapOn: "商家服务"
+- tapOn: "订单问题"
+- tapOn: "账号问题"
+- tapOn: "其他问题"
+- tapOn: "支付问题"
+- tapOn:
+    id: "com.fandazi.app:id/complaint_submit"
+- assertVisible: "请填写问题描述"
+- tapOn:
+    id: "com.fandazi.app:id/complaint_description"
+- inputText: "Task8 payment display mismatch, please verify."
+- hideKeyboard
+- assertNotVisible: "请填写问题描述"
+- tapOn:
+    id: "com.fandazi.app:id/complaint_order_picker"
+- assertVisible: "不关联订单"
+- takeScreenshot: complaint-own-order-picker
+- tapOn:
+    text: ".* · .* · .*"
+    index: 0
+- takeScreenshot: complaint-filled
+- tapOn:
+    id: "com.fandazi.app:id/complaint_submit"
+- extendedWaitUntil:
+    visible: "确认提交反馈"
+    timeout: 30000
+- tapOn: "返回修改"
+- assertVisible: "Task8 payment display mismatch, please verify."
+- tapOn:
+    id: "com.fandazi.app:id/complaint_submit"
+- extendedWaitUntil:
+    visible: "确认提交反馈"
+    timeout: 30000
+- takeScreenshot: complaint-confirmation
+- tapOn: "确认提交"
+- extendedWaitUntil:
+    visible: "反馈已提交"
+    timeout: 30000
+# 成功页必须替换整个编辑表单，不接受叠在原表单上的系统弹窗冒充Figma结果主体。
+- assertVisible: "平台已保存你的反馈记录"
+- assertVisible:
+    id: "com.fandazi.app:id/after_sale_result_return"
+- assertNotVisible:
+    id: "com.fandazi.app:id/complaint_description"
+- takeScreenshot: complaint-submitted
+- tapOn: "返回帮助"
+- assertVisible:
+    id: "com.fandazi.app:id/faq_search"

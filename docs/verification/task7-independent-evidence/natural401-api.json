@@ -1,0 +1,42 @@
+{
+  "entry": "orders",
+  "actual401": 1,
+  "requests": [
+    {
+      "path": "/api/auth/login",
+      "status": 200,
+      "at": "2026-10-02T11:31:29.0000000+08:00",
+      "method": "POST"
+    },
+    {
+      "path": "/api/stores",
+      "status": 200,
+      "at": "2026-10-02T11:31:30.0000000+08:00",
+      "method": "GET"
+    },
+    {
+      "path": "/api/group-orders",
+      "status": 200,
+      "at": "2026-10-02T11:31:32.0000000+08:00",
+      "method": "GET"
+    },
+    {
+      "path": "/api/group-orders",
+      "status": 401,
+      "at": "2026-10-02T11:33:45.0000000+08:00",
+      "method": "GET"
+    },
+    {
+      "path": "/api/auth/login",
+      "status": 200,
+      "at": "2026-10-02T11:34:09.0000000+08:00",
+      "method": "POST"
+    },
+    {
+      "path": "/api/group-orders",
+      "status": 200,
+      "at": "2026-10-02T11:34:10.0000000+08:00",
+      "method": "GET"
+    }
+  ]
+}

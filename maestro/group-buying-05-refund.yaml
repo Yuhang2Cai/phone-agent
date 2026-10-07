@@ -1,0 +1,65 @@
+appId: com.fandazi.app
+---
+# refundable 夹具已有支付快照，必须先看到真实金额才能进入确认和写入。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/group_order_title"
+    index: 0
+# Task7 订单详情改为显式展开券列表；先点击真实入口，再选择需要退款的本人券。
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/voucher_row_title"
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/voucher_row_title"
+    index: ${MAESTRO_VOUCHER_INDEX}
+- assertNotVisible: "出示核销码"
+- takeScreenshot: voucher-deferred-redemption-refund-reachable
+- tapOn:
+    id: "com.fandazi.app:id/voucher_refund"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/refund_submit"
+      enabled: true
+    timeout: 30000
+- tapOn:
+    id: "com.fandazi.app:id/refund_reason_change"
+- tapOn:
+    id: "com.fandazi.app:id/refund_note"
+- inputText: "Task8 schedule change"
+- hideKeyboard
+- takeScreenshot: refund-request
+- tapOn:
+    id: "com.fandazi.app:id/refund_submit"
+- extendedWaitUntil:
+    visible: "确认退款申请"
+    timeout: 30000
+# 取消确认不消耗凭证或创建申请，必须保留原输入。
+- tapOn: "返回修改"
+- assertVisible: "Task8 schedule change"
+- tapOn:
+    id: "com.fandazi.app:id/refund_submit"
+- extendedWaitUntil:
+    visible: "确认退款申请"
+    timeout: 30000
+- takeScreenshot: refund-confirmation
+- tapOn: "确认提交"
+- extendedWaitUntil:
+    visible: "申请已提交"
+    timeout: 30000
+- assertVisible: ".*申请待处理.*"
+- assertNotVisible: "退款已到账"
+- takeScreenshot: refund-progress
+- tapOn:
+    id: "com.fandazi.app:id/progress_refresh"
+- extendedWaitUntil:
+    visible: "申请已提交"
+    timeout: 30000

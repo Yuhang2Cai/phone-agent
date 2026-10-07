@@ -1,0 +1,19 @@
+# Task5 I 真实故障起点：运行器会停止 8091，不替换服务器响应，也不清除当前聊天。
+appId: com.fandazi.app
+---
+- launchApp
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "${TASK5_QUERY}"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_error_card"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: "task5-I-error"

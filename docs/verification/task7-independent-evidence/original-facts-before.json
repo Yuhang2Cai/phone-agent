@@ -1,0 +1,26 @@
+{
+  "stores": {
+    "count": 30,
+    "sha256": "83e8f007d56876f7c2286dc38d3109954b31b86b0bec0cc6792b7f149e46b538"
+  },
+  "deal_packages": {
+    "count": 124,
+    "sha256": "a79557cd76aae1de7e52c82b936f079d1e2251d20e74efd911c71c8a2a7b23ff"
+  },
+  "group_buy_orders": {
+    "count": 94,
+    "sha256": "9bc0908478dc9cccda95619742d5e16afcb59f57dd65378b35c50ca554ecc26a"
+  },
+  "vouchers": {
+    "count": 131,
+    "sha256": "04b5d288777f55c41d3bc16ffceafdf16503eb15551354ed480c1eb75145d5c1"
+  },
+  "refund_requests": {
+    "count": 29,
+    "sha256": "93fec7246af8f506bfd1f45057d14144fabed5be73b04a6e4b5c36dd0c9bc8e8"
+  },
+  "store_reviews": {
+    "count": 306,
+    "sha256": "16781422ab65ac048dc47d5b32fe502aa4d5131e21d491742423e6b7a39952e1"
+  }
+}

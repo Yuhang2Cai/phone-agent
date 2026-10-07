@@ -1,0 +1,37 @@
+# Task13 本人只读页面：订单、券及退款进度图片都来自原套餐审核 URL。
+# 使用已经存在的退款夹具，不发起新支付、申请或评价。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- takeScreenshot: advanced-13-order-list
+- tapOn:
+    id: "com.fandazi.app:id/group_order_title"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_image"
+    timeout: 30000
+- takeScreenshot: advanced-13-order-detail-image
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/voucher_row_title"
+    timeout: 30000
+- takeScreenshot: advanced-13-voucher-list
+- tapOn:
+    id: "com.fandazi.app:id/voucher_row_title"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/voucher_detail_image"
+    timeout: 30000
+- takeScreenshot: advanced-13-voucher-detail-image
+- tapOn:
+    text: "查看退款进度"
+    optional: true
+- takeScreenshot: advanced-13-after-sale-image

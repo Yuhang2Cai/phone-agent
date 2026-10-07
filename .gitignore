@@ -3,9 +3,19 @@
 .gradle/
 build/
 **/build/
+target/
+**/target/
 .idea/
 local.properties
 *.apk
 *.log
+# 验收脚本的Python字节码属于本机运行缓存；只归档脚本、结果和截图。
+__pycache__/
+*.pyc
 .env
+# 本地生成的内部 JWT 与共享服务密钥只留在开发机，禁止提交。
+.runtime/
 *.onnx.zip
+# Keep model files that are packaged into the Android APK.
+!android-app/app/src/main/assets/
+!android-app/app/src/main/assets/**

@@ -1,0 +1,65 @@
+{
+  "skipped": 0.0,
+  "tests": 32.0,
+  "failures": 0.0,
+  "errors": 0.0,
+  "suites": [
+    {
+      "errors": 0,
+      "tests": 3,
+      "name": "com.fandazi.feature.agent.AgentCardEnrichmentTest",
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "tests": 3,
+      "name": "com.fandazi.feature.agent.AgentToolFieldBoundaryTest",
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "tests": 9,
+      "name": "com.fandazi.feature.agent.InternalV1ToolIntegrationTest",
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "tests": 1,
+      "name": "com.fandazi.feature.grouporder.GroupBuyOrderIdempotencyTest",
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "tests": 4,
+      "name": "com.fandazi.feature.grouporder.GroupOrderSummaryContractTest",
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "tests": 3,
+      "name": "com.fandazi.feature.purchase.PurchaseConfirmationTest",
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "tests": 8,
+      "name": "com.fandazi.feature.refund.RefundEligibilityTest",
+      "skipped": 0,
+      "failures": 0
+    },
+    {
+      "errors": 0,
+      "tests": 1,
+      "name": "com.fandazi.feature.voucher.VoucherLifecycleTest",
+      "skipped": 0,
+      "failures": 0
+    }
+  ],
+  "suiteCount": 8
+}

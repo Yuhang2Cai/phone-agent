@@ -1,0 +1,7 @@
+# Task13 真餐图组合流程：所有门店和套餐身份由运行器从 18080 实时目录取得。
+# 先跑游客目录，再用隔离夹具账号只读查看订单/券/售后，最后检查 AI 卡片图片。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-01-browse.yaml
+- runFlow: advanced-13-protected-images.yaml
+- runFlow: group-buying-12-chat-cards.yaml

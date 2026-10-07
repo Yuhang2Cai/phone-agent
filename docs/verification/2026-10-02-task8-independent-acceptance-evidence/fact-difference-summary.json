@@ -1,0 +1,45 @@
+{
+  "passed": false,
+  "tables": {
+    "stores": {
+      "originalCount": 30,
+      "currentCount": 30,
+      "changedOriginalRows": 0,
+      "changedFields": []
+    },
+    "deal_packages": {
+      "originalCount": 126,
+      "currentCount": 127,
+      "changedOriginalRows": 1,
+      "changedFields": [
+        "inventory"
+      ]
+    },
+    "group_buy_orders": {
+      "originalCount": 98,
+      "currentCount": 113,
+      "changedOriginalRows": 0,
+      "changedFields": []
+    },
+    "vouchers": {
+      "originalCount": 136,
+      "currentCount": 161,
+      "changedOriginalRows": 0,
+      "changedFields": []
+    },
+    "refund_requests": {
+      "originalCount": 29,
+      "currentCount": 36,
+      "changedOriginalRows": 0,
+      "changedFields": []
+    },
+    "store_reviews": {
+      "originalCount": 306,
+      "currentCount": 310,
+      "changedOriginalRows": 0,
+      "changedFields": []
+    }
+  },
+  "newOrdersOnChangedDeals": 1,
+  "allRelatedOrdersFromIndependentBoundaryTest": true
+}

@@ -1,0 +1,216 @@
+{
+  "total": 27,
+  "entries": [
+    {
+      "ended": "2026-10-02T03:33:46.935075+08:00",
+      "started": "2026-10-02T03:33:46.3587016+08:00",
+      "command": "41 source fingerprints + frozen package hash + fixture hashes + adb devices/proxy + two health GET",
+      "exitCode": 0,
+      "phase": "baseline",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\baseline.log"
+    },
+    {
+      "started": "2026-10-02T03:34:09.9272003+08:00",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\agent.log",
+      "command": "python -m pytest tests/test_agent_service*.py tests/test_group_buying_read_tools.py tests/test_after_sale_workflow.py -q --junitxml=<independent>/agent.xml",
+      "exitCode": 0,
+      "ended": "2026-10-02T03:34:29.3314592+08:00",
+      "phase": "agent"
+    },
+    {
+      "exitCode": 1,
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\maven.log",
+      "ended": "2026-10-02T03:35:09.1983564+08:00",
+      "phase": "maven",
+      "started": "2026-10-02T03:33:47.6359489+08:00",
+      "command": "mvn.cmd -q -f backend/pom.xml test"
+    },
+    {
+      "ended": "2026-10-02T03:35:32.4963233+08:00",
+      "command": "python -m pytest tests/test_task4_browse_live.py -q -p conftest --junitxml=<independent>/live.xml",
+      "exitCode": 0,
+      "started": "2026-10-02T03:35:11.4635943+08:00",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\live.log",
+      "phase": "live"
+    },
+    {
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\android.log",
+      "ended": "2026-10-02T03:35:43.3939182+08:00",
+      "started": "2026-10-02T03:34:33.0523489+08:00",
+      "command": "JAVA_HOME=ms-17.0.17 gradlew.bat assembleDebug testDebugUnitTest --console=plain --rerun-tasks",
+      "exitCode": 0,
+      "phase": "android"
+    },
+    {
+      "phase": "install",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\install.log",
+      "command": "adb uninstall com.fandazi.app / com.dirror.music; confirm absence; adb install newest APK",
+      "started": "2026-10-02T03:35:55.6058835+08:00",
+      "ended": "2026-10-02T03:36:02.7704564+08:00",
+      "exitCode": 0
+    },
+    {
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\maven.log",
+      "ended": "2026-10-02T03:38:04.9731603+08:00",
+      "command": "mvn.cmd -q -f backend/pom.xml test",
+      "exitCode": 0,
+      "phase": "maven",
+      "started": "2026-10-02T03:36:47.3391266+08:00"
+    },
+    {
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\browse.log",
+      "phase": "browse",
+      "command": "maestro test --device emulator-5554 C:/fdz-build/maestro/group-buying-01-browse.yaml (parameters from live API)",
+      "ended": "2026-10-02T03:38:10.5557833+08:00",
+      "started": "2026-10-02T03:36:14.7394515+08:00",
+      "exitCode": 0
+    },
+    {
+      "ended": "2026-10-02T03:38:53.2412262+08:00",
+      "command": "maestro test --device emulator-5554 C:/fdz-build/maestro/task4-search-keyword.yaml (parameters from live API)",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\keyword.log",
+      "exitCode": 0,
+      "phase": "keyword",
+      "started": "2026-10-02T03:38:20.4959015+08:00"
+    },
+    {
+      "command": "python <independent>/extended-readonly.py (all public catalog GET, SELECT-only MySQL, isolated public recommendation)",
+      "ended": "2026-10-02T03:40:43.8320719+08:00",
+      "phase": "extended",
+      "started": "2026-10-02T03:40:31.6882408+08:00",
+      "exitCode": 0,
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\extended.log"
+    },
+    {
+      "phase": "intent",
+      "command": "python -m pytest tests/test_group_buying_intent_migration.py tests/test_intent_orchestrator.py tests/test_intent_local_rules.py tests/test_local_exact_corpus.py tests/test_local_exact_template_loader.py tests/test_intent_policy.py tests/test_decision_model_adapter.py tests/test_compound_intent_requests.py -q --junitxml=<independent>/intent.xml",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\intent.log",
+      "ended": "2026-10-02T03:40:48.9923185+08:00",
+      "exitCode": 1,
+      "started": "2026-10-02T03:40:42.1812929+08:00"
+    },
+    {
+      "phase": "retry-error",
+      "started": "2026-10-02T03:41:10.9021538+08:00",
+      "ended": "2026-10-02T03:41:27.2525135+08:00",
+      "command": "adb temporary closed-port proxy; maestro task4-browse-retry-error.yaml",
+      "exitCode": 0
+    },
+    {
+      "command": "python -m pytest tests/test_group_buying_intent_migration.py tests/test_intent_orchestrator.py tests/test_intent_local_rules.py tests/test_local_exact_corpus.py tests/test_local_exact_template_loader.py tests/test_intent_policy.py tests/test_decision_model_adapter.py tests/test_compound_intent_requests.py -q --junitxml=<independent>/intent.xml",
+      "phase": "intent",
+      "ended": "2026-10-02T03:41:49.1249917+08:00",
+      "started": "2026-10-02T03:41:45.3391284+08:00",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\intent.log",
+      "exitCode": 0
+    },
+    {
+      "phase": "retry-recovered",
+      "started": "2026-10-02T03:41:27.4031577+08:00",
+      "ended": "2026-10-02T03:42:08.6125091+08:00",
+      "command": "maestro task4-browse-retry-recovered.yaml (same error screen, restored original proxy)",
+      "exitCode": 1
+    },
+    {
+      "phase": "retry-error",
+      "exitCode": 0,
+      "ended": "2026-10-02T03:43:42.8369596+08:00",
+      "command": "adb temporary closed-port proxy; maestro task4-browse-retry-error.yaml",
+      "started": "2026-10-02T03:43:27.5287938+08:00"
+    },
+    {
+      "phase": "retry-recovered",
+      "exitCode": 0,
+      "ended": "2026-10-02T03:43:54.4082514+08:00",
+      "command": "maestro task4-browse-retry-recovered.yaml (same error screen, restored original proxy)",
+      "started": "2026-10-02T03:43:43.0553803+08:00"
+    },
+    {
+      "ended": "2026-10-02T03:44:30.0969319+08:00",
+      "exitCode": 0,
+      "phase": "audit-followup",
+      "command": "python <independent>/audit-followup.py (SELECT-only isolated session and classification audit)"
+    },
+    {
+      "ended": "2026-10-02T03:45:31.3874951+08:00",
+      "exitCode": 0,
+      "command": "maestro test --device emulator-5554 C:\\fdz-build\\docs\\verification\\task4-independent-evidence\\stable-store.yaml (parameters from live API)",
+      "started": "2026-10-02T03:45:07.6784438+08:00",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\stable.log",
+      "phase": "stable"
+    },
+    {
+      "exitCode": 0,
+      "ended": "2026-10-02T03:47:48.0173879+08:00",
+      "phase": "audit-replay",
+      "command": "python <independent>/audit-followup.py (SELECT + public authenticated SSE replay)"
+    },
+    {
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\images.log",
+      "exitCode": 1,
+      "phase": "images",
+      "ended": "2026-10-02T03:48:16.4178512+08:00",
+      "command": "maestro test --device emulator-5554 C:\\fdz-build\\docs\\verification\\task4-independent-evidence\\images-loaded.yaml (parameters from live API)",
+      "started": "2026-10-02T03:47:35.4920774+08:00"
+    },
+    {
+      "command": "maestro test --device emulator-5554 C:\\fdz-build\\docs\\verification\\task4-independent-evidence\\images-loaded.yaml (parameters from live API)",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\images.log",
+      "phase": "images",
+      "started": "2026-10-02T03:50:55.9628758+08:00",
+      "exitCode": 1,
+      "ended": "2026-10-02T03:51:37.5978027+08:00"
+    },
+    {
+      "command": "maestro test --device emulator-5554 C:\\fdz-build\\docs\\verification\\task4-independent-evidence\\stable-store.yaml (parameters from live API)",
+      "phase": "stable",
+      "exitCode": 0,
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\stable.log",
+      "ended": "2026-10-02T03:52:42.7673552+08:00",
+      "started": "2026-10-02T03:52:17.6142515+08:00"
+    },
+    {
+      "command": "maestro test --device emulator-5554 C:\\fdz-build\\docs\\verification\\task4-independent-evidence\\images-loaded.yaml (parameters from live API)",
+      "exitCode": 0,
+      "ended": "2026-10-02T03:53:04.7009691+08:00",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\images.log",
+      "started": "2026-10-02T03:52:49.2187697+08:00",
+      "phase": "images"
+    },
+    {
+      "exitCode": 0,
+      "command": "maestro test --device emulator-5554 C:\\fdz-build\\docs\\verification\\task4-independent-evidence\\images-loaded.yaml (parameters from live API)",
+      "started": "2026-10-02T03:53:30.1663772+08:00",
+      "ended": "2026-10-02T03:53:45.1956161+08:00",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\images.log",
+      "phase": "images"
+    },
+    {
+      "ended": "2026-10-02T03:54:14.7797141+08:00",
+      "phase": "release",
+      "log": "C:\\fdz-build\\.runtime\\task4-independent\\release.log",
+      "command": "adb force-stop com.fandazi.app; gradlew.bat --stop; fingerprint/fixture/proxy comparison; two health GET",
+      "started": "2026-10-02T03:54:12.74427+08:00",
+      "exitCode": 0
+    },
+    {
+      "phase": "final-checks",
+      "command": "adb installed APK sha256 + released process/proxy + source fixture hashes + port source + git HEAD/staged",
+      "ended": "2026-10-02T03:54:48.9761069+08:00",
+      "started": "2026-10-02T03:54:46.1499376+08:00",
+      "exitCode": 1
+    },
+    {
+      "started": "2026-10-02T04:12:30.6224283+08:00",
+      "mavenExitCode": 0,
+      "exitCode": 0,
+      "phase": "maven-snapshot-h2",
+      "command": "mvn.cmd -q -f C:/fdz-build/.runtime/task4-independent/recheck-b99ea2882b0c4ace9d1a53bf9a48c144/snapshot/backend/pom.xml -Dtest=Task2DevelopmentFixtureTest test (cwd=C:/fdz-build/.runtime/task4-independent/recheck-b99ea2882b0c4ace9d1a53bf9a48c144/snapshot/backend; AGENT_INTERNAL_TOKEN removed)",
+      "ended": "2026-10-02T04:12:56.8987235+08:00",
+      "log": "C:/fdz-build/.runtime/task4-independent/snapshot-h2-b99ea2882b0c4ace9d1a53bf9a48c144.log"
+    }
+  ],
+  "fail": 6,
+  "pass": 21,
+  "definition": "隔离台账每次测试/设备阶段调用计一条，保留历史失败，不包含只读探索"
+}

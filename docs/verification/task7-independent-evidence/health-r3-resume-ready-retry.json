@@ -1,0 +1,40 @@
+{
+  "at": "2026-10-02T19:26:28.7272315+08:00",
+  "agent": {
+    "status": "ok",
+    "schemaVersion": "1.1",
+    "service": "group-buying-agent",
+    "sourceRoot": "D:\\project\\-Demo-master",
+    "entryPoint": "service.app:create_app",
+    "buildVersion": "c339237-task7-working-tree"
+  },
+  "ordinaryJwtSeconds": 3600,
+  "exp": 1790943988,
+  "activeDefaultNetwork": "Active default network: 100",
+  "iat": 1790940388,
+  "httpProxyDisabled": true,
+  "listeners": [
+    {
+      "port": 8091,
+      "pid": 20368,
+      "entryMatched": true,
+      "environment": {
+        "TASK2_FIXTURES_ENABLED": "false",
+        "TASK8_FAILURES_ENABLED": "false",
+        "SPRING_PROFILES_ACTIVE": "default",
+        "JWT_EXPIRATION_MINUTES": "60"
+      }
+    },
+    {
+      "port": 8080,
+      "pid": 4236,
+      "entryMatched": true,
+      "environment": {
+        "TASK2_FIXTURES_ENABLED": "false",
+        "TASK8_FAILURES_ENABLED": "false",
+        "SPRING_PROFILES_ACTIVE": "default",
+        "JWT_EXPIRATION_MINUTES": "60"
+      }
+    }
+  ]
+}

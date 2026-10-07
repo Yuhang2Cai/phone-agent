@@ -1,0 +1,379 @@
+[
+  {
+    "startedAt": "2026-10-02T11:18:10.9158288+08:00",
+    "label": "query",
+    "flow": "group-buying-04-voucher-query.yaml",
+    "finishedAt": "2026-10-02T11:20:12.3306313+08:00",
+    "commands": 75,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "994AAD7C0B68979388F0B0F1E0C56E5189D1BC562983814E062121EFEBB0CF0B",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\available-segment-two.png"
+      },
+      {
+        "sha256": "5EBA8700BBA7A02C0A5421B2DAA5E3D8207C652DC0B48B859AB55AA35AC192EE",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\completed-segment-empty.png"
+      },
+      {
+        "sha256": "90EF41C9AFECC085A1DF4746658FEB00DCDFBCAEAD6F4D472D4DE912F567B2C5",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\eligible-refund-navigation-only.png"
+      },
+      {
+        "sha256": "9BFA73720B01774EB4A3A5E949E39471CFC9DBEB7F5FC94708C7D87ED9BDBAB6",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\order-different-real.png"
+      },
+      {
+        "sha256": "22502F1DE2019008F7E511A65DD74914D0C3BB0F106DDB67EA35321A992D8544",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\pending-no-payment-snapshot.png"
+      },
+      {
+        "sha256": "09CD6A43B5A6AE5E5EE62189765A46E5DA55EDC03588C08F3B3E6288BA187EDF",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\pending-voucher-no-eligibility.png"
+      },
+      {
+        "sha256": "4DAF2F06511AF1EAF2F20AFD4B76BC97B2EE6CBECC5C45F13A6DDC0102227B37",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\UI10-orders-three-real.png"
+      },
+      {
+        "sha256": "DBC3450F235A1E2C9CDB6F79DBD7EA0B444A3381B42D98E7DA2F74ADDAC18FCA",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\UI11-order-two-vouchers.png"
+      },
+      {
+        "sha256": "DB68D3863C7F77C6BF49CAF59728D2647836D78C0E624D092F0DF7D6BA0F0A5B",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\UI12-voucher-first.png"
+      },
+      {
+        "sha256": "138D565926E0D0AFF297C9E07A74C335C64B944C0E7386BBD78257913BF91DAC",
+        "path": "maestro-query\\2026-10-02_111816\\group-buying-04-voucher-query\\takeScreenshot\\voucher-second-distinct.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 75
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:20:32.317728+08:00",
+    "label": "agent-read",
+    "flow": "task7-agent-read.yaml",
+    "finishedAt": "2026-10-02T11:21:49.6999512+08:00",
+    "commands": 33,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "FA1CED552300900A0B03D0CADF45A4E5E5418E01CED3F882A301F0C6BEFD8873",
+        "path": "maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-order-explicit-navigation.png"
+      },
+      {
+        "sha256": "88977D90DC831598C0D0AD52EC0D0B86E3241CE93197DD493A542DEAA79D9FC3",
+        "path": "maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-orders-no-auto-navigation.png"
+      },
+      {
+        "sha256": "DEB741A038E89BA11A48D29B9F737B842F70B8DC3C50ED19D2A4862620E75130",
+        "path": "maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-return-keeps-history.png"
+      },
+      {
+        "sha256": "F6CE532AEA0AC73E4913842E5432A0061B87FFF56B2E032FEC261FD940129ED3",
+        "path": "maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-voucher-explicit-navigation.png"
+      },
+      {
+        "sha256": "C88F5292E3C630C735B0D17B5D5C4082F522E1DDD273FB4D7D05EDC2A0F63B25",
+        "path": "maestro-agent-read\\2026-10-02_112034\\task7-agent-read\\takeScreenshot\\agent-vouchers-no-auto-navigation.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 33
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:22:05.9856161+08:00",
+    "label": "network-prepare",
+    "flow": "task7-network-prepare.yaml",
+    "finishedAt": "2026-10-02T11:22:30.6598747+08:00",
+    "commands": 6,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "2C88455E761486509E895920BA094AE9FC5ADD5D1FA6EBB01AF2C5EA7ECC1B83",
+        "path": "maestro-network-prepare\\2026-10-02_112208\\task7-network-prepare\\takeScreenshot\\network-before.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 6
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:22:48.7655168+08:00",
+    "label": "network-error",
+    "flow": "task7-network-error.yaml",
+    "finishedAt": "2026-10-02T11:23:06.1920284+08:00",
+    "commands": 9,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "CFEB9101BA2428E6D5134D6E582818A2EE666AAA476CD64FED157DDD64E92C78",
+        "path": "maestro-network-error\\2026-10-02_112251\\task7-network-error\\takeScreenshot\\list-real-network-error.png"
+      },
+      {
+        "sha256": "E026BA1853FAB980A861465EA0224CB2B93F1798DE5955D8172507285B592803",
+        "path": "maestro-network-error\\2026-10-02_112251\\task7-network-error\\takeScreenshot\\order-real-network-error.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 9
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:23:40.2327298+08:00",
+    "label": "network-recover",
+    "flow": "task7-network-recover.yaml",
+    "finishedAt": "2026-10-02T11:24:05.3388988+08:00",
+    "commands": 13,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "33ECA6C32C24F0923DBBDB69A0129728F11B394CE352F18BFD06CCBF7C2B6E56",
+        "path": "maestro-network-recover\\2026-10-02_112342\\task7-network-recover\\takeScreenshot\\order-network-recovered.png"
+      },
+      {
+        "sha256": "59E4B2ECF09601D00CF95B7FDF76DEC64F9FE1C05694939475996B06B3771578",
+        "path": "maestro-network-recover\\2026-10-02_112342\\task7-network-recover\\takeScreenshot\\voucher-before-network.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 13
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:26:07.6352962+08:00",
+    "label": "voucher-network-error",
+    "flow": "task7-voucher-network-error.yaml",
+    "finishedAt": "2026-10-02T11:26:24.3226032+08:00",
+    "commands": 7,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "F9CBD66986F29ED587B5930BB689490582628D6F860B39B66F89177F1450544C",
+        "path": "maestro-voucher-network-error\\2026-10-02_112610\\task7-voucher-network-error\\takeScreenshot\\voucher-real-network-error.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 7
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:26:35.0877834+08:00",
+    "label": "voucher-network-recover",
+    "flow": "task7-voucher-network-recover.yaml",
+    "finishedAt": "2026-10-02T11:26:52.6849863+08:00",
+    "commands": 6,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "B2245613DC35A1786E74A192AC62835A0A415A996E6C85D15A73BF0C69B9763D",
+        "path": "maestro-voucher-network-recover\\2026-10-02_112637\\task7-voucher-network-recover\\takeScreenshot\\voucher-network-recovered.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 6
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:26:59.6065035+08:00",
+    "label": "empty",
+    "flow": "task7-empty.yaml",
+    "finishedAt": "2026-10-02T11:27:48.1952442+08:00",
+    "commands": 19,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "8B1A63EA381EDBA5BDBB78362B78ABA8679F8258259D9172A05532E4B42BFE39",
+        "path": "maestro-empty\\2026-10-02_112701\\task7-empty\\takeScreenshot\\empty-browse-return.png"
+      },
+      {
+        "sha256": "08D868E14F4F32D9B7434CBE078B55865BF2177E517463543A583118895E7A0C",
+        "path": "maestro-empty\\2026-10-02_112701\\task7-empty\\takeScreenshot\\orders-real-empty.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 19
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:27:48.2579779+08:00",
+    "label": "guest",
+    "flow": "task7-guest.yaml",
+    "finishedAt": "2026-10-02T11:28:37.5930367+08:00",
+    "commands": 18,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "CCF52A928BFDB20A3089791508438A06FB5347416E0D7E2044E9CF0756110EB8",
+        "path": "maestro-guest\\2026-10-02_112750\\task7-guest\\takeScreenshot\\guest-login-original-orders.png"
+      },
+      {
+        "sha256": "4F7657719C95FBED0B1A033A1D8E762AA4377CA28897B0798D3CA99F02016ECB",
+        "path": "maestro-guest\\2026-10-02_112750\\task7-guest\\takeScreenshot\\guest-orders-login-intercept.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 18
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:29:07.0850552+08:00",
+    "label": "success-voucher-dependency",
+    "flow": "group-buying-03-purchase.yaml",
+    "finishedAt": "2026-10-02T11:30:17.4452877+08:00",
+    "commands": 38,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "81B5B2FC72D5B99F5AAF3AE648C77A919E328A56E50E433D771A41310D2B9BF9",
+        "path": "maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\purchase-real-vouchers.png"
+      },
+      {
+        "sha256": "5018AC9777B9CEE154D6B1E54FBFF1CC8CE266655EF58918510C314A1B5C8788",
+        "path": "maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\UI-07-cancel-before-submit.png"
+      },
+      {
+        "sha256": "5018AC9777B9CEE154D6B1E54FBFF1CC8CE266655EF58918510C314A1B5C8788",
+        "path": "maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\UI-07-confirmation.png"
+      },
+      {
+        "sha256": "52590E66431A37D9494E28E3E92D01A0B6D80837DEF8E1FA69918814E0F0979C",
+        "path": "maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\UI-08-payment.png"
+      },
+      {
+        "sha256": "8033AA5B47D071DB468BB0041D2F00848358B6AB90D691686DAE10BE726BBAE7",
+        "path": "maestro-success-voucher-dependency\\2026-10-02_112909\\group-buying-03-purchase\\takeScreenshot\\UI-09-success.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 37
+      },
+      {
+        "status": "SKIPPED",
+        "count": 1
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:30:52.4307656+08:00",
+    "label": "401-orders-prepare",
+    "flow": "task7-401-prepare.yaml",
+    "finishedAt": "2026-10-02T11:31:36.5536919+08:00",
+    "commands": 17,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "842244B5DA2BEEC67850FD224793E2E48B886E70ED852761E9FF7A39F4333F88",
+        "path": "maestro-401-orders-prepare\\2026-10-02_113054\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 15
+      },
+      {
+        "status": "SKIPPED",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:33:33.8358682+08:00",
+    "label": "401-orders-return",
+    "flow": "task7-401-return.yaml",
+    "finishedAt": "2026-10-02T11:34:12.6999239+08:00",
+    "commands": 15,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "761747A2F703473EEBC6E65AF2C1208B1E97087DCF5884C6DF514D349AD99F0F",
+        "path": "maestro-401-orders-return\\2026-10-02_113336\\task7-401-return\\takeScreenshot\\natural401-login.png"
+      },
+      {
+        "sha256": "64B1635792215B9AA2B4563C13947CCFD1C58E47ACEA818C6116E386F94AA9BA",
+        "path": "maestro-401-orders-return\\2026-10-02_113336\\task7-401-return\\takeScreenshot\\natural401-original-entry-restored.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 13
+      },
+      {
+        "status": "SKIPPED",
+        "count": 2
+      }
+    ]
+  },
+  {
+    "startedAt": "2026-10-02T11:36:31.4081612+08:00",
+    "label": "401-order-prepare",
+    "flow": "task7-401-prepare.yaml",
+    "finishedAt": "2026-10-02T11:37:27.8923348+08:00",
+    "commands": 19,
+    "apkSha256": "3C8D4A560DB507EAC680E02F1FA72A66C233A02F08C6A71AC2312D7D531EBE37",
+    "screenshots": [
+      {
+        "sha256": "F992F610E0CA2649B6B185109AB0286D35AEBFD1B335809D0D34C18B4017E5D5",
+        "path": "maestro-401-order-prepare\\2026-10-02_113633\\task7-401-prepare\\takeScreenshot\\before-natural-expiry.png"
+      }
+    ],
+    "exitCode": 0,
+    "statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 18
+      },
+      {
+        "status": "SKIPPED",
+        "count": 1
+      }
+    ]
+  }
+]

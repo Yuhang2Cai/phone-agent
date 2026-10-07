@@ -1,0 +1,51 @@
+{
+  "originalTotal": 714,
+  "currentTotal": 725,
+  "originalUnchanged": true,
+  "sameCompleteBusinessFactsAsR1": true,
+  "tables": {
+    "stores": {
+      "originalCount": 30,
+      "currentCount": 30,
+      "originalUnchanged": true,
+      "originalSha": "83e8f007d56876f7c2286dc38d3109954b31b86b0bec0cc6792b7f149e46b538",
+      "currentSha": "83e8f007d56876f7c2286dc38d3109954b31b86b0bec0cc6792b7f149e46b538"
+    },
+    "deal_packages": {
+      "originalCount": 124,
+      "currentCount": 126,
+      "originalUnchanged": true,
+      "originalSha": "a79557cd76aae1de7e52c82b936f079d1e2251d20e74efd911c71c8a2a7b23ff",
+      "currentSha": "2699fd4b5e9a3a1cb4442e688d917525e72cf2a817b9062000d52a5b06761f2a"
+    },
+    "group_buy_orders": {
+      "originalCount": 94,
+      "currentCount": 98,
+      "originalUnchanged": true,
+      "originalSha": "9bc0908478dc9cccda95619742d5e16afcb59f57dd65378b35c50ca554ecc26a",
+      "currentSha": "b7f50c2dd650b66245587721c268d3dd01aa819f51722b43cbe05aeca5bdd12e"
+    },
+    "vouchers": {
+      "originalCount": 131,
+      "currentCount": 136,
+      "originalUnchanged": true,
+      "originalSha": "04b5d288777f55c41d3bc16ffceafdf16503eb15551354ed480c1eb75145d5c1",
+      "currentSha": "10d1cf747be05e3c40ff8d16b327ad960bfc3d2ab83f9aa6200dab7de6b83fa3"
+    },
+    "refund_requests": {
+      "originalCount": 29,
+      "currentCount": 29,
+      "originalUnchanged": true,
+      "originalSha": "93fec7246af8f506bfd1f45057d14144fabed5be73b04a6e4b5c36dd0c9bc8e8",
+      "currentSha": "93fec7246af8f506bfd1f45057d14144fabed5be73b04a6e4b5c36dd0c9bc8e8"
+    },
+    "store_reviews": {
+      "originalCount": 306,
+      "currentCount": 306,
+      "originalUnchanged": true,
+      "originalSha": "16781422ab65ac048dc47d5b32fe502aa4d5131e21d491742423e6b7a39952e1",
+      "currentSha": "16781422ab65ac048dc47d5b32fe502aa4d5131e21d491742423e6b7a39952e1"
+    }
+  },
+  "note": "R2发现B2即中止新场景；本次是只读收尾核对，不冒称已亲跑R2真实已有申请"
+}

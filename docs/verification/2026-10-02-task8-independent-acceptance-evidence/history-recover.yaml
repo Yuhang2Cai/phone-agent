@@ -1,0 +1,24 @@
+appId: com.fandazi.app
+---
+# 原历史按钮已真实点击且禁用；首次续段误匹配用户文字气泡，保留失败后仅补定位。
+# 此段在8091真实重启后接续同一APK、账号和会话，必须找到新摘要并成功取消。
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/agent_order_action"
+      text: "确认退款"
+      enabled: true
+    direction: DOWN
+    timeout: 30000
+- assertVisible: ".*独立验收历史动作边界.*"
+- takeScreenshot: history-current-valid-after-service-restart
+- tapOn:
+    id: "com.fandazi.app:id/agent_after_sale_cancel"
+    text: "取消本次申请"
+    enabled: true
+- extendedWaitUntil:
+    visible: "已取消本次操作"
+    timeout: 60000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_order_action"
+    enabled: true
+- takeScreenshot: history-current-cancelled-after-service-restart

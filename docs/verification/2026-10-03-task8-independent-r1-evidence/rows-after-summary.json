@@ -1,0 +1,266 @@
+{
+  "at": "2026-10-03T00:37:01.704552+08:00",
+  "incrementalExistingRowsUnchanged": true,
+  "newCloneAndOrderAuditPassed": true,
+  "tables": {
+    "fandazi_groupbuy_dev": {
+      "addresses": {
+        "beforeRows": 2,
+        "afterRows": 2,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "agent_events": {
+        "beforeRows": 4114,
+        "afterRows": 4114,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "agent_messages": {
+        "beforeRows": 0,
+        "afterRows": 0,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "agent_sessions": {
+        "beforeRows": 160,
+        "afterRows": 160,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "agent_tool_executions": {
+        "beforeRows": 328,
+        "afterRows": 328,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "app_users": {
+        "beforeRows": 184,
+        "afterRows": 187,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 3
+      },
+      "automation_grants": {
+        "beforeRows": 0,
+        "afterRows": 0,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "automation_policies": {
+        "beforeRows": 0,
+        "afterRows": 0,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "cart_draft_item_options": {
+        "beforeRows": 0,
+        "afterRows": 0,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "cart_draft_items": {
+        "beforeRows": 0,
+        "afterRows": 0,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "cart_drafts": {
+        "beforeRows": 0,
+        "afterRows": 0,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "complaint_tickets": {
+        "beforeRows": 24,
+        "afterRows": 25,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 1
+      },
+      "confirmation_grants": {
+        "beforeRows": 272,
+        "afterRows": 275,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 3
+      },
+      "coupons": {
+        "beforeRows": 54,
+        "afterRows": 54,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "deal_packages": {
+        "beforeRows": 127,
+        "afterRows": 128,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 1
+      },
+      "dish_options": {
+        "beforeRows": 360,
+        "afterRows": 360,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "dishes": {
+        "beforeRows": 120,
+        "afterRows": 120,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "flyway_schema_history": {
+        "beforeRows": 13,
+        "afterRows": 13,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "food_orders": {
+        "beforeRows": 1,
+        "afterRows": 1,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "group_buy_orders": {
+        "beforeRows": 113,
+        "afterRows": 114,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 1
+      },
+      "merchant_reviews": {
+        "beforeRows": 36,
+        "afterRows": 36,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "merchants": {
+        "beforeRows": 12,
+        "afterRows": 12,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "order_item_options": {
+        "beforeRows": 0,
+        "afterRows": 0,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "order_items": {
+        "beforeRows": 1,
+        "afterRows": 1,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "order_timeline": {
+        "beforeRows": 2,
+        "afterRows": 2,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "public_id_aliases": {
+        "beforeRows": 215,
+        "afterRows": 215,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "purchase_quotes": {
+        "beforeRows": 167,
+        "afterRows": 168,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 1
+      },
+      "refund_requests": {
+        "beforeRows": 36,
+        "afterRows": 37,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 1
+      },
+      "seed_address_metadata": {
+        "beforeRows": 2,
+        "afterRows": 2,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "seed_dish_metadata": {
+        "beforeRows": 120,
+        "afterRows": 120,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "store_reviews": {
+        "beforeRows": 310,
+        "afterRows": 310,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "stores": {
+        "beforeRows": 30,
+        "afterRows": 30,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "user_coupons": {
+        "beforeRows": 24,
+        "afterRows": 24,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "vouchers": {
+        "beforeRows": 161,
+        "afterRows": 162,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 1
+      }
+    },
+    "dianping_intent": {
+      "agent_service_runs": {
+        "beforeRows": 211,
+        "afterRows": 211,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      },
+      "intent_decision_audit": {
+        "beforeRows": 213,
+        "afterRows": 213,
+        "changedExisting": 0,
+        "missingExisting": 0,
+        "addedRows": 0
+      }
+    }
+  },
+  "historicalGuardPassed": false,
+  "historical71to70StillPresentAlone": true,
+  "incidentDisposition": "待用户确认，不关闭T8-IND-01"
+}

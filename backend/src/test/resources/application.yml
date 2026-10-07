@@ -1,0 +1,21 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:fandazi-auth;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    open-in-view: false
+
+security:
+  jwt:
+    secret: 0123456789012345678901234567890123456789012345678901234567890123
+    expiration-minutes: 60
+
+agent:
+  internal-token: test-agent-token
+  service:
+    base-url: http://127.0.0.1:8090
+    timeout-millis: 200

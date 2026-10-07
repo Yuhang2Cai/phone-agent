@@ -1,0 +1,28 @@
+{
+  "at": "2026-10-02T11:52:47.0246365+08:00",
+  "inheritedRelease": "C:/fdz-build/docs/verification/task7-independent-evidence/environment-release.json",
+  "inheritedReleaseSha256": "E66D2A184A0D1BB076616873A095CF188EB7728F58A1BD2768F177A031915A85",
+  "releaseRecordedAt": "2026-10-02T11:44:57.8569928+08:00",
+  "listeners": [
+    {
+      "LocalPort": 8080,
+      "OwningProcess": 57220
+    },
+    {
+      "LocalPort": 8091,
+      "OwningProcess": 29884
+    }
+  ],
+  "ordinaryJwtSeconds": 3600,
+  "networkFromIndependentRelease": {
+    "wifi": 1,
+    "data": 1,
+    "activeDefaultNetwork": "Active default network: 127",
+    "airplane": 0
+  },
+  "appForceStoppedFromIndependentRelease": true,
+  "deviceOrNetworkOperations": 0,
+  "serviceRestarts": 0,
+  "ownRunningTestSessions": 0,
+  "scope": "仅元数据递归核对命令，无Gradle/Maestro/服务执行会话遗留，原网络恢复凭证继承而非重新设备测量"
+}

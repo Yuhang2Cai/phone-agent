@@ -1,0 +1,19 @@
+{
+  "voucherIds": [
+    "4e6439a6-3441-4b44-9aeb-ffccf9343276",
+    "52978ee7-9835-4660-8726-12a2dad46286",
+    "33e6a1b0-6d35-4f08-bb74-13acc542ed8d",
+    "8ed8e3e2-296d-4afb-b3eb-3db99f1c38f6"
+  ],
+  "accountRole": "account",
+  "finishedAt": "2026-10-02T10:35:44.9612770+08:00",
+  "exitCode": 0,
+  "startedAt": "2026-10-02T10:34:54.9986451+08:00",
+  "orderIds": [
+    "567264fe-49d6-4842-8ddd-1df70ade9761",
+    "3a81f90f-baf4-459a-9f74-ab22b0bef038",
+    "e1fd7300-b9b8-4378-83b9-b141f50162b4"
+  ],
+  "apkSha256": "28380CF723C41659ACA0DC7C609F2388F0083FD3344F8DAC4269D9CE67C2FB3D",
+  "flow": "task7-401-prepare.yaml"
+}

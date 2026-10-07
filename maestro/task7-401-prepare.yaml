@@ -1,0 +1,38 @@
+# 自然过期准备：普通JWT登录后定位指定真实入口，等待由运行器按登录访问时间完成。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- runFlow: task7-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible: "order-card-${TASK7_ORDER_A}"
+    timeout: 30000
+- runFlow:
+    when:
+      true: ${TASK7_ENTRY != "orders"}
+    commands:
+      - tapOn: "order-card-${TASK7_ORDER_A}"
+      - extendedWaitUntil:
+          visible: ".*${TASK7_ORDER_A}.*"
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${TASK7_ENTRY == "voucher"}
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: "com.fandazi.app:id/group_order_show_vouchers"
+          direction: DOWN
+      - tapOn:
+          id: "com.fandazi.app:id/group_order_show_vouchers"
+      - scrollUntilVisible:
+          element:
+            text: "团购券 1 ${TASK7_VOUCHER_A}"
+          direction: DOWN
+      - tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
+      - extendedWaitUntil:
+          visible: ".*${TASK7_VOUCHER_A}.*"
+          timeout: 30000
+- takeScreenshot: "before-natural-expiry"

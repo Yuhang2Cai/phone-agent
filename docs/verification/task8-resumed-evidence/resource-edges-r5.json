@@ -1,0 +1,202 @@
+[
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_order_card.xml",
+    "reference": "layout/item_agent_order_card"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_store_card.xml",
+    "reference": "layout/item_agent_store_card"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_deal_card.xml",
+    "reference": "layout/item_agent_deal_card"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/merchant_cover_placeholder.xml",
+    "reference": "drawable/merchant_cover_placeholder"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/fragment_agent_chat.xml",
+    "reference": "layout/fragment_agent_chat"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_login_gate.xml",
+    "reference": "layout/item_agent_login_gate"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_empty.xml",
+    "reference": "layout/item_agent_empty"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_message.xml",
+    "reference": "layout/item_agent_message"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/agent_chat_user_bubble.xml",
+    "reference": "drawable/agent_chat_user_bubble"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/agent_chat_bot_bubble.xml",
+    "reference": "drawable/agent_chat_bot_bubble"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_context.xml",
+    "reference": "layout/item_agent_context"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_progress.xml",
+    "reference": "layout/item_agent_progress"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_agent_error.xml",
+    "reference": "layout/item_agent_error"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/fragment_refund_request.xml",
+    "reference": "layout/fragment_refund_request"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/fragment_refund_progress.xml",
+    "reference": "layout/fragment_refund_progress"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/fragment_review.xml",
+    "reference": "layout/fragment_review"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/fragment_help_faq.xml",
+    "reference": "layout/fragment_help_faq"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/item_faq_row.xml",
+    "reference": "layout/item_faq_row"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/faq_purchase.png",
+    "reference": "drawable/faq_purchase"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/faq_voucher.png",
+    "reference": "drawable/faq_voucher"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/faq_refund.png",
+    "reference": "drawable/faq_refund"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/faq_account.png",
+    "reference": "drawable/faq_account"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/faq_complaint.png",
+    "reference": "drawable/faq_complaint"
+  },
+  {
+    "path": "android-app/app/src/main/res/layout/fragment_complaint.xml",
+    "reference": "layout/fragment_complaint"
+  },
+  {
+    "path": "android-app/app/src/main/res/color/after_sale_chip_background.xml",
+    "reference": "color/after_sale_chip_background"
+  },
+  {
+    "path": "android-app/app/src/main/res/color/after_sale_chip_stroke.xml",
+    "reference": "color/after_sale_chip_stroke"
+  },
+  {
+    "path": "android-app/app/src/main/res/color/after_sale_chip_text.xml",
+    "reference": "color/after_sale_chip_text"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/complaint_product_icon.png",
+    "reference": "drawable/complaint_product_icon"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/complaint_payment_icon.png",
+    "reference": "drawable/complaint_payment_icon"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/complaint_merchant_icon.png",
+    "reference": "drawable/complaint_merchant_icon"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/complaint_order_icon.png",
+    "reference": "drawable/complaint_order_icon"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/complaint_account_icon.png",
+    "reference": "drawable/complaint_account_icon"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/complaint_other_icon.png",
+    "reference": "drawable/complaint_other_icon"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/group_buy_card_background.xml",
+    "reference": "drawable/group_buy_card_background"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/agent_modify_button.xml",
+    "reference": "drawable/agent_modify_button"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/agent_chat_input_background.xml",
+    "reference": "drawable/agent_chat_input_background"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/agent_send_background.xml",
+    "reference": "drawable/agent_send_background"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/group_buy_primary_button.xml",
+    "reference": "drawable/group_buy_primary_button"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/agent_chat_empty_avatar.xml",
+    "reference": "drawable/agent_chat_empty_avatar"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/agent_avatar_bot.xml",
+    "reference": "drawable/agent_avatar_bot"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/agent_bot_bubble.xml",
+    "reference": "drawable/agent_bot_bubble"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/after_sale_card.xml",
+    "reference": "drawable/after_sale_card"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/after_sale_image_placeholder.xml",
+    "reference": "drawable/after_sale_image_placeholder"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/after_sale_input.xml",
+    "reference": "drawable/after_sale_input"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/after_sale_primary.xml",
+    "reference": "drawable/after_sale_primary"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/after_sale_step_active.xml",
+    "reference": "drawable/after_sale_step_active"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/after_sale_step_pending.xml",
+    "reference": "drawable/after_sale_step_pending"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/after_sale_outline.xml",
+    "reference": "drawable/after_sale_outline"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/ic_home_search.xml",
+    "reference": "drawable/ic_home_search"
+  },
+  {
+    "path": "android-app/app/src/main/res/drawable/faq_contact.png",
+    "reference": "drawable/faq_contact"
+  }
+]

@@ -1,0 +1,144 @@
+{
+  "time": "2026-10-01T20:12:54.455082+00:00",
+  "database": "fandazi_groupbuy_dev",
+  "readOnly": true,
+  "consistentSnapshot": true,
+  "tables": {
+    "addresses": {
+      "rows": 2,
+      "sha256": "1d0a95db8c1fd35e9602793d070a5d5d89d747bdf458e16664b0c290af737b8f"
+    },
+    "agent_events": {
+      "rows": 1752,
+      "sha256": "12da2cdb0805fdea62907c43e26004dfd669ab520ef4c18bea1330a99c938f81"
+    },
+    "agent_messages": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "agent_sessions": {
+      "rows": 92,
+      "sha256": "e5418779980d2c86785f3513e8ee9235272212548720dc517236ff846f1ff482"
+    },
+    "agent_tool_executions": {
+      "rows": 149,
+      "sha256": "e2f5457bf36ad3a1029638433d82307163396433e3687c271fa904bafb8591cc"
+    },
+    "app_users": {
+      "rows": 138,
+      "sha256": "071ba28a4022f77c80ad6e2dad6e7957fd3bbcce298fa44d083d42dd6009a248"
+    },
+    "automation_grants": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "automation_policies": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cart_draft_item_options": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cart_draft_items": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "cart_drafts": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "complaint_tickets": {
+      "rows": 17,
+      "sha256": "09bdc4a828d8dd8df7eec67f7bc49c220edec4b87bf1486a9a8f72e4dffa4868"
+    },
+    "confirmation_grants": {
+      "rows": 103,
+      "sha256": "d2dc50729c902e9fc051ff1bf4de77e7d29c0a1e674e370313bf984c3f7b29cf"
+    },
+    "coupons": {
+      "rows": 38,
+      "sha256": "7a82b8027f713c662d27b9ed8ec95f6f3b43f49f7efb69b2c4b354cbdea3b8e2"
+    },
+    "deal_packages": {
+      "rows": 120,
+      "sha256": "82200fc764a1e826ce3c47e298d0943411e2e8011a1e9e2cbfc0c3ac2a218c78"
+    },
+    "dish_options": {
+      "rows": 360,
+      "sha256": "719c7a04a4e4a5c9476f58401febd343954291e99e22eb3a43cdb6f85be474eb"
+    },
+    "dishes": {
+      "rows": 120,
+      "sha256": "e1857cd7d5086a340cc53dc5a18ee6d1677237a950136914cdf6b34c53eec50a"
+    },
+    "flyway_schema_history": {
+      "rows": 13,
+      "sha256": "1c92ecc42955dbdc56ac3a0bfae46aad2adc6f47492652ced31f22b9bebc8483"
+    },
+    "food_orders": {
+      "rows": 1,
+      "sha256": "ab2c598f3a05848f54ba5b93c072b77070d01abf446c0f62a61401be96dd01a5"
+    },
+    "group_buy_orders": {
+      "rows": 64,
+      "sha256": "7fb61973566d21748a955ecd86a594166c9603fe179accb7d9fa91fd8fc6a0e2"
+    },
+    "merchant_reviews": {
+      "rows": 36,
+      "sha256": "9e214b77477b8d584e60d94d9a45e0adfcd7eff9adef13df815496d2cd0125e4"
+    },
+    "merchants": {
+      "rows": 12,
+      "sha256": "5362cc82d1350d192534624ef4a2452d52b300f256420cd1452b781a16a45fee"
+    },
+    "order_item_options": {
+      "rows": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "order_items": {
+      "rows": 1,
+      "sha256": "80ad0c373b8576c4470250b2a9bbf01d8b8a149fc3f365cee81fffc8bca88d21"
+    },
+    "order_timeline": {
+      "rows": 2,
+      "sha256": "3e4743fbdfb9d6204904c79eb71dcfaf2f6af572e46fe3bd37c2df5f5c6c5839"
+    },
+    "public_id_aliases": {
+      "rows": 215,
+      "sha256": "165aefde1a7b2650c6c8615397d23293e4fee1495ae3aaf0b37c3dae0c2b3533"
+    },
+    "purchase_quotes": {
+      "rows": 36,
+      "sha256": "6cd488c54e33d7dc5505be6889eeb72f0fc593a5f611a56d735d70478f2546ca"
+    },
+    "refund_requests": {
+      "rows": 29,
+      "sha256": "b52603683927a9ccd47f72d5ae364f4c8981a25ad73f1a7fb779bc91128c6f1f"
+    },
+    "seed_address_metadata": {
+      "rows": 2,
+      "sha256": "f8081c2dab55e7818a8f914362e08045d841f79ec3bfa9d3aa0af1d7c7cb5f60"
+    },
+    "seed_dish_metadata": {
+      "rows": 120,
+      "sha256": "ab1bb9f8d64e8193fa9a58288463f8e6ec779e6c1fd6d1861d456b7fc5b3c387"
+    },
+    "store_reviews": {
+      "rows": 306,
+      "sha256": "a77c5bdc762d8b7c5552c1f4c93055a9c7321e87b7761946ac38ff99dd0cc6d9"
+    },
+    "stores": {
+      "rows": 30,
+      "sha256": "d147f453e98cabb040155415fea215a85aec39f323aed220101890d6311dd4fc"
+    },
+    "user_coupons": {
+      "rows": 8,
+      "sha256": "bf2f10b1a10c7da7470aac3abc2000a4eea3154a797eec74424fc9a365fca3ff"
+    },
+    "vouchers": {
+      "rows": 92,
+      "sha256": "718cea7f13de52929663ba84c96343e8b2e532e49df3911c9139a93f533feffd"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma 发送按钮的白色圆形底；启用状态只影响交互，不伪造处理进度。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="oval">
+    <solid android:color="@color/surface_card" />
+</shape>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 历史页面仍可编译，但这些ID不注册进导航图，没有运行入口，不能因缺资源混入延期功能。 -->
+<resources>
+    <item type="id" name="merchantFragment" />
+    <item type="id" name="addressFragment" />
+    <item type="id" name="addressEditFragment" />
+    <item type="id" name="automationSettingsFragment" />
+    <item type="id" name="cartFragment" />
+    <item type="id" name="paymentFragment" />
+</resources>

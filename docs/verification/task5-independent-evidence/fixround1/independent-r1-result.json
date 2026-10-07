@@ -1,0 +1,92 @@
+{
+  "P1": "ADDRESSED",
+  "targetedPassed": 64,
+  "targetedFailures": 0,
+  "targetedSkipped": 0,
+  "guardsPassed": 9,
+  "originalEventsPaired": 11,
+  "compatibilityEventsSeparate": 4,
+  "maestroFlowsPassed": 11,
+  "oldCancelUnchanged": true,
+  "oldConfirmUnchanged": true,
+  "legalCurrentCancelSameRun": "1dd1277f-ab22-4736-a13a-7ce9728611e6",
+  "beforeStatus": "waiting_confirmation",
+  "afterStatus": "cancelled",
+  "quantity": 2,
+  "amountCents": 18000,
+  "guestDisabledActualTap": true,
+  "fullDeviceOfflineAndRecovery": true,
+  "legalCurrentConfirmGuard": "亲跑隔离仓库，同replyToCard入口；真实当前卡仅检查enabled，不点击交易确认",
+  "realPurchaseConfirmationClicked": false,
+  "figmaAffected": [
+    {
+      "frame": "F",
+      "sameR0PngSha": true
+    },
+    {
+      "frame": "H",
+      "sameR0PngSha": true
+    },
+    {
+      "frame": "J",
+      "sameR0PngSha": true
+    }
+  ],
+  "flows": [
+    {
+      "label": "current-cancel",
+      "flow": "task5-fixround1-current-cancel.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "current-inspect",
+      "flow": "C:/fdz-build/docs/verification/task5-independent-evidence/fixround1/current-card-inspect.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "guest-disabled",
+      "flow": "C:/fdz-build/docs/verification/task5-independent-evidence/fixround1/guest-disabled.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "history-after-offline",
+      "flow": "C:/fdz-build/docs/verification/task5-independent-evidence/fixround1/history-after-offline.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "main",
+      "flow": "task5-ai-chat-page.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "offline-error",
+      "flow": "C:/fdz-build/docs/verification/task5-independent-evidence/fixround1/offline-error.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "offline-recovered",
+      "flow": "task5-ai-retry.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "old-cancel-tap",
+      "flow": "task5-fixround1-old-tap.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "old-confirm-tap",
+      "flow": "C:/fdz-build/docs/verification/task5-independent-evidence/fixround1/old-confirm-tap.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "read-order",
+      "flow": "C:/fdz-build/docs/verification/task5-independent-evidence/fixround1/read-order.yaml",
+      "exitCode": 0
+    },
+    {
+      "label": "stale-prepare",
+      "flow": "task5-fixround1-stale-prepare.yaml",
+      "exitCode": 0
+    }
+  ]
+}

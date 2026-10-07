@@ -1,0 +1,59 @@
+# Task5 G 与共享确认展示：真实只读 DAG，真实报价准备后仅取消；绝不点击确认或支付。
+appId: com.fandazi.app
+---
+- launchApp
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "query my group buying orders and recommend nearby group buying deals"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: ".*请提供所在城市代码.*"
+    timeout: 90000
+- assertVisible: "任务进度"
+- takeScreenshot: "task5-G-composite-paused"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "${TASK5_CITY}"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_deal_card"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: "task5-G-composite-result"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "buy group buying deal ${TASK5_DEAL_ID} quantity 1"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- runFlow:
+    when:
+      visible: ".*请明确回复.*"
+    commands:
+      - tapOn:
+          id: "com.fandazi.app:id/agent_chat_input"
+      - inputText: "purchase"
+      - pressKey: BACK
+      - tapOn:
+          id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: "确认创建团购订单"
+    timeout: 90000
+- assertVisible: ".*规则版本.*确认截止.*"
+- assertVisible: "取消本次操作"
+- takeScreenshot: "task5-shared-confirmation-prepared"
+- tapOn: "取消本次操作"
+- extendedWaitUntil:
+    visible: ".*已取消.*"
+    timeout: 90000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_card"
+- takeScreenshot: "task5-shared-confirmation-cancelled"

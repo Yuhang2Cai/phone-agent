@@ -1,0 +1,186 @@
+# 公共餐图设备验收：受控代理只注入缺图或503，真实业务事实不变；选择第一张真实门店图片。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${IMAGE_STEP != "recover" && IMAGE_SCENARIO != "checkout" && IMAGE_SCENARIO != "orders"}
+    commands:
+      - launchApp:
+          clearState: true
+      - tapOn:
+          id: "com.fandazi.app:id/skip_login_button"
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/store_name"
+          timeout: 30000
+- runFlow:
+    when:
+      true: ${IMAGE_SCENARIO == "checkout"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn: "store-card-${IMAGE_STORE_ID}"
+      - extendedWaitUntil:
+          visible: "store-deal-${IMAGE_DEAL_ID}"
+          timeout: 30000
+      - tapOn: "store-deal-${IMAGE_DEAL_ID}"
+      - extendedWaitUntil:
+          visible: "selected-deal-${IMAGE_DEAL_ID}"
+          timeout: 30000
+      - tapOn:
+          id: "com.fandazi.app:id/deal_purchase_bar"
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/checkout_image"
+            text: "暂无图片，点击刷新"
+          timeout: 30000
+      - takeScreenshot: images-checkout-missing
+      - copyTextFrom:
+          id: "com.fandazi.app:id/checkout_quantity"
+      - evalScript: ${output.imageQuantity = maestro.copiedText}
+      - copyTextFrom:
+          id: "com.fandazi.app:id/checkout_total"
+      - evalScript: ${output.imageTotal = maestro.copiedText}
+      - tapOn:
+          id: "com.fandazi.app:id/checkout_image"
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/checkout_image"
+            text: ${IMAGE_DEAL_ALT}
+          timeout: 20000
+      - takeScreenshot: images-checkout-recovered
+      - assertVisible:
+          id: "com.fandazi.app:id/checkout_quantity"
+          text: ${output.imageQuantity}
+      - assertVisible:
+          id: "com.fandazi.app:id/checkout_total"
+          text: ${output.imageTotal}
+      - tapOn:
+          id: "com.fandazi.app:id/checkout_close"
+      - assertVisible:
+          id: "com.fandazi.app:id/deal_purchase_bar"
+- runFlow:
+    when:
+      true: ${IMAGE_SCENARIO == "missing"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/store_image"
+            text: "暂无图片，点击刷新"
+            index: 0
+          timeout: 15000
+      - takeScreenshot: images-missing
+      - tapOn:
+          id: "com.fandazi.app:id/store_image"
+          index: 0
+- runFlow:
+    when:
+      true: ${IMAGE_SCENARIO == "failure"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/store_image"
+            text: "图片加载失败，点击重试"
+            index: 0
+          timeout: 15000
+      - takeScreenshot: images-failure
+      - runFlow:
+          when:
+            true: ${IMAGE_STEP == "recover"}
+          commands:
+            - tapOn:
+                id: "com.fandazi.app:id/store_image"
+                index: 0
+- runFlow:
+    when:
+      true: ${IMAGE_STEP != "prepare" && IMAGE_SCENARIO != "checkout" && IMAGE_SCENARIO != "orders"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/store_image"
+            text: ${IMAGE_ALT}
+            index: 0
+          timeout: 20000
+      - takeScreenshot: images-recovered
+- runFlow:
+    when:
+      true: ${IMAGE_SCENARIO == "warm"}
+    commands:
+      - repeat:
+          times: 3
+          commands:
+            - tapOn:
+                id: "com.fandazi.app:id/profileFragment"
+            - tapOn:
+                id: "com.fandazi.app:id/homeFragment"
+            - extendedWaitUntil:
+                visible:
+                  id: "com.fandazi.app:id/store_image"
+                  text: ${IMAGE_ALT}
+                  index: 0
+                timeout: 15000
+      - takeScreenshot: images-warm-return
+
+# 真实本人订单/券缺图只刷新照片，金额、展开意图及售后资格保持；不点击支付/退款/核销。
+- runFlow:
+    when:
+      true: ${IMAGE_SCENARIO == "orders"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn:
+          id: "com.fandazi.app:id/ordersFragment"
+      - extendedWaitUntil:
+          visible: "order-card-${IMAGE_ORDER_ID}"
+          timeout: 30000
+      - tapOn: "order-card-${IMAGE_ORDER_ID}"
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/group_order_image"
+            text: "暂无图片，点击刷新"
+          timeout: 30000
+      - copyTextFrom:
+          id: "com.fandazi.app:id/group_order_detail_total"
+      - evalScript: ${output.orderTotal = maestro.copiedText}
+      - takeScreenshot: images-order-missing
+      - tapOn:
+          id: "com.fandazi.app:id/group_order_image"
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/group_order_image"
+            text: ${IMAGE_ORDER_ALT}
+          timeout: 20000
+      - assertVisible:
+          id: "com.fandazi.app:id/group_order_detail_total"
+          text: ${output.orderTotal}
+      - takeScreenshot: images-order-recovered
+      - scrollUntilVisible:
+          element:
+            id: "com.fandazi.app:id/group_order_show_vouchers"
+          direction: DOWN
+      - tapOn:
+          id: "com.fandazi.app:id/group_order_show_vouchers"
+      - scrollUntilVisible:
+          element:
+            text: "团购券 1 ${IMAGE_VOUCHER_ID}"
+          direction: DOWN
+      - tapOn: "团购券 1 ${IMAGE_VOUCHER_ID}"
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/voucher_detail_image"
+            text: "暂无图片，点击刷新"
+          timeout: 30000
+      - copyTextFrom:
+          id: "com.fandazi.app:id/voucher_detail_info"
+      - evalScript: ${output.voucherInfo = maestro.copiedText}
+      - takeScreenshot: images-voucher-missing
+      - tapOn:
+          id: "com.fandazi.app:id/voucher_detail_image"
+      - extendedWaitUntil:
+          visible:
+            id: "com.fandazi.app:id/voucher_detail_image"
+            text: ${IMAGE_ORDER_ALT}
+          timeout: 20000
+      - assertVisible:
+          id: "com.fandazi.app:id/voucher_detail_info"
+          text: ${output.voucherInfo}
+      - assertNotVisible: "展示核销二维码"
+      - takeScreenshot: images-voucher-recovered

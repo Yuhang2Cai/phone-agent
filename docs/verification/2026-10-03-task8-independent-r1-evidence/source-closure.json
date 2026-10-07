@@ -1,0 +1,48 @@
+{
+  "repositories": [
+    {
+      "unchangedWorkingProductFiles": 78,
+      "head": "f2f08035ed23676c88269d083b3536e200741ac0",
+      "unchangedNonDocsPaths": 735,
+      "previousTree": "1cc8fff9b0077672fd87d26a460a0fda5b7b7996",
+      "repository": "C:/fdz-build",
+      "tree": "b948a281232382a07271237b8d32d39b6f94a939",
+      "changedPaths": [
+        "docs/superpowers/plans/2026-09-29-group-buying-agent-refactor-implementation.md",
+        "docs/verification/2026-10-02-task8-resumed-development.md",
+        "docs/verification/task8-resumed-evidence/task8-write-set.txt",
+        "docs/verification/task8-service-evidence/test_boundary_fixture_isolation.py",
+        "docs/verification/task8-service-evidence/test_live_write_boundaries.py"
+      ]
+    },
+    {
+      "unchangedWorkingProductFiles": 5,
+      "head": "9fdc5e16146423120bab18a722090643fa0d3203",
+      "unchangedNonDocsPaths": 205,
+      "previousTree": "0d29e30b066dd0b33d8cf244fa75d71ee3d5995a",
+      "repository": "D:/project/-Demo-master",
+      "tree": "6c8c1992cec8d3d875cf057cd93b25bd5f8f9d12",
+      "changedPaths": [
+        "docs/experiments/intent-routing-experiments.md"
+      ]
+    }
+  ],
+  "createdAt": "2026-10-03T00:36:01.4666194+08:00",
+  "tests": [
+    {
+      "blob": "8f866ebb10e6ed3f22e27c15e6108fc66fefc6ff",
+      "normalizedTextEqual": true,
+      "workingSha256": "B1F9FADFEFFB3E7B5723EB042350CB52F8652DE074488050F224A69D1D8DD70B",
+      "path": "docs/verification/task8-service-evidence/test_live_write_boundaries.py",
+      "sha256": "BA65134116255CEE2B9B4EEE04E8DDEB7FAD6DFE2465902803E65F445D309576"
+    },
+    {
+      "blob": "e9c753f3e9492500428c92fc4ccf5ec83ad6a8e6",
+      "normalizedTextEqual": true,
+      "workingSha256": "40A6E380DB83A846A14192F718A34E38A0D7FAB9295CA1BA4EA8FB4682F86BAD",
+      "path": "docs/verification/task8-service-evidence/test_boundary_fixture_isolation.py",
+      "sha256": "CA7B4EE8EA221760BA51506519163A44C25D4609EAF794286A1C8C6F2C566FAE"
+    }
+  ],
+  "historicalFailedCopySha256": "42053FDC6451D6C26D494F9A56B500CDB319E9659A7E321904812C81FFFEC3E0"
+}

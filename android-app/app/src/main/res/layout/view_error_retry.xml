@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-21B：非网络类接口失败仍留在当前页面；重试按钮由宿主重新执行原请求。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/orders_error_state"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center"
+    android:orientation="vertical" android:visibility="gone" android:background="@android:color/white">
+    <!-- 灰色折页、正式眼睛、警告圆和阴影构成设计插画，不再用字符点拼成脸。 -->
+    <FrameLayout android:layout_width="217dp" android:layout_height="180dp" android:importantForAccessibility="noHideDescendants">
+        <ImageView android:layout_width="217dp" android:layout_height="25dp" android:layout_marginTop="152dp" android:src="@drawable/after_sale_error_shadow" />
+        <View android:layout_width="136dp" android:layout_height="154dp" android:layout_marginStart="40dp"
+            android:background="@drawable/after_sale_error_page" />
+        <View android:layout_width="41dp" android:layout_height="38dp" android:layout_marginStart="135dp" android:background="@drawable/after_sale_error_fold" />
+        <ImageView android:layout_width="10dp" android:layout_height="10dp" android:layout_marginStart="75dp" android:layout_marginTop="60dp" android:src="@drawable/after_sale_error_eye" />
+        <ImageView android:layout_width="10dp" android:layout_height="10dp" android:layout_marginStart="121dp" android:layout_marginTop="60dp" android:src="@drawable/after_sale_error_eye" />
+        <TextView android:layout_width="35dp" android:layout_height="32dp" android:layout_marginStart="89dp" android:layout_marginTop="81dp"
+            android:gravity="center" android:text="⌢" android:textColor="#8C97A6" android:textSize="28sp" />
+        <TextView android:layout_width="46dp" android:layout_height="46dp" android:layout_marginStart="143dp" android:layout_marginTop="108dp"
+            android:background="@drawable/after_sale_error_badge" android:gravity="center" android:text="!"
+            android:textColor="@android:color/white" android:textSize="27sp" android:textStyle="bold" />
+    </FrameLayout>
+    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="30dp"
+        android:gravity="center" android:text="页面加载失败" android:textColor="@color/after_sale_ink" android:textSize="25sp" android:textStyle="bold" />
+    <TextView android:id="@+id/orders_error_description" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" android:gravity="center" android:text="加载暂时失败，请稍后重试"
+        android:textColor="@color/after_sale_muted" android:textSize="14sp" />
+    <TextView android:id="@+id/orders_error_retry" android:layout_width="245dp" android:layout_height="49dp"
+        android:layout_marginTop="43dp" android:background="@drawable/after_sale_primary" android:gravity="center"
+        android:text="重新加载" android:textColor="@android:color/white" android:textSize="17sp" />
+</LinearLayout>

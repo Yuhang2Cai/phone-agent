@@ -1,0 +1,54 @@
+[
+  {
+    "name": "本人按券读取真实已有申请",
+    "passed": true
+  },
+  {
+    "name": "申请身份与夹具领域服务写入一致",
+    "passed": true
+  },
+  {
+    "name": "真实待处理而非到账",
+    "passed": true
+  },
+  {
+    "name": "按申请编号与按券读取相同结果",
+    "passed": true
+  },
+  {
+    "name": "pending_payment资格拒绝",
+    "passed": true
+  },
+  {
+    "name": "reviewable资格拒绝",
+    "passed": true
+  },
+  {
+    "name": "refund_requested资格拒绝",
+    "passed": true
+  },
+  {
+    "name": "no_candidates资格拒绝",
+    "passed": true
+  },
+  {
+    "name": "他人不可读取申请",
+    "passed": true
+  },
+  {
+    "name": "游客不可读取申请",
+    "passed": true
+  },
+  {
+    "name": "Maestro 提交后申请持久化",
+    "passed": true
+  },
+  {
+    "name": "单券精确分摊金额",
+    "passed": true
+  },
+  {
+    "name": "界面选择原因与说明已保存",
+    "passed": true
+  }
+]

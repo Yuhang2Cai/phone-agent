@@ -1,0 +1,23 @@
+{
+  "executable": "C:/Users/caid0/anaconda3/envs/pinnT/python.exe",
+  "exitCode": 1,
+  "startedAt": "2026-10-02T13:00:40.0255607+08:00",
+  "cwd": "C:/fdz-build/.runtime/task7-delivery-r2/agent",
+  "phase": "snapshot-agent",
+  "arguments": [
+    "-m",
+    "pytest",
+    "tests/test_agent_service_reads.py",
+    "tests/test_agent_service_api.py",
+    "tests/test_agent_service_dag.py",
+    "tests/test_dag_models.py",
+    "tests/test_group_buying_intent_migration.py",
+    "-q",
+    "-p",
+    "no:cacheprovider",
+    "--basetemp=C:/fdz-build/.runtime/task7-independent/r3/pytest-snapshot",
+    "--junitxml=C:/fdz-build/docs/verification/task7-independent-evidence/r3/agent-tests.xml"
+  ],
+  "apkSha256": null,
+  "finishedAt": "2026-10-02T13:00:49.6226181+08:00"
+}

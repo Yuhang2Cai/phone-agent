@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI22A/B/C：字段和值仅运行时绑定；状态和到期时间来自Agent权威记录。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="24dp">
+    <TextView android:id="@+id/memory_kind" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textColor="@color/group_buy_muted" />
+    <TextView android:id="@+id/memory_value" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textSize="22sp" android:textStyle="bold" android:textColor="@color/group_buy_text" />
+    <TextView android:id="@+id/memory_metadata" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textSize="14sp" android:textColor="@color/group_buy_muted" />
+    <TextView android:id="@+id/memory_expiry" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:textSize="14sp" android:textColor="@color/group_buy_muted" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:gravity="center_vertical">
+        <TextView android:id="@+id/memory_edit" android:layout_width="72dp" android:layout_height="48dp" android:gravity="center_vertical" android:text="编辑" android:textSize="16sp" android:textColor="@color/group_buy_orange" />
+        <TextView android:id="@+id/memory_delete" android:layout_width="72dp" android:layout_height="48dp" android:gravity="center_vertical" android:text="删除" android:textSize="16sp" android:textColor="@color/group_buy_orange" />
+        <TextView android:id="@+id/memory_confirm" android:layout_width="0dp" android:layout_weight="1" android:layout_height="48dp" android:gravity="center" android:text="确认保存" android:textSize="16sp" android:textColor="@color/group_buy_orange" android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>

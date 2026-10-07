@@ -1,0 +1,19 @@
+{
+  "exitCode": 0,
+  "accountRole": "account",
+  "orderIds": [
+    "cf7aadd2-31a8-4348-8f24-80f4db27a606",
+    "adb8aca3-3a14-4882-ae22-0b35dfa5e4d6",
+    "dff4196f-849d-40e5-a585-f93463cde60d"
+  ],
+  "apkSha256": "54A8AAB1BACFD29422635D42A4AD8F97B27A07F2425FCBA772A21251FF91B95B",
+  "voucherIds": [
+    "a81f203b-f46b-4da7-be8e-eb11b9d14108",
+    "8f051492-d867-43d5-bfb1-2a0969757afb",
+    "8899fdb2-d64b-42a8-adb0-127436d687e3",
+    "82e82b5b-1c13-43db-9302-4fa54fd6a7ce"
+  ],
+  "startedAt": "2026-10-02T19:29:16.7302779+08:00",
+  "flow": "group-buying-04-voucher-query.yaml",
+  "finishedAt": "2026-10-02T19:30:38.0314563+08:00"
+}

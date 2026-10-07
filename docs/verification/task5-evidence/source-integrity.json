@@ -1,0 +1,38 @@
+{
+  "description": "将排序后路径与逐文件内容SHA-256合并，再计算SHA-256；仅用于本轮报告落盘前后源码保护，不代表测试或独立验收。",
+  "phone": {
+    "before": {
+      "fileCount": 576,
+      "aggregateSha256": "B0190CDE77B493CBD4EE7CC777E45909FE5BD060989F4107B0990EADCAEE7D9D",
+      "scope": "android-app/app/src/main;android-app/app/src/test;backend/src/main;backend/src/test;contracts;maestro",
+      "recordedAt": "2026-10-02 04:38:30 +08:00"
+    },
+    "after": {
+      "fileCount": 576,
+      "aggregateSha256": "B0190CDE77B493CBD4EE7CC777E45909FE5BD060989F4107B0990EADCAEE7D9D",
+      "scope": "android-app/app/src/main;android-app/app/src/test;backend/src/main;backend/src/test;contracts;maestro",
+      "recordedAt": "2026-10-02 04:42:12 +08:00"
+    },
+    "equal": true,
+    "gitHeadAtEnd": "3aef8988bcfbd0cccc52ee2d718fc6277167709d"
+  },
+  "newAgent": {
+    "before": {
+      "fileCount": 70,
+      "aggregateSha256": "C977E9EAFE59A6A2658689BE9F8AB634AC5FAE5607C305E54ACCEC6AAEC60BE6",
+      "scope": "service;tests;config/contracts",
+      "recordedAt": "2026-10-02 04:38:31 +08:00"
+    },
+    "after": {
+      "fileCount": 70,
+      "aggregateSha256": "C977E9EAFE59A6A2658689BE9F8AB634AC5FAE5607C305E54ACCEC6AAEC60BE6",
+      "scope": "service;tests;config/contracts",
+      "recordedAt": "2026-10-02 04:42:12 +08:00"
+    },
+    "equal": true,
+    "gitHeadAtStart": "88c386e0b226c6d49e0f8f01ff1e55d01e66e553",
+    "gitHeadAtEnd": "ee04c2cd0fa0232e857da915c4ca2773842afb28",
+    "externalArchiveChange": "收尾观察新Agent提交仅追加Task4实验记录6行；本Agent未暂存或提交。"
+  },
+  "runtimeFixturesTouched": false
+}

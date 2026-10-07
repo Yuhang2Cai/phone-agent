@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 录音状态与草稿弹窗沿用确认的白色卡片；状态面板为20dp圆角。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/surface_card" />
+    <corners android:radius="20dp" />
+</shape>

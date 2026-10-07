@@ -1,0 +1,10 @@
+# 默认全部排除，镜像只允许后端交付源码与唯一契约，防止私有运行证据进入上下文。
+**
+!backend/
+!backend/**
+!contracts/
+!contracts/agent-protocol-v1.yaml
+!contracts/agent-tools-v1.yaml
+backend/target
+backend/.env*
+backend/logs

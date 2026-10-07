@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/home_background" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="68dp" android:gravity="center_vertical" android:paddingStart="16dp" android:paddingEnd="16dp">
+        <ImageView android:id="@+id/payment_back" android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/home_icon_button_background" android:contentDescription="返回结算" android:padding="11dp" android:src="@drawable/ic_back" />
+        <TextView android:id="@+id/payment_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="确认订单" android:textColor="@color/brand_ink" android:textSize="22sp" android:textStyle="bold" />
+        <TextView android:layout_width="70dp" android:layout_height="wrap_content" android:gravity="end" android:text="饭搭子AI" android:textColor="@color/brand_orange" android:textSize="14sp" android:textStyle="bold" />
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingBottom="20dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/cart_banner_background" android:gravity="center_vertical" android:orientation="horizontal" android:padding="14dp">
+                <ImageView android:id="@+id/payment_dish_image" android:layout_width="82dp" android:layout_height="82dp" android:contentDescription="订单菜品图片" android:scaleType="centerCrop" android:src="@drawable/home_merchant_3" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="14dp" android:layout_weight="1" android:orientation="vertical">
+                    <TextView android:id="@+id/payment_dish_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/brand_ink" android:textSize="17sp" android:textStyle="bold" />
+                    <TextView android:id="@+id/payment_dish_options" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textColor="@color/brand_muted" android:textSize="13sp" />
+                </LinearLayout>
+                <TextView android:id="@+id/payment_amount_top" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/brand_orange" android:textSize="25sp" android:textStyle="bold" />
+            </LinearLayout>
+            <TextView android:id="@+id/payment_address" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:background="@drawable/cart_address_background" android:padding="16dp" android:textColor="#247A42" android:textSize="14sp" android:textStyle="bold" />
+            <TextView android:id="@+id/payment_summary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:background="@drawable/search_merchant_card" android:lineSpacingExtra="8dp" android:padding="16dp" android:textColor="@color/brand_muted" android:textSize="14sp" />
+            <LinearLayout android:id="@+id/payment_methods" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:background="@drawable/search_merchant_card" android:orientation="vertical" android:padding="16dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="选择支付方式" android:textColor="@color/brand_ink" android:textSize="18sp" android:textStyle="bold" />
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:background="@drawable/cart_address_background" android:paddingHorizontal="10dp" android:paddingVertical="6dp" android:text="✓ 仅为演示，不会真实扣款" android:textColor="#247A42" android:textSize="11sp" />
+                </LinearLayout>
+                <TextView android:id="@+id/payment_balance" android:layout_width="match_parent" android:layout_height="72dp" android:layout_marginTop="14dp" android:background="@drawable/dish_option_selected" android:contentDescription="选择模拟余额" android:gravity="center_vertical" android:paddingHorizontal="16dp" android:text="👛  模拟余额&#10;      使用演示余额支付，方便快捷                         ●" android:textColor="@color/brand_ink" android:textSize="14sp" />
+                <TextView android:id="@+id/payment_bank" android:layout_width="match_parent" android:layout_height="72dp" android:layout_marginTop="10dp" android:background="@drawable/dish_option_unselected" android:contentDescription="选择演示银行卡" android:gravity="center_vertical" android:paddingHorizontal="16dp" android:text="💳  演示银行卡&#10;      使用演示银行卡支付                                   ○" android:textColor="@color/brand_ink" android:textSize="14sp" />
+                <TextView android:id="@+id/payment_quick" android:layout_width="match_parent" android:layout_height="72dp" android:layout_marginTop="10dp" android:background="@drawable/dish_option_unselected" android:contentDescription="选择模拟免密" android:gravity="center_vertical" android:paddingHorizontal="16dp" android:text="⚡  模拟免密&#10;      演示一键免密支付，快速完成                         ○" android:textColor="@color/brand_ink" android:textSize="14sp" />
+            </LinearLayout>
+            <TextView android:id="@+id/payment_notice" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:background="@drawable/cart_banner_background" android:padding="14dp" android:text="⚠  仅为演示，不会真实扣款&#10;本页面为功能演示，所选支付方式均为模拟支付，不会产生实际费用。" android:textColor="#A34C28" android:textSize="13sp" android:textStyle="bold" />
+            <TextView android:id="@+id/payment_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center" android:textColor="@color/warning_red" android:textSize="13sp" />
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="82dp" android:background="#FFFFFF" android:gravity="center" android:paddingStart="16dp" android:paddingEnd="16dp">
+        <TextView android:id="@+id/payment_primary" android:layout_width="match_parent" android:layout_height="56dp" android:background="@drawable/search_button_background" android:contentDescription="创建待支付订单" android:gravity="center" android:text="创建待支付订单" android:textColor="#FFFFFF" android:textSize="17sp" android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

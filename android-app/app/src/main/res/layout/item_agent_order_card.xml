@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 订单卡：只展示后端确认过的订单状态和金额，按钮不自动跳转。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/agent_order_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    android:background="@drawable/group_buy_card_background"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <TextView
+        android:id="@+id/agent_order_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="订单信息"
+        android:textColor="@color/group_buy_text"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+    <TextView
+        android:id="@+id/agent_order_meta"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/group_buy_muted"
+        android:textSize="12sp" />
+    <TextView
+        android:id="@+id/agent_order_amount"
+        android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp"
+        android:textSize="16sp" android:textColor="@color/group_buy_orange" android:visibility="gone" />
+    <TextView
+        android:id="@+id/agent_order_action"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/agent_modify_button"
+        android:gravity="center"
+        android:paddingHorizontal="18dp"
+        android:text="查看订单"
+        android:textColor="@color/group_buy_orange"
+        android:textSize="14sp" />
+    <!-- 取消只发送明确语句，不触发任何业务写入；仅售后确认卡显示。 -->
+    <TextView
+        android:id="@+id/agent_after_sale_cancel"
+        android:layout_width="wrap_content"
+        android:layout_height="40dp"
+        android:layout_gravity="end"
+        android:gravity="center"
+        android:paddingHorizontal="18dp"
+        android:text="取消本次申请"
+        android:textColor="@color/group_buy_muted"
+        android:textSize="14sp"
+        android:visibility="gone" />
+</LinearLayout>
