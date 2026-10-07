@@ -1,0 +1,29 @@
+{
+  "source_commit": "0aad72a325465f35eeb5437f38e1495bcdae7fe8",
+  "merge_commit": "ff6e1115c1e56513ba928c52babcd90c33529579",
+  "metadata_commit": "4234988b38958439de90f6cbdd9a3ba2a9dc8d9d",
+  "source_in_master": true,
+  "source_tree_changes": [
+    "AGENTS.md",
+    "docs/development/branch-management.md",
+    "docs/superpowers/plans/2026-10-07-fandazi-master-integration-plan.md",
+    "docs/verification/2026-10-07-fandazi-master-integration.md",
+    "docs/verification/branch-integration-20261007/android-result.json",
+    "docs/verification/branch-integration-20261007/artifact-comparison.json",
+    "docs/verification/branch-integration-20261007/backend-result.json",
+    "docs/verification/branch-integration-20261007/build-inputs.json",
+    "docs/verification/branch-integration-20261007/merge-result.json"
+  ],
+  "business_git_blobs_unchanged": true,
+  "original_feature_files_preserved": true,
+  "original_master_untracked_paths_preserved": true,
+  "preserved_stash": "907c3e3db89b9751388a544ad0610be54dd55664",
+  "device_or_service_changed": false,
+  "required_steps": [
+    "BM-S01",
+    "BM-S02",
+    "BM-S03",
+    "BM-S04"
+  ],
+  "status": "通过"
+}
