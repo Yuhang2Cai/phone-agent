@@ -1,0 +1,32 @@
+# 使用已有可退款券的测试账号；仅推荐、读取和取消，业务事实全部来自真实后端。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/username_input
+    timeout: 60000
+- tapOn:
+    id: com.fandazi.app:id/username_input
+- eraseText
+- setClipboard: ${MAESTRO_USERNAME}
+- pasteText
+- tapOn:
+    id: com.fandazi.app:id/password_input
+- eraseText
+- setClipboard: ${MAESTRO_PASSWORD}
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: com.fandazi.app:id/submit_button
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- runFlow:
+    file: flows/store-without-location.yaml
+    env:
+      HAS_REFUNDABLE_VOUCHER: "true"

@@ -1,0 +1,62 @@
+# 不提供定位时仍返回真实餐厅卡片，并验证当前账号的退款资格分支；全程不提交退款。
+appId: com.fandazi.app
+---
+- runFlow:
+    file: refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 推荐一家餐厅
+- extendedWaitUntil:
+    visible: 未获取定位，先为你推荐一家餐厅，不按距离排序。
+    timeout: 90000
+- assertVisible:
+    text: 查看详情
+    enabled: true
+- assertNotVisible: 处理进度
+- takeScreenshot: store-without-location
+- tapOn:
+    text: 查看详情
+    enabled: true
+    index: 0
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_chat_input
+    timeout: 30000
+- takeScreenshot: recommended-store-detail
+- back
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_chat_input
+    timeout: 30000
+- runFlow:
+    file: refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 我要退款
+- runFlow:
+    when:
+      true: ${HAS_REFUNDABLE_VOUCHER == "true"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            text: 选择此券
+            enabled: true
+          timeout: 90000
+      - takeScreenshot: refundable-voucher-choice
+      - runFlow:
+          file: refund-greeting-send.yaml
+          env:
+            CHAT_TEXT: 取消退款
+      - extendedWaitUntil:
+          visible: 已取消本次操作
+          timeout: 90000
+- runFlow:
+    when:
+      true: ${HAS_REFUNDABLE_VOUCHER == "false"}
+    commands:
+      - extendedWaitUntil:
+          visible: 已查到你的团购券，但当前没有可申请退款的券。请进入券详情查看退款资格或已有申请进度。
+          timeout: 90000
+      - assertNotVisible:
+          text: 选择此券
+          enabled: true
+      - takeScreenshot: existing-voucher-ineligible
+- assertNotVisible: 处理进度
