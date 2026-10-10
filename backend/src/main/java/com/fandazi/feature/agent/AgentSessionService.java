@@ -14,13 +14,25 @@ public class AgentSessionService {
     public AgentSessionService(AgentSessionRepository sessions, UserRepository users) { this.sessions = sessions; this.users = users; }
 // 处理 `start` 相关逻辑。
     @Transactional public AgentSession start(Long userId, String sessionId, AgentMode mode, String traceId) {
+        // 旧调用方保持 B2 版本；只有新受控入口显式要求 2.1。
+        return start(userId,sessionId,mode,traceId,"2.0");
+    }
+
+    /** 原子建立任务及固定协议；等待中的旧任务沿用原版本直至结束。 */
+    @Transactional public AgentSession start(Long userId,String sessionId,AgentMode mode,String traceId,String requestedVersion) {
+        if(!java.util.Set.of("2.0","2.1").contains(requestedVersion))throw new DomainException("任务协议版本不受支持");
         if (sessionId == null || sessionId.isBlank()) throw new DomainException("会话不能为空");
         var existing = sessions.findBySessionIdForUpdate(sessionId);
         if (existing.isPresent()) {
             if (!existing.get().getUser().getId().equals(userId)) throw new DomainException("会话不属于当前用户");
-            existing.get().update(mode, traceId); return existing.get();
+            var session=existing.get();
+            boolean resume="waiting_input".equals(session.getActiveRunStatus()) || "waiting_confirmation".equals(session.getActiveRunStatus());
+            if(!resume)session.bindContextProtocol(requestedVersion);
+            session.update(mode, traceId); return session;
         }
-        return sessions.save(new AgentSession(users.findById(userId).orElseThrow(() -> new DomainException("用户不存在")), sessionId, mode, traceId));
+        var created=new AgentSession(users.findById(userId).orElseThrow(() -> new DomainException("用户不存在")), sessionId, mode, traceId);
+        created.bindContextProtocol(requestedVersion);
+        return sessions.save(created);
     }
 // 处理 `owned` 相关逻辑。
     @Transactional(readOnly = true) public AgentSession owned(Long userId, String sessionId) {

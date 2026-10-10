@@ -25,6 +25,10 @@ public class AgentSession {
     // 任务与输入链路分别持久化：追问/确认沿用任务标识，新输入仍使用新的 traceId。
     @Column(name = "active_run_id", length = 100) private String activeRunId;
     @Column(name = "active_run_status", length = 30) private String activeRunStatus;
+    // 来源顺序与任务版本分离，避免将运行次数或 trace 当作会话输入顺序。
+    @Column(name="conversation_epoch",length=100) private String conversationEpoch;
+    @Column(name="conversation_turn_sequence",nullable=false) private long conversationTurnSequence;
+    @Column(name="context_protocol_version",length=10) private String contextProtocolVersion;
     // 只保存 Spring 已重查的待确认动作；跨输入恢复时用于绑定用户看到的资源、金额、规则和正文。
     @Convert(converter = StringMapJsonConverter.class)
     @Column(name = "pending_confirmation", columnDefinition = "TEXT")
@@ -54,6 +58,17 @@ public class AgentSession {
     public String getActiveRunId() { return activeRunId; }
     /** 内部工具只允许当前正在执行的轮次调用，暂停或终态不能继续产生动作。 */
     public String getActiveRunStatus() { return activeRunStatus; }
+    /** 仅在行锁内初始化 epoch；旧会话不冒认已有完整历史。 */
+    String ensureConversationEpoch() {
+        if(conversationEpoch==null)conversationEpoch=java.util.UUID.randomUUID().toString();
+        return conversationEpoch;
+    }
+    /** 递增与来源写入共用事务，失败回滚不消耗已签发顺序。 */
+    long nextConversationTurn() { return ++conversationTurnSequence; }
+    /** 历史活动任务缺版本时按 B2 的 2.0 完成，不随部署配置升级。 */
+    public String getContextProtocolVersion() { return contextProtocolVersion==null ? "2.0" : contextProtocolVersion; }
+    /** 新任务建立前固定版本，仅供持有行锁的会话服务使用。 */
+    void bindContextProtocol(String version) { contextProtocolVersion=version; }
 // 更新当前数据。
     void update(AgentMode value, String newTraceId) {
         // 仅等待确认才能继承上轮授权摘要；普通新任务或补充输入不能带走旧动作的确认。

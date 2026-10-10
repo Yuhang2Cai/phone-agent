@@ -101,6 +101,8 @@
                 <includes>
                     <include>agent-protocol-v1.yaml</include>
                     <include>agent-protocol-v2.yaml</include>
+                    <!-- 可信来源版本必须进入部署产物，不能只在仓库中通过字节检查。 -->
+                    <include>agent-protocol-v2.1.yaml</include>
                     <include>agent-tools-v1.yaml</include>
                 </includes>
             </resource>

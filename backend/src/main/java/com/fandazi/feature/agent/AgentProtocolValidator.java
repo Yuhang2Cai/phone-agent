@@ -24,6 +24,8 @@ final class AgentProtocolValidator {
         this.mapper = mapper;
         loadVersion("1.1", "agent-protocol-v1.yaml");
         loadVersion("2.0", "agent-protocol-v2.yaml");
+        // 上下文来源扩展独立加载，旧版本继续拒绝这些新增字段。
+        loadVersion("2.1", "agent-protocol-v2.1.yaml");
     }
 
     /** 仅加载随构建固定的版本；任一契约缺失都阻止启动，不静默降级。 */

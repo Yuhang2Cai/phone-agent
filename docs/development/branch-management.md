@@ -28,6 +28,16 @@
 
 ## 当前台账
 
+2026-10-10 上下文重构开工：`codex/context-coreference` 从手机 master
+`3e5096b951a752d2d93a87b75dd6f8d745dbddbc` 创建，工作区
+`D:/project/phone-agent/.worktrees/codex/context-coreference`；对应 Agent 从
+`7487751815a1c8166271f3892ad10f8a35f69c1a` 创建同名分支，目录
+`C:/Users/caid0/.codex/worktrees/context-coreference/-Demo-master`。用户授权 CC-00
+至 CC-11 顺序开发、自测及同一主 Agent 按步骤验收，合并前另行询问。
+原主工作区未跟踪资料不移动；共享 8080/8091 服务不切换。本任务 MySQL
+容器 `fandazi-context-20261010-mysql` 仅监听 127.0.0.1:13315，合成库
+`dianping_intent`，随机凭据仅存忽略目录。状态：开发中。
+
 | 分支 | 任务/基线 | 工作区 | 状态 | 验收记录 |
 |---|---|---|---|---|
 | `master`，手机仓 | B2 固定来源 `55ea95a`，合并前 `11e7c83`；既有聊天/门店修复保留 | `D:\project\phone-agent` | 已合并，合并提交 `c4c3b16`；本地 Git 完成，共享部署未切换 | `docs/verification/intent13-b2-master/2026-10-10-phone-integration-report.md`；历史基线报告仍保留 |

@@ -22,6 +22,11 @@ public class AgentHistoryRecordingService {
         record(userId,sessionId,runId,traceId,"user",content,clientMessageKey);
     }
 
+    /** 返回实际历史消息 ID 供来源关联；失败为 null，不能把记录请求当作成功证据。 */
+    public String recordUserSource(Long userId,String sessionId,String runId,String traceId,String content,String clientMessageKey) {
+        return record(userId,sessionId,runId,traceId,"user",content,clientMessageKey);
+    }
+
     /** 保存本次输入的完整助手结果；重复终态由数据库唯一键防重，不触发任何业务重跑。 */
     public void recordAssistant(Long userId,String sessionId,String runId,String traceId,String content) {
         record(userId,sessionId,runId,traceId,"assistant",content,null);
@@ -31,12 +36,16 @@ public class AgentHistoryRecordingService {
     public boolean isAvailable(Long userId,String sessionId) { return !unavailable.contains(new OwnerSession(userId,sessionId)) && !writer.hasPersistentFault(userId,sessionId); }
 
     /** 事务提交异常在此边界捕获；保留故障标记直到人工修复，后续成功不能掩盖之前缺失。 */
-    private void record(Long userId,String sessionId,String runId,String traceId,String role,String content,String clientMessageKey) {
-        try { writer.write(userId,sessionId,runId,traceId,role,content,clientMessageKey); }
+    private String record(Long userId,String sessionId,String runId,String traceId,String role,String content,String clientMessageKey) {
+        try { return writer.write(userId,sessionId,runId,traceId,role,content,clientMessageKey).getPublicId(); }
         catch(RuntimeException error) {
             // 两次终态并发查重可能同时未命中；唯一索引先提交的一条已完整可读时，后者是正常重复。
             if(error instanceof org.springframework.dao.DataIntegrityViolationException) {
-                try { if(writer.existing(userId,sessionId,traceId,role,clientMessageKey).isPresent())return; }
+                try {
+                    var existing=writer.existing(userId,sessionId,traceId,role,clientMessageKey);
+                    // 唯一约束冲突后也核对精确正文，不能把不同内容当重复成功。
+                    if(existing.isPresent() && existing.get().getContent().equals(content))return existing.get().getPublicId();
+                }
                 catch(RuntimeException ignored) { /* 读取也故障时继续标记恢复不可用，不推测已提交。 */ }
             }
             unavailable.add(new OwnerSession(userId,sessionId));
@@ -46,6 +55,7 @@ public class AgentHistoryRecordingService {
                 LOG.warn("历史缺口标记写入失败：session={} errorType={}",sessionId,markerError.getClass().getSimpleName());
             }
             LOG.warn("消息恢复记录失败：session={} trace={} role={} errorType={}",sessionId,traceId,role,error.getClass().getSimpleName());
+            return null;
         }
     }
 
