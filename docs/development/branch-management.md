@@ -30,13 +30,15 @@
 
 | 分支 | 任务/基线 | 工作区 | 状态 | 验收记录 |
 |---|---|---|---|---|
-| `master`，手机仓 | 接收固定源 `4a26636`，原主分支 `e43ba45` | `D:\project\phone-agent` | 已合并，合并提交 `a106287` | `docs/verification/2026-10-10-chat-store-master-integration.md`；历史基线报告仍保留 |
-| `feature/fandazi-ai` | 固定交付 `4a26636`，本轮四个修复提交 | `D:\project\phone-agent\.worktrees\fandazi-ai` | 已提交修复纳入 master；原未提交内容与暂存保留，不删除 | 同上及各任务 `.scratch/*/acceptance/` 报告 |
-| `master`，Agent 仓 | 接收固定源 `0dbcc35`，原主分支 `999f3b3` | `C:\Users\caid0\.codex\worktrees\agent-chat-master-20261010\-Demo-master` | 已合并，合并提交 `d6dc57f` | Agent 仓同名 `docs/verification/2026-10-10-chat-store-master-integration.md` |
-| `codex/recyclerview-performance-20261007`，Agent 仓 | 固定交付 `0dbcc35`；两个业务修复及既有性能实验材料 | `C:\Users\caid0\.codex\worktrees\recyclerview-performance\-Demo-master` | 已合并；来源分支保留 | 同上；实验材料没有应用到手机产品 |
+| `master`，手机仓 | B2 固定来源 `55ea95a`，合并前 `11e7c83`；既有聊天/门店修复保留 | `D:\project\phone-agent` | 已合并，合并提交 `c4c3b16`；本地 Git 完成，共享部署未切换 | `docs/verification/intent13-b2-master/2026-10-10-phone-integration-report.md`；历史基线报告仍保留 |
+| `feature/fandazi-ai` | 固定交付 `4a26636`，本轮四个修复提交 | `D:\project\phone-agent\.worktrees\fandazi-ai` | 已提交修复纳入 master；原未提交内容与暂存保留，不删除 | `docs/verification/2026-10-10-chat-store-master-integration.md` 及各任务 `.scratch/*/acceptance/` 报告 |
+| `master`，Agent 仓 | B2 固定来源 `81a0874`，合并前 `2904033a`；既有聊天/门店修复保留 | `C:\Users\caid0\.codex\worktrees\agent-chat-master-20261010\-Demo-master` | 已合并，合并提交 `73ce5c6`；本地 Git 完成，共享部署未切换 | Agent 仓 `docs/verification/intent13-b2-master/2026-10-10-integration-report.md` |
+| `codex/recyclerview-performance-20261007`，Agent 仓 | 固定交付 `0dbcc35`；两个业务修复及既有性能实验材料 | `C:\Users\caid0\.codex\worktrees\recyclerview-performance\-Demo-master` | 已合并；来源分支保留 | `docs/verification/2026-10-10-chat-store-master-integration.md`；实验材料没有应用到手机产品 |
 | `codex/intent-under1gb-pilot`，Agent 仓 | 模拟器五模型实验 | `D:\project\intent-under1gb-pilot` | 实验中，本次不合入 | Agent 仓实验报告 |
-| `codex/refactor-intent13-b2-integration`，双仓各一支 | B2 十三类单标签及 Android/Spring v2；Agent 基于 `2904033a`，手机基于 `11e7c83` | Agent `D:\project\intent13-b2-agent`；手机 `D:\project\phone-agent\.worktrees\codex\intent13-b2-integration` | 已验收并精确提交；Agent `19e51d4`、手机 `7388612`，待本次 master 合并许可；共享部署未切换 | 两仓 `docs/verification/intent13-b2-master/`，精确快照 Agent `fc24ff8e`、手机 `d4207bef` |
+| `codex/refactor-intent13-b2-integration`，双仓各一支 | B2 十三类单标签及 Android/Spring v2；Agent 基于 `2904033a`，手机基于 `11e7c83` | Agent `D:\project\intent13-b2-agent`；手机 `D:\project\phone-agent\.worktrees\codex\intent13-b2-integration` | 已合并；批准源 Agent `81a0874`、手机 `55ea95a`，合并分别 `73ce5c6`、`c4c3b16`；来源分支和证据保留，共享部署未切换 | 两仓 `docs/verification/intent13-b2-master/`，精确快照 Agent `fc24ff8e`、手机 `d4207bef` |
 
-2026-10-07 手机历史交付依赖 Agent `1e16d081b3d8aba3bae72c341af2f1149879406e`，当时的单仓报告仍按原事实保留。2026-10-10 用户明确授权双仓一起合入：当前手机固定来源为 `4a2663676847b8e6b59f0b08890667b113b495ad`，对应 Agent 固定来源为 `0dbcc359649234693da65538f43edd6bfe70be96`；两者分别已进入手机 `master` 的 `a106287e37940269258c874cdd4fbd4033b1af64` 和 Agent `master` 的 `d6dc57f97682d9cb3d8217db9401ebce31982c2a`。完整回归和实际合并树一致性见本轮报告。这是本地 Git 集成记录，不是线上部署。
+2026-10-07 手机历史交付依赖 Agent `1e16d081b3d8aba3bae72c341af2f1149879406e`，当时的单仓报告仍按原事实保留。2026-10-10 此前聊天/门店集成获用户明确授权双仓一起合入：当次手机固定来源为 `4a2663676847b8e6b59f0b08890667b113b495ad`，对应 Agent 固定来源为 `0dbcc359649234693da65538f43edd6bfe70be96`；两者分别已进入手机 `master` 的 `a106287e37940269258c874cdd4fbd4033b1af64` 和 Agent `master` 的 `d6dc57f97682d9cb3d8217db9401ebce31982c2a`。完整回归和实际合并树一致性见本轮报告。这是本地 Git 集成记录，不是线上部署。
 
 ASR 人工验证、模型许可、arm64 真机性能和既有延期核销仍以原报告为准。主工作区原冲突计划和原未跟踪 `AGENTS.md` 定向保留到命名 stash，恢复标识和证据位置见本次报告。
+
+2026-10-10 B2 本次合并授权为用户明确回复“同意合入”。两仓 master 合并树均与批准来源一致；合并后 Agent 610 通过/20 跳过、compileall 通过，Spring 202 项全通过及 package 成功。Android 与隔离快照产品无差异，复用 387 单测、lint、最终 APK 与 Maestro 证据；手机原未跟踪 9585 项保留。旧任务 6 个未收尾，部署不随 Git 合并自动切换。后续新分支仍统一从对应仓库最新 master 创建并记录完整起点。
