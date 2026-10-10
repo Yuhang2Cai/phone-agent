@@ -1,4 +1,4 @@
-// 智能助手模块：消费独立 Agent 服务的 V1 NDJSON 运行协议。
+// 智能助手模块：按部署配置消费独立 Agent 服务的 1.1 或 2.0 NDJSON 运行协议。
 package com.fandazi.feature.agent;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -19,6 +19,7 @@ import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -39,12 +40,18 @@ class HttpAgentServiceClient implements AgentServiceClient {
     private final ObjectMapper mapper;
     private final AgentMessageService messages;
     private final AgentProtocolValidator protocol;
+    // 版本只能由受控服务配置决定；用户聊天字段不能切换 Agent 或跨版恢复任务。
+    private final String protocolVersion;
 
     /** 初始化 HTTP 客户端、协议解析器和事件记录器。 */
+    @Autowired
     HttpAgentServiceClient(@Value("${agent.service.base-url:http://127.0.0.1:8091}") String baseUrl,
                            @Value("${agent.internal-token:}") String internalToken,
                            @Value("${agent.service.timeout-millis:5000}") long timeoutMillis,
-                           ObjectMapper mapper, AgentMessageService messages) {
+                           ObjectMapper mapper, AgentMessageService messages,
+                           @Value("${agent.service.protocol-version:1.1}") String protocolVersion) {
+        if (!java.util.Set.of("1.1", "2.0").contains(protocolVersion)) throw new IllegalArgumentException("Agent 协议版本不受支持");
+        this.protocolVersion = protocolVersion;
         this.baseUrl = baseUrl;
         this.internalToken = internalToken;
         this.mapper = mapper;
@@ -57,12 +64,18 @@ class HttpAgentServiceClient implements AgentServiceClient {
                 }}).build();
     }
 
-    /** 调用 V1 运行接口，并将完整事件流转换为兼容旧网关的终态结果。 */
+    /** 旧调用方保留默认 1.1；生产装配由带版本配置的构造器选择，避免改写历史测试。 */
+    HttpAgentServiceClient(String baseUrl, String internalToken, long timeoutMillis,
+                           ObjectMapper mapper, AgentMessageService messages) {
+        this(baseUrl, internalToken, timeoutMillis, mapper, messages, "1.1");
+    }
+
+    /** 按部署版本调用运行接口，将完整事件流转换为网关终态结果；普通请求不能选择版本。 */
     @Override
     public AgentResult run(AgentRunRequest request) {
         try {
-            log.info("agent v1 request start: baseUrl={}, sessionId={}, mode={}", baseUrl, request.sessionId(), request.mode());
-            return client.post().uri("/internal/v1/agent/runs")
+            log.info("agent request start: baseUrl={}, sessionId={}, mode={}", baseUrl, request.sessionId(), request.mode());
+            return client.post().uri("2.0".equals(protocolVersion) ? "/internal/v2/agent/runs" : "/internal/v1/agent/runs")
                     .header("Authorization", "Bearer " + createInternalJwt(request))
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.valueOf("application/x-ndjson"))
@@ -71,20 +84,20 @@ class HttpAgentServiceClient implements AgentServiceClient {
         } catch (AgentServiceUnavailableException exception) {
             throw exception;
         } catch (RestClientException | IOException exception) {
-            log.error("agent v1 transport failure: baseUrl={}, sessionId={}, type={}, message={}",
+            log.error("agent transport failure: baseUrl={}, sessionId={}, type={}, message={}",
                     baseUrl, request.sessionId(), exception.getClass().getSimpleName(), exception.getMessage());
             throw new AgentServiceUnavailableException("Agent 服务暂不可用，请稍后重试", exception);
         } catch (Exception exception) {
-            log.error("agent v1 protocol failure: sessionId={}, type={}, message={}",
+            log.error("agent protocol failure: sessionId={}, type={}, message={}",
                     request.sessionId(), exception.getClass().getSimpleName(), exception.getMessage());
             throw new AgentServiceUnavailableException("Agent 服务返回格式无效，请稍后重试", exception);
         }
     }
 
-    /** 构造协议 V1 请求，避免把旧版字段名直接暴露给独立服务。 */
+    /** 构造所配置版本的请求；工具、卡片仍遵循各自契约，不由运行协议版本推导。 */
     private Map<String, Object> requestBody(AgentRunRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("schemaVersion", request.schemaVersion());
+        body.put("schemaVersion", protocolVersion);
         body.put("userId", request.userId());
         body.put("sessionId", request.sessionId());
         body.put("traceId", request.traceId());
@@ -130,14 +143,14 @@ class HttpAgentServiceClient implements AgentServiceClient {
         throw new AgentServiceUnavailableException("Agent 服务连接中断，未收到运行终态");
     }
 
-    /** 校验 1.1 事件及其任务边界；等待事件结束请求但不完成任务。 */
+    /** 校验所配置版本的事件及任务归属；等待事件结束请求但不完成任务。 */
     private long validateEvent(Map<String, Object> raw, AgentRunRequest request, long previousSequence) {
         // 先执行权威嵌套结构，再校验单次请求才能判断的跨事件关联；两者职责不同。
         protocol.validateEvent(raw);
         Object sequence = raw.get("sequence");
         boolean validSequence = sequence instanceof Number number && number.doubleValue() == number.longValue()
                 && number.longValue() >= 0 && number.longValue() > previousSequence;
-        if (!request.schemaVersion().equals(raw.get("schemaVersion"))
+        if (!protocolVersion.equals(raw.get("schemaVersion"))
                 || !request.traceId().equals(raw.get("traceId")) || !request.runId().equals(raw.get("runId"))
                 || string(raw.get("eventId")) == null || string(raw.get("eventId")).isBlank()
                 || !validSequence) {

@@ -96,6 +96,7 @@ object AgentRenderRows {
             }
             AgentProgressStep("${event.runId}:${event.payload["stepId"]}",event.payload["label"] ?: event.summary.ifBlank { "处理请求" },status,sending && status=="进行中")
         }.ifEmpty { listOf(AgentProgressStep("connection", "正在连接助手",if(sending) "进行中" else "已结束",sending)) }
-        return AgentRenderRow.Progress("$parent:progress",if(events.any{it.type=="intent_decided" && it.payload["isComposite"]=="true"}) "任务进度" else "处理进度",java.util.Collections.unmodifiableList(steps))
+        // 新版按唯一 composite 标签展示任务进度；旧布尔仅供历史事件回放兼容。
+        return AgentRenderRow.Progress("$parent:progress",if(events.any{it.type=="intent_decided" && (it.payload["intent"]=="composite" || it.payload["isComposite"]=="true")}) "任务进度" else "处理进度",java.util.Collections.unmodifiableList(steps))
     }
 }

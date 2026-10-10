@@ -1,0 +1,51 @@
+{
+  "phoneMaster": "11e7c83bad711394e38da82cf03e77149209dfd9",
+  "entries": [
+    {
+      "path": "backend/pom.xml",
+      "sourceSha256": "c9e9eb71262a16c005f1dba1413855c77da570c843d2d9a2d2797587657ecf2a",
+      "masterPriorSha256": "57172c6905008c964193adacd6d6dcc04a457f2e35f4ea63c7ccc6945928628e",
+      "mode": "experimental-source-copy"
+    },
+    {
+      "path": "backend/src/main/java/com/fandazi/feature/agent/AgentProtocolValidator.java",
+      "sourceSha256": "86227337615c937f2ef834e2b2ca716f0b108e14ea9547e11381473b4e04656a",
+      "masterPriorSha256": "0ee1155054abb0a12c31181e8f50cfb8af1af216eb3a510744d783919dec5143",
+      "mode": "experimental-source-copy"
+    },
+    {
+      "path": "backend/src/main/java/com/fandazi/feature/agent/HttpAgentServiceClient.java",
+      "sourceSha256": "86d9318c6f3c54e78fa13dabeab9258cd054ab9d2980374289dc479a8c24d1d7",
+      "masterPriorSha256": "30d147e76c77f7a8f1ef94a8daa7b28144c70624873a06bd10f04dbebb9cbf82",
+      "mode": "experimental-source-copy"
+    },
+    {
+      "path": "backend/src/test/java/com/fandazi/feature/agent/Intent13ProtocolTest.java",
+      "sourceSha256": "e6be749051c8f19fc618224201153497aef5d226d7f8c9ee15c6df8072342758",
+      "masterPriorSha256": null,
+      "mode": "experimental-source-copy"
+    },
+    {
+      "path": "contracts/agent-protocol-v2.yaml",
+      "sourceSha256": "52fcddf9ee1c9b31a7d0e730e10c4d2cffc9ea29a30d1dd792f4321e1221eb7a",
+      "masterPriorSha256": null,
+      "mode": "experimental-source-copy"
+    },
+    {
+      "path": "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentRenderRows.kt",
+      "masterPriorSha256": "135316bc2ce6cac6ceff98c2c5c07223e9a52d9ad4518584ab2f6ef5fcbf3d27",
+      "mode": "merge single-label display into latest master"
+    },
+    {
+      "path": "backend/src/main/resources/application.yml",
+      "masterPriorSha256": "9e2a8cd8f00564587c3e8450333bc4f4c2e3993e77d1fc5b766d01a772e656bd",
+      "mode": "configure 2.0 protocol explicitly"
+    },
+    {
+      "path": "docker-compose.integration.yml",
+      "masterPriorSha256": "50904f532ebb36bcd1ede9b467772c8ba7327bbc7b9d2852bd8c0c4d89cde106",
+      "mode": "register 2.0 configuration"
+    }
+  ],
+  "notes": "实验分支的未知Android资产与master新近修复不复制。"
+}

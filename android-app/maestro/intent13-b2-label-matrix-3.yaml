@@ -1,0 +1,42 @@
+appId: com.fandazi.app
+---
+# 固定留出集逐类发送；每次清空客户端状态生成新会话，并等待第二个真实助手消息气泡。
+# group_buy_order 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "我想查看昨天那笔团购订单的购买数量。"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-group_buy_order
+# coupon 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "我的优惠券里面，有没有周末不能使用的？"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-coupon
+# refund_after_sale 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "查一下我之前提交的团购退款是不是还待处理。"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-refund_after_sale

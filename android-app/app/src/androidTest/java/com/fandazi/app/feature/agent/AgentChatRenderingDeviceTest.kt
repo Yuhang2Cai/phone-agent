@@ -35,7 +35,7 @@ class AgentChatRenderingDeviceTest {
         ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             lateinit var model:AgentViewModel;lateinit var recycler:RecyclerView;lateinit var adapter:AgentMessageAdapter
             scenario.onActivity { activity ->
-                val old=ViewModelProvider(activity,AgentViewModelFactory(app.agentRepository))[AgentViewModel::class.java]
+                val old=ViewModelProvider(activity,AgentViewModelFactory(app.agentRepository, app))[AgentViewModel::class.java]
                 val field=AgentViewModel::class.java.getDeclaredField("savedState").apply{isAccessible=true};val handle=field.get(old) as SavedStateHandle
                 activity.viewModelStore.clear();handle["agent_session_owner"]=username;handle["agent_session_id"]=requireNotNull(args.getString("session200"));handle["agent_session_established"]=true
                 handle["agent_scroll_key"]=null;handle["agent_scroll_offset"]=0

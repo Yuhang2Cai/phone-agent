@@ -64,7 +64,7 @@ class AgentHistoryDeviceTest {
             ActivityScenario.launch(MainActivity::class.java).use { scenario ->
                 lateinit var model:AgentViewModel
                 scenario.onActivity { activity ->
-                    val original=ViewModelProvider(activity,AgentViewModelFactory(app.agentRepository))[AgentViewModel::class.java]
+                    val original=ViewModelProvider(activity,AgentViewModelFactory(app.agentRepository, app))[AgentViewModel::class.java]
                     // 复用Activity已注册的真实SavedStateHandle，只注入薄恢复索引模拟系统传入状态；正文仍从真实GET读取。
                     val handleField=AgentViewModel::class.java.getDeclaredField("savedState").apply { isAccessible=true }
                     val handle=handleField.get(original) as SavedStateHandle

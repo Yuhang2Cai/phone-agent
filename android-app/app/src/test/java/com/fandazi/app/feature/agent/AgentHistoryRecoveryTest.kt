@@ -161,6 +161,54 @@ class AgentHistoryRecoveryTest {
         assertEquals(listOf(oldProgress),vm.uiState.value.messages.first().events)
     }
 
+    /** 模拟系统终止后的全新 SavedState：同一认证会话必须重用已发请求的会话 ID，并只读恢复历史。 */
+    @Test fun freshProcessRecoversAttemptedSessionFromPersistentPointer() = runTest {
+        val store=MemorySessionPointerStore()
+        val repository=HistoryRepository(2)
+        val first=SavedStateHandle()
+        val before=AgentViewModel(repository,first,StandardTestDispatcher(testScheduler),store)
+        before.bindAuthenticatedOwner("owner","auth-session-one")
+        before.sendText("我要投诉")
+        before.closeAssistant()
+        val originalSession=first.get<String>("agent_session_id")
+        assertNotNull(originalSession)
+
+        val after=SavedStateHandle()
+        val restored=AgentViewModel(repository,after,StandardTestDispatcher(testScheduler),store)
+        restored.bindAuthenticatedOwner("owner","auth-session-one")
+        restored.openAssistant()
+        advanceUntilIdle()
+        assertEquals(originalSession,after.get<String>("agent_session_id"))
+        assertEquals(2,restored.uiState.value.messages.size)
+        assertEquals(0,repository.sends)
+    }
+
+    /** 同名账号的新认证会话和退出都不能复活旧会话，避免历史或待确认操作跨登录边界泄露。 */
+    @Test fun changedAuthenticationIdentityAndLogoutDiscardPersistentPointer() = runTest {
+        val store=MemorySessionPointerStore()
+        val first=SavedStateHandle()
+        val vm=AgentViewModel(HistoryRepository(0),first,StandardTestDispatcher(testScheduler),store)
+        vm.bindAuthenticatedOwner("owner","auth-session-one")
+        val originalSession=first.get<String>("agent_session_id")
+        vm.bindAuthenticatedOwner("owner","auth-session-two")
+        assertNotEquals(originalSession,first.get<String>("agent_session_id"))
+        vm.bindAuthenticatedOwner(null)
+        assertNull(store.read("owner","auth-session-two"))
+    }
+
+    /** 测试替身只模拟应用私有持久化指针，不保存消息正文或认证凭据。 */
+    private class MemorySessionPointerStore:AgentSessionPointerStore {
+        private var key:Pair<String,String>?=null
+        private var pointer:AgentSessionPointer?=null
+        override fun read(owner:String,authIdentity:String):AgentSessionPointer? =
+            if(key==owner to authIdentity)pointer else null
+        override fun write(owner:String,authIdentity:String,value:AgentSessionPointer) {
+            key=owner to authIdentity
+            pointer=value
+        }
+        override fun clear() {key=null;pointer=null}
+    }
+
     /** 合成薄状态与真实产品字段一致，不包含正文、卡片或确认凭据。 */
     private fun saved()=SavedStateHandle(mapOf("agent_session_owner" to "owner", "agent_session_id" to "session",
         "agent_session_established" to true,"agent_composer" to "完整草稿","agent_last_event_id" to 19L))

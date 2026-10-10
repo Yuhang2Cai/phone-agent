@@ -15,13 +15,20 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 /** 只校验传输结构；任务身份、事件次序和资源授权由调用方与领域服务另外检查。 */
 final class AgentProtocolValidator {
     private final ObjectMapper mapper;
-    private final JsonSchema eventSchema;
-    private final JsonSchema requestSchema;
+    // 两版分别使用完整权威 Schema；不能去掉版本约束后共用宽松结构。
+    private final Map<String, JsonSchema> eventSchemas = new LinkedHashMap<>();
+    private final Map<String, JsonSchema> requestSchemas = new LinkedHashMap<>();
 
     /** 启动时完整加载契约；配置缺失或不合法必须阻止启动，不能以部分规则继续接收事件。 */
     AgentProtocolValidator(ObjectMapper mapper) {
         this.mapper = mapper;
-        try (InputStream input = getClass().getResourceAsStream("/contracts/agent-protocol-v1.yaml")) {
+        loadVersion("1.1", "agent-protocol-v1.yaml");
+        loadVersion("2.0", "agent-protocol-v2.yaml");
+    }
+
+    /** 仅加载随构建固定的版本；任一契约缺失都阻止启动，不静默降级。 */
+    private void loadVersion(String version, String file) {
+        try (InputStream input = getClass().getResourceAsStream("/contracts/" + file)) {
             if (input == null) throw new IllegalStateException("缺少权威 Agent 协议配置");
             LoaderOptions options = new LoaderOptions();
             options.setAllowDuplicateKeys(false);
@@ -33,8 +40,9 @@ final class AgentProtocolValidator {
             Map<String, Object> document = new LinkedHashMap<>();
             source.forEach((key, value) -> document.put(String.valueOf(key), value));
             JsonSchemaFactory factory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
-            eventSchema = schema(factory, document, "agentEvent");
-            requestSchema = schema(factory, document, "agentRunRequest");
+            if (!version.equals(document.get("schemaVersion"))) throw new IllegalStateException("契约版本与文件不一致");
+            eventSchemas.put(version, schema(factory, document, "agentEvent"));
+            requestSchemas.put(version, schema(factory, document, "agentRunRequest"));
         } catch (Exception exception) {
             throw new IllegalStateException("无法加载 Agent 权威契约", exception);
         }
@@ -48,10 +56,17 @@ final class AgentProtocolValidator {
     }
 
     /** 请求发送前检查可信网关字段，防止错误版本或不支持的上下文到达新服务。 */
-    void validateRequest(Map<String, Object> request) { validate(requestSchema, request); }
+    void validateRequest(Map<String, Object> request) { validate(select(requestSchemas, request), request); }
 
     /** 事件进入审计和展示之前检查嵌套载荷、金额和动作，不静默丢弃未知字段。 */
-    void validateEvent(Map<String, Object> event) { validate(eventSchema, event); }
+    void validateEvent(Map<String, Object> event) { validate(select(eventSchemas, event), event); }
+
+    /** 严格按载荷版本取 Schema；缺版本和未知版本都不能借旧版规则通过。 */
+    private JsonSchema select(Map<String, JsonSchema> schemas, Map<String, Object> value) {
+        JsonSchema selected = schemas.get(value.get("schemaVersion"));
+        if (selected == null) throw new AgentServiceUnavailableException("Agent 协议版本不受支持");
+        return selected;
+    }
 
     /** 日志只保留校验路径与规则名称，不把可能包含隐私的完整载荷放入错误消息。 */
     private void validate(JsonSchema schema, Map<String, Object> value) {

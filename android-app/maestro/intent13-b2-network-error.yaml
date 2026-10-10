@@ -1,0 +1,15 @@
+appId: com.fandazi.app
+---
+# 测试专用 Agent 进程暂时不可用时，客户端应显示错误并停止进度，不能把空结果当成功。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 查询我的团购订单
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_error_card
+    timeout: 90000
+- assertNotVisible: 任务进度
+- assertNotVisible: 确认退款
+- takeScreenshot: intent13-b2-network-error
