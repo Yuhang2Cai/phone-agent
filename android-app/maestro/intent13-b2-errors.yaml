@@ -1,0 +1,25 @@
+appId: com.fandazi.app
+---
+# 游客无法发送私有 Agent 请求；只显示登录入口，不以本地假数据或旧历史填充聊天页。
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/skip_login_button
+    timeout: 60000
+- tapOn:
+    id: com.fandazi.app:id/skip_login_button
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_login_gate
+    timeout: 10000
+# 游客能看到灰置的输入区，但控件与发送按钮都禁用；不能将“仍在布局中”误判为可发消息。
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input
+    enabled: false
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_send
+    enabled: false
+- takeScreenshot: intent13-b2-guest-denied

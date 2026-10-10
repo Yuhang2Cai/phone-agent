@@ -43,6 +43,8 @@ $database = if ($env:FANDAZI_DB_NAME) { $env:FANDAZI_DB_NAME } else { 'fandazi_g
 $env:DB_URL = "jdbc:mysql://127.0.0.1:3306/${database}?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai"
 $agentPort = if ($env:FANDAZI_AGENT_PORT) { $env:FANDAZI_AGENT_PORT } else { '8091' }
 $env:AGENT_SERVICE_URL = "http://127.0.0.1:$agentPort"
+# 双服务内部运行协议按部署选择，业务工具仍保持现有版本。
+$env:AGENT_SERVICE_PROTOCOL_VERSION = '2.0'
 $env:AGENT_SERVICE_TIMEOUT_MS = '90000'
 $env:SPRING_BOOT_BASE_URL = 'http://127.0.0.1:8080'
 $env:LANGCHAIN_TRACING_V2 = 'false'

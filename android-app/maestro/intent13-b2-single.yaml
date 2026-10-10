@@ -1,0 +1,31 @@
+appId: com.fandazi.app
+---
+# 单目标从问候、本人空订单和真实退款规则依次进入 2.0；每轮结束后不遗留活动进度。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 你好
+- extendedWaitUntil:
+    visible: 你好，我是饭搭子助手。
+    timeout: 90000
+- assertNotVisible: 处理进度
+- takeScreenshot: intent13-b2-single-greeting
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 查询我的团购订单
+- extendedWaitUntil:
+    visible: ".*没有.*订单.*|.*订单.*为空.*"
+    timeout: 90000
+- assertNotVisible: 处理进度
+- takeScreenshot: intent13-b2-single-orders
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 团购券退款规则是什么
+- extendedWaitUntil:
+    visible: ".*未核销.*退款.*|.*退款.*未核销.*"
+    timeout: 90000
+- assertNotVisible: 处理进度
+- takeScreenshot: intent13-b2-single-faq

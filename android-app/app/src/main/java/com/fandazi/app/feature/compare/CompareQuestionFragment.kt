@@ -21,7 +21,7 @@ class CompareQuestionFragment:Fragment(R.layout.fragment_compare_question) {
     private var inputCredential:String?=null
     /** 绑定同账号现有草稿，发送前再次检查选择/读取状态/用户输入。 */
     override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
-        view.compareInsets();inputCredential=(app.sessionRepository.state.value as? com.fandazi.app.feature.auth.SessionState.Authenticated)?.token;agent=ViewModelProvider(requireActivity(),AgentViewModelFactory(app.agentRepository))[AgentViewModel::class.java]
+        view.compareInsets();inputCredential=(app.sessionRepository.state.value as? com.fandazi.app.feature.auth.SessionState.Authenticated)?.token;agent=ViewModelProvider(requireActivity(),AgentViewModelFactory(app.agentRepository, app))[AgentViewModel::class.java]
         view.findViewById<View>(R.id.compare_back).setOnClickListener{saveDraft();findNavController().navigateUp()}
         view.findViewById<View>(R.id.compare_question_return).setOnClickListener{saveDraft();findNavController().navigateUp()}
         view.findViewById<EditText>(R.id.compare_question_input).setText(agent.uiState.value.composerText)

@@ -170,7 +170,7 @@ class MainActivity : AppCompatActivity() {
         navigationIdentityInitialized = true
         val desired = SessionRouteCoordinator.routeFor(state)
         val agent = ViewModelProvider(this, com.fandazi.app.feature.agent.AgentViewModelFactory(
-            (application as FandaziApplication).agentRepository
+            (application as FandaziApplication).agentRepository, application
         ))[com.fandazi.app.feature.agent.AgentViewModel::class.java]
         if (identityChanged) {
             // 同账号明确重新登录的新sid也不能沿用旧确认/SSE/恢复任务；正常续期的同sid不进入此分支。
@@ -188,7 +188,7 @@ class MainActivity : AppCompatActivity() {
             pendingProtectedDestination = pending; pendingProtectedArguments = pendingArgs
             pendingReturnDestination = returnTo; pendingReturnArguments = returnArgs
         }
-        agent.bindAuthenticatedOwner((state as? SessionState.Authenticated)?.user?.username)
+        agent.bindAuthenticatedOwner((state as? SessionState.Authenticated)?.user?.username, token)
         val current = when (navHost.navController.currentDestination?.id) {
             R.id.authFragment -> SessionRoute.AUTH
             R.id.homeFragment, R.id.searchFragment, R.id.storeFragment, R.id.ordersFragment,

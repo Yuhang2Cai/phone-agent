@@ -100,6 +100,7 @@
                 <targetPath>contracts</targetPath>
                 <includes>
                     <include>agent-protocol-v1.yaml</include>
+                    <include>agent-protocol-v2.yaml</include>
                     <include>agent-tools-v1.yaml</include>
                 </includes>
             </resource>

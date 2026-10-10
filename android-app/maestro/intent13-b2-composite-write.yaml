@@ -1,0 +1,39 @@
+appId: com.fandazi.app
+---
+# 新合成账号仅有一张本人已支付团购券；同句退款和投诉必须分别确认、分别展示真实结果。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 申请团购券退款，同时投诉门店服务
+- extendedWaitUntil:
+    visible:
+      text: 确认退款
+      enabled: true
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-composite-write-refund-confirmation
+# 第一次确认只提交退款申请，下一步仍须独立确认投诉。
+- tapOn:
+    text: 确认退款
+    enabled: true
+- extendedWaitUntil:
+    visible:
+      text: 确认投诉
+      enabled: true
+    timeout: 120000
+- takeScreenshot: intent13-b2-composite-write-complaint-confirmation
+- tapOn:
+    text: 确认投诉
+    enabled: true
+- extendedWaitUntil:
+    visible: ".*投诉已提交.*"
+    timeout: 120000
+- scrollUntilVisible:
+    element:
+      text: ".*退款申请已提交.*"
+    direction: UP
+    timeout: 30000
+    centerElement: true
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-composite-write-completed

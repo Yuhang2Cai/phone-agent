@@ -50,8 +50,9 @@ class AgentSavedStateBaselineTest {
         try { ActivityScenario.launch(MainActivity::class.java).use { scenario ->
             lateinit var model: AgentViewModel
             scenario.onActivity { activity ->
-                model = ViewModelProvider(activity, AgentViewModelFactory(app.agentRepository))[AgentViewModel::class.java]
-                model.bindAuthenticatedOwner(username)
+                // 测量使用与正式页面相同的认证身份和指针仓库，避免测试重绑生成另一条会话。
+                model = ViewModelProvider(activity, AgentViewModelFactory(app.agentRepository, app))[AgentViewModel::class.java]
+                model.bindAuthenticatedOwner(username, com.fandazi.app.feature.auth.authenticationIdentity(app.sessionRepository.state.value))
             }
             // 前置只读HTTP就绪，逐轮等待终态，不用直接赋值塞入业务列表或调用假仓库。
             for (round in 1..100) {

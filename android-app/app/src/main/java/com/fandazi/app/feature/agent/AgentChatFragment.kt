@@ -56,7 +56,7 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
     /** 控件创建一次；状态和认证订阅仅STARTED阶段有效，离开后取消待渲染帧。 */
     override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
         viewEpoch++;ownerInitialized=false;rendered=null;following=true;sendFocus.cancel()
-        viewModel=ViewModelProvider(requireActivity(),AgentViewModelFactory((requireActivity().application as FandaziApplication).agentRepository))[AgentViewModel::class.java]
+        viewModel=ViewModelProvider(requireActivity(),AgentViewModelFactory((requireActivity().application as FandaziApplication).agentRepository, requireActivity().application))[AgentViewModel::class.java]
         // 只有用户比较发送后带入上下文，明确展示数量及清除入口；不会自动再次发送。
         fun renderComparison(){val ids=viewModel.comparisonSelection();view.findViewById<View>(R.id.agent_compare_context).visibility=if(ids.isEmpty())View.GONE else View.VISIBLE;view.findViewById<android.widget.TextView>(R.id.agent_compare_context_text).text="正在比较${ids.size}个已选套餐；清除后恢复普通聊天。"}
         renderComparison();view.findViewById<View>(R.id.agent_compare_clear).setOnClickListener{viewModel.clearComparison();renderComparison()}
@@ -116,7 +116,7 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
             ownerInitialized=true;owner=nextOwner
             if(changed){cancelFrame();viewEpoch++;submitEpoch++;dragEpoch++;restoreKey=null;sendFocus.cancel();rendered=null;following=true;resetAdapter()
                 // 认证通知和业务状态通知可能先后到达；同步清原owner，禁止用新账号资格显示旧账号行。
-                viewModel.bindAuthenticatedOwner(nextOwner)
+                viewModel.bindAuthenticatedOwner(nextOwner, com.fandazi.app.feature.auth.authenticationIdentity(session))
             }
         }
         val current=if(changed)viewModel.uiState.value else state

@@ -1,0 +1,41 @@
+appId: com.fandazi.app
+---
+# 本人可退款券进入待确认后主动取消；不点击写入动作，后端退款申请计数应保持不变。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 我要退款
+- extendedWaitUntil:
+    visible:
+      text: 选择此券
+      enabled: true
+    timeout: 90000
+- tapOn:
+    text: 选择此券
+    enabled: true
+    index: 0
+- extendedWaitUntil:
+    visible: 请说明退款原因
+    timeout: 90000
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 行程调整
+- extendedWaitUntil:
+    visible:
+      text: 确认退款
+      enabled: true
+    timeout: 90000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-confirmation-before-cancel
+- tapOn:
+    text: 取消退款
+    enabled: true
+- extendedWaitUntil:
+    visible: 已取消本次操作
+    timeout: 90000
+- assertNotVisible:
+    text: 确认退款
+    enabled: true
+- takeScreenshot: intent13-b2-confirmation-cancelled

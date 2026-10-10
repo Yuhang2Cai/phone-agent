@@ -72,6 +72,8 @@ services:
       JWT_SECRET: ${INTEGRATION_JWT_SECRET:?需要私有登录签名}
       AGENT_INTERNAL_TOKEN: ${AGENT_INTERNAL_TOKEN}
       AGENT_SERVICE_URL: http://agent:8091
+      # 同批 Agent 与 Spring 使用唯一标签 2.0；不能由聊天请求改写。
+      AGENT_SERVICE_PROTOCOL_VERSION: "2.0"
       SEED_ENABLED: "false"
       # 仅受控副链显式开启development+故障；默认与生产相同，绝不在APK伪造503。
       SPRING_PROFILES_ACTIVE: ${INTEGRATION_PROFILE:-default}

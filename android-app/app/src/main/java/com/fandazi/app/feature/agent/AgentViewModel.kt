@@ -25,7 +25,8 @@ import java.util.UUID
 class AgentViewModel(
     private val repository: AgentRepository,
     private val savedState: SavedStateHandle,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Main.immediate,
+    private val pointerStore: AgentSessionPointerStore = NoopAgentSessionPointerStore
 ) : ViewModel() {
     /** 构建薄检查点先移除旧大对象，重建时只加载草稿与交互索引，不复活旧业务资格。 */
     private val checkpoint = AgentStateCheckpoint(savedState)
@@ -66,8 +67,9 @@ class AgentViewModel(
      * 将 Activity 级聊天状态绑定到当前认证账号；null 表示退出或游客，不向服务器修改归属。
      * 同账号页面返回与配置重建保留历史；账号变化取消本地旧请求，换会话并清除旧私有摘要。
      */
-    fun bindAuthenticatedOwner(owner: String?) {
-        if (savedState.get<String>(SESSION_OWNER) == owner) return
+    fun bindAuthenticatedOwner(owner: String?, authIdentity: String? = null) {
+        if (savedState.get<String>(SESSION_OWNER) == owner &&
+            savedState.get<String>(SESSION_AUTH_IDENTITY) == authIdentity) return
         // 旧账号迟到的 HTTP/SSE 不能回写新账号状态；取消仅影响客户端，不提交任何业务操作。
         ++requestGeneration
         viewModelScope.coroutineContext.cancelChildren()
@@ -84,10 +86,16 @@ class AgentViewModel(
         retryDisplayText = null
         requestedAmountLimit = null
         preferTaskAutoForNextConfirmation = false
-        sessionId = UUID.randomUUID().toString()
+        // 仅相同账号和认证会话能重用上次发包前落盘的指针；换账号或重新登录产生新会话。
+        val pointer = if (owner != null && authIdentity != null) pointerStore.read(owner, authIdentity) else null
+        sessionId = pointer?.sessionId ?: UUID.randomUUID().toString()
+        needsHistory = pointer?.hasAttempted == true
         savedState[SESSION_ID] = sessionId
         savedState[SESSION_OWNER] = owner
-        savedState[SESSION_ESTABLISHED] = false
+        savedState[SESSION_AUTH_IDENTITY] = authIdentity
+        savedState[SESSION_ESTABLISHED] = needsHistory
+        if (owner == null) pointerStore.clear()
+        else if (authIdentity != null) pointerStore.write(owner, authIdentity, AgentSessionPointer(sessionId, needsHistory))
         updateState { AgentUiState() }
     }
 
@@ -272,6 +280,11 @@ class AgentViewModel(
         if (_uiState.value.sheetMode != AgentSheetMode.HIDDEN && eventsJob?.isActive != true) subscribeEvents()
         // 记录尝试过的会话使HTTP尚未回包的离页也能回来续接；未被服务器接受时SSE仍按已有404预算结束。
         savedState[SESSION_ESTABLISHED] = true
+        // 请求一旦可能到达服务端，就先同步固定恢复入口；进程重启只读历史而不重发业务语句。
+        val boundOwner = savedState.get<String>(SESSION_OWNER)
+        val boundIdentity = savedState.get<String>(SESSION_AUTH_IDENTITY)
+        if (boundOwner != null && boundIdentity != null)
+            pointerStore.write(boundOwner, boundIdentity, AgentSessionPointer(sessionId, true))
         val messageJob = viewModelScope.launch(dispatcher, start = CoroutineStart.LAZY) {
             // 普通消息继续原四参入口，避免旧替身/协议行为变化；有比较引用才走兼容新入口。
             val response=if(selectedForRequest==null)repository.sendMessage(sessionId,request,mode(),messageKey)
@@ -635,6 +648,7 @@ class AgentViewModel(
     private companion object {
         /** 本地历史所属账号；与服务端强制认证归属分离，禁止客户端跨账号复用会话。 */
         const val SESSION_OWNER = "agent_session_owner"
+        const val SESSION_AUTH_IDENTITY = "agent_session_auth_identity"
         const val SESSION_ID = "agent_session_id"
         const val SESSION_ESTABLISHED = "agent_session_established"
         const val LAST_EVENT_ID = "agent_last_event_id"

@@ -45,7 +45,7 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
     private var binding: FragmentAgentSheetBinding? = null
     private var recognizer: SpeechRecognizer? = null
     private val viewModel: AgentViewModel by activityViewModels {
-        AgentViewModelFactory((requireActivity().application as FandaziApplication).agentRepository)
+        AgentViewModelFactory((requireActivity().application as FandaziApplication).agentRepository, requireActivity().application)
     }
     private val orderingViewModel: OrderingViewModel by activityViewModels {
         val activity = requireActivity() as MainActivity
@@ -345,14 +345,16 @@ class AgentSheetFragment : BottomSheetDialogFragment(R.layout.fragment_agent_she
     }
 }
 
-class AgentViewModelFactory(private val repository: AgentRepository) : androidx.lifecycle.ViewModelProvider.Factory {
+/** 所有页面共用应用私有的会话指针存储，使 Activity 重建后仍能按认证身份恢复同一历史。 */
+class AgentViewModelFactory(private val repository: AgentRepository, context: android.content.Context) : androidx.lifecycle.ViewModelProvider.Factory {
+    private val pointerStore: AgentSessionPointerStore = AndroidAgentSessionPointerStore(context)
     @Suppress("UNCHECKED_CAST")
     override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T =
-        AgentViewModel(repository, androidx.lifecycle.SavedStateHandle()) as T
+        AgentViewModel(repository, androidx.lifecycle.SavedStateHandle(), pointerStore = pointerStore) as T
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : androidx.lifecycle.ViewModel> create(
         modelClass: Class<T>,
         extras: androidx.lifecycle.viewmodel.CreationExtras
-    ): T = AgentViewModel(repository, extras.createSavedStateHandle()) as T
+    ): T = AgentViewModel(repository, extras.createSavedStateHandle(), pointerStore = pointerStore) as T
 }

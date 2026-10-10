@@ -1,0 +1,37 @@
+appId: com.fandazi.app
+---
+# 投诉缺槽时退出再进入同一账号；只恢复等待输入和历史消息，不产生新的确认或假成功。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 我要投诉
+- extendedWaitUntil:
+    visible: ".*投诉类型.*"
+    timeout: 90000
+- takeScreenshot: intent13-b2-recovery-before-restart
+- stopApp
+- launchApp:
+    clearState: false
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible: ".*投诉类型.*"
+    timeout: 90000
+- assertNotVisible: 任务进度
+- assertNotVisible: 处理进度
+- takeScreenshot: intent13-b2-recovery-after-restart
+# 历史恢复后明确补充原投诉主题，服务端应继续原任务追问内容，而不是重新创建投诉。
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 商家服务
+- extendedWaitUntil:
+    visible: 请描述需要投诉的问题
+    timeout: 90000
+- assertNotVisible: 确认投诉
+- takeScreenshot: intent13-b2-recovery-continued

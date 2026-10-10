@@ -53,6 +53,18 @@ class AgentRenderRowsTest {
             assertEquals(listOf(event),state.messages.single().events)
         }
     }
+    /** 新协议只以 composite 标签决定进度标题，单目标仍显示普通处理状态；完成后均隐藏进度。 */
+    @Test fun compositeSingleLabelControlsCurrentProgressTitle() {
+        val user = ChatMessage("帮我找套餐并查优惠券", true, displayKey="intent13-user")
+        val step = AgentEvent(2, "progress", "正在查找", payload=mapOf("runId" to "intent13-run", "stepId" to "search", "stepStatus" to "running"))
+        val composite = AgentEvent(1, "intent_decided", "复合意图", payload=mapOf("runId" to "intent13-run", "intent" to "composite"))
+        val single = composite.copy(payload=composite.payload + ("intent" to "coupon"))
+        val active = AgentUiState(messages=listOf(user), events=listOf(composite, step), isSending=true)
+        assertEquals("任务进度", AgentRenderRows.project(active, true) { false }.filterIsInstance<AgentRenderRow.Progress>().single().title)
+        assertEquals("处理进度", AgentRenderRows.project(active.copy(events=listOf(single, step)), true) { false }.filterIsInstance<AgentRenderRow.Progress>().single().title)
+        // 已结束的回复仍保存原事件供历史重放，但投影不把旧执行步骤重新显示到对话尾部。
+        assertTrue(AgentRenderRows.project(active.copy(isSending=false), true) { false }.none { it is AgentRenderRow.Progress })
+    }
     /** 未认证仅输出登录引导，私人历史与错误不能残留；空态归同一回收类型。 */
     @Test fun guestAndEmptyUseOnlyOneGuideType() {
         val privateState=AgentUiState(messages=listOf(ChatMessage("私人正文",false)),error=AgentError.Network("错误"))
