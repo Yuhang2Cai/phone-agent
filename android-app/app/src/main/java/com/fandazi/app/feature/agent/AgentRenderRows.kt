@@ -69,6 +69,7 @@ object AgentRenderRows {
     /** 服务端资源/事件身份优先，缺身份只复用卡片创建时的展示键，不取正文hash或render随机键。 */
     private fun cards(parent: String, input: List<AgentCardPayload>, isCurrent: (AgentCardPayload) -> Boolean): List<AgentRenderRow.Card> {
         val seen = mutableSetOf<String>()
+        // 按服务端顺序逐项展示并保留 presentation 原始字段，不在投影阶段排序或重编号。
         return input.mapNotNull { card ->
             val identity = card.confirmationIdentity?.let { "${it.runId}:${it.traceId}:${it.eventId}" }
                 ?: listOfNotNull(card.storePublicId,card.dealPublicId,card.orderPublicId,card.fields["voucherId"],card.fields["resourceId"],card.fields["couponId"])

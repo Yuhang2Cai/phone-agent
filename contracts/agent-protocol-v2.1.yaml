@@ -1095,12 +1095,12 @@ conversationSource:
     historyRecorded:
       type: boolean
 selectionRef:
+  # 省略 ordinal 只关联列表；明确选择时才带一基序号，不能默认选首项。
   type: object
   additionalProperties: false
   required:
   - presentationId
   - version
-  - ordinal
   properties:
     presentationId:
       type: string
@@ -1173,3 +1173,15 @@ presentationEvidence:
       type: string
       minLength: 1
       maxLength: 100
+
+# Spring 返回 Android 的最终卡片公开元数据，不由 Agent 模型生成，也不改变 1.1 工具/卡片信封。
+publicCardPresentation:
+  type: object
+  additionalProperties: false
+  required: [presentationId, version, ordinal, resourceType, sourceMessageId]
+  properties:
+    presentationId: {type: string, minLength: 1, maxLength: 100}
+    version: {type: integer, minimum: 1}
+    ordinal: {type: integer, minimum: 1}
+    resourceType: {type: string, enum: [store, deal, order, voucher, coupon]}
+    sourceMessageId: {type: string, minLength: 1, maxLength: 100}

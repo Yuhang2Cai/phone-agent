@@ -41,7 +41,9 @@ internal object AgentPublicCards {
 
     /** 从实时事件提取已补全卡；无卡片或异常结构不产生样例兜底，HTTP 仍可回补正常结果。 */
     fun fromEvent(event: AgentEvent): List<AgentCardPayload> {
-        val sources = listOfNotNull(event.payload["card"], event.payload["candidates"])
+        // 最终登记事件的 cards 含展示版本，优先于同轮早先的未登记流式卡，避免恢复丢引用。
+        val sources = if(event.payload.containsKey("cards")) listOfNotNull(event.payload["cards"])
+            else listOfNotNull(event.payload["card"], event.payload["candidates"])
         val cards = sources.flatMap { source -> runCatching {
             val value = JsonParser.parseString(source)
             val values = if (value.isJsonArray) value.asJsonArray.toList() else listOf(value)

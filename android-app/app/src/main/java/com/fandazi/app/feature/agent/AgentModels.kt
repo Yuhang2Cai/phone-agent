@@ -86,6 +86,36 @@ data class AgentCardPayload(
 /** 同run重新准备仍产生新事件版本；trace与eventId共同约束原卡所属摘要，不以runId单独放行。 */
 data class AgentConfirmationIdentity(val runId: String, val traceId: String, val eventId: String, val sequence: Long?) : Serializable
 
+/** 展示引用仅用于指代，序号可省略表示关联整份列表，不携带候选数组或确认凭证。 */
+data class AgentSelectionRef(val presentationId: String, val version: Int, val ordinal: Int? = null) : Serializable
+
+/** 从服务端公开元数据建立引用；内容被重排/分页而序号不再连续时保守拒绝关联。 */
+internal object AgentPresentationReferences {
+    /** 单卡引用要求完整版本、类别和来源，损坏 JSON 不生成本地替代身份。 */
+    fun card(card: AgentCardPayload): AgentSelectionRef? = runCatching {
+        val value = com.google.gson.JsonParser.parseString(card.fields["presentation"] ?: return null).asJsonObject
+        require(value.keySet() == setOf("presentationId", "version", "ordinal", "resourceType", "sourceMessageId"))
+        fun text(key: String) = value.get(key).takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }?.asString
+        fun integer(key: String): Int {
+            val number = value.get(key)
+            require(number.isJsonPrimitive && number.asJsonPrimitive.isNumber && number.toString().matches(Regex("[1-9][0-9]*")))
+            return requireNotNull(number.toString().toIntOrNull())
+        }
+        val type = if (card.type == "after_sale_voucher_choice") "voucher" else card.type
+        require(text("resourceType") == type && !text("sourceMessageId").isNullOrBlank())
+        AgentSelectionRef(requireNotNull(text("presentationId")).also { require(it.isNotBlank() && it.length <= 100) }, integer("version"), integer("ordinal"))
+    }.getOrNull()
+
+    /** 只关联唯一且原顺序完整的资源列表；两类列表或缺元数据时不能按最近一项猜。 */
+    fun current(cards: List<AgentCardPayload>): AgentSelectionRef? {
+        val resources = cards.filter { it.type in setOf("store", "deal", "order", "voucher", "coupon", "after_sale_voucher_choice") }
+        if (resources.isEmpty()) return null
+        val refs = resources.map { card(it) ?: return null }
+        if (refs.map { it.presentationId to it.version }.distinct().size != 1 || refs.map { it.ordinal } != (1..refs.size).toList()) return null
+        return refs.first().copy(ordinal = null)
+    }
+}
+
 data class CandidateCartItem(
     val name: String,
     val specification: String = "",

@@ -1,0 +1,28 @@
+{
+  "dependencies": {
+    "android-app/app/libs/sherpa-onnx-1.12.39.aar": "d228a731ec3125170c962e2d52ad3fe012f3616e5047a87e2743d851d69c176d",
+    "android-app/app/src/main/assets/sherpa-onnx/sherpa-onnx-paraformer-zh-small-2024-03-09/sherpa-onnx-paraformer-zh-small-2024-03-09/model.int8.onnx": "3ef6c19369b912f7caf3cef8e545c5ccd1a33d9d7ec792a46668dc41c4b229ec",
+    "android-app/app/src/main/assets/sherpa-onnx/sherpa-onnx-paraformer-zh-small-2024-03-09/sherpa-onnx-paraformer-zh-small-2024-03-09/tokens.txt": "4b2d964e18b9cf139b473003b6698fb2ed9a2a5ec55b93daa677b28f578897aa"
+  },
+  "baseline": "a4a40b9403e368e7732fa1eadfdf2b292ecbaa84",
+  "snapshot": "D:\\project\\phone-agent\\.worktrees\\codex\\context-coreference\\.runtime\\cc04",
+  "files": {
+    "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentHistoryRecovery.kt": "e48f8c60d046d1f008183889e6d36ee533624c899881cc133c865009d46768ec",
+    "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentModels.kt": "b2faf7f84c6f18a1a726bfd128dc20fc95e351eb81124195b929acda87d7f255",
+    "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentPublicCards.kt": "726afa520f36595a19068e94837736d292b31c5bdb7f360c4d8d178bd25f76d7",
+    "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentRenderRows.kt": "da9381d3641fdf886381951cf51cec5141cb211269fb9e3fe8cda75f01c05d01",
+    "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentRepository.kt": "5afb30934cec9e15aeb7917b3c230ce08068e5441589cf198990ddcfb450735a",
+    "android-app/app/src/main/java/com/fandazi/app/feature/agent/AgentViewModel.kt": "455a9664294938a0e5b7650ac9034bd936eb8edf08d3347df0985b7f42151a7d",
+    "android-app/app/src/test/java/com/fandazi/app/feature/agent/AgentPresentationReferenceTest.kt": "b5dfe20ba9f8462cfbd3cf2ed08f26d44a886eb1960f774a74d52b2057c7f3a1",
+    "android-app/maestro/context-presentation-reference.yaml": "e2d7bdba76a1d847a11e57d46a7d90e3ae8fbfce5cf48f129738f21b21d775ef",
+    "backend/src/main/java/com/fandazi/feature/agent/AgentConversationSourceService.java": "22c686879a03bdd6fc6c16a733b79d70a8ce92f226cdf4db945d6f69ee11c585",
+    "backend/src/main/java/com/fandazi/feature/agent/AgentGatewayController.java": "da7ae1753f0ccf29720cbe92f7c09e55eea85b6cf0994a8c7078497727a095f2",
+    "backend/src/main/java/com/fandazi/feature/agent/AgentGatewayService.java": "a6b14d68091f88f0a6107d778b7ca03ade090608f5fd7ee3d4ab265e138ef28d",
+    "backend/src/main/java/com/fandazi/feature/agent/AgentPresentation.java": "370c2b7804dd1cac93968a6eb93d962e306878aa87e737079dabc5ead585c39e",
+    "backend/src/main/java/com/fandazi/feature/agent/AgentPresentationRepository.java": "011ca7fa3a0b49404c3d234898a1513c89b41f5fe73728c6a2022fa0a886387f",
+    "backend/src/main/java/com/fandazi/feature/agent/AgentPresentationService.java": "e3b94bfd22926c057cdac230dc3141ba3d569a82eb0b2dd0eca2b27cbf52a9ee",
+    "backend/src/main/resources/db/migration/V2026101002__agent_presentations.sql": "4893571138c7f932cce9c076464d72d6b9f5a11ffa4556f6329016167d53b3d5",
+    "backend/src/test/java/com/fandazi/feature/agent/AgentPresentationTest.java": "c77866b0bb515e6ed769cf4285505253e5452b517f598de27a0acab7e3703aca",
+    "contracts/agent-protocol-v2.1.yaml": "243ffd92ad59601935da3d35ada5d22fd7698c3a1c30a18ab1e1d38de13165bd"
+  }
+}

@@ -32,6 +32,8 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 interface AgentRepository {
+    /** 旧替身默认委托原入口；正式 HTTP 实现发送独立展示引用，不修改原问题或比较候选。 */
+    suspend fun sendMessage(sessionId:String,text:String,mode:AgentMode,clientMessageKey:String?,compareDealIds:List<String>?,selectionRef:AgentSelectionRef?):ApiResult<AgentMessageResult> = sendMessage(sessionId,text,mode,clientMessageKey,compareDealIds)
     /** 旧替身兼容入口；正式HTTP实现发送独立公开ID字段，普通null引用沿旧行为。 */
     suspend fun sendMessage(sessionId:String,text:String,mode:AgentMode,clientMessageKey:String?,compareDealIds:List<String>?):ApiResult<AgentMessageResult> = sendMessage(sessionId,text,mode,clientMessageKey)
 
@@ -85,6 +87,11 @@ class HttpAgentRepository(
 
     /** 只发送有序公开ID与原问题，资格/价格由Spring重查；失败不自动重发。 */
     override suspend fun sendMessage(sessionId:String,text:String,mode:AgentMode,clientMessageKey:String?,compareDealIds:List<String>?):ApiResult<AgentMessageResult> {
+        return sendMessage(sessionId,text,mode,clientMessageKey,compareDealIds,null)
+    }
+
+    /** 引用只包含服务端登记身份、版本和可选序号；不上传有序候选数组或自行推导资源 ID。 */
+    override suspend fun sendMessage(sessionId:String,text:String,mode:AgentMode,clientMessageKey:String?,compareDealIds:List<String>?,selectionRef:AgentSelectionRef?):ApiResult<AgentMessageResult> {
         val fields = mutableMapOf<String,Any>("text" to text, "mode" to mode.name)
         if(compareDealIds!=null) {
             // 发送边界再次核对数量与UUID，损坏恢复状态不能沿默认首项执行。
@@ -93,6 +100,12 @@ class HttpAgentRepository(
             fields["compareDealIds"]=selected.ids
         }
         clientMessageKey?.let { fields["clientMessageKey"] = it }
+        selectionRef?.let { reference ->
+            require(reference.presentationId.isNotBlank() && reference.presentationId.length<=100 && reference.version>0 && (reference.ordinal==null || reference.ordinal>0)) { "展示引用无效" }
+            fields["selectionRef"] = mapOf("presentationId" to reference.presentationId, "version" to reference.version).toMutableMap<String,Any>().apply {
+                reference.ordinal?.let { put("ordinal", it) }
+            }
+        }
         return executeJson(Request.Builder().url(url("agent/sessions/$sessionId/messages"))
             .post(gson.toJson(fields).toRequestBody(JSON)).build(), ::parseMessage)
     }

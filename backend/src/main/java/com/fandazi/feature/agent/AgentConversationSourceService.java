@@ -25,9 +25,22 @@ public class AgentConversationSourceService {
     /** 同一事务建立本轮任务和来源；正文冲突必须一起回滚，不能破坏旧确认停点。 */
     @Transactional
     public StartedInput beginInput(Long userId,String sessionId,String body,String clientMessageKey,AgentMode mode,String traceId) {
+        return beginInput(userId,sessionId,body,clientMessageKey,mode,traceId,Map.of());
+    }
+
+    /** 同一展示键必须同时绑定原句与已校验选择引用，防止相同文字重试被悄悄换到另一列表。 */
+    @Transactional
+    public StartedInput beginInput(Long userId,String sessionId,String body,String clientMessageKey,AgentMode mode,String traceId,Map<String,Object> selectionRef) {
         var session=sessionService.start(userId,sessionId,mode,traceId,"2.1");
         String version=session.getContextProtocolVersion();
-        Map<String,Object> source="2.1".equals(version) ? issue(userId,sessionId,body,clientMessageKey) : Map.of();
+        if(!"2.1".equals(version)&&!selectionRef.isEmpty())throw new DomainException("当前活动任务暂不支持展示引用");
+        String fingerprintBody=body;
+        if(!selectionRef.isEmpty()) {
+            try {fingerprintBody=body+"\u0000"+new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(new java.util.TreeMap<>(selectionRef));}
+            catch(com.fasterxml.jackson.core.JsonProcessingException error) {throw new DomainException("展示引用无效");}
+        }
+        // 引用加入来源摘要，不改变记录及发给 Agent 的用户原句，也不成为交易幂等键。
+        Map<String,Object> source="2.1".equals(version) ? issue(userId,sessionId,fingerprintBody,clientMessageKey) : Map.of();
         return new StartedInput(session.getActiveRunId(),version,source);
     }
 
