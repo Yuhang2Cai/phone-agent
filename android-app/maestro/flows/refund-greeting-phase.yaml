@@ -1,0 +1,51 @@
+# 每次取消后重新发起退款；按阶段推进到选券、原因或确认，验证问候结束原任务。
+appId: com.fandazi.app
+---
+- runFlow:
+    file: refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 我要退款
+- extendedWaitUntil:
+    visible:
+      text: 选择此券
+      enabled: true
+    timeout: 90000
+- runFlow:
+    when:
+      true: ${REFUND_PHASE != "voucherId"}
+    commands:
+      - tapOn:
+          text: 选择此券
+          enabled: true
+          index: 0
+      - extendedWaitUntil:
+          visible: 请说明退款原因
+          timeout: 90000
+- runFlow:
+    when:
+      true: ${REFUND_PHASE == "confirmation"}
+    commands:
+      - runFlow:
+          file: refund-greeting-send.yaml
+          env:
+            CHAT_TEXT: 行程改变
+      - extendedWaitUntil:
+          visible:
+            text: 确认退款
+            enabled: true
+          timeout: 90000
+- runFlow:
+    file: refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 你好
+- extendedWaitUntil:
+    visible: "你好，我是饭搭子助手。\n已结束本次退款流程。"
+    timeout: 90000
+- assertNotVisible:
+    text: 选择此券
+    enabled: true
+- assertNotVisible:
+    text: 确认退款
+    enabled: true
+- assertNotVisible: 处理进度
+- takeScreenshot: refund-${REFUND_PHASE}-ended-by-greeting

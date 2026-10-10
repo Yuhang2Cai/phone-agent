@@ -65,7 +65,11 @@ class StoreFragment:Fragment(R.layout.fragment_store) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.state.collect {state->
                     val source=if(!state.summaryMetadata.canTransact)state.summaryMetadata else state.metadata
-                    CatalogCacheBanner.bind(view,source,retry={model.refreshAfterBusinessReturn()})
+                    // 页签刷新只更新列表内的加载状态；顶部瞬态提示会改变列表高度，造成整页上下跳动。
+                    // 保留已有离线提示直到权威结果到达，失败与恢复仍按真实来源更新，不能隐藏离线风险。
+                    if(source.status!=CatalogReadStatus.REFRESHING) {
+                        CatalogCacheBanner.bind(view,source,retry={model.refreshAfterBusinessReturn()})
+                    }
                     CatalogImageMetadataRefresh.refreshVisible(view)
                     val anchor=model.anchor
                     adapter.submitState(state){if(!state.loading)BusinessListAnchor.restore(list,anchor,adapter.currentList.map{it.key})}

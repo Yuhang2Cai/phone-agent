@@ -345,7 +345,8 @@ tools:
     input:
       type: object
       additionalProperties: false
-      required: [cityCode]
+      # 城市为可选筛选；缺省使用真实全量目录，距离排序仍要求有效坐标。
+      required: []
       properties:
         cityCode: *text
         latitude: {type: number, minimum: -90, maximum: 90}

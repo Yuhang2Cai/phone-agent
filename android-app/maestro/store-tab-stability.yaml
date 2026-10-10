@@ -1,0 +1,76 @@
+# 使用真实后端推荐进入门店，验证三个Tab反复切换、内容与返回路径。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/username_input
+    timeout: 60000
+- tapOn:
+    id: com.fandazi.app:id/username_input
+- setClipboard: ${MAESTRO_USERNAME}
+- pasteText
+- tapOn:
+    id: com.fandazi.app:id/password_input
+- setClipboard: ${MAESTRO_PASSWORD}
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: com.fandazi.app:id/submit_button
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 推荐一家餐厅
+- extendedWaitUntil:
+    visible: 未获取定位，先为你推荐一家餐厅，不按距离排序。
+    timeout: 90000
+- tapOn:
+    text: 查看详情
+    enabled: true
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/deal_title
+    timeout: 30000
+- takeScreenshot: store-deals-before-switch
+- repeat:
+    times: 4
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/store_tab_dishes
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/dish_title
+          timeout: 30000
+      - assertNotVisible: 在线刷新中
+      - tapOn:
+          id: com.fandazi.app:id/store_tab_deals
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/deal_title
+          timeout: 30000
+      - assertNotVisible: 在线刷新中
+- tapOn:
+    id: com.fandazi.app:id/store_tab_dishes
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/dish_title
+    timeout: 30000
+- takeScreenshot: store-dishes-after-switch
+- tapOn:
+    id: com.fandazi.app:id/store_tab_reviews
+- assertVisible:
+    id: com.fandazi.app:id/store_title
+- takeScreenshot: store-reviews-after-switch
+- back
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_chat_input
+    timeout: 30000

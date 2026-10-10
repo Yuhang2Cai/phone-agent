@@ -141,10 +141,29 @@ class AgentContractSchemaTest {
         objectSchema(document, map(definitions.get("faq")), Set.of("id", "question", "answer"));
     }
 
+    /** 真实运行时校验器接受无定位目录查询，但继续拒绝越界坐标和模型身份字段。 */
+    @Test
+    void storeSearchAllowsMissingCityWithoutWeakeningOtherBoundaries() {
+        var validator = new AgentToolSchemaValidator(new com.fasterxml.jackson.databind.ObjectMapper());
+        var request = new java.util.LinkedHashMap<String, Object>(Map.of(
+                "schemaVersion", "1.1", "userId", "fixture-user", "sessionId", "fixture-session",
+                "traceId", "fixture-trace", "runId", "fixture-run", "taskId", "fixture-task",
+                "idempotencyKey", "fixture-run:fixture-task:1", "payload", Map.of("sort", "RECOMMENDED")));
+        // 省略城市不等于传入空串或编造默认城市；请求必须通过生产同一校验入口。
+        validator.validateRequest("search_stores", request);
+        request.put("payload", Map.of("latitude", 100));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> validator.validateRequest("search_stores", request))
+                .isInstanceOf(ToolBoundaryException.class);
+        request.put("payload", Map.of("userId", "another-user"));
+        org.assertj.core.api.Assertions.assertThatThrownBy(() -> validator.validateRequest("search_stores", request))
+                .isInstanceOf(ToolBoundaryException.class);
+    }
+
     /** 输入期望独立维护；未知工具抛异常，避免默认无约束放行。 */
     private static Set<String> expectedInput(String name) {
         return switch (name) {
-            case "search_stores" -> Set.of("cityCode");
+            // 通用门店推荐允许缺省城市，其他资源工具仍保留必需身份。
+            case "search_stores" -> Set.of();
             case "get_store_detail", "list_deal_packages", "search_reviews" -> Set.of("storeId");
             case "get_deal_detail" -> Set.of("dealId");
             case "get_order_detail" -> Set.of("orderId");
