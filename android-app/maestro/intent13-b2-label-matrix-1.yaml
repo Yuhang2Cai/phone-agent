@@ -1,0 +1,42 @@
+appId: com.fandazi.app
+---
+# 固定留出集逐类发送；每次清空客户端状态生成新会话，并等待第二个真实助手消息气泡。
+# greeting 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "元旦快乐，小助手！"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-greeting
+# chitchat 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "给我出个简单的脑筋急转弯。"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-chitchat
+# store_recommendation 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "想找可以带宠物到店吃饭的团购餐厅。"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-store_recommendation

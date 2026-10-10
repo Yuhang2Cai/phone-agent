@@ -10,8 +10,12 @@ Android 新版 `intent=composite` 展示复合进度，旧历史 `isComposite` �
 
 恢复场景首次失败是生产会话 ID 跨强停丢失，修复后同账号恢复与续填通过；第二次脚本断言文字不符，按真实产品提示修正流程后通过。服务重启期间曾因同一 shell 继承 Agent 的 DB 密码使 Spring 启动失败，隔离启动环境后复验通过。所有首次失败日志均在本任务 `.runtime`，没有将预期结果改成首次通过。
 
-Android 单目标 UI 与在线分类 13 类覆盖分别验证；部分非聊天页或需要业务资源的十二类标签未逐条形成单独 Maestro 截图。完整列表、性能统计与已接受的 B2 误判见 Agent 主报告和统一实验文档。共享旧任务切换、arm64 真机性能、ASR 人工验收及核销仍未进行。精确拟提交树隔离构建和 APK 例行清理结果见下；尚未合入 master。
+Android 单目标 UI 与在线分类 13 类覆盖分别验证；随后十二个普通标签在最终快照 APK 上逐类独立会话截屏，12 张截图与后端标签/终态的关联见 Agent 仓 `docs/verification/intent13-b2-master/android-label-matrix-summary.json`。其中 11/12 标签与冻结预期一致，退款状态仍误判范围外。 同一空订单合成账号的业务库复查为购买订单 0、退款申请 0、投诉工单 0。完整列表、性能统计与已接受的 B2 误判见 Agent 主报告和统一实验文档。共享旧任务切换、arm64 真机性能、ASR 人工验收及核销仍未进行。精确拟提交树隔离构建和 APK 例行清理结果见下；尚未合入 master。
 
 精确拟提交树 `d4207befef1cd386799b30ecd91750f870ca3a5d` 在独立快照 `D:/project/phone-agent/.worktrees/codex/intent13-b2-snapshot` 通过 Maven 202 项与 package、Android 387 项与 lint/两 APK 构建。快照只额外注入两份已核对 SHA 的本地 ASR 依赖，模型文件未入库。最终主包安装到原隔离模拟器后，复合双写两次确认、强停恢复与复合只读重新通过；复合只读第一次用了已有订单账号，固定“0 单”断言失败，换预设空订单夹具复验通过。日志为 `.runtime/intent13-b2-master/maestro-snapshot-*.log`。最终主包与测试包均保留在隔离快照 `android-app/app/build/outputs/apk/`。
 
 按项目 APK 规则删除本任务开发工作树中被快照包替代的旧主包和测试包 2 份，共 239286506 字节；D 盘可用空间从 65686257664 增至 65925545984 字节。复查开发工作树旧包 0 份；其他任务的 APK 不在本次清理范围。保留截图、日志、源码及新包摘要。
+
+在同一最终 APK 上追加四组十二类 Maestro 流程 `intent13-b2-label-matrix-1..4.yaml`，全部退出码 0；每个固定合成句子均看到真实助手第二气泡，进度结束。后端 12 个会话全部有分类和终态，平均首次进度 93.9 ms，平均终态 10032.4 ms（n=12）。这些脚本没有修改产品代码，时延没有预设达标阈值。断开本任务 Agent 进程的 `intent13-b2-network-error.yaml` 也通过：显示可重试错误，无进度滞留或确认按钮，随后 Agent/Spring 健康探针均为 200。真实断连截图位于 `C:/Users/caid0/.maestro/tests/2026-10-10_205326/intent13-b2-network-error/takeScreenshot/`。
+
+产品集成提交：手机仓 `73886120d076080586c30049ad57813f44b0c5e3`，配套 Agent 仓 `19e51d43892d804891ac685ab6429d95066fb665`；测试脚本与最终报告另行补充提交。两仓 `master` 均未合并。共享实验库存在未完成旧任务，实际部署切换继续延期到按原版本收尾之后。

@@ -1,0 +1,42 @@
+appId: com.fandazi.app
+---
+# 固定留出集逐类发送；每次清空客户端状态生成新会话，并等待第二个真实助手消息气泡。
+# deal_recommendation 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "在松风食堂的团购里，挑一个六人能吃的套餐。"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-deal_recommendation
+# store_info 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "松风食堂有没有停车位？"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-store_info
+# review_query 使用冻结的首条合成语句，不按运行结果更换问题。
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: "查一下大家对松风食堂停车体验的评价。"
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_message_text
+      index: 1
+    timeout: 120000
+- assertNotVisible: 任务进度
+- takeScreenshot: intent13-b2-label-review_query
