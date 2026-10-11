@@ -13,12 +13,14 @@ public class AgentTaskControlService {
     private final AgentTaskRunRepository runs;private final AgentTaskTurnRepository turns;
     private final AgentTaskCommandRepository commands;private final AgentConversationSourceService sources;
     private final AgentTaskEventOutbox outbox;private final AgentProtocolValidator contracts;
+    private final ConfirmationGrantService grants;
     /** 注入同库事务组件，不注入HTTP客户端，防止控制预备期间持有跨服务长锁。 */
     public AgentTaskControlService(AgentTaskRegistryService registry,AgentTaskRepository tasks,AgentTaskRunRepository runs,
             AgentTaskTurnRepository turns,AgentTaskCommandRepository commands,AgentConversationSourceService sources,
-            AgentTaskEventOutbox outbox,ObjectMapper mapper) {
+            AgentTaskEventOutbox outbox,ObjectMapper mapper,ConfirmationGrantService grants) {
         this.registry=registry;this.tasks=tasks;this.runs=runs;this.turns=turns;this.commands=commands;this.sources=sources;
         this.outbox=outbox;contracts=new AgentProtocolValidator(mapper);
+        this.grants=grants;
     }
     /** 按冻结Schema拒绝身份/价格/工具字段；非法公开输入统一400，不暴露Schema值。 */
     private void validate(String entry,Map<String,Object> value) {
@@ -51,6 +53,7 @@ public class AgentTaskControlService {
         var targets=new ArrayList<Map<String,Object>>();for(var task:affected.values()){task.prepareControl(command.id());targets.add(wireTarget(task));}
         targets.add(wireTarget(fresh));command.details().put("targets",targets);
         for(var turn:leases)turn.fenceOff();session.clearTaskConfirmation(affected.keySet());commands.saveAndFlush(command);
+        grants.revokeTasks(user,sessionId,affected.keySet());
         for(var task:affected.values())outbox.append(session,"task_projection",task.projection());outbox.append(session,"command_status",command.projection());return command.projection();
     }
     /** 普通按钮预备；同请求只推进一次，容量/版本/目标冲突在任何栅栏变化前拒绝。 */
@@ -99,6 +102,8 @@ public class AgentTaskControlService {
             wireTargets.add(wireTarget(affected.get((String)details.get("beforeFocusId"))));
         wireTargets.add(wireTarget(target));command.details().put("targets",wireTargets);
         commands.saveAndFlush(command);
+        // command持久后再按稳定顺序锁grant；撤销与新代次同库原子提交，退出不恢复旧凭证。
+        grants.revokeTasks(user,sessionId,ids);
         for(var task:affected.values())outbox.append(session,"task_projection",task.projection());
         outbox.append(session,"command_status",command.projection());return command.projection();
     }

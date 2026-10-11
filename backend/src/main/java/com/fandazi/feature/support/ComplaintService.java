@@ -46,6 +46,8 @@ public class ComplaintService {
                 || description == null || description.isBlank() || description.length() > 2000) {
             throw new DomainException("投诉内容长度不合法");
         }
+        // 任务凭证需可信栅栏上下文；在任何领域关联读取/后续写锁之前拒绝旧入口降级。
+        grants.requireDomainEntry(userId,sessionId,grantId);
         Long internalOrderId = ownedOrderId(userId, orderId);
         // 投诉无支付金额，但仍要求零金额和规则版本匹配，不能接受同资源的其他业务凭证。
         grants.consumeBound(userId, sessionId, grantId, "SUBMIT_COMPLAINT", resourceId(orderId), 0, "complaint-v1");

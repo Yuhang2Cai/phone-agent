@@ -4,6 +4,7 @@ package com.fandazi.feature.agent;
 import com.fandazi.feature.auth.UserEntity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.Objects;
 
 @Entity @Table(name = "agent_sessions", uniqueConstraints = @UniqueConstraint(columnNames = "session_id"))
 public class AgentSession {
@@ -35,6 +36,8 @@ public class AgentSession {
     @Column(name="task_event_sequence",nullable=false) private long taskEventSequence;
     // 新协议确认摘要显式归属task；旧摘要为空归属，不被后台控制误清。
     @Column(name="pending_confirmation_task_id",length=100) private String pendingConfirmationTaskId;
+    // 2.2明确确认只绑定用户实际确认的turn；短回复和新输入不能继承泛化会话confirmed。
+    @Column(name="confirmed_turn_id",length=100) private String confirmedTurnId;
     // 只保存 Spring 已重查的待确认动作；跨输入恢复时用于绑定用户看到的资源、金额、规则和正文。
     @Convert(converter = StringMapJsonConverter.class)
     @Column(name = "pending_confirmation", columnDefinition = "TEXT")
@@ -95,6 +98,12 @@ public class AgentSession {
     }
     /** 普通可执行输入只更新自己的trace；不调用旧update而误清确认/重分配run。 */
     void bindTaskTrace(String value) {traceId=value;}
+    /** 返回摘要任务归属，不能用会话中任意旧确认替代。 */
+    String pendingConfirmationTaskId(){return pendingConfirmationTaskId;}
+    /** 已核验用户明确确认后绑定当前turn；不改变grant期限或金额。 */
+    void confirmTaskTurn(String turnId){confirm();confirmedTurnId=turnId;}
+    /** 业务写必须由同一个已确认turn发起，其他普通输入不借用本次确认。 */
+    boolean taskTurnConfirmed(String turnId){return confirmed&&!confirmationConsumed&&Objects.equals(confirmedTurnId,turnId);}
     /** 在会话锁内设置已核验焦点；只有焦点实际变化才推进版本。 */
     void bindTaskFocus(String taskId) {
         if(!java.util.Objects.equals(currentConversationTaskId,taskId))taskFocusVersion++;

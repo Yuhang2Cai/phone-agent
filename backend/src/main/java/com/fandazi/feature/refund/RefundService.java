@@ -50,6 +50,8 @@ public class RefundService {
     @Transactional
     public Map<String, Object> request(Long userId, String sessionId, String voucherId, String reason, String grantId) {
         if (reason == null || reason.isBlank() || reason.length() > 500) throw new DomainException("退款原因长度不合法");
+        // 在券行锁前识别任务凭证，旧入口不得与任务grant消费形成反向等待。
+        grants.requireDomainEntry(userId,sessionId,grantId);
         VoucherEntity voucher = vouchers.findOwnedForUpdate(userId, voucherId)
                 .orElseThrow(() -> new DomainException("团购券不存在"));
         assertEligible(voucher);

@@ -14,4 +14,9 @@ public interface ConfirmationGrantRepository extends JpaRepository<ConfirmationG
     /** 确认摘要只能引用本会话已准备的动作；按签发顺序匹配真实金额和规则。 */
     java.util.List<ConfirmationGrantEntity> findByUserIdAndSessionIdAndActionAndResourceIdOrderByIdDesc(
             Long userId, String sessionId, String action, String resourceId);
+    /** session/task/command锁之后按grantId稳定顺序撤销受影响任务，不能清空整个会话授权。 */
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.Query("select g from ConfirmationGrantEntity g where g.user.id=:user and g.sessionId=:session and g.conversationTaskId in :tasks and g.consumed=false and g.revoked=false order by g.grantId")
+    java.util.List<ConfirmationGrantEntity> lockTaskGrants(@org.springframework.data.repository.query.Param("user") Long user,
+        @org.springframework.data.repository.query.Param("session") String session,@org.springframework.data.repository.query.Param("tasks") java.util.Collection<String> tasks);
 }

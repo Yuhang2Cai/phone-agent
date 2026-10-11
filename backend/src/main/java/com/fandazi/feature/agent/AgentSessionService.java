@@ -73,9 +73,10 @@ public class AgentSessionService {
     @Transactional public AgentSession trustedForUpdate(String sessionId) {
         return sessions.findBySessionIdForUpdate(sessionId).orElseThrow(() -> new DomainException("会话不存在"));
     }
-// 确认当前数据。
+    /** 旧协议泛化确认只用于旧任务；2.2必须经明确task/turn/展示摘要校验，不能绕过新门禁。 */
     @Transactional public void confirm(Long userId, String sessionId) {
-        sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在")).confirm();
+        var session=sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在"));
+        if("2.2".equals(session.getContextProtocolVersion()))throw new ToolBoundaryException("FORBIDDEN","任务协议必须确认当前轮次摘要");session.confirm();
     }
 // 处理 `bindAuthorizedCart` 相关逻辑。
     @Transactional public void bindAuthorizedCart(Long userId, String sessionId, String workflowId, Long cartDraftId, Long addressId, BigDecimal total) {

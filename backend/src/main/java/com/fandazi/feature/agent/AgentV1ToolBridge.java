@@ -54,6 +54,8 @@ public class AgentV1ToolBridge {
         catch (NumberFormatException exception) { throw new ToolBoundaryException("FORBIDDEN", "调用身份不可用"); }
         var session = sessions.findBySessionIdAndUserIdForUpdate(request.sessionId(), userId)
                 .orElseThrow(() -> new ToolBoundaryException("FORBIDDEN", "会话不属于当前用户"));
+        // 2.2任务只能从已核验TaskFence的新桥进入；旧run/trace正确也不能降级绕过代次。
+        if("2.2".equals(session.getContextProtocolVersion()))throw new ToolBoundaryException("FORBIDDEN","任务协议不能使用无栅栏旧工具入口");
         if (!request.runId().equals(session.getActiveRunId()) || !request.traceId().equals(session.getTraceId())
                 || !"running".equals(session.getActiveRunStatus())) throw new ToolBoundaryException("FORBIDDEN", "任务或本轮链路已失效");
         // 先拒绝失效任务，再核对键组成，避免身份伪造被误报为普通输入错误。
@@ -82,7 +84,7 @@ public class AgentV1ToolBridge {
         return result;
     }
     /** 具体动作与用户看过的摘要绑定；持有其他准备凭证不能借一次泛化确认替换动作、资源或正文。 */
-    private void validatePending(String tool, Long userId, InternalV1ToolRequest request, AgentSession session) {
+    void validatePending(String tool, Long userId, InternalV1ToolRequest request, AgentSession session) {
         var pending = session.getPendingConfirmation(); var input = request.payload();
         String resource = switch (tool) { case "create_group_buy_order" -> text(input, "quoteId"); case "pay_mock_order" -> text(input, "orderId");
             case "request_refund" -> text(input, "voucherId"); default -> input.containsKey("orderId") ? text(input, "orderId") : "general"; };
@@ -100,7 +102,8 @@ public class AgentV1ToolBridge {
         }
     }
     /** 17 个工具的唯一实际分发；成功数据遵循契约包装，写工具返回直接领域摘要。 */
-    private Map<String, Object> dispatch(String tool, Long userId, InternalV1ToolRequest request) {
+    @Transactional(propagation=org.springframework.transaction.annotation.Propagation.MANDATORY)
+    Map<String, Object> dispatch(String tool, Long userId, InternalV1ToolRequest request) {
         Map<String, Object> input = request.payload();
         return switch (tool) {
             case "search_stores" -> Map.of("stores", stores.search(text(input, "cityCode"), text(input, "sort"), decimal(input, "latitude"),

@@ -34,6 +34,10 @@ public class ConfirmationGrantEntity {
     @Column(name = "rule_version", nullable = false, length = 40) private String ruleVersion;
     @Column(name = "expires_at", nullable = false) private Instant expiresAt;
     @Column(nullable = false) private boolean consumed;
+    // 旧凭证不绑定task；2.2凭证必须同时绑定task与执行代次，暂停撤销后不能恢复旧授权。
+    @Column(name="conversation_task_id",length=100) private String conversationTaskId;
+    @Column(name="execution_generation") private Long executionGeneration;
+    @Column(nullable=false) private boolean revoked;
 
     protected ConfirmationGrantEntity() {}
 
@@ -55,6 +59,16 @@ public class ConfirmationGrantEntity {
     public String getRuleVersion() { return ruleVersion; }
     public Instant getExpiresAt() { return expiresAt; }
     public boolean isConsumed() { return consumed; }
+    /** 返回任务绑定，null仅代表既有旧协议凭证，不代表可跨任务使用。 */
+    public String getConversationTaskId(){return conversationTaskId;}
+    /** 返回签发时的执行代次，不能随恢复请求改写。 */
+    public Long getExecutionGeneration(){return executionGeneration;}
+    /** 返回显式撤销状态；撤销不伪装成消费或业务已执行。 */
+    public boolean isRevoked(){return revoked;}
+    /** 仅首次签发由可信领域上下文绑定，旧凭证不得事后升级成新任务授权。 */
+    void bindTask(String task,long generation){conversationTaskId=task;executionGeneration=generation;}
+    /** 控制预备撤销未消费授权，安全退出也不恢复它。 */
+    void revoke(){revoked=true;}
 
     /** 将凭证标记为已消费，防止同一确认结果被重复用于写操作。 */
     public void consume() { this.consumed = true; }

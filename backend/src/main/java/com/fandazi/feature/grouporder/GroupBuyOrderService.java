@@ -115,6 +115,8 @@ public class GroupBuyOrderService {
         // 输入校验：页面与 Agent 共用报价写入。按用户串行检查幂等键，避免并发先查后写产生第二单。
         if (idempotencyKey == null || idempotencyKey.isBlank() || idempotencyKey.length() > 255)
             throw new DomainException("订单幂等键无效");
+        // 必须在任何领域行锁前拒绝无任务上下文的新grant，避免页面user/order→grant与Agent栅栏锁序反转。
+        confirmations.requireDomainEntry(userId,sessionId,grantId);
         entityManager.find(com.fandazi.feature.auth.UserEntity.class, userId, jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
         // HTTP 报价读取事务已结束，参数可能脱管；重新取写事务内的报价并锁定，确保 consume 真正入库。
         // 与用户锁使用一致顺序，页面和 Agent 都从数据库权威状态判断期限/单次消费，不能依赖旧对象。
@@ -164,6 +166,8 @@ public class GroupBuyOrderService {
     /** V1 支付必须消费 PAY_MOCK_ORDER 专属金额授权，不能复用购买确认或旧外卖支付流程。 */
     @Transactional
     public Map<String, Object> payConfirmed(Long userId, String sessionId, String orderId, String grantId) {
+        // 旧页面不能先锁订单再等待任务凭证；新任务支付只从已校验栅栏的内部路径进入。
+        confirmations.requireDomainEntry(userId,sessionId,grantId);
         var order = orders.findOwnedForUpdate(userId, orderId).orElseThrow(() -> new com.fandazi.feature.agent.ToolBoundaryException("NOT_FOUND", "团购订单不存在"));
         if (order.getStatus() != GroupBuyOrderStatus.PENDING_PAYMENT)
             throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "订单当前不可支付");

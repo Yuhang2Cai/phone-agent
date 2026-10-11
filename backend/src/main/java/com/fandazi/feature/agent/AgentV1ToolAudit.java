@@ -26,6 +26,14 @@ class AgentV1ToolAudit {
                 Map.of("runId", request.runId(), "traceId", request.traceId(), "taskId", request.taskId(),
                         "actionVersion", request.version(), "executionKeyHash", executionKeyHash(request.idempotencyKey()), "result", result));
     }
+    /** v2接收审计带task/turn/代次与原执行键摘要；复用递归脱敏，不把grant写入公开历史。 */
+    @Transactional(propagation=Propagation.REQUIRES_NEW)
+    public void recordTask(InternalV2ToolRequest request,String tool,Map<String,Object> result){
+        events.record(Long.valueOf(request.userId()),request.sessionId(),"tool_result","工具执行结果",tool,
+            Boolean.TRUE.equals(result.get("ok"))?"succeeded":"failed",Map.of("runId",request.runId(),"traceId",request.traceId(),"taskId",request.taskId(),
+                "conversationTaskId",request.taskFence().get("conversationTaskId"),"turnId",request.taskFence().get("turnId"),
+                "executionGeneration",request.taskFence().get("executionGeneration"),"actionVersion",request.actionVersion(),"executionKeyHash",executionKeyHash(request.idempotencyKey()),"result",result));
+    }
     /** 只对受控执行器键做SHA-256摘要，不读取业务载荷；标准算法缺失时明确失败由外层审计降级。 */
     private static String executionKeyHash(String key) {
         try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8))); }

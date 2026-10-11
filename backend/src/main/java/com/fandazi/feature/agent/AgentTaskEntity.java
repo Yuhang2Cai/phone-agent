@@ -27,6 +27,8 @@ public class AgentTaskEntity {
     @Column(name="created_at",nullable=false) private Instant createdAt;
     @Column(name="last_paused_at") private Instant lastPausedAt;
     @Column(name="pending_command_id",length=100) private String pendingCommandId;
+    // 原订单来自真实领域创建/读取，控制撤销确认时仍保留停点资源，禁止重新新建订单。
+    @Column(name="pending_payment_order_id",length=100) private String pendingPaymentOrderId;
 
     /** 仅供JPA反序列化；外部不能自行构造或指定未来任务ID。 */
     protected AgentTaskEntity() {}
@@ -62,6 +64,14 @@ public class AgentTaskEntity {
     public String kind() { return taskKind; }
     /** 返回待交接命令；有值时任何普通轮次都不得取得执行资格。 */
     String pendingCommand() {return pendingCommandId;}
+    /** 返回原支付停点资源，只用于内部重准备，不进入模型可改写字段。 */
+    String pendingPaymentOrderId(){return pendingPaymentOrderId;}
+    /** 真实领域结果绑定支付对象；同一任务不得在等待支付期间悄悄替换原订单。 */
+    void bindPaymentOrder(String orderId){
+        if(pendingPaymentOrderId!=null&&!pendingPaymentOrderId.equals(orderId))throw new ToolBoundaryException("CONFLICT","任务已有不同支付停点");pendingPaymentOrderId=orderId;
+    }
+    /** 返回停点类型供内部恢复核验，调度暂停不把原停点改成running。 */
+    String stopKind(){return stopKind;}
     /** 返回最近暂停时间，仅影响目录显示排序，不能用于语义目标猜测。 */
     Instant pausedAt() { return lastPausedAt; }
     /** 返回创建时间，作为稳定展示排序的次级键。 */
