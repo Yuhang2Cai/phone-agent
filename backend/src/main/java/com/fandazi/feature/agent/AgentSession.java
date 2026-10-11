@@ -29,6 +29,10 @@ public class AgentSession {
     @Column(name="conversation_epoch",length=100) private String conversationEpoch;
     @Column(name="conversation_turn_sequence",nullable=false) private long conversationTurnSequence;
     @Column(name="context_protocol_version",length=10) private String contextProtocolVersion;
+    // AG03焦点与旧活动run字段分开；仅2.2任务目录事务可以推进调度版本。
+    @Column(name="current_conversation_task_id",length=100) private String currentConversationTaskId;
+    @Column(name="task_focus_version",nullable=false) private long taskFocusVersion;
+    @Column(name="task_event_sequence",nullable=false) private long taskEventSequence;
     // 只保存 Spring 已重查的待确认动作；跨输入恢复时用于绑定用户看到的资源、金额、规则和正文。
     @Convert(converter = StringMapJsonConverter.class)
     @Column(name = "pending_confirmation", columnDefinition = "TEXT")
@@ -62,6 +66,27 @@ public class AgentSession {
     String ensureConversationEpoch() {
         if(conversationEpoch==null)conversationEpoch=java.util.UUID.randomUUID().toString();
         return conversationEpoch;
+    }
+    /** 只读返回epoch，目录查询不能通过ensure方法补写历史状态。 */
+    String conversationEpoch() { return conversationEpoch; }
+    /** 返回当前任务身份；旧协议不会自动分配会话任务。 */
+    String currentTaskId() { return currentConversationTaskId; }
+    /** 返回焦点CAS版本，普通停点保存不随意递增。 */
+    long focusVersion() { return taskFocusVersion; }
+    /** 返回已纳入目录投影的事件水位；TL-03装配outbox前为0。 */
+    long taskEventSequence() { return taskEventSequence; }
+    /** 在会话锁内设置已核验焦点；只有焦点实际变化才推进版本。 */
+    void bindTaskFocus(String taskId) {
+        if(!java.util.Objects.equals(currentConversationTaskId,taskId))taskFocusVersion++;
+        currentConversationTaskId=taskId;
+    }
+    /** 2.2新会话不伪装成旧运行；旧字段仅按当前任务run显式同步供既有投影兼容。 */
+    void bindTaskRun(String runId,String status) { activeRunId=runId;activeRunStatus=status; }
+    /** 新会话或旧run已终态时显式进入2.2；清除旧停点资格，来源epoch与历史保留。 */
+    void enterTaskProtocol(String newTraceId) {
+        contextProtocolVersion="2.2";ensureConversationEpoch();traceId=newTraceId;
+        // 不复活旧run，也不携带终态前留下的确认摘要；已提交订单等事实字段不改写。
+        bindTaskRun(null,null);pendingConfirmation=null;confirmed=false;confirmationConsumed=true;
     }
     /** 递增与来源写入共用事务，失败回滚不消耗已签发顺序。 */
     long nextConversationTurn() { return ++conversationTurnSequence; }
