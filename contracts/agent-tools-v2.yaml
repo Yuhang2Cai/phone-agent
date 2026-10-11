@@ -1,0 +1,1141 @@
+# AG03工具传输2.0：保持原17工具及payload，新增可信任务执行栅栏。
+# v1/v2共用领域分派；旧代次在缓存结果回读和业务提交前均须拒绝。
+schemaVersion: '2.0'
+contractName: fandazi-agent-tools
+$schema: http://json-schema.org/draft-07/schema#
+endpoint: POST /internal/v2/tools/{toolName}
+idempotency:
+  generatedBy: EXECUTOR
+  components:
+  - runId
+  - taskId
+  - actionVersion
+  verifyRequestFingerprint: true
+  onUncertainWrite: QUERY_FACTS_BEFORE_RETRY
+confirmationPolicy:
+  field: confirmationGrantId
+  issuedBy: SPRING
+  boundTo:
+  - userId
+  - sessionId
+  - action
+  - resourceId
+  - amountCents
+  - ruleVersion
+  - expiresAt
+  - conversationTaskId
+  - executionGeneration
+  singleUse: true
+  explicitConfirmationBeforeBusinessWrite: true
+fieldTypes:
+  text: &id002
+    type: string
+    minLength: 1
+  publicId: &id001
+    type: string
+    minLength: 1
+    description: Spring 返回的公开资源标识
+  cents: &id003
+    type: integer
+    minimum: 0
+    description: 金额单位为整数分
+  timestamp: &id006
+    type: string
+    format: date-time
+  date: &id005
+    type: string
+    format: date
+  reason: &id007
+    type: string
+    minLength: 1
+    maxLength: 500
+  subject: &id008
+    type: string
+    minLength: 1
+    maxLength: 255
+  description: &id010
+    type: string
+    minLength: 1
+    maxLength: 2000
+  catalogImageUrl: &id004
+    oneOf:
+    - type: 'null'
+    - type: string
+      format: uri
+      pattern: '^[A-Za-z][A-Za-z0-9+.-]*:'
+    - type: string
+      pattern: ^/catalog-images/v[0-9]+/(full|thumb)/[a-z0-9-]+-[a-f0-9]{12}\.jpg$
+commonRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - userId
+  - sessionId
+  - traceId
+  - runId
+  - taskId
+  - idempotencyKey
+  - payload
+  - taskFence
+  - actionVersion
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.0'
+    userId: *id001
+    sessionId: *id001
+    traceId: *id002
+    runId: *id002
+    taskId: *id002
+    idempotencyKey: *id002
+    actionVersion:
+      type: integer
+      minimum: 1
+      description: 新鲜读取/准备先持久推进动作版本；同一逻辑重试保持原版本和执行键。
+    payload:
+      type: object
+      description: 按选定工具的 input schema 校验
+    taskFence:
+      $ref: '#/taskFence'
+commonResult:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - ok
+  - data
+  - error
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.0'
+    ok:
+      type: boolean
+    data:
+      type: object
+      description: 成功时按 output.schema 校验，失败时为空对象
+    error:
+      oneOf:
+      - $ref: '#/definitions/tool_error'
+      - type: 'null'
+  allOf:
+  - if:
+      properties:
+        ok:
+          const: true
+    then:
+      properties:
+        error:
+          type: 'null'
+    else:
+      properties:
+        data:
+          type: object
+          maxProperties: 0
+        error:
+          $ref: '#/definitions/tool_error'
+errorCodes:
+- VALIDATION_ERROR
+- NOT_FOUND
+- FORBIDDEN
+- CONFLICT
+- EXPIRED
+- RATE_LIMITED
+- DEPENDENCY_UNAVAILABLE
+- INTERNAL_ERROR
+definitions:
+  tool_error:
+    type: object
+    additionalProperties: false
+    required:
+    - code
+    - message
+    - retryable
+    properties:
+      code:
+        type: string
+        enum:
+        - VALIDATION_ERROR
+        - NOT_FOUND
+        - FORBIDDEN
+        - CONFLICT
+        - EXPIRED
+        - RATE_LIMITED
+        - DEPENDENCY_UNAVAILABLE
+        - INTERNAL_ERROR
+      message: *id002
+      retryable:
+        type: boolean
+  store:
+    type: object
+    additionalProperties: false
+    required:
+    - publicId
+    - name
+    - brandName
+    - cityCode
+    - address
+    - category
+    - averageSpendCents
+    - latitude
+    - longitude
+    - open
+    - openingHours
+    properties:
+      publicId: *id001
+      name: *id002
+      brandName: *id002
+      cityCode: *id002
+      address: *id002
+      category: *id002
+      averageSpendCents: *id003
+      latitude:
+        type: number
+        minimum: -90
+        maximum: 90
+      longitude:
+        type: number
+        minimum: -180
+        maximum: 180
+      open:
+        type: boolean
+      openingHours: *id002
+      phone:
+        type:
+        - string
+        - 'null'
+      imageUrl: *id004
+      imageAlt:
+        type:
+        - string
+        - 'null'
+  deal:
+    type: object
+    additionalProperties: false
+    required:
+    - publicId
+    - storeId
+    - title
+    - description
+    - priceCents
+    - originalPriceCents
+    - inventory
+    - validFrom
+    - validTo
+    - purchaseLimit
+    properties:
+      publicId: *id001
+      storeId: *id001
+      title: *id002
+      description:
+        type: string
+      priceCents: *id003
+      originalPriceCents: *id003
+      inventory:
+        type: integer
+        minimum: 0
+      validFrom: *id005
+      validTo: *id005
+      purchaseLimit:
+        type: integer
+        minimum: 1
+      active:
+        type: boolean
+      imageUrl: *id004
+      imageAlt:
+        type:
+        - string
+        - 'null'
+  review:
+    type: object
+    additionalProperties: false
+    required:
+    - storeId
+    - reviewerName
+    - rating
+    - content
+    - createdAt
+    properties:
+      storeId: *id001
+      reviewerName: *id002
+      rating:
+        type: number
+        minimum: 1
+        maximum: 5
+      content: *id002
+      createdAt: *id006
+  voucher:
+    type: object
+    additionalProperties: false
+    required:
+    - publicId
+    - orderId
+    - dealId
+    - dealTitle
+    - storeId
+    - storeName
+    - status
+    - canRefund
+    - expiresAt
+    - redeemedAt
+    properties:
+      publicId: *id001
+      orderId: *id001
+      dealId: *id001
+      dealTitle: *id002
+      storeId: *id001
+      storeName: *id002
+      status:
+        type: string
+        enum:
+        - UNUSED
+        - REDEEMED
+        - EXPIRED
+        - REFUNDED
+      canRefund:
+        type: boolean
+        description: 来自 Spring 资格判断，UNUSED 本身不足以推断可退款
+      expiresAt: *id006
+      redeemedAt:
+        type:
+        - string
+        - 'null'
+        format: date-time
+      imageUrl: *id004
+      imageAlt:
+        type:
+        - string
+        - 'null'
+      amountCents:
+        type:
+        - integer
+        - 'null'
+        minimum: 0
+      createdAt: *id006
+  order:
+    type: object
+    additionalProperties: false
+    required:
+    - orderId
+    - dealId
+    - storeId
+    - quantity
+    - totalCents
+    - status
+    - voucherCount
+    - createdAt
+    - canReview
+    - vouchers
+    properties:
+      orderId: *id001
+      dealId: *id001
+      storeId: *id001
+      quantity:
+        type: integer
+        minimum: 1
+      totalCents: *id003
+      status:
+        type: string
+        enum:
+        - PENDING_PAYMENT
+        - PAID
+        - PARTIALLY_USED
+        - USED
+        - REFUNDED
+        - EXPIRED
+        - CANCELLED
+      voucherCount:
+        type: integer
+        minimum: 0
+      createdAt: *id006
+      canReview:
+        type: boolean
+        description: 由已核销事实与订单唯一评价记录计算
+      vouchers:
+        type: array
+        items:
+          $ref: '#/definitions/voucher'
+      storeName: *id002
+      dealTitle: *id002
+      imageUrl: *id004
+      imageAlt:
+        type:
+        - string
+        - 'null'
+      paymentConfirmationGrantId: *id002
+      paymentConfirmationExpiresAt: *id006
+      ruleVersion:
+        type: string
+        const: pay-v1
+        description: 独立模拟支付确认规则
+  coupon:
+    type: object
+    additionalProperties: false
+    required:
+    - couponId
+    - claimId
+    - name
+    - status
+    - thresholdCents
+    - discountCents
+    - validFrom
+    - validTo
+    - scopeDescription
+    properties:
+      couponId: *id001
+      claimId: *id001
+      name: *id002
+      status: *id002
+      thresholdCents: *id003
+      discountCents: *id003
+      validFrom: *id006
+      validTo: *id006
+      scopeDescription: *id002
+  faq:
+    type: object
+    additionalProperties: false
+    required:
+    - id
+    - question
+    - answer
+    properties:
+      id: *id002
+      question: *id002
+      answer: *id002
+  store_list:
+    type: object
+    additionalProperties: false
+    required:
+    - stores
+    properties:
+      stores:
+        type: array
+        items:
+          $ref: '#/definitions/store'
+  store_detail:
+    type: object
+    additionalProperties: false
+    required:
+    - store
+    properties:
+      store:
+        $ref: '#/definitions/store'
+  deal_list:
+    type: object
+    additionalProperties: false
+    required:
+    - deals
+    properties:
+      deals:
+        type: array
+        items:
+          $ref: '#/definitions/deal'
+  deal_detail:
+    type: object
+    additionalProperties: false
+    required:
+    - deal
+    properties:
+      deal:
+        $ref: '#/definitions/deal'
+  review_list:
+    type: object
+    additionalProperties: false
+    required:
+    - reviews
+    properties:
+      reviews:
+        type: array
+        items:
+          $ref: '#/definitions/review'
+  order_list:
+    type: object
+    additionalProperties: false
+    required:
+    - orders
+    properties:
+      orders:
+        type: array
+        items:
+          $ref: '#/definitions/order'
+  order_detail:
+    type: object
+    additionalProperties: false
+    required:
+    - order
+    properties:
+      order:
+        $ref: '#/definitions/order'
+  voucher_list:
+    type: object
+    additionalProperties: false
+    required:
+    - vouchers
+    properties:
+      vouchers:
+        type: array
+        items:
+          $ref: '#/definitions/voucher'
+  coupon_list:
+    type: object
+    additionalProperties: false
+    required:
+    - coupons
+    properties:
+      coupons:
+        type: array
+        items:
+          $ref: '#/definitions/coupon'
+  faq_answer:
+    type: object
+    additionalProperties: false
+    required:
+    - faqs
+    properties:
+      faqs:
+        type: array
+        items:
+          $ref: '#/definitions/faq'
+  purchase_quote:
+    type: object
+    additionalProperties: false
+    required:
+    - quoteId
+    - dealId
+    - quantity
+    - subtotalCents
+    - discountCents
+    - totalCents
+    - expiresAt
+    - confirmationGrantId
+    - dealVersion
+    properties:
+      quoteId: *id001
+      dealId: *id001
+      quantity:
+        type: integer
+        minimum: 1
+      subtotalCents: *id003
+      discountCents: *id003
+      totalCents: *id003
+      expiresAt: *id006
+      confirmationGrantId: *id002
+      dealVersion:
+        type: integer
+        minimum: 0
+      confirmationExpiresAt: *id006
+      confirmationRuleVersion: *id002
+  refund_preparation:
+    type: object
+    additionalProperties: false
+    required:
+    - voucherId
+    - orderId
+    - dealTitle
+    - amountCents
+    - expiresAt
+    - confirmationGrantId
+    properties:
+      voucherId: *id001
+      orderId: *id001
+      dealTitle: *id002
+      amountCents: *id003
+      storeId: *id001
+      dealId: *id001
+      storeName: *id002
+      canRefund:
+        type: boolean
+      imageUrl: *id004
+      imageAlt:
+        type:
+        - string
+        - 'null'
+      expiresAt: *id006
+      confirmationGrantId: *id002
+      confirmationExpiresAt: *id006
+      confirmationRuleVersion: *id002
+  complaint_preparation:
+    type: object
+    additionalProperties: false
+    required:
+    - orderId
+    - confirmationGrantId
+    properties:
+      orderId:
+        type: string
+      confirmationGrantId: *id002
+      confirmationExpiresAt: *id006
+      confirmationRuleVersion: *id002
+  refund_result:
+    type: object
+    additionalProperties: false
+    required:
+    - requestId
+    - voucherId
+    - status
+    - reason
+    - createdAt
+    properties:
+      requestId: *id001
+      voucherId: *id001
+      status:
+        type: string
+        enum:
+        - REQUESTED
+        - APPROVED
+        - REJECTED
+        - COMPLETED
+      reason: *id007
+      createdAt: *id006
+      amountCents: *id003
+      orderId: *id001
+      storeId: *id001
+      dealId: *id001
+      storeName: *id002
+      dealTitle: *id002
+      expiresAt: *id006
+      imageUrl: *id004
+      imageAlt:
+        type:
+        - string
+        - 'null'
+  complaint_ticket:
+    type: object
+    additionalProperties: false
+    required:
+    - ticketId
+    - status
+    - subject
+    - createdAt
+    properties:
+      ticketId: *id001
+      status:
+        type: string
+        enum:
+        - OPEN
+        - PROCESSING
+        - RESOLVED
+        - CLOSED
+      subject: *id008
+      createdAt: *id006
+tools:
+- name: search_stores
+  description: 按城市、降精度位置、品类、人均和排序查询门店
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required: []
+    properties:
+      cityCode: *id002
+      latitude:
+        type: number
+        minimum: -90
+        maximum: 90
+      longitude:
+        type: number
+        minimum: -180
+        maximum: 180
+      category: *id002
+      minPriceCents: *id003
+      maxPriceCents: *id003
+      sort:
+        type: string
+        enum:
+        - RECOMMENDED
+        - PRICE_ASC
+        - PRICE_DESC
+        - DISTANCE
+  output:
+    type: store_list
+    schema:
+      $ref: '#/definitions/store_list'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - DEPENDENCY_UNAVAILABLE
+- name: get_store_detail
+  description: 查询公开门店详情，不公开数据库主键
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - storeId
+    properties:
+      storeId: *id001
+  output:
+    type: store_detail
+    schema:
+      $ref: '#/definitions/store_detail'
+  errors:
+  - NOT_FOUND
+  - FORBIDDEN
+  - DEPENDENCY_UNAVAILABLE
+- name: list_deal_packages
+  description: 查询门店当前可售固定套餐，返回真实价格与库存
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - storeId
+    properties:
+      storeId: *id001
+      sort:
+        type: string
+        enum:
+        - RECOMMENDED
+        - PRICE_ASC
+        - PRICE_DESC
+  output:
+    type: deal_list
+    schema:
+      $ref: '#/definitions/deal_list'
+  errors:
+  - NOT_FOUND
+  - DEPENDENCY_UNAVAILABLE
+- name: get_deal_detail
+  description: 查询指定固定套餐及有效日期
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - dealId
+    properties:
+      dealId: *id001
+  output:
+    type: deal_detail
+    schema:
+      $ref: '#/definitions/deal_detail'
+  errors:
+  - NOT_FOUND
+  - EXPIRED
+  - DEPENDENCY_UNAVAILABLE
+- name: search_reviews
+  description: 查询公开评价；评分范围与分页参数必须合法
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - storeId
+    properties:
+      storeId: *id001
+      dealId: *id001
+      rating:
+        type: number
+        minimum: 1
+        maximum: 5
+      keyword: *id002
+      page:
+        type: integer
+        minimum: 0
+  output:
+    type: review_list
+    schema:
+      $ref: '#/definitions/review_list'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - DEPENDENCY_UNAVAILABLE
+- name: list_user_orders
+  description: 查询可信会话用户的团购订单及券摘要，不能跨用户查询
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required: []
+    properties:
+      status:
+        type: string
+        enum:
+        - PENDING_PAYMENT
+        - PAID
+        - PARTIALLY_USED
+        - USED
+        - REFUNDED
+        - EXPIRED
+        - CANCELLED
+      page:
+        type: integer
+        minimum: 0
+  output:
+    type: order_list
+    schema:
+      $ref: '#/definitions/order_list'
+  errors:
+  - VALIDATION_ERROR
+  - FORBIDDEN
+  - DEPENDENCY_UNAVAILABLE
+- name: get_order_detail
+  description: 查询本人指定订单，返回金额快照与服务端评价资格
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - orderId
+    properties:
+      orderId: *id001
+  output:
+    type: order_detail
+    schema:
+      $ref: '#/definitions/order_detail'
+  errors:
+  - NOT_FOUND
+  - FORBIDDEN
+  - DEPENDENCY_UNAVAILABLE
+- name: list_user_vouchers
+  description: 查询本人购买套餐后生成的团购券voucher公开摘要，不是优惠券；不下发核销令牌，未支付订单不能推断可退款
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required: []
+    properties:
+      status:
+        type: string
+        enum:
+        - UNUSED
+        - REDEEMED
+        - EXPIRED
+        - REFUNDED
+      orderId: *id001
+  output:
+    type: voucher_list
+    schema:
+      $ref: '#/definitions/voucher_list'
+  errors:
+  - VALIDATION_ERROR
+  - FORBIDDEN
+  - DEPENDENCY_UNAVAILABLE
+- name: create_purchase_quote
+  description: 校验库存、限购和价格，保存短期报价并签发购买确认凭证；不创建业务订单
+  risk: WRITE_PREVIEW
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects:
+  - persist_quote
+  - issue_confirmation_grant
+  - persist_audit
+  guards: &id009
+    authenticated: true
+    resourceOwnership: true
+    rateLimited: true
+    audited: true
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - dealId
+    - quantity
+    properties:
+      dealId: *id001
+      quantity:
+        type: integer
+        minimum: 1
+      couponId: *id001
+  output:
+    type: purchase_quote
+    schema:
+      $ref: '#/definitions/purchase_quote'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - FORBIDDEN
+  - CONFLICT
+  - EXPIRED
+  - RATE_LIMITED
+  - DEPENDENCY_UNAVAILABLE
+- name: prepare_refund
+  description: 校验券归属和退款资格并签发短期凭证；不创建退款申请，不改变券状态
+  risk: WRITE_PREVIEW
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects:
+  - issue_confirmation_grant
+  - persist_audit
+  guards: *id009
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - voucherId
+    properties:
+      voucherId: *id001
+  output:
+    type: refund_preparation
+    schema:
+      $ref: '#/definitions/refund_preparation'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - FORBIDDEN
+  - CONFLICT
+  - EXPIRED
+  - RATE_LIMITED
+  - DEPENDENCY_UNAVAILABLE
+- name: prepare_complaint
+  description: 校验可选订单归属并签发投诉凭证；允许不关联订单，不创建投诉工单
+  risk: WRITE_PREVIEW
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects:
+  - issue_confirmation_grant
+  - persist_audit
+  guards: *id009
+  input:
+    type: object
+    additionalProperties: false
+    required: []
+    properties:
+      orderId: *id001
+  output:
+    type: complaint_preparation
+    schema:
+      $ref: '#/definitions/complaint_preparation'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - FORBIDDEN
+  - EXPIRED
+  - RATE_LIMITED
+  - DEPENDENCY_UNAVAILABLE
+- name: create_group_buy_order
+  description: 按报价快照校验数量、金额与版本，消费用户已确认的凭证后创建待支付订单
+  risk: WRITE
+  confirmationRequired: true
+  businessCommitted: true
+  sideEffects:
+  - consume_confirmation_grant
+  - create_order
+  - persist_audit
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - quoteId
+    - confirmationGrantId
+    properties:
+      quoteId: *id001
+      confirmationGrantId: *id002
+  output:
+    type: order_detail
+    schema:
+      $ref: '#/definitions/order'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - FORBIDDEN
+  - CONFLICT
+  - EXPIRED
+  - DEPENDENCY_UNAVAILABLE
+- name: pay_mock_order
+  description: 校验本人待支付团购订单与支付确认凭证后执行幂等模拟支付
+  risk: WRITE
+  confirmationRequired: true
+  businessCommitted: true
+  sideEffects:
+  - consume_confirmation_grant
+  - update_payment
+  - persist_audit
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - orderId
+    - confirmationGrantId
+    properties:
+      orderId: *id001
+      confirmationGrantId: *id002
+      ruleVersion:
+        type: string
+        const: pay-v1
+  output:
+    type: payment_result
+    schema:
+      $ref: '#/definitions/order'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - FORBIDDEN
+  - CONFLICT
+  - EXPIRED
+  - DEPENDENCY_UNAVAILABLE
+- name: request_refund
+  description: 明确确认后重查退款资格，消费退款专属凭证并创建待处理申请；不冒充退款到账
+  risk: WRITE
+  confirmationRequired: true
+  businessCommitted: true
+  sideEffects:
+  - consume_confirmation_grant
+  - create_refund_request
+  - persist_audit
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - voucherId
+    - reason
+    - confirmationGrantId
+    properties:
+      voucherId: *id001
+      reason: *id007
+      confirmationGrantId: *id002
+  output:
+    type: refund_result
+    schema:
+      $ref: '#/definitions/refund_result'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - FORBIDDEN
+  - CONFLICT
+  - EXPIRED
+  - DEPENDENCY_UNAVAILABLE
+- name: query_coupon
+  description: 查询本人已领取的优惠券coupon与抵扣适用规则，不是团购券；不能把未领取券当成可直接使用
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required: []
+    properties:
+      storeId: *id001
+      dealId: *id001
+  output:
+    type: coupon_list
+    schema:
+      $ref: '#/definitions/coupon_list'
+  errors:
+  - NOT_FOUND
+  - FORBIDDEN
+  - DEPENDENCY_UNAVAILABLE
+- name: query_faq
+  description: 以 question 查询团购帮助；历史 keyword 由工具适配器转换，结果保留 faqs 数组
+  risk: READ_ONLY
+  confirmationRequired: false
+  businessCommitted: false
+  sideEffects: []
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - question
+    properties:
+      question: *id002
+      topic: *id002
+  output:
+    type: faq_answer
+    schema:
+      $ref: '#/definitions/faq_answer'
+  errors:
+  - VALIDATION_ERROR
+  - DEPENDENCY_UNAVAILABLE
+- name: submit_complaint
+  description: 明确确认后校验投诉正文及可选订单归属，消费投诉凭证并返回真实工单
+  risk: WRITE
+  confirmationRequired: true
+  businessCommitted: true
+  sideEffects:
+  - consume_confirmation_grant
+  - create_complaint_ticket
+  - persist_audit
+  input:
+    type: object
+    additionalProperties: false
+    required:
+    - subject
+    - description
+    - confirmationGrantId
+    properties:
+      subject: *id008
+      description: *id010
+      confirmationGrantId: *id002
+      orderId: *id001
+  output:
+    type: complaint_ticket
+    schema:
+      $ref: '#/definitions/complaint_ticket'
+  errors:
+  - VALIDATION_ERROR
+  - NOT_FOUND
+  - FORBIDDEN
+  - CONFLICT
+  - EXPIRED
+  - DEPENDENCY_UNAVAILABLE
+taskFence:
+  type: object
+  additionalProperties: false
+  required:
+  - scope
+  - conversationTaskId
+  - runId
+  - turnId
+  - focusVersion
+  - taskVersion
+  - executionGeneration
+  properties:
+    scope:
+      $ref: '#/taskScope'
+    conversationTaskId: &id011
+      type: string
+      minLength: 1
+      maxLength: 100
+    runId: *id011
+    turnId: *id011
+    focusVersion:
+      type: integer
+      minimum: 0
+    taskVersion: &id012
+      type: integer
+      minimum: 1
+    executionGeneration: *id012
+taskScope:
+  type: object
+  additionalProperties: false
+  required:
+  - userId
+  - sessionId
+  - conversationEpoch
+  properties:
+    userId: &id013
+      type: string
+      minLength: 1
+      maxLength: 100
+    sessionId: *id013
+    conversationEpoch: *id013
+taskFencePolicy:
+  requiredForProtocol: '2.2'
+  legacyEntryRejected: true
+  checkBeforeCachedResult: true

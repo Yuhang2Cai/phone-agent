@@ -18,6 +18,12 @@ final class AgentProtocolValidator {
     // 两版分别使用完整权威 Schema；不能去掉版本约束后共用宽松结构。
     private final Map<String, JsonSchema> eventSchemas = new LinkedHashMap<>();
     private final Map<String, JsonSchema> requestSchemas = new LinkedHashMap<>();
+    // 固定入口防止调用者通过任意Schema引用绕过受控任务边界。
+    private final Map<String, JsonSchema> taskSchemas = new LinkedHashMap<>();
+    private static final java.util.Set<String> TASK_ENTRIES = java.util.Set.of(
+            "taskScope", "taskFence", "turnAdmission", "taskDirectory", "publicTask",
+            "taskCommandRequest", "taskCommandView", "taskControlRequest", "controlAck", "taskDecision",
+            "turnCompletionRequest", "taskPaymentPreparationRequest", "taskPaymentPreparationResult", "taskEvent");
 
     /** 启动时完整加载契约；配置缺失或不合法必须阻止启动，不能以部分规则继续接收事件。 */
     AgentProtocolValidator(ObjectMapper mapper) {
@@ -26,6 +32,8 @@ final class AgentProtocolValidator {
         loadVersion("2.0", "agent-protocol-v2.yaml");
         // 上下文来源扩展独立加载，旧版本继续拒绝这些新增字段。
         loadVersion("2.1", "agent-protocol-v2.1.yaml");
+        // 独立加载任务协议；只提供结构能力，启用入口另由功能门禁控制。
+        loadVersion("2.2", "agent-protocol-v2.2.yaml");
     }
 
     /** 仅加载随构建固定的版本；任一契约缺失都阻止启动，不静默降级。 */
@@ -45,6 +53,10 @@ final class AgentProtocolValidator {
             if (!version.equals(document.get("schemaVersion"))) throw new IllegalStateException("契约版本与文件不一致");
             eventSchemas.put(version, schema(factory, document, "agentEvent"));
             requestSchemas.put(version, schema(factory, document, "agentRunRequest"));
+            if ("2.2".equals(version)) {
+                // 所有引用在同一权威根解析，避免把嵌套字段降为宽松Map校验。
+                for (String entry : TASK_ENTRIES) taskSchemas.put(entry, schema(factory, document, entry));
+            }
         } catch (Exception exception) {
             throw new IllegalStateException("无法加载 Agent 权威契约", exception);
         }
@@ -62,6 +74,13 @@ final class AgentProtocolValidator {
 
     /** 事件进入审计和展示之前检查嵌套载荷、金额和动作，不静默丢弃未知字段。 */
     void validateEvent(Map<String, Object> event) { validate(select(eventSchemas, event), event); }
+
+    /** 验证固定任务载荷；结构合法不代表身份归属、版本、代次或执行资格合法。 */
+    void validateTaskPayload(String entry, Map<String, Object> payload) {
+        JsonSchema selected = taskSchemas.get(entry);
+        if (selected == null) throw new AgentServiceUnavailableException("未知任务协议入口");
+        validate(selected, payload);
+    }
 
     /** 严格按载荷版本取 Schema；缺版本和未知版本都不能借旧版规则通过。 */
     private JsonSchema select(Map<String, JsonSchema> schemas, Map<String, Object> value) {
