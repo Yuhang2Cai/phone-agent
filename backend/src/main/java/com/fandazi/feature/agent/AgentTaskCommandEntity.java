@@ -7,6 +7,9 @@ import java.util.*;
 /** 所有状态修改在session→task→command锁序内；网络超时不能直接变为aborted。 */
 @Entity @Table(name="agent_task_commands")
 public class AgentTaskCommandEntity {
+    // 返回指令仅来自明确原文；单独索引用于完成/重启后有界恢复，不扫描所有历史命令JSON。
+    @Column(name="return_status",length=30) private String returnStatus;
+    @Column(name="return_command_id",length=100) private String returnCommandId;
     @Id @Column(name="command_id",length=100) private String id;
     @Column(name="user_id",nullable=false,updatable=false) private Long userId;
     @Column(name="session_id",nullable=false,length=100,updatable=false) private String sessionId;
@@ -40,6 +43,16 @@ public class AgentTaskCommandEntity {
     }
     /** 返回不可变命令身份，网络重试始终复用。 */
     public String id() {return id;}
+    /** 插入预备事务同时登记来源，任务未成功前不恢复任何焦点或业务。 */
+    void registerReturn(){returnStatus="registered";}
+    /** 返回当前登记/已预备/完成/失效状态，重复处理不得签第二个返回命令。 */
+    String returnStatus(){return returnStatus;}
+    /** 返回持久交接命令引用，不从最近任务猜目标。 */
+    String returnCommandId(){return returnCommandId;}
+    /** 返回控制一旦预备即固定命令ID，故障后只推进同一命令。 */
+    void prepareReturn(String id){returnCommandId=id;returnStatus="prepared";}
+    /** 条件已变更时标失效；成功时标完成，均不能再次登记自动恢复。 */
+    void finishReturn(String status){returnStatus=status;}
     /** 返回命令归属，不接受模型输入覆写。 */
     AgentTaskRegistryService.Scope scope() {return new AgentTaskRegistryService.Scope(userId,sessionId,epoch);}
     /** 返回请求指纹以拒绝同键异文。 */

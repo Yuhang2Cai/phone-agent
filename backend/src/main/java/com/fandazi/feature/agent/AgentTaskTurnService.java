@@ -11,15 +11,30 @@ public class AgentTaskTurnService {
     private final AgentTaskRegistryService registry;private final AgentTaskTurnRepository turns;private final AgentTaskRunRepository runs;
     private final AgentConversationSourceService sources;private final AgentTaskEventOutbox outbox;private final AgentProtocolValidator contracts;
     private final AgentConversationSourceRepository sourceRows;
+    private final AgentCardEnrichmentService cards;private final AgentTaskExecutionContext execution;
     /** 注入同库持久组件；不依赖HTTP/模型/业务工具，保证受理和完成为短事务。 */
     public AgentTaskTurnService(AgentTaskRegistryService registry,AgentTaskTurnRepository turns,AgentTaskRunRepository runs,
-            AgentConversationSourceService sources,AgentTaskEventOutbox outbox,ObjectMapper mapper,AgentConversationSourceRepository sourceRows) {
-        this.registry=registry;this.turns=turns;this.runs=runs;this.sources=sources;this.outbox=outbox;this.sourceRows=sourceRows;contracts=new AgentProtocolValidator(mapper);
+            AgentConversationSourceService sources,AgentTaskEventOutbox outbox,ObjectMapper mapper,AgentConversationSourceRepository sourceRows,
+            AgentCardEnrichmentService cards,AgentTaskExecutionContext execution) {
+        this.registry=registry;this.turns=turns;this.runs=runs;this.sources=sources;this.outbox=outbox;this.sourceRows=sourceRows;
+        this.cards=cards;this.execution=execution;contracts=new AgentProtocolValidator(mapper);
     }
     /** 内部输入对象由鉴权网关构造；task与版本仍须服务重新核验，不能相信模型身份。 */
     public record Input(String requestId,String body,String taskId,long taskVersion,long focusVersion,boolean executable) {}
     /** 返回持久轮次引用与可选业务许可；无工具路径只允许完成公开短回复。 */
     public record Accepted(String turnId,Map<String,Object> admission,Map<String,Object> completedResult) {}
+    /** 网关原始输入与轮次在同一短事务绑定；避免受理后崩溃留下无法核验重试正文的半条许可。 */
+    @Transactional
+    public Accepted admitGatewayTurn(Long user,String sessionId,Input input,String originalHash) {
+        return admitGatewayTurn(user,sessionId,input,originalHash,Map.of());
+    }
+    /** 显式公开对象证据在受理短事务内固化；网络执行只读该副本，不能从请求重新注入。 */
+    @Transactional
+    public Accepted admitGatewayTurn(Long user,String sessionId,Input input,String originalHash,Map<String,Object> selectedContext) {
+        if(originalHash==null||!originalHash.matches("[a-f0-9]{64}"))throw AgentTaskRegistryService.bad("网关输入摘要无效");
+        var accepted=admitTurn(user,sessionId,input);var session=registry.lockScope(user,sessionId);
+        var turn=lockTurn(session,accepted.turnId());turn.bindGatewayInput(originalHash,input.body());turn.bindGatewayContext(selectedContext);return accepted;
+    }
     /** 规范化输入→同scope查重→CAS/租约核验→签发不可变许可；租约过期不能重跑工作流。 */
     @Transactional
     public Accepted admitTurn(Long user,String sessionId,Input input) {
@@ -82,7 +97,9 @@ public class AgentTaskTurnService {
             if(!current){admission.put("admissionState","rejected");admission.put("mayExecuteTools",false);}
         }
         var result=new LinkedHashMap<String,Object>();result.put("schemaVersion","2.2");result.put("traceId",turn.traceId());result.put("bodySha256",source.bodySha256());
-        result.put("source",source.publicSource());result.put("admission",admission);result.put("completedResult",turn.result());return result;
+        result.put("source",source.publicSource());result.put("admission",admission);result.put("completedResult",turn.result());
+        // Agent用原受理ID回读持久归属，不能接收请求context自报的另一份分类/控制结论。
+        result.put("requestId",turn.requestId());return result;
     }
     /** 无工具完成只生成control_reply；同turn同文回读、异文409，不动前台资格/trace/确认。 */
     @Transactional
@@ -127,7 +144,11 @@ public class AgentTaskTurnService {
             if("confirmation_required".equals(event.get("eventType"))) {
                 if(!"waiting_confirmation".equals(status)||!status.equals(event.get("status")))throw AgentTaskRegistryService.conflict("完成结果与确认停点矛盾");
                 confirmationStops++;
-                @SuppressWarnings("unchecked") var summary=(Map<String,Object>)payload.get("summary");session.awaitTaskConfirmation(task.id(),summary);
+                @SuppressWarnings("unchecked") var summary=(Map<String,Object>)payload.get("summary");
+                // Schema合法不代表已获领域授权：在已锁定且核验通过的任务栅栏内重查真实资源/金额/规则和有效grant。
+                // 只保存服务端规范摘要，确保随后按钮提交的已展示内容与领域校验结果一致；缺grant时整个完成事务回滚。
+                var canonical=execution.within(fence,()->cards.enrichSummary(user,sessionId,summary));
+                session.awaitTaskConfirmation(task.id(),canonical);
             }
         }
         // 等待停点必须恰有一个对应事件；重复/缺失不能任取一个摘要或伪造可恢复状态。

@@ -22,6 +22,11 @@ public class AgentTaskTurnEntity {
     @Convert(converter=StringMapJsonConverter.class) @Column(name="fence_json",columnDefinition="TEXT") private Map<String,Object> fence;
     @Convert(converter=StringMapJsonConverter.class) @Column(name="result_json",columnDefinition="TEXT") private Map<String,Object> result;
     @Column(name="result_fingerprint",length=64) private String resultFingerprint;
+    // 网关完整原始输入摘要绑定按钮/展示确认；只看业务子句不能发现同requestId附加了另一控制指令。
+    @Column(name="gateway_input_hash",length=64) private String gatewayInputHash;
+    // 保存首次受理的原文业务子句，响应切断重试不把完整插问/返回后缀送回原run。
+    @Column(name="gateway_query",columnDefinition="TEXT") private String gatewayQuery;
+    @Convert(converter=StringMapJsonConverter.class) @Column(name="gateway_context_json",columnDefinition="TEXT") private Map<String,Object> gatewayContext;
     @Column(name="lease_task_key",length=100,unique=true) private String leaseTaskKey;
     @Column(name="lease_until") private Instant leaseUntil;
     @Column(name="created_at",nullable=false) private Instant createdAt;
@@ -42,6 +47,26 @@ public class AgentTaskTurnEntity {
     AgentTaskRegistryService.Scope scope() {return new AgentTaskRegistryService.Scope(userId,sessionId,epoch);}
     /** 返回请求指纹，来源相同不等于允许改写正文或目标。 */
     String fingerprint() {return fingerprint;}
+    /** 返回受理前归属解释关联ID；只用于内部权威回读，客户端不能用此字段改写业务许可。 */
+    String requestId() {return requestId;}
+    /** 回读完整网关输入摘要，HTTP重试先核同文再返回完成回执。 */
+    String gatewayInputHash() {return gatewayInputHash;}
+    /** 返回首次业务子句，仅本人内部重试使用，不进入任务公开目录。 */
+    String gatewayQuery() {return gatewayQuery;}
+    /** 只返回首次核验的显式公开引用，重试不能通过另一个页面更换对象。 */
+    Map<String,Object> gatewayContext(){return gatewayContext==null?Map.of():gatewayContext;}
+    /** 与原始输入同事务绑定，公开引用也必须同文；调用方已排除所有凭证/任意客户端候选。 */
+    void bindGatewayContext(Map<String,Object> value){
+        if(gatewayContext!=null&&!gatewayContext.isEmpty()&&!AgentTaskFingerprint.of(gatewayContext).equals(AgentTaskFingerprint.of(value)))
+            throw AgentTaskRegistryService.conflict("同输入选择证据已变化");
+        gatewayContext=new LinkedHashMap<>(value);
+    }
+    /** 受理事务一次绑定原始输入，禁止同轮次改写按钮/确认对象。 */
+    void bindGatewayInput(String hash,String body) {
+        if(gatewayInputHash!=null&&!gatewayInputHash.equals(hash))throw AgentTaskRegistryService.conflict("同输入身份内容已变化");
+        if(gatewayQuery!=null&&!gatewayQuery.equals(body))throw AgentTaskRegistryService.conflict("同输入业务原文已变化");
+        gatewayInputHash=hash;gatewayQuery=body;
+    }
     /** 返回可信来源，完成不能使用另一用户消息。 */
     String source() {return sourceId;}
     /** 返回所属任务；无状态短回复允许为空且不能签发工具许可。 */

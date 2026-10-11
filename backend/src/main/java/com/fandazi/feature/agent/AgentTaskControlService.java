@@ -27,15 +27,22 @@ public class AgentTaskControlService {
         try {contracts.validateTaskPayload(entry,value);}catch(AgentServiceUnavailableException error){throw AgentTaskRegistryService.bad("任务请求结构不合法");}
     }
     /** 新目标描述来自已做来源区间与十三类分类的内部网关；不作为公开按钮自由字段。 */
-    public record NewGoal(String requestId,String originalSpan,String kind,String intent,String title,long expectedFocusVersion) {}
+    public record ReturnRequest(String targetTaskId,long targetTaskVersion,long focusVersion,String originalText,int start,int end) {}
+    /** 新目标可带已核验原文返回指令；旧六参调用保持无自动返回。 */
+    public record NewGoal(String requestId,String originalSpan,String kind,String intent,String title,long expectedFocusVersion,ReturnRequest returnRequest) {
+        /** 旧调用未表达返回时不能猜测用户希望回来。 */
+        public NewGoal(String requestId,String originalSpan,String kind,String intent,String title,long expectedFocusVersion) {
+            this(requestId,originalSpan,kind,intent,title,expectedFocusVersion,null);
+        }
+    }
     /** 插问先验证新目标再预备；新task只在安全提交后创建，拒绝/退出不留下幽灵任务。 */
     @Transactional
     public Map<String,Object> prepareInsert(Long user,String sessionId,NewGoal input) {
         if(input==null||input.requestId()==null||input.requestId().isBlank()||input.requestId().length()>100||input.originalSpan()==null||input.originalSpan().isBlank())
             throw AgentTaskRegistryService.bad("新目标输入无效");
         registry.validateDescription(input.kind(),input.intent(),input.title());
-        // 问候/闲聊/范围外输入只能短回复，不能暂停用户的在途任务。
-        if("chat".equals(input.kind()))throw AgentTaskRegistryService.bad("非业务插问不能改变任务");
+        // 问候/范围外只走短回复；已验证明确“先聊聊”的chitchat可建立独立聊天任务。
+        if("chat".equals(input.kind())&&!"chitchat".equals(input.intent()))throw AgentTaskRegistryService.bad("非业务插问不能改变任务");
         var session=registry.lockScope(user,sessionId);var scope=registry.scopeOf(session);String hash=AgentTaskFingerprint.of(input);
         var previous=commands.findByUserIdAndSessionIdAndEpochAndRequestId(user,sessionId,scope.epoch(),input.requestId());
         if(previous.isPresent()){if(!hash.equals(previous.get().fingerprint()))throw AgentTaskRegistryService.conflict("同请求身份关联了不同目标");return previous.get().projection();}
@@ -43,13 +50,29 @@ public class AgentTaskControlService {
         var affected=new LinkedHashMap<String,AgentTaskEntity>();
         if(session.currentTaskId()!=null){var front=registry.lockTask(scope,session.currentTaskId());
             if(front.pendingCommand()!=null)throw AgentTaskRegistryService.conflict("前台仍在交接");registry.previewControl(user,sessionId,"insert",front.id());affected.put(front.id(),front);}
+        var returnHint=input.returnRequest();
+        if(returnHint!=null) {
+            // 原来源Unicode码点区间及唯一原前台都要复核，模型不能自己登记另一个暂停目标。
+            var original=affected.get(returnHint.targetTaskId());String raw=returnHint.originalText();
+            if(!"lookup".equals(input.kind())||original==null||original.version()!=returnHint.targetTaskVersion()
+                    ||session.focusVersion()!=returnHint.focusVersion()||raw==null||!raw.contains(input.originalSpan()))throw AgentTaskRegistryService.bad("返回指令目标无效");
+            int count=raw.codePointCount(0,raw.length());
+            if(returnHint.start()<0||returnHint.end()!=count||returnHint.start()>=returnHint.end())throw AgentTaskRegistryService.bad("返回指令原文位置无效");
+            String suffix=raw.substring(raw.offsetByCodePoints(0,returnHint.start()),raw.offsetByCodePoints(0,returnHint.end()));
+            if(!Set.of("，查完再继续这个任务","，查完再继续当前任务","，查完再回来继续当前任务").contains(suffix))throw AgentTaskRegistryService.bad("返回指令缺少明确原文");
+        }
         var leases=lockRunsAndTurns(affected.values());
         var fresh=new AgentTaskEntity(scope,input.kind(),input.intent(),input.title());
-        var source=sources.issue(user,sessionId,input.originalSpan(),"tc-"+AgentTaskFingerprint.of(input.requestId()));
+        var source=sources.issue(user,sessionId,returnHint==null?input.originalSpan():returnHint.originalText(),"tc-"+AgentTaskFingerprint.of(input.requestId()));
         var details=new LinkedHashMap<String,Object>();var ids=new TreeSet<>(affected.keySet());ids.add(fresh.id());details.put("affectedTaskIds",new ArrayList<>(ids));
         details.put("beforeFocusId",session.currentTaskId());details.put("changesFocus",true);
         details.put("newTask",Map.of("id",fresh.id(),"kind",input.kind(),"intent",input.intent(),"title",input.title()));
         session.advanceTaskFocus();var command=new AgentTaskCommandEntity(scope,input.requestId(),hash,"insert",fresh.id(),(String)source.get("sourceMessageId"),session.focusVersion(),details);
+        if(returnHint!=null) {
+            command.details().put("returnTo",Map.of("taskId",returnHint.targetTaskId(),"pausedTaskVersion",returnHint.targetTaskVersion()+1,
+                "sourceMessageId",source.get("sourceMessageId"),"sourceStart",returnHint.start(),"sourceEnd",returnHint.end(),"insertFocusVersion",session.focusVersion()));
+            command.registerReturn();
+        }
         var targets=new ArrayList<Map<String,Object>>();for(var task:affected.values()){task.prepareControl(command.id());targets.add(wireTarget(task));}
         targets.add(wireTarget(fresh));command.details().put("targets",targets);
         for(var turn:leases)turn.fenceOff();session.clearTaskConfirmation(affected.keySet());commands.saveAndFlush(command);

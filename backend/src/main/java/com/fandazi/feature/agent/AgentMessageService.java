@@ -54,7 +54,8 @@ public class AgentMessageService {
         }
         // 原事件身份供 HTTP/SSE 双交付去重，数据库事件主键仍独立作为 Last-Event-ID 游标。
         // 从已校验的顶层复制，不使用业务 payload 中可能存在的同名值覆盖权威链路。
-        for (String key : java.util.List.of("schemaVersion", "eventId", "sequence", "runId", "traceId", "status")) {
+        // 2.2的taskContext是已校验顶层栅栏元数据，端上按task/代次过滤迟到事件；不能丢弃只剩run标识。
+        for (String key : java.util.List.of("schemaVersion", "eventId", "sequence", "runId", "traceId", "status", "taskContext")) {
             if (event.get(key) != null) publicPayload.put(key, event.get(key));
         }
         normalized.put("payload", publicPayload);

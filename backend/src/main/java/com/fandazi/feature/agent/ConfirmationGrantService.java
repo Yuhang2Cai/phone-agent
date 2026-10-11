@@ -100,9 +100,14 @@ public class ConfirmationGrantService {
     /** 用已准备凭证校验公开摘要事实；期限来自签发记录，不能采用模型期限或券有效期。 */
     @Transactional(readOnly = true)
     public ConfirmationGrantEntity pending(Long userId, String sessionId, String action, String resourceId, int amount, String rule) {
+        var fence=taskContext.current();if(fence!=null)requireContextOwner(userId,sessionId,fence);
         return grants.findByUserIdAndSessionIdAndActionAndResourceIdOrderByIdDesc(userId, sessionId, action, resourceId).stream()
                 .filter(value -> !value.isConsumed() && value.getExpiresAt().isAfter(Instant.now())
-                        && !value.isRevoked() && value.getConversationTaskId()==null
+                        && !value.isRevoked()
+                        // 旧页面只可取旧grant；可信任务摘要只能取该task当前代次，不能跨任务借用同资源凭证。
+                        && (fence==null ? value.getConversationTaskId()==null :
+                            java.util.Objects.equals(value.getConversationTaskId(),fence.get("conversationTaskId"))
+                            && java.util.Objects.equals(value.getExecutionGeneration(),AgentTaskFingerprint.version(fence.get("executionGeneration"))))
                         && Integer.valueOf(amount).equals(value.getAmountCents()) && rule.equals(value.getRuleVersion()))
                 .findFirst().orElseThrow(() -> new ToolBoundaryException("EXPIRED", "该动作没有有效确认准备，请重新准备"));
     }

@@ -228,17 +228,23 @@ class AgentTaskControlTest {
         @SuppressWarnings("unchecked") var fence=(Map<String,Object>)admitted.admission().get("fence");var context=new LinkedHashMap<>(fence);context.remove("scope");context.remove("runId");
         String trace=jdbc.queryForObject("SELECT trace_id FROM agent_task_turns WHERE turn_id=?",String.class,admitted.turnId());
         var payload="input_required".equals(eventType)?Map.<String,Object>of("question","请选择城市","inputKey","cityCode","candidates",List.of()):
-            Map.<String,Object>of("summary",Map.of("action","pay_mock_order","resourceId","synthetic-order","title","合成确认","amountCents",100,"ruleVersion","synthetic-v1"),
-                "actions",List.of(Map.of("actionId","synthetic-cancel","actionType","cancel","label","取消","resourceId","synthetic-order","enabled",true)));
+            Map.<String,Object>of("summary",Map.of("action","submit_complaint","resourceId","general","title","合成确认","amountCents",0,"ruleVersion","complaint-v1",
+                "subject","合成主题","description","合成正文"),
+                "actions",List.of(Map.of("actionId","synthetic-cancel","actionType","cancel","label","取消","resourceId","general","enabled",true)));
         var event=Map.<String,Object>of("schemaVersion","2.2","eventId","synthetic-inconsistent","eventType",eventType,"traceId",trace,"runId",fence.get("runId"),"sequence",0,
             "status","input_required".equals(eventType)?"waiting_input":"waiting_confirmation","payload",payload,"taskContext",context);
         var result=Map.<String,Object>of("schemaVersion","2.2","traceId",trace,"runId",fence.get("runId"),"status","succeeded","intent","deal_recommendation","events",List.of(event));
         var raw=Map.<String,Object>of("schemaVersion","2.2","turnId",admitted.turnId(),"fence",fence,"sourceMessageId",admitted.admission().get("sourceMessageId"),"result",result);var before=f.directory();
         assertEquals(409,assertThrows(ResponseStatusException.class,()->turnService.complete(f.user,f.session,raw),"完成状态矛盾必须拒绝").getStatusCode().value());
         assertEquals(before,f.directory());assertNull(jdbc.queryForObject("SELECT pending_confirmation_task_id FROM agent_sessions WHERE session_id=?",String.class,f.session));
-        // 相同合法事件与对应等待结果应通过，防止修复变成一律拒绝所有普通完成。
+        // 普通输入合法停点应通过；确认除Schema外还要求真实领域准备，本控制零业务夹具不能伪造有效grant。
         String correctStatus=(String)event.get("status");var correctedResult=new LinkedHashMap<>(result);correctedResult.put("status",correctStatus);
-        var corrected=new LinkedHashMap<>(raw);corrected.put("result",correctedResult);assertDoesNotThrow(()->turnService.complete(f.user,f.session,corrected));
+        var corrected=new LinkedHashMap<>(raw);corrected.put("result",correctedResult);
+        if("confirmation_required".equals(eventType)){
+            assertThrows(ToolBoundaryException.class,()->turnService.complete(f.user,f.session,corrected));
+            assertEquals(before,f.directory());return;
+        }
+        assertDoesNotThrow(()->turnService.complete(f.user,f.session,corrected));
         assertEquals(correctStatus,AgentTaskTestFixtures.stop(AgentTaskTestFixtures.current(f.directory())).get("kind"));
         if("confirmation_required".equals(eventType))assertEquals(AgentTaskTestFixtures.id(task),jdbc.queryForObject("SELECT pending_confirmation_task_id FROM agent_sessions WHERE session_id=?",String.class,f.session));
     }

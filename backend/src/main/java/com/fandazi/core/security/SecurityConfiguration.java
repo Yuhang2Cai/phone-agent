@@ -44,7 +44,8 @@ public class SecurityConfiguration {
                         // V1 入口由专用短时内部 JWT 校验器保护，不能由用户 JWT 过滤器代替其身份绑定。
                         .requestMatchers("/internal/v1/tools/**").permitAll()
                         // v2同样在专用内部JWT入口核验签名/账号，随后校验数据库任务栅栏。
-                        .requestMatchers("/internal/v2/tools/**", "/internal/v2/task-executions/**", "/internal/v2/task-admissions/**", "/internal/v2/task-payments/**").permitAll()
+                        // 内部参数撤销与工具/完成一样使用各控制器的专用短期JWT，不接受普通用户登录Token代替。
+                        .requestMatchers("/internal/v2/tools/**", "/internal/v2/task-executions/**", "/internal/v2/task-admissions/**", "/internal/v2/task-payments/**", "/internal/v2/task-preparations/invalidate").permitAll()
                         // 版本化餐图是公开目录静态资源；仅开放读取，数据库与私有接口仍需各自授权。
                         .requestMatchers(HttpMethod.GET, "/catalog-images/**").permitAll()
                         // 图片审计使用无正文的 HEAD 请求；只读权限与 GET 相同。

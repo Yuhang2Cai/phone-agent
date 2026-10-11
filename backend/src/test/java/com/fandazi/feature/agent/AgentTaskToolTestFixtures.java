@@ -11,11 +11,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 final class AgentTaskToolTestFixtures {
     final AgentTaskTestFixtures scope;final String taskId,dealId;final AgentTaskRegistryService registry;
     final AgentTaskTurnService turns;final AgentTaskToolBridge tools;final AgentTaskFenceService fences;final JdbcTemplate jdbc;
+    final AgentSessionService sessions;
     AgentTaskTurnService.Accepted turn;
     /** 通过真实仓储建立独立合成对象，生命周期仍经产品服务，不直接伪造任务/凭证。 */
     AgentTaskToolTestFixtures(UserRepository users,AgentSessionService sessions,AgentTaskRegistryService registry,AgentTaskTurnService turns,
             AgentTaskToolBridge tools,AgentTaskFenceService fences,JdbcTemplate jdbc,StoreRepository stores,DealPackageRepository deals){
-        scope=new AgentTaskTestFixtures(users,sessions,registry,jdbc);this.registry=registry;this.turns=turns;this.tools=tools;this.fences=fences;this.jdbc=jdbc;
+        scope=new AgentTaskTestFixtures(users,sessions,registry,jdbc);this.registry=registry;this.turns=turns;this.tools=tools;this.fences=fences;this.jdbc=jdbc;this.sessions=sessions;
         taskId=AgentTaskTestFixtures.id(registry.create(scope.user,scope.session,"transaction","group_buy_order","合成购买"));String suffix=UUID.randomUUID().toString();
         var store=stores.saveAndFlush(new StoreEntity("ag03-store-"+suffix,"合成品牌","合成门店","310000","合成地址","合成电话","中餐",new BigDecimal("31.2"),new BigDecimal("121.4"),1234,true,"09:00-22:00",null));
         dealId="ag03-deal-"+suffix;deals.saveAndFlush(new DealPackageEntity(dealId,store,"合成双份套餐","合成测试",1234,2000,20,LocalDate.now().minusDays(1),LocalDate.now().plusDays(20),true,5,7));
@@ -36,7 +37,10 @@ final class AgentTaskToolTestFixtures {
     Map<String,Object> awaitAndConfirm(Map<String,Object> quote){
         var summary=Map.<String,Object>of("action","create_group_buy_order","resourceId",quote.get("quoteId"),"title","合成购买确认","amountCents",quote.get("totalCents"),
             "ruleVersion",quote.get("confirmationRuleVersion"),"dealTitle","合成双份套餐","quantity",2);
-        awaitConfirmation(summary);admit("合成用户明确确认");fences.confirmCurrent(fence(),trace(),summary);return summary;
+        awaitConfirmation(summary);
+        // TL-06出口会重查并规范标题/金额/规则/期限；确认必须使用实际展示摘要，不能继续回传模型原始结构。
+        var displayed=sessions.owned(scope.user,scope.session).getPendingConfirmation();
+        admit("合成用户明确确认");fences.confirmCurrent(fence(),trace(),displayed);return displayed;
     }
     /** 保存合法等待确认事件，不直接改confirmed字段或预置有效凭证。 */
     void awaitConfirmation(Map<String,Object> summary){

@@ -11,9 +11,11 @@ import org.springframework.web.server.ResponseStatusException;
 public class AgentTaskFenceService {
     private final AgentTaskRegistryService registry;private final AgentTaskRunRepository runs;private final AgentTaskTurnRepository turns;
     private final AgentProtocolValidator contracts;
+    private final ConfirmationGrantService grants;private final AgentToolExecutionRepository executions;
     /** 注入持久注册与轮次仓储，结构合法后仍逐项核对数据库权威状态。 */
-    public AgentTaskFenceService(AgentTaskRegistryService registry,AgentTaskRunRepository runs,AgentTaskTurnRepository turns,ObjectMapper mapper){
-        this.registry=registry;this.runs=runs;this.turns=turns;contracts=new AgentProtocolValidator(mapper);
+    public AgentTaskFenceService(AgentTaskRegistryService registry,AgentTaskRunRepository runs,AgentTaskTurnRepository turns,ObjectMapper mapper,
+            ConfirmationGrantService grants,AgentToolExecutionRepository executions){
+        this.registry=registry;this.runs=runs;this.turns=turns;this.grants=grants;this.executions=executions;contracts=new AgentProtocolValidator(mapper);
     }
     /** 只在事务内使用的已锁聚合，不能序列化到模型、公开目录或日志。 */
     record Current(AgentSession session,AgentTaskEntity task,AgentTaskRunEntity run,AgentTaskTurnEntity turn) {}
@@ -47,5 +49,39 @@ public class AgentTaskFenceService {
         if(!current.task().id().equals(current.session().pendingConfirmationTaskId())||!AgentTaskFingerprint.of(current.session().getPendingConfirmation()).equals(AgentTaskFingerprint.of(shownSummary)))
             throw new ToolBoundaryException("CONFLICT","确认对象与当前展示摘要不一致");
         current.session().confirmTaskTurn(current.turn().id());
+    }
+    /** 参数修订管理入口：只接收已校验字段名和动作版本，不执行任何业务工具；撤销结果必须持久幂等。 */
+    @Transactional
+    public Map<String,Object> invalidatePreparation(Map<String,Object> raw) {
+        // 管理请求采用固定白名单，不接受凭证ID、业务正文或模型指定的撤销目标；结构错误不触碰授权。
+        var fields=Set.of("voucherId","dealId","orderId","quantity","reason","subject","description","couponId","storeId");
+        if(raw==null||!raw.keySet().equals(Set.of("schemaVersion","fence","traceId","actionVersion","changedFields"))
+                ||!"2.2".equals(raw.get("schemaVersion"))||!(raw.get("fence") instanceof Map<?,?>)
+                ||!(raw.get("traceId") instanceof String trace)||trace.isBlank()
+                ||!(raw.get("changedFields") instanceof List<?> changes)||changes.isEmpty()||changes.size()>fields.size()
+                ||changes.stream().anyMatch(value->!(value instanceof String)||!fields.contains(value))||new HashSet<>(changes).size()!=changes.size())
+            throw new ToolBoundaryException("VALIDATION_ERROR","参数修订请求无效");
+        if(!(raw.get("actionVersion") instanceof Integer||raw.get("actionVersion") instanceof Long))
+            throw new ToolBoundaryException("VALIDATION_ERROR","修订动作版本必须为整数");
+        int version;
+        try{version=Math.toIntExact(AgentTaskFingerprint.version(raw.get("actionVersion")));}
+        catch(RuntimeException invalid){throw new ToolBoundaryException("VALIDATION_ERROR","修订动作版本无效");}
+        if(version<2)throw new ToolBoundaryException("VALIDATION_ERROR","修订动作版本无效");
+        @SuppressWarnings("unchecked") var fence=(Map<String,Object>)raw.get("fence");var current=requireCurrent(fence,trace);
+        String node="internal-preparation-invalidation",key=current.run().id()+":"+node+":"+version;
+        if(key.length()>255)throw new ToolBoundaryException("VALIDATION_ERROR","修订身份过长");
+        // session/task/turn已锁后才读取原动作回执；同键不同字段或栅栏拒绝，同内容回读不能再次撤销新grant。
+        String hash=AgentTaskFingerprint.of(raw);var old=executions.findById(key);
+        if(old.isPresent()){
+            if(!hash.equals(old.get().getFingerprint()))throw new ToolBoundaryException("CONFLICT","修订动作键已关联其他内容");
+            return old.get().getResult();
+        }
+        grants.revokeTasks(current.turn().scope().userId(),current.turn().scope().sessionId(),Set.of(current.task().id()));
+        current.session().clearTaskConfirmation(Set.of(current.task().id()));
+        var receipt=Map.<String,Object>of("schemaVersion","2.2","state","invalidated","actionVersion",version);
+        var request=new InternalV2ToolRequest("2.0",String.valueOf(current.turn().scope().userId()),current.turn().scope().sessionId(),trace,
+            current.run().id(),node,key,version,Map.of("changedFields",changes),fence);
+        // 复用私有执行回执表保持撤销与去重原子；此内部管理名称不注册进17个模型工具。
+        executions.saveAndFlush(new AgentToolExecution(request,current.turn().scope().userId(),"internal_invalidate_preparation",hash,receipt));return receipt;
     }
 }
