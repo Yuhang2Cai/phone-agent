@@ -10,10 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AgentTaskTurnService {
     private final AgentTaskRegistryService registry;private final AgentTaskTurnRepository turns;private final AgentTaskRunRepository runs;
     private final AgentConversationSourceService sources;private final AgentTaskEventOutbox outbox;private final AgentProtocolValidator contracts;
+    private final AgentConversationSourceRepository sourceRows;
     /** 注入同库持久组件；不依赖HTTP/模型/业务工具，保证受理和完成为短事务。 */
     public AgentTaskTurnService(AgentTaskRegistryService registry,AgentTaskTurnRepository turns,AgentTaskRunRepository runs,
-            AgentConversationSourceService sources,AgentTaskEventOutbox outbox,ObjectMapper mapper) {
-        this.registry=registry;this.turns=turns;this.runs=runs;this.sources=sources;this.outbox=outbox;contracts=new AgentProtocolValidator(mapper);
+            AgentConversationSourceService sources,AgentTaskEventOutbox outbox,ObjectMapper mapper,AgentConversationSourceRepository sourceRows) {
+        this.registry=registry;this.turns=turns;this.runs=runs;this.sources=sources;this.outbox=outbox;this.sourceRows=sourceRows;contracts=new AgentProtocolValidator(mapper);
     }
     /** 内部输入对象由鉴权网关构造；task与版本仍须服务重新核验，不能相信模型身份。 */
     public record Input(String requestId,String body,String taskId,long taskVersion,long focusVersion,boolean executable) {}
@@ -62,6 +63,26 @@ public class AgentTaskTurnService {
         if(!row.scope().equals(scope))throw AgentTaskRegistryService.missing();
         if(row.taskId()!=null)registry.lockTask(scope,row.taskId());if(row.runId()!=null)runs.lockById(row.runId()).orElseThrow(AgentTaskRegistryService::missing);
         return turns.lockById(id).orElseThrow(AgentTaskRegistryService::missing);
+    }
+    /** 内部权威回读只返回原输入摘要/来源/许可及完成回执，不受理新输入、不推进任何任务版本。 */
+    @Transactional
+    public Map<String,Object> readAuthority(Long user,String sessionId,String epoch,String turnId) {
+        var session=registry.lockScope(user,sessionId);var scope=registry.scopeOf(session);
+        if(!scope.epoch().equals(epoch))throw new ToolBoundaryException("FORBIDDEN","轮次范围已失效");
+        var turn=lockTurn(session,turnId);var source=sourceRows.findById(turn.source()).orElseThrow(AgentTaskRegistryService::missing);
+        if(!source.ownedBy(user,sessionId,epoch))throw new ToolBoundaryException("FORBIDDEN","轮次来源不属于当前范围");
+        var admission=turn.fence()==null?null:new LinkedHashMap<>(turn.admission());
+        if(admission!=null&&"admitted".equals(turn.state())) {
+            var task=registry.lockTask(scope,turn.taskId());var run=runs.lockById(turn.runId()).orElseThrow(AgentTaskRegistryService::missing);var fence=turn.fence();
+            // 许可行未显式fenceOff也不能绕过当前焦点/代次；完成回读仍保留原结果供补交核验。
+            boolean current=turn.executable()&&task.pendingCommand()==null&&"active".equals(task.lifecycle())&&task.id().equals(session.currentTaskId())
+                &&run.id().equals(task.activeRunId())&&!run.terminal()&&turn.traceId().equals(session.getTraceId())
+                &&task.version()==AgentTaskFingerprint.version(fence.get("taskVersion"))&&task.generation()==AgentTaskFingerprint.version(fence.get("executionGeneration"))
+                &&session.focusVersion()==AgentTaskFingerprint.version(fence.get("focusVersion"));
+            if(!current){admission.put("admissionState","rejected");admission.put("mayExecuteTools",false);}
+        }
+        var result=new LinkedHashMap<String,Object>();result.put("schemaVersion","2.2");result.put("traceId",turn.traceId());result.put("bodySha256",source.bodySha256());
+        result.put("source",source.publicSource());result.put("admission",admission);result.put("completedResult",turn.result());return result;
     }
     /** 无工具完成只生成control_reply；同turn同文回读、异文409，不动前台资格/trace/确认。 */
     @Transactional
