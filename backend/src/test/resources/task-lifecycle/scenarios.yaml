@@ -1,0 +1,2441 @@
+# AG03 r2合成金标；既有身份和初始停点固定，新task ID只由服务端生成。
+spec_version: ag03-task-lifecycle-r2
+synthetic_only: true
+scenarios:
+- id: TS-S01
+  title: 选择套餐插入查订单后恢复
+  scope:
+    user_id: '910001'
+    other_user_id: '920001'
+    session_id: 627e6609-5dbd-5375-9269-4f0bf84354c7
+    epoch: 7473e933-cbf4-577e-96e1-5c2d596d5f9c
+  setup:
+    task_ids: &id001
+      deal: fb6af643-b7ba-5c2f-97f0-2feeb6bcc58c
+    run_ids:
+      deal: 81bad098-8185-50cb-889e-d3977c11b331
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 5ae8381c-b165-57b9-8ce5-f02306865aaa
+      dealId: 10b172d1-1610-5a33-acbf-f3f09cb3d69a
+      orderId: 1aabf5ff-0756-5d3e-abed-61052edd348d
+      voucherId: 32304315-9168-516e-87dd-27eebd73d722
+      couponId: 008b0e9b-3741-592d-9cc7-1fcff5afaaf8
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 6e390118-2123-5d80-ad85-40a0cf99917b
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: deal
+      task_id: fb6af643-b7ba-5c2f-97f0-2feeb6bcc58c
+      run_id: 81bad098-8185-50cb-889e-d3977c11b331
+      intent: deal_recommendation
+      task_kind: selection
+      lifecycle: active
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: deal
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 推荐200元内双人套餐
+  - kind: message
+    text: 先查下我的订单
+  - kind: message
+    text: 继续刚才的套餐任务
+  faults: []
+  expected:
+    task_ids: *id001
+    new_roles:
+    - orders
+    task_relations:
+    - deal与orders身份不同
+    - 恢复deal身份不变
+    focus: deal
+    phases:
+      deal: active/awaiting_followup
+      orders: completed
+    allowed_tools_by_role:
+      deal:
+      - list_deal_packages
+      - get_deal_detail
+      orders:
+      - list_user_orders
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - deal原预算/排除项及展示来源保留
+    - orders对象不写入deal槽位
+    - 切换时准备/写入增量0
+    original_budget: 200
+    resume_keeps_original_conditions: true
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S02
+  title: 自由文本原因等待时插问
+  scope:
+    user_id: '910002'
+    other_user_id: '920002'
+    session_id: dfa543e0-f6e3-57d5-bed2-39cfa8fb8c68
+    epoch: 249d7538-dbc4-51b1-af45-45f7d1421545
+  setup:
+    task_ids: &id002
+      refund: 01b32919-17ed-5dce-bc41-88fd0c19b88a
+    run_ids:
+      refund: 392d37af-50fd-5eb7-a06b-bb9bb8d2159c
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 93f099ac-ab94-5b65-9bec-fed0db4715cf
+      dealId: 3765a9ca-07f5-535f-bd08-5107bb68c13e
+      orderId: 0232e15c-c52d-5535-ac3a-cc84afbe8210
+      voucherId: 07b7636e-a7fb-52d7-b260-d6abd6591213
+      couponId: a3fca817-41d0-533d-b968-b0414cfb7488
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 28007708-196b-5f2a-aa90-59ccf9fdf77a
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    initial_phases:
+      refund: waiting_input:reason
+    intent: refund_after_sale
+    purpose: prepare_refund
+    tasks:
+    - role: refund
+      task_id: 01b32919-17ed-5dce-bc41-88fd0c19b88a
+      run_id: 392d37af-50fd-5eb7-a06b-bb9bb8d2159c
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: refund
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 先查一下门店营业时间
+  - kind: message
+    text: 继续退款任务
+  faults: []
+  expected:
+    task_ids: *id002
+    new_roles:
+    - store_info
+    task_relations: []
+    focus: refund
+    phases:
+      refund: active/waiting_input:reason
+      store_info: completed
+    allowed_tools_by_role:
+      refund: []
+      store_info:
+      - get_store_detail
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - refund.reason仍缺失
+    - 插问不进入原因
+    - 恢复显示原字段，申请记录0
+    original_budget: 200
+    resume_keeps_original_conditions: false
+    absent_slots:
+      refund:
+      - reason
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S03
+  title: 投诉取消引文、问候和FAQ边界
+  scope:
+    user_id: '910003'
+    other_user_id: '920003'
+    session_id: 32ec34b0-5fe3-501c-a13c-08bfe949e3f1
+    epoch: 5a8b7fe3-3c8e-576e-b51f-2e793c23d8ab
+  setup:
+    task_ids: &id003
+      complaint: d1b57cf7-e418-562f-84ba-d3168de10f43
+    run_ids:
+      complaint: 949a916f-8f02-5c6f-97d1-c71deb42dfd0
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 46fa7ce1-34f6-5e97-9dfb-a9439027c193
+      dealId: 9313781c-eb60-535d-ad63-2fc81dadeb89
+      orderId: ed2741f4-fd67-5cde-83d5-6fa1899bec0b
+      voucherId: 8758812e-2d25-51bf-b88a-f7cba7d298b5
+      couponId: a936697d-322c-56c0-927b-6a48e531767c
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - e20a6995-c5c0-5807-9dbc-aeef77799df2
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: complaint
+      task_id: d1b57cf7-e418-562f-84ba-d3168de10f43
+      run_id: 949a916f-8f02-5c6f-97d1-c71deb42dfd0
+      intent: complaint
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:description
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: complaint
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 投诉内容是‘取消不退款’
+  - kind: message
+    text: 你好
+  - kind: message
+    text: 先查一下退款规则
+  faults: []
+  expected:
+    task_ids: *id003
+    new_roles:
+    - faq
+    task_relations: []
+    focus: null
+    phases:
+      complaint: paused/waiting_confirmation
+      faq: completed
+    allowed_tools_by_role:
+      complaint:
+      - prepare_complaint
+      faq:
+      - query_faq
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 引文不触发任务取消
+    - 问候不填正文/取消2.2任务
+    - FAQ独立task使用自己的工具门控
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S04
+  title: 暂停等待输入后服务重启
+  scope:
+    user_id: '910004'
+    other_user_id: '920004'
+    session_id: da2bae97-4ee9-5f17-b571-d1792d419b13
+    epoch: 203a15ac-6fea-5a0b-a2b0-ac4707920f8c
+  setup:
+    task_ids: &id004
+      refund: fc1784d6-6f19-5412-9e8b-83b87308f647
+    run_ids:
+      refund: 76865f47-09f1-515c-b958-77722acfdad7
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: d49404f9-1d0e-59ec-9ed5-32b4b2fc5a5a
+      dealId: ea7c4859-e407-58f5-a5f3-fb8c060a405d
+      orderId: edc9beb6-23df-5885-a219-dc994fa8c803
+      voucherId: ec84aa89-643d-5901-b38c-49fb505263b3
+      couponId: ab4cd7e0-c559-5a4a-8ab5-79e9abb733d1
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 1583fbcf-3f55-5a75-988c-66287ea2672c
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    initial_phases:
+      refund: waiting_input:reason
+    tasks:
+    - role: refund
+      task_id: fc1784d6-6f19-5412-9e8b-83b87308f647
+      run_id: 76865f47-09f1-515c-b958-77722acfdad7
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: refund
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 暂停当前任务
+  - kind: restart
+    services:
+    - agent
+    - spring
+  - kind: message
+    text: 继续
+  faults:
+  - restart_after_pause
+  expected:
+    task_ids: *id004
+    new_roles: []
+    task_relations: []
+    focus: refund
+    phases:
+      refund: active/waiting_input:reason
+    allowed_tools_by_role:
+      refund: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 任务/来源及停点可持久回读
+    - 继续不填入reason
+    - 读取目录不触发业务
+    original_budget: 200
+    resume_keeps_original_conditions: true
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S05
+  title: 改份数与恢复报价及旧确认
+  scope:
+    user_id: '910005'
+    other_user_id: '920005'
+    session_id: 6c3c7279-4a6f-5ea5-b9fe-e5be6ef79562
+    epoch: 469ce5e8-30b0-50cc-b486-78d6001e2d5a
+  setup:
+    task_ids: &id005
+      purchase: ae7f5ed5-7984-594d-ba16-a9ac05b13ec1
+    run_ids:
+      purchase: f583d9af-b3f8-5cf2-a28e-2ddd2a61218d
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: a82686cb-fef6-5005-80ed-03b5b865ee29
+      dealId: daf81937-c908-56ae-84f4-605a06b9869e
+      orderId: b4e34458-36eb-5e1d-ae16-2102696c2cb8
+      voucherId: facd025a-1df0-5e71-ba14-9a84adb8027e
+      couponId: ea9241c1-ccfe-5670-a06b-90b90216f490
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 0e5b3748-af9a-5eb3-8cc8-35b287aada74
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: purchase
+      task_id: ae7f5ed5-7984-594d-ba16-a9ac05b13ec1
+      run_id: f583d9af-b3f8-5cf2-a28e-2ddd2a61218d
+      intent: group_buy_order
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_confirmation:purchase
+      run_status: waiting_confirmation
+      checkpoint_exists: true
+      source_role: purchase
+      prepare_confirmation_via_backend: true
+  inputs:
+  - kind: message
+    text: 改成2份
+  - kind: message
+    text: 暂停当前任务
+  - kind: message
+    text: 继续购买任务
+  - kind: confirm
+    card: old
+  faults: []
+  expected:
+    task_ids: *id005
+    new_roles: []
+    task_relations: []
+    focus: purchase
+    phases:
+      purchase: active/waiting_confirmation
+    allowed_tools_by_role:
+      purchase:
+      - get_deal_detail
+      - create_purchase_quote
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - EXPIRED
+    assertions:
+    - 新actionVersion及执行键实际查新库存/价格
+    - 旧grant永久拒绝
+    - 没有新确认时订单增量0
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S06
+  title: 取消后明确重新购买
+  scope:
+    user_id: '910006'
+    other_user_id: '920006'
+    session_id: 19c71b9e-aa4b-5dd7-98b8-977356e37ca3
+    epoch: 9e5d4d47-f8ac-5891-ac53-b7788a4ee215
+  setup:
+    task_ids: &id006
+      purchase: b8c7afa1-a843-592f-b731-e922c832ac78
+    run_ids:
+      purchase: b16d79b7-b2f4-531d-b662-ecfd6a454a29
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: ae1e45e4-6b3f-5e62-b7a5-e0dc5a8d5a2e
+      dealId: c4931903-9dd7-56f1-8c97-8d14935a7bf8
+      orderId: ee99bbaa-2a99-5c7e-b85a-1716c41bc371
+      voucherId: ac07c791-142d-5065-bcf4-b89006642105
+      couponId: 6c53b16e-081c-504d-9ca4-391c028b9c54
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 5f8eea84-8f01-5bd8-a24b-7b47c4b6a0aa
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: purchase
+      task_id: b8c7afa1-a843-592f-b731-e922c832ac78
+      run_id: b16d79b7-b2f4-531d-b662-ecfd6a454a29
+      intent: group_buy_order
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_confirmation:purchase
+      run_status: waiting_confirmation
+      checkpoint_exists: true
+      source_role: purchase
+      prepare_confirmation_via_backend: true
+  inputs:
+  - kind: message
+    text: 取消当前任务
+  - kind: message
+    text: 帮我买刚才套餐
+  faults: []
+  expected:
+    task_ids: *id006
+    new_roles:
+    - new_purchase
+    task_relations:
+    - purchase与new_purchase身份不同
+    focus: new_purchase
+    phases:
+      purchase: cancelled
+      new_purchase: active/waiting_confirmation
+    allowed_tools_by_role:
+      purchase: []
+      new_purchase:
+      - get_deal_detail
+      - create_purchase_quote
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 原task/run不复活
+    - 新task/run和报价身份不同
+    - 可引用旧对象，授权不复制
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S07
+  title: 多暂停歧义及陈旧按钮
+  scope:
+    user_id: '910007'
+    other_user_id: '920007'
+    session_id: 794545a3-d742-52b5-9458-3485aa95c0a9
+    epoch: 53b83d5f-29c3-5cc7-a5f4-882e54a24cc1
+  setup:
+    task_ids: &id007
+      current: 20ea9b46-7705-5242-97d2-d5d57abb2833
+      deal: ff894a24-4ff4-54b6-a032-fe01342c4698
+      refund: 50ad4f81-aa6d-5e5b-9d07-5c80b671bc4e
+    run_ids:
+      current: fb32e7d6-6f1f-5bba-a58d-ade09bd22f99
+      deal: 1b12f523-8730-5371-a31c-7f844996cfb6
+      refund: 24753d50-88b7-5ec2-a4d2-f9826f26abf5
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: eac87a3f-f233-5470-b463-f07526103414
+      dealId: 697fb4e5-4db8-59fa-b50a-6c7adfc47c72
+      orderId: 62731342-acde-5fef-9ed7-b3178e096c5e
+      voucherId: c699a28b-9e76-53b2-9f5d-f99ae592a65c
+      couponId: 406d8bc1-a511-5917-beef-1573d09b06b7
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - a25b6659-4958-5477-b058-b7a489a4c477
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: 20ea9b46-7705-5242-97d2-d5d57abb2833
+      run_id: fb32e7d6-6f1f-5bba-a58d-ade09bd22f99
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+    - role: deal
+      task_id: ff894a24-4ff4-54b6-a032-fe01342c4698
+      run_id: 1b12f523-8730-5371-a31c-7f844996cfb6
+      intent: deal_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: deal
+      prepare_confirmation_via_backend: false
+    - role: refund
+      task_id: 50ad4f81-aa6d-5e5b-9d07-5c80b671bc4e
+      run_id: 24753d50-88b7-5ec2-a4d2-f9826f26abf5
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: paused
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: refund
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 继续那个
+  - kind: control
+    action: resume
+    role: deal
+    expected_task_version: 6
+  faults: []
+  expected:
+    task_ids: *id007
+    new_roles: []
+    task_relations: []
+    focus: current
+    phases:
+      current: active
+      deal: paused
+      refund: paused
+    allowed_tools_by_role:
+      current: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - CONFLICT
+    assertions:
+    - 只问一个问题并列具名候选
+    - 陈旧按钮409且版本/焦点不变
+    - 不默认选最近
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S08
+  title: 五暂停容量净变化
+  scope:
+    user_id: '910008'
+    other_user_id: '920008'
+    session_id: e23ad229-39ea-59a9-8dce-4cb727258678
+    epoch: c52a5691-dd2e-5392-8f95-17df9b6a1c62
+  setup:
+    task_ids: &id008
+      current: 6b490bba-d4d6-5d70-925d-e9a4790c1fb4
+      p1: cb3d020a-a579-5423-a0dc-f11e0a58a853
+      p2: b60799d9-342b-5930-b8e2-d4f55ef4c36b
+      p3: 739cc813-75d5-50c8-b224-c1a991216f5f
+      p4: db2b987f-af83-583e-8912-286b5feb880d
+      p5: 6d7b7479-536a-5445-b1b0-ec7177f192a7
+    run_ids:
+      current: 6cdbda1f-009d-5017-8f07-897628b53d6f
+      p1: 74b5d773-8553-5ad9-8fa3-a33709cceb36
+      p2: fb610612-23f3-59fe-8229-df533eb9dee3
+      p3: 58b72965-7fd8-593e-9d47-75c376720ea3
+      p4: 7b31f934-3347-56a8-b1a2-9331f6f3c00e
+      p5: a323aa2f-6089-5927-967c-482592a8ebb2
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 3e2ed7ca-dd98-55e3-af89-ff8ffa8ace47
+      dealId: f5c3694e-0e9c-5c11-8cdc-3ce6726800e8
+      orderId: 1088f6cd-491b-5c36-b7cb-2736ebde2400
+      voucherId: 5f0c7a1f-79a9-58e3-8c21-66070b521a00
+      couponId: 44729fe3-e86f-5b51-9947-442adee209ff
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - fe9a94bd-50b0-547f-87e1-7ae6fdf14eaa
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: 6b490bba-d4d6-5d70-925d-e9a4790c1fb4
+      run_id: 6cdbda1f-009d-5017-8f07-897628b53d6f
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+    - role: p1
+      task_id: cb3d020a-a579-5423-a0dc-f11e0a58a853
+      run_id: 74b5d773-8553-5ad9-8fa3-a33709cceb36
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: p1
+      prepare_confirmation_via_backend: false
+    - role: p2
+      task_id: b60799d9-342b-5930-b8e2-d4f55ef4c36b
+      run_id: fb610612-23f3-59fe-8229-df533eb9dee3
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: p2
+      prepare_confirmation_via_backend: false
+    - role: p3
+      task_id: 739cc813-75d5-50c8-b224-c1a991216f5f
+      run_id: 58b72965-7fd8-593e-9d47-75c376720ea3
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: p3
+      prepare_confirmation_via_backend: false
+    - role: p4
+      task_id: db2b987f-af83-583e-8912-286b5feb880d
+      run_id: 7b31f934-3347-56a8-b1a2-9331f6f3c00e
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: p4
+      prepare_confirmation_via_backend: false
+    - role: p5
+      task_id: 6d7b7479-536a-5445-b1b0-ec7177f192a7
+      run_id: a323aa2f-6089-5927-967c-482592a8ebb2
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: p5
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 先查下我的订单
+  - kind: message
+    text: 暂停当前任务
+  - kind: control
+    action: switch
+    role: p1
+  faults: []
+  expected:
+    task_ids: *id008
+    new_roles: []
+    task_relations: []
+    focus: p1
+    phases:
+      current: paused
+      p1: active
+    allowed_tools_by_role:
+      current: []
+      p1: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - CONFLICT
+    assertions:
+    - 前两个超容量请求拒绝且不撤销原确认
+    - 交换净数量不增加时成功
+    - 没有任务被淘汰
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S09
+  title: 跨用户会话和epoch引用
+  scope:
+    user_id: '910009'
+    other_user_id: '920009'
+    session_id: 607323d5-797d-5049-b720-a94a3cf0a1fb
+    epoch: e49d0d81-7c7d-5a52-8e04-fe66688b2394
+  setup:
+    task_ids: &id009
+      refund: b31374c0-6f39-5e1d-b184-55f29520e504
+    run_ids:
+      refund: 1d32024f-e587-556e-9a8e-50cef2c29bb4
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 305e16de-f1b4-5027-967b-bd186eb7a9c5
+      dealId: 0ea480a4-c3a6-5d5d-ba3d-bf3cf8abf22c
+      orderId: 6fe819a6-03d0-5bb2-8dd3-fd24b57c539f
+      voucherId: d90da07a-e06f-5a02-9d9e-04875370fbcf
+      couponId: 4b209dce-a11a-5fd6-8139-9edaad5434e6
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 54824110-a6b0-5501-b71f-eccec51699ab
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: refund
+      task_id: b31374c0-6f39-5e1d-b184-55f29520e504
+      run_id: 1d32024f-e587-556e-9a8e-50cef2c29bb4
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: paused
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: refund
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: control
+    action: resume
+    role: refund
+    as: other_user
+  - kind: control
+    action: resume
+    role: refund
+    as: other_session
+  - kind: control
+    action: resume
+    role: refund
+    as: other_epoch
+  faults: []
+  expected:
+    task_ids: *id009
+    new_roles: []
+    task_relations: []
+    focus: null
+    phases:
+      refund: paused
+    allowed_tools_by_role:
+      refund: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - NOT_FOUND
+    assertions:
+    - 全部稳定404且不暴露存在性
+    - 无状态/授权变更或工具
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S10
+  title: 控制并发与幂等键冲突
+  scope:
+    user_id: '910010'
+    other_user_id: '920010'
+    session_id: 352586af-957d-5780-a2af-4a502fe18e47
+    epoch: 01b82527-6a70-57d6-bd6a-26896c66626e
+  setup:
+    task_ids: &id010
+      current: 1fd13785-539e-5312-a87c-c2ac99c583ca
+      paused: 770a0cff-101f-5b86-a8f1-8eccdde73080
+    run_ids:
+      current: caaa883e-098a-538f-8c0f-d4e911dfc509
+      paused: 25b5290a-0adb-55a3-9237-5d50827b359f
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: e601a073-529c-59a7-af29-9d82244b5c92
+      dealId: c15bc35c-8ea6-5821-b8d5-3f9a5051cf24
+      orderId: 08b6d5c1-d54d-5cc5-92ae-60d462a59e0f
+      voucherId: ba117070-5db8-59e6-9bbb-8956025ff40f
+      couponId: d6537d02-4d2d-5149-8bec-87b36a7718ac
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - c7760e72-afc3-5a98-aa7c-2c2386601541
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: 1fd13785-539e-5312-a87c-c2ac99c583ca
+      run_id: caaa883e-098a-538f-8c0f-d4e911dfc509
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+    - role: paused
+      task_id: 770a0cff-101f-5b86-a8f1-8eccdde73080
+      run_id: 25b5290a-0adb-55a3-9237-5d50827b359f
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: paused
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: parallel_controls
+    actions:
+    - pause
+    - switch
+    request_id: synthetic-r1
+    schedule: pause_prepared_before_switch
+  - kind: retry_same_request
+  - kind: retry_changed_body
+  faults:
+  - parallel_control
+  expected:
+    task_ids: *id010
+    new_roles: []
+    task_relations: []
+    focus: null
+    phases:
+      current: paused
+      paused: paused
+    allowed_tools_by_role:
+      current: []
+      paused: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - CONFLICT
+    assertions:
+    - 至多一个prepared进入有效交接
+    - 同键同文一次版本推进
+    - 同键异文409
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S11
+  title: 持久边界杀进程
+  scope:
+    user_id: '910011'
+    other_user_id: '920011'
+    session_id: afdf2b8d-7c17-5f9d-af30-7a87003944c3
+    epoch: eb27fd24-b61e-580f-af37-bb1c09d33b13
+  setup:
+    task_ids: &id011
+      current: 7d164da3-2b43-5952-9947-ec6f51da63ad
+      paused: 4240bac8-9f9b-54cc-8984-2bf23c42c00e
+    run_ids:
+      current: 50a1369c-e7fd-5ab5-a676-b3f8af70e7f5
+      paused: 33ca4c8f-0149-59de-9a46-fb2192b9c159
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: dd8fdcbc-33b8-5661-8259-b024c7437dcc
+      dealId: 2c567c4b-d405-5b67-98c6-d6ec49fe87c5
+      orderId: a2713111-f6e1-5655-b533-8554ed21a027
+      voucherId: 7a569542-7a1d-593c-b23d-f2964b1d43a4
+      couponId: 51ea51fb-09c2-5fd1-a6b1-0d255ec96a74
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - ace6ce0c-2eea-5b51-816c-130efa50c44a
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: 7d164da3-2b43-5952-9947-ec6f51da63ad
+      run_id: 50a1369c-e7fd-5ab5-a676-b3f8af70e7f5
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+    - role: paused
+      task_id: 4240bac8-9f9b-54cc-8984-2bf23c42c00e
+      run_id: 33ca4c8f-0149-59de-9a46-fb2192b9c159
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: paused
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: control
+    action: switch
+    role: paused
+  - kind: restart
+    services:
+    - agent
+    - spring
+  - kind: recheck_same_command
+  faults:
+  - after_prepared
+  - after_agent_ack_commit
+  - after_focus_commit
+  - before_event_delivery
+  expected:
+    task_ids: *id011
+    new_roles: []
+    task_relations: []
+    focus: paused
+    phases:
+      current: paused
+      paused: active
+    allowed_tools_by_role:
+      current: []
+      paused: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 各故障点单独运行，不一次累计
+    - 重对账唯一焦点
+    - outbox只重投事件不重复业务
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S12
+  title: 慢模型及只读响应晚到
+  scope:
+    user_id: '910012'
+    other_user_id: '920012'
+    session_id: 1079f5df-8570-5844-b073-5fd87acd8043
+    epoch: 6833964a-d25e-5fcb-8107-93fa61663338
+  setup:
+    task_ids: &id012
+      current: 06363041-253e-5b84-a54e-2f261a041f03
+    run_ids:
+      current: a379d4dc-f9bf-5adb-b283-b3bda63cce99
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 59b7634a-a1fb-538a-85b1-100b48129524
+      dealId: 8defab53-f05e-57af-b6ee-f43e57a4f97a
+      orderId: 13770a5a-25ab-532a-9e58-eeadd9d0370d
+      voucherId: 4f806e52-9f9f-5864-969f-c1b31be9d072
+      couponId: 0855bd4d-84a8-5406-96a5-0361d455280b
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 5f04aabe-c6d4-5bdc-9ee4-b4d5b8642677
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: 06363041-253e-5b84-a54e-2f261a041f03
+      run_id: a379d4dc-f9bf-5adb-b283-b3bda63cce99
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: start_slow_read
+  - kind: message
+    text: 暂停当前任务
+  - kind: release_late_response
+  faults:
+  - slow_model
+  - slow_read
+  expected:
+    task_ids: *id012
+    new_roles: []
+    task_relations: []
+    focus: null
+    phases:
+      current: paused
+    allowed_tools_by_role:
+      current:
+      - get_store_detail
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 迟到结果只归原task证据
+    - 下一节点不执行且不覆盖新UI
+    - 数据库锁不跨HTTP
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S13
+  title: 真实写提交后响应丢失
+  scope:
+    user_id: '910013'
+    other_user_id: '920013'
+    session_id: 41408009-77c1-5868-b6f7-470a3c8180f5
+    epoch: 9d496444-6873-5982-97ff-a86bcb7d787d
+  setup:
+    task_ids: &id013
+      purchase: 2cf2d17a-5b65-5f47-aba7-74b3d7df9fb0
+    run_ids:
+      purchase: fbc8b5ee-9af7-5e1e-9e33-2c6edd19af89
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: c5359933-6040-55d9-aa1d-a9e82f871bdf
+      dealId: b3b2ec54-90fd-577b-a408-3fe6da2d14c9
+      orderId: d493931a-3cfa-587c-88bb-d1c61f8b59a3
+      voucherId: cbb95c22-43b0-5610-9ba0-af2658e12dc3
+      couponId: ba9a6764-d9a0-5ad6-bc55-3f45de4b8a49
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 20da54e9-2522-563f-afea-858982ca834e
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: purchase
+      task_id: 2cf2d17a-5b65-5f47-aba7-74b3d7df9fb0
+      run_id: fbc8b5ee-9af7-5e1e-9e33-2c6edd19af89
+      intent: group_buy_order
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_confirmation:purchase
+      run_status: waiting_confirmation
+      checkpoint_exists: true
+      source_role: purchase
+      prepare_confirmation_via_backend: true
+  inputs:
+  - kind: confirm
+    card: current
+  - kind: message
+    text: 取消当前任务
+  - kind: message
+    text: 先查订单
+  - kind: message
+    text: 继续购买任务
+  faults:
+  - drop_after_commit
+  expected:
+    task_ids: *id013
+    new_roles: []
+    task_relations: []
+    focus: purchase
+    phases:
+      purchase: active/uncertain
+    allowed_tools_by_role:
+      purchase:
+      - create_group_buy_order
+    business_delta:
+      orders: 1
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - awaiting_reconciliation
+    assertions:
+    - 只核查原执行键，业务订单一条
+    - 取消/切换/恢复不宣称完成或回滚
+    - 不换键重发写入
+    original_budget: 200
+    resume_keeps_original_conditions: false
+    unique_executions:
+      create_group_buy_order: 1
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S14
+  title: 复合图首写完成后暂停
+  scope:
+    user_id: '910014'
+    other_user_id: '920014'
+    session_id: 1bb85736-92e7-5363-9524-b2c664d2462e
+    epoch: 87b43b51-440a-5463-9d0e-5fa7605184d7
+  setup:
+    task_ids: &id014
+      composite: 37ba1c83-383f-54d3-995a-a772f12de9b8
+    run_ids:
+      composite: 110b3d9d-4fef-5a0d-8a52-e9a54d0ecc81
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: a6f5229a-2ce7-5df9-b47e-4ba3e87abdf7
+      dealId: 11c717b8-c1df-5a44-aacc-fd9c089577dd
+      orderId: 4b0ab727-f642-5b81-882c-582ac8f73e1e
+      voucherId: d0004e1a-b89c-5500-99ce-9ab841c2a358
+      couponId: d5f20060-1717-5c13-bbcb-826820c35754
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 62635789-25d6-5e13-a40f-a1a2e8cd36c2
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: composite
+      task_id: 37ba1c83-383f-54d3-995a-a772f12de9b8
+      run_id: 110b3d9d-4fef-5a0d-8a52-e9a54d0ecc81
+      intent: composite
+      task_kind: composite
+      lifecycle: active
+      phase: initial
+      run_status: running
+      checkpoint_exists: true
+      source_role: composite
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: confirm
+    node: first_write
+  - kind: message
+    text: 暂停当前任务
+  - kind: message
+    text: 继续复合任务
+  - kind: message
+    text: 修改已完成的第一个目标
+  faults: []
+  expected:
+    task_ids: *id014
+    new_roles: []
+    task_relations: []
+    focus: composite
+    phases:
+      composite: active/waiting_confirmation:remaining_goal
+    allowed_tools_by_role:
+      composite:
+      - create_group_buy_order
+      - prepare_complaint
+    business_delta:
+      orders: 1
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - CONFLICT
+    assertions:
+    - first_write唯一执行一次
+    - 只恢复未完成节点且重准备
+    - 修改已完成图拒绝并解释AG04边界
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S15
+  title: 既有订单支付重准备
+  scope:
+    user_id: '910015'
+    other_user_id: '920015'
+    session_id: 877518da-9d61-5fcb-a6af-4b357872fdd4
+    epoch: 7b9b60e0-1f84-5c67-9899-320826ad15e0
+  setup:
+    task_ids: &id015
+      purchase: d0f36dc4-fbc4-594f-9432-2eb94772d54e
+    run_ids:
+      purchase: 6b604df0-4cc2-5415-9124-b57a8f324198
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: ac161610-d78e-59c6-8720-aa545dc3eae6
+      dealId: 286e603d-1927-50d8-a982-59204ce015ca
+      orderId: e98924e7-4403-58d6-95e3-cdd0db274305
+      voucherId: 0143b8c8-7c82-5be4-8205-e0cabc18c28a
+      couponId: fb1d66dd-a977-5400-a5c2-a12736611636
+    baseline_business:
+      orders: 1
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 8deb9ef9-af02-5060-a4ff-2eb9876fdfd6
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    initial_phases:
+      purchase: waiting_confirmation:pay
+    tasks:
+    - role: purchase
+      task_id: d0f36dc4-fbc4-594f-9432-2eb94772d54e
+      run_id: 6b604df0-4cc2-5415-9124-b57a8f324198
+      intent: group_buy_order
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_confirmation:pay
+      run_status: waiting_confirmation
+      checkpoint_exists: true
+      source_role: purchase
+      prepare_confirmation_via_backend: true
+  inputs:
+  - kind: message
+    text: 暂停当前任务
+  - kind: message
+    text: 继续支付任务
+  - kind: repeat_payment_preparation
+  - kind: confirm
+    card: old
+  - kind: confirm
+    card: current
+  faults:
+  - expired_payment
+  - foreign_payment
+  - already_paid
+  expected:
+    task_ids: *id015
+    new_roles: []
+    task_relations: []
+    focus: null
+    phases:
+      purchase: completed
+    allowed_tools_by_role:
+      purchase:
+      - get_order_detail
+      - pay_mock_order
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+      payments: 1
+    error_codes:
+    - EXPIRED
+    assertions:
+    - 内部准备只签新支付凭证不新建订单
+    - 过期/越权/已支付/不同正文准备分别拒绝
+    - 购买与支付确认分开且支付一次
+    original_budget: 200
+    resume_keeps_original_conditions: false
+    unique_executions:
+      create_group_buy_order: 0
+      pay_mock_order: 1
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S16
+  title: 历史冷启动和断网重试
+  scope:
+    user_id: '910016'
+    other_user_id: '920016'
+    session_id: 6dbcc7fd-ca6b-502f-bf7a-dd8354ccdc4d
+    epoch: 49e475a8-7e4a-55cd-830b-bd579979b84a
+  setup:
+    task_ids: &id016
+      current: 84a4b69b-78d9-5633-baf9-60d1f0a628c4
+      paused: 525a97d1-08f9-504f-9caf-bd676bc2bb94
+    run_ids:
+      current: 4b07196f-c7d4-517c-adfa-f5c3511ba381
+      paused: 94eea67b-017f-5731-8514-45dd925bf616
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 958dd947-9327-5cf1-a382-1b836b920260
+      dealId: 454bfd66-37bf-54ff-9055-98a3cd56e121
+      orderId: c4324562-ccad-5f3e-8a82-a78d6d321784
+      voucherId: 6cee2ca0-4e10-56c5-8836-8e5a2de6b092
+      couponId: 9e1fba94-3b84-550a-8cea-ac73ee37d46a
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 9645209e-93e8-5b45-84e8-cb6e5800e196
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: 84a4b69b-78d9-5633-baf9-60d1f0a628c4
+      run_id: 4b07196f-c7d4-517c-adfa-f5c3511ba381
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+    - role: paused
+      task_id: 525a97d1-08f9-504f-9caf-bd676bc2bb94
+      run_id: 94eea67b-017f-5731-8514-45dd925bf616
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: paused
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: history_get
+  - kind: directory_get
+  - kind: restart
+    services:
+    - android
+  - kind: retry_same_request
+  - kind: switch_account
+  faults:
+  - network_drop
+  expected:
+    task_ids: *id016
+    new_roles: []
+    task_relations: []
+    focus: current
+    phases:
+      current: active
+      paused: paused
+    allowed_tools_by_role:
+      current: []
+      paused: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 历史/目录/SSE读取不执行工具
+    - 重试查原commandId不重发原query
+    - 换账号清理本地投影且不可见原任务
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S17
+  title: 旧协议、开关和降级
+  scope:
+    user_id: '910017'
+    other_user_id: '920017'
+    session_id: 2d3cc199-f45b-58d3-986a-7d6f6a4e91eb
+    epoch: 054f86e4-64fd-5e2f-9c5d-4a6ecfda417d
+  setup:
+    task_ids: &id017
+      legacy: cd9b7963-cc06-5be2-a938-e399b03052ff
+    run_ids:
+      legacy: 32f42ca3-0861-5995-9f5f-9275e2738493
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 19e716c9-772b-5642-8112-ad02c0003dce
+      dealId: 9b71bbcb-5479-5733-bcf3-a6e0c47abd5c
+      orderId: 5f9fd3a7-7561-5267-b8e1-0986da8ad4f9
+      voucherId: 1e6d4ee2-faa7-59c8-bd4a-054a1db1d71e
+      couponId: d98c9aa0-f9ca-5eba-a241-7455bc94ff12
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 8b961b28-9160-5a0f-afb2-30e8c34be868
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: legacy
+      task_id: cd9b7963-cc06-5be2-a938-e399b03052ff
+      run_id: 32f42ca3-0861-5995-9f5f-9275e2738493
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: legacy
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: protocol
+    version: '2.0'
+  - kind: protocol
+    version: '2.1'
+  - kind: protocol
+    version: '2.2'
+  - kind: feature_disable
+  - kind: attempt_v1_with_v2_grant
+  - kind: binary_downgrade
+  faults: []
+  expected:
+    task_ids: *id017
+    new_roles: []
+    task_relations: []
+    focus: legacy
+    phases:
+      legacy: original_protocol
+    allowed_tools_by_role:
+      legacy: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - FORBIDDEN
+    assertions:
+    - 旧契约原字节不变且在途run不迁移
+    - 关闭开关不降级解释已有2.2
+    - v2授权不可用旧入口消费，降级先排空或只读
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S18
+  title: 十三类六规则矩阵
+  scope:
+    user_id: '910018'
+    other_user_id: '920018'
+    session_id: 5b0c38cc-e10e-577b-8f59-8b95509b1fab
+    epoch: 47142533-1f12-51c5-8caf-251b14a9ad2c
+  setup:
+    task_ids: &id018
+      current: 73bbb534-6e74-5583-9bd4-eb79da2fa480
+    run_ids:
+      current: 5ff1ace7-4c33-549a-b9e0-6d9c5a294d50
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 3d5a7a28-3924-5be3-a02a-741694ac9cd6
+      dealId: d2028821-6de4-51c7-844f-a3ce2716ae62
+      orderId: 354c9199-2829-5546-b360-68de45d5c4a2
+      voucherId: db159d50-ecf0-5ed1-ad6e-a18ba848fd3e
+      couponId: 437a2acd-7db6-5946-aea6-9193ee32ac23
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 28c55bc1-7385-5a71-a1ec-b5f4ed834b7c
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: 73bbb534-6e74-5583-9bd4-eb79da2fa480
+      run_id: 5ff1ace7-4c33-549a-b9e0-6d9c5a294d50
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: intent_matrix
+    fixture: intent13_matrix.yaml
+  faults: []
+  expected:
+    task_ids: *id018
+    new_roles: []
+    task_relations: []
+    focus: per_matrix
+    phases:
+      current: per_purpose
+    allowed_tools_by_role:
+      current: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 78组件与在线次数分别记录
+    - 四类事实/归属/工具逐类核对
+    - 咨询不变申请，无工具能力明示
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S19
+  title: 低分、异常及控制反例
+  scope:
+    user_id: '910019'
+    other_user_id: '920019'
+    session_id: 85d96991-9871-59ee-a754-9666c303ff4f
+    epoch: c61549d0-9620-523e-87ee-da6f8739c1fa
+  setup:
+    task_ids: &id019
+      current: a7af6e8c-75a1-551d-a749-ab6685fb91ee
+    run_ids:
+      current: dbca2877-222a-5338-8562-f1d275dcd89d
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: ef04acc1-c4f3-5030-a46e-2c5ca6b62d59
+      dealId: 4fcfb738-0707-5c9b-917c-e741c7ed3670
+      orderId: f99932b1-c3b2-5ff1-b9f3-9f6fe180797a
+      voucherId: 0a4bcb66-04a1-55f7-a1b4-dad40cb25db6
+      couponId: 47eb600f-e1a0-5ba4-8523-e832d0a7d9bc
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 13c6ecbd-5ace-5a1d-ab49-f9c4c72a4244
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: a7af6e8c-75a1-551d-a749-ab6685fb91ee
+      run_id: dbca2877-222a-5338-8562-f1d275dcd89d
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 取消订单
+  - kind: message
+    text: 先不买了
+  - kind: model_output
+    variant: missing_second_candidate
+  - kind: model_output
+    variant: low_score
+  - kind: model_output
+    variant: invalid_span
+  - kind: model_output
+    variant: exception
+  faults:
+  - model_invalid
+  - model_exception
+  expected:
+    task_ids: *id019
+    new_roles: []
+    task_relations: []
+    focus: current
+    phases:
+      current: unchanged
+    allowed_tools_by_role:
+      current: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 非法/低分/模型异常只澄清
+    - newRequest只截取原始连续区间
+    - 原状态/确认不变且错任务写入0
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S20
+  title: 性能采样分母及相同能力对照
+  scope:
+    user_id: '910020'
+    other_user_id: '920020'
+    session_id: ad8e439b-e233-5f85-ad43-08201f86f28d
+    epoch: 9585b2ab-f365-5487-9159-9a2d4c88bfc6
+  setup:
+    task_ids: &id020
+      current: 0e0a732c-9c42-51da-8766-7e71069441fd
+    run_ids:
+      current: 8ea05f57-abd2-540f-8b8e-e70bd38fe3be
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 4681ab54-645f-5d96-a431-9fce56380be4
+      dealId: 10186378-a4d2-5635-8442-f435c523ae63
+      orderId: f174da34-cba4-5ae9-a558-f70c0cafae4c
+      voucherId: c39ad582-22bf-5220-977d-903775063156
+      couponId: 0510d126-e7a8-5755-b8ab-8bbd7e3765ce
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 183dd6df-c3b2-5894-ae00-c68d68892c3e
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    performance_total_samples: 6300
+    performance_total_warmup: 630
+    tasks:
+    - role: current
+      task_id: 0e0a732c-9c42-51da-8766-7e71069441fd
+      run_id: 8ea05f57-abd2-540f-8b8e-e70bd38fe3be
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: performance
+    concurrency:
+    - 1
+    - 5
+    - 20
+    batches: 3
+    samples: 100
+    warmup: 10
+  faults: []
+  expected:
+    task_ids: *id020
+    new_roles: []
+    task_relations: []
+    focus: per_scenario
+    phases:
+      current: per_scenario
+    allowed_tools_by_role:
+      current:
+      - get_store_detail
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 两个原能力场景各开关两条件，共3600样本/360预热
+    - 新增三个控制场景共2700/270
+    - 每场景分开P95，至少两批退化超过10%阻塞
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S21
+  title: 推荐run结束后的任务追问
+  scope:
+    user_id: '910021'
+    other_user_id: '920021'
+    session_id: 5846b590-90f5-5736-af47-6e0be197430b
+    epoch: a9d54934-5728-53ae-9aea-c831982789c1
+  setup:
+    task_ids: &id021
+      deal: ff06a5cc-877e-5af6-9281-35bd7c844e0f
+    run_ids:
+      deal: 471da93a-77c8-5111-b65c-285b655c7ed0
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 786a2f3f-2679-5309-90d7-9eda98740fb7
+      dealId: d1547933-e283-5f3a-a4a5-fd553d9f6248
+      orderId: 6b617574-fac9-56b4-9af5-da3122a7294d
+      voucherId: f80ba4c2-e6f7-51c7-875a-55e117fbe0f3
+      couponId: e8fedc37-9b24-5ced-899c-dbde02a17d35
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 01ad90cd-508b-5efc-98d4-3d07cc943131
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    initial_phases:
+      deal: awaiting_followup
+    initial_run_status:
+      deal: succeeded
+    tasks:
+    - role: deal
+      task_id: ff06a5cc-877e-5af6-9281-35bd7c844e0f
+      run_id: 471da93a-77c8-5111-b65c-285b655c7ed0
+      intent: deal_recommendation
+      task_kind: selection
+      lifecycle: active
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: deal
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 先查下我的订单
+  - kind: message
+    text: 继续套餐任务
+  - kind: message
+    text: 只看150元以内的
+  faults: []
+  expected:
+    task_ids: *id021
+    new_roles:
+    - orders
+    task_relations: []
+    focus: deal
+    phases:
+      deal: active/awaiting_followup
+      orders: completed
+    allowed_tools_by_role:
+      deal:
+      - list_deal_packages
+      - get_deal_detail
+      orders:
+      - list_user_orders
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 原succeeded run不重开，新run归同deal task
+    - 预算纠正为150，排除项及来源保留
+    - 旧pending/grant不复制、orders事实不注入
+    original_budget: 200
+    resume_keeps_original_conditions: true
+    facts_expected:
+      deal:
+        constraints:
+          budget: 150
+          people: 2
+        keep_exclusions: true
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S22
+  title: 普通确认与后台取消不误撤销
+  scope:
+    user_id: '910022'
+    other_user_id: '920022'
+    session_id: 3ae0f4a2-52ca-5abe-b5f8-fd2869ad96a2
+    epoch: ce2797b3-a550-5ddc-bac7-333a95e51ae0
+  setup:
+    task_ids: &id022
+      purchase: 4b118910-0b06-593f-abf7-f6f7181e71af
+      paused: 495cec62-c800-54bb-8b6e-0d19b64e04d5
+    run_ids:
+      purchase: 4be1ae29-1bb1-5c17-a542-fa6d65c039e0
+      paused: 2950731b-ee06-5ab9-837e-30e3dc4f0e44
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: a2efe2a6-220d-5a1a-a4d6-1c7190661e0b
+      dealId: aa2742ae-ed6f-588f-ba61-c59772b00f15
+      orderId: aa466ffb-6e95-5919-8d19-4f673b968116
+      voucherId: 60395458-05db-5987-97e2-cf277797f2e0
+      couponId: 7d3d2f0a-2558-5262-a301-096b35a5c9c0
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - ff937dd9-f0aa-5ab8-8b78-a6bf7bb800ab
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: purchase
+      task_id: 4b118910-0b06-593f-abf7-f6f7181e71af
+      run_id: 4be1ae29-1bb1-5c17-a542-fa6d65c039e0
+      intent: group_buy_order
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_confirmation:purchase
+      run_status: waiting_confirmation
+      checkpoint_exists: true
+      source_role: purchase
+      prepare_confirmation_via_backend: true
+    - role: paused
+      task_id: 495cec62-c800-54bb-8b6e-0d19b64e04d5
+      run_id: 2950731b-ee06-5ab9-837e-30e3dc4f0e44
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: paused
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 你好
+  - kind: control
+    action: cancel
+    role: paused
+  - kind: confirm
+    card: current
+  faults: []
+  expected:
+    task_ids: *id022
+    new_roles: []
+    task_relations: []
+    focus: purchase
+    phases:
+      purchase: active/waiting_confirmation:pay
+      paused: cancelled
+    allowed_tools_by_role:
+      purchase:
+      - create_group_buy_order
+      paused: []
+    business_delta:
+      orders: 1
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 正常确认成功且只创建一次订单
+    - 问候不覆盖业务trace且不延长grant
+    - 取消后台不改前台focus/generation/grant
+    - 确认并修改份数的另例只重新报价
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S23
+  title: 命令安全退出及重试上限
+  scope:
+    user_id: '910023'
+    other_user_id: '920023'
+    session_id: 19754265-45c5-5aa9-96e5-3f79851d1d99
+    epoch: 101b4194-2db2-59f8-a784-97409eceebe4
+  setup:
+    task_ids: &id023
+      current: b4639964-6c8f-597f-9384-e1f058ca080f
+    run_ids:
+      current: d1ee7dbd-fb21-58fb-b2cc-e0e6599f78f2
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 4814197a-cc04-5203-aa42-c3c632cd7f62
+      dealId: 71b3aadb-0d6b-5b31-ad08-9b3a228e8743
+      orderId: 94dc11db-9030-5c7f-b721-b51cdd5d055f
+      voucherId: b7af0bd4-add5-571d-b641-38f344c22e9a
+      couponId: 64306f2c-6047-5cd0-90b5-71359ca587cf
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 5c5313a4-8388-5c40-959a-e8721b6dc5c1
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: b4639964-6c8f-597f-9384-e1f058ca080f
+      run_id: d1ee7dbd-fb21-58fb-b2cc-e0e6599f78f2
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 暂停当前任务
+  - kind: recheck_same_command
+  - kind: late_ack
+  faults:
+  - permanent_reject
+  - drop_abort_ack
+  - late_ack
+  - retry_exhausted
+  expected:
+    task_ids: *id023
+    new_roles: []
+    task_relations: []
+    focus: current
+    phases:
+      current: readable_stop_or_needs_attention
+    allowed_tools_by_role:
+      current: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes:
+    - awaiting_reconciliation
+    assertions:
+    - 最多六次派发或60秒，先到即停
+    - 安全退出须停稳及无未知写证据，墓碑拒绝迟到ack
+    - 无法证明安全则needs_attention，旧授权不复活
+    original_budget: 200
+    resume_keeps_original_conditions: false
+    by_fault:
+      permanent_reject:
+        command: aborted
+        task: active/readable_stop
+        grant_restored: false
+      drop_abort_ack:
+        command: aborting
+        reconcile: needs_attention
+      late_ack:
+        command: aborted
+        late_ack_effect: none
+      retry_exhausted:
+        command: prepared
+        reconcile: needs_attention
+        dispatch_count_max: 6
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S24
+  title: 目录水位与事件乱序
+  scope:
+    user_id: '910024'
+    other_user_id: '920024'
+    session_id: 2e5230b1-d192-5b8e-8f08-88bc563384ad
+    epoch: bcf71915-e25e-5819-b393-a8e3a341428b
+  setup:
+    task_ids: &id024
+      current: 989ab276-69e8-59b6-b2a4-20e2ba168e87
+      paused: 4989ebef-e29c-58bf-a653-ef528a982741
+    run_ids:
+      current: d6b17703-f6e4-59bd-a2f1-8fd65d6f0bac
+      paused: f8d6a695-2c88-5714-8177-8ac8a96d6b13
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 8eea7191-eeea-5666-8ff4-90413fa16279
+      dealId: 41c98d72-94a2-540e-b03f-98fb00f209c2
+      orderId: 6bb48084-b135-51f6-b3e0-09da09b815e9
+      voucherId: 9bf6e4fc-51af-5472-8d88-c04b96e8d446
+      couponId: 43a0bcc0-27a9-5e1b-a212-cc1333d7d8df
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - d4e9ea00-5052-53dd-82f9-95d09536f3c0
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: current
+      task_id: 989ab276-69e8-59b6-b2a4-20e2ba168e87
+      run_id: d6b17703-f6e4-59bd-a2f1-8fd65d6f0bac
+      intent: refund_after_sale
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_input:reason
+      run_status: waiting_input
+      checkpoint_exists: true
+      source_role: current
+      prepare_confirmation_via_backend: false
+    - role: paused
+      task_id: 4989ebef-e29c-58bf-a653-ef528a982741
+      run_id: f8d6a695-2c88-5714-8177-8ac8a96d6b13
+      intent: store_recommendation
+      task_kind: selection
+      lifecycle: paused
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: paused
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: directory_get
+  - kind: control
+    action: cancel
+    role: paused
+  - kind: sse_replay
+    ordering: reverse_duplicate
+  - kind: expired_event_cursor
+  faults:
+  - directory_event_race
+  - expired_cursor
+  expected:
+    task_ids: *id024
+    new_roles: []
+    task_relations: []
+    focus: current
+    phases:
+      current: active
+      paused: cancelled
+    allowed_tools_by_role:
+      current: []
+      paused: []
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 目录与水位一致，水位之后事件不丢失
+    - 后台取消按taskVersion合并，不只看focusVersion
+    - 终态不复活，过期游标只读重载
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S25
+  title: 普通轮次跨进程竞争及完成补交
+  scope:
+    user_id: '910025'
+    other_user_id: '920025'
+    session_id: 85c1061a-7941-57e8-9c2a-e22b1ec4db07
+    epoch: db2777e5-7e23-54fd-baa6-32a7b1a81bd5
+  setup:
+    task_ids: &id025
+      purchase: 42f5a9ad-880a-575e-9866-163024922e0f
+    run_ids:
+      purchase: ff58951e-3d60-5ccb-a185-6fbd5b1e3140
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: c036fb46-4d13-59e7-a05b-37dfef6856fa
+      dealId: a6e375dc-3a60-5832-91ea-4f8d8824fa8f
+      orderId: a0957941-9050-5a40-9710-4c5b6e3d4bfc
+      voucherId: 2aa392c7-0aa9-5346-9601-3462c8d7e4ea
+      couponId: c5ecf7f0-bd65-5777-82aa-c9c1be3886f1
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 9b527949-8339-5864-a7a5-98070936255b
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: purchase
+      task_id: 42f5a9ad-880a-575e-9866-163024922e0f
+      run_id: ff58951e-3d60-5ccb-a185-6fbd5b1e3140
+      intent: group_buy_order
+      task_kind: transaction
+      lifecycle: active
+      phase: waiting_confirmation:purchase
+      run_status: waiting_confirmation
+      checkpoint_exists: true
+      source_role: purchase
+      prepare_confirmation_via_backend: true
+  inputs:
+  - kind: parallel_confirm
+    same_turn: true
+  - kind: drop_completion_response
+  - kind: restart
+    services:
+    - agent
+    - spring
+  - kind: lease_expiry
+  faults:
+  - parallel_turn
+  - drop_completion
+  - lease_expiry
+  expected:
+    task_ids: *id025
+    new_roles: []
+    task_relations: []
+    focus: purchase
+    phases:
+      purchase: active/waiting_confirmation:pay
+    allowed_tools_by_role:
+      purchase:
+      - create_group_buy_order
+    business_delta:
+      orders: 1
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 数据库认领只产生一个执行者
+    - 完成回执补交不重执写入
+    - 旧代次完成不覆盖新焦点，租约过期不能重放写
+    original_budget: 200
+    resume_keeps_original_conditions: false
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
+- id: TS-S26
+  title: 明确查完再继续的来源绑定
+  scope:
+    user_id: '910026'
+    other_user_id: '920026'
+    session_id: 88edf8ce-601c-5fde-a652-30b4bec19798
+    epoch: 5e5c7fca-15cc-5044-9a0c-12cc8973df91
+  setup:
+    task_ids: &id026
+      deal: 381a5524-7fae-5c94-8bb3-9fa85cf432a6
+    run_ids:
+      deal: dcc71cf6-060d-53cc-9e19-3d03d50bcac2
+    focus_version: 10
+    task_version: 7
+    execution_generation: 3
+    action_version: 2
+    resources:
+      storeId: 5bed0794-fda6-5ac2-a75c-415cccb2dd4a
+      dealId: b6c5f7ae-db51-5ceb-bdef-b9d06bff1dd9
+      orderId: 6aa91c65-2618-5cfe-8054-741f85244f33
+      voucherId: 65bc341b-8750-5c72-9f19-61944f63c3c1
+      couponId: 10087e09-2bc4-5414-8929-7708dcfcab4a
+    baseline_business:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    conditions:
+      cityCode: '310100'
+      budget: 200
+      people: 2
+      quantity: 1
+    excluded_objects:
+    - 7ef49b33-2f68-5952-b410-25239fd1e727
+    task_event_hours: 24
+    idempotency_tombstone_hours: 72
+    tasks:
+    - role: deal
+      task_id: 381a5524-7fae-5c94-8bb3-9fa85cf432a6
+      run_id: dcc71cf6-060d-53cc-9e19-3d03d50bcac2
+      intent: deal_recommendation
+      task_kind: selection
+      lifecycle: active
+      phase: awaiting_followup
+      run_status: succeeded
+      checkpoint_exists: true
+      source_role: deal
+      prepare_confirmation_via_backend: false
+  inputs:
+  - kind: message
+    text: 先查订单，查完再继续这个套餐任务
+  faults:
+  - target_cancelled
+  - target_revised
+  - target_switched
+  expected:
+    task_ids: *id026
+    new_roles:
+    - orders
+    task_relations: []
+    focus: deal
+    phases:
+      deal: active/awaiting_followup
+      orders: completed
+    allowed_tools_by_role:
+      deal: []
+      orders:
+      - list_user_orders
+    business_delta:
+      orders: 0
+      refunds: 0
+      complaints: 0
+    error_codes: []
+    assertions:
+    - 返回指令绑定原source及暂停后的目标版本
+    - 成功只恢复焦点并展示停点，不自动工具
+    - 目标被取消/修订/切换时不自动返回
+    original_budget: 200
+    resume_keeps_original_conditions: false
+    by_fault:
+      target_cancelled:
+        auto_return: false
+        prepare_write_delta: 0
+      target_revised:
+        auto_return: false
+        prepare_write_delta: 0
+      target_switched:
+        auto_return: false
+        prepare_write_delta: 0
+    without_fault:
+      auto_return: true
+      return_count: 1
+      prepare_write_delta: 0
+  evidence_requirements:
+  - 鉴权scope及输入source关联
+  - task/run/turn/phase和版本前后值
+  - 实际工具接收/唯一执行记录
+  - 业务表前后计数与事件水位
+  - 命令/故障/拒绝原因；适用时截图
