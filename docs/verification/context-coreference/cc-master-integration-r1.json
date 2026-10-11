@@ -1,0 +1,139 @@
+{
+  "at": "2026-10-11T17:01:46.562590+00:00",
+  "authorization": "用户在本次双仓合并询问后明确回复：合入",
+  "state": "双仓已本地合并，合并后隔离验证通过",
+  "steps": {
+    "MI-00": "通过",
+    "MI-01": "通过",
+    "MI-02": "通过",
+    "MI-03": "通过"
+  },
+  "repositories": {
+    "agent": {
+      "base": "7487751815a1c8166271f3892ad10f8a35f69c1a",
+      "source": "5d2591bd8236974f4a8226d36cdf8b6a5d16e0c6",
+      "snapshot": "C:/fdz-build/.runtime/cc-master-agent-r1",
+      "merge": "3376fdd65d3cc8b97a07bbef926888d7f3202a07",
+      "tree": "0a33c1b54d02039bfba3027e19ea7d498f698055",
+      "merge_exit": 0,
+      "status_preserved": true
+    },
+    "phone": {
+      "base": "3e5096b951a752d2d93a87b75dd6f8d745dbddbc",
+      "source": "52902ed01e27fbdb4dfab658edb0a2038510ffcb",
+      "snapshot": "C:/fdz-build/.runtime/cc-master-phone-r1",
+      "merge": "9fe8c5be5e238c8de1f72710a5b175daed1c25c1",
+      "tree": "44b931314f61a1be6f5e803cfe773428dd129074",
+      "merge_exit": 0,
+      "status_preserved": true
+    }
+  },
+  "verification": {
+    "at": "2026-10-11T16:56:30.877490+00:00",
+    "frozen_merges": {
+      "agent": "3376fdd65d3cc8b97a07bbef926888d7f3202a07",
+      "phone": "9fe8c5be5e238c8de1f72710a5b175daed1c25c1"
+    },
+    "runs": {
+      "agent-pytest-r1": {
+        "command": [
+          "C:/Users/caid0/anaconda3/python.exe",
+          "-m",
+          "pytest",
+          "tests",
+          "-q",
+          "--disable-warnings",
+          "--tb=short",
+          "--basetemp=C:\\Users\\caid0\\.codex\\worktrees\\context-coreference\\-Demo-master\\.runtime\\context-coreference\\cc-master-pytest-tmp",
+          "--junitxml=C:\\Users\\caid0\\.codex\\worktrees\\context-coreference\\-Demo-master\\.runtime\\context-coreference\\cc-master-agent-pytest-r1.xml"
+        ],
+        "cwd": "C:\\fdz-build\\.runtime\\cc-master-agent-r1",
+        "log": "C:\\Users\\caid0\\.codex\\worktrees\\context-coreference\\-Demo-master\\.runtime\\context-coreference\\cc-master-agent-pytest-r1.log",
+        "exit_code": 0,
+        "seconds": 202.407669,
+        "totals": {
+          "tests": 1162,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 42
+        }
+      },
+      "agent-compile-r1": {
+        "command": [
+          "C:/Users/caid0/anaconda3/python.exe",
+          "-m",
+          "compileall",
+          "-q",
+          "conversation",
+          "intent",
+          "dag",
+          "service",
+          "evaluation"
+        ],
+        "cwd": "C:\\fdz-build\\.runtime\\cc-master-agent-r1",
+        "log": "C:\\Users\\caid0\\.codex\\worktrees\\context-coreference\\-Demo-master\\.runtime\\context-coreference\\cc-master-agent-compile-r1.log",
+        "exit_code": 0,
+        "seconds": 0.295166
+      },
+      "spring-test-r1": {
+        "command": [
+          "D:/software/IntelliJ IDEA 2025.2.4/plugins/maven/lib/maven3/bin/mvn.cmd",
+          "-q",
+          "test"
+        ],
+        "cwd": "C:\\fdz-build\\.runtime\\cc-master-phone-r1\\backend",
+        "log": "C:\\Users\\caid0\\.codex\\worktrees\\context-coreference\\-Demo-master\\.runtime\\context-coreference\\cc-master-spring-test-r1.log",
+        "exit_code": 0,
+        "seconds": 85.085518,
+        "totals": {
+          "tests": 230,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "suites": 57
+      },
+      "spring-package-r1": {
+        "command": [
+          "D:/software/IntelliJ IDEA 2025.2.4/plugins/maven/lib/maven3/bin/mvn.cmd",
+          "-q",
+          "-DskipTests",
+          "package"
+        ],
+        "cwd": "C:\\fdz-build\\.runtime\\cc-master-phone-r1\\backend",
+        "log": "C:\\Users\\caid0\\.codex\\worktrees\\context-coreference\\-Demo-master\\.runtime\\context-coreference\\cc-master-spring-package-r1.log",
+        "exit_code": 0,
+        "seconds": 8.454178,
+        "jar": "C:\\fdz-build\\.runtime\\cc-master-phone-r1\\backend\\target\\fandazi-backend-0.0.1-SNAPSHOT.jar",
+        "sha256": "600dc14d0d66a02c8c41d04fbab1e293828d8fc78b5bd2aec12f4dc6fb17da1a"
+      }
+    },
+    "reuse": {
+      "android": {
+        "changed": [
+          "docs/development/branch-management.md"
+        ],
+        "checked_files": 517,
+        "passed_unit_tests": 392,
+        "lint_errors": 0,
+        "lint_warnings": 710,
+        "app_sha256": "650fe418c67bad87816f95cc954058f20bc1ea0af44a4c8849c5f5502b6c4954",
+        "reason": "合并树与批准来源一致；相对实际R2构建只有台账差异；全部Android/权威契约输入字节相同，复用R2构建和R5真实UI，不生成重复APK。"
+      },
+      "live_and_performance": {
+        "agent_approved_tree_equal": true,
+        "phone_approved_tree_equal": true,
+        "source_equivalence": "cc11-r24-phone-r3-equivalence.json、cc11-r26-precommit-proof.json已记录R23/R24/R26产品字节一致；本次合并没有新增产品字节",
+        "online": "R4 Full39/39，实际目标绑定9/9，117次主测量均完成",
+        "ui": "R5同APK八屏、4次唯一工具执行、6闭合轮次、业务增量0",
+        "performance": "R7固定条件2700样本原门槛通过；c5单批+92.18%离群保留",
+        "limitations": "42项显式跳过不算本次通过；真实链路分别按历史专门运行记录复用；未运行instrumentation，不声明Android帧率或生产留存达标"
+      }
+    },
+    "all_required_passed": true
+  },
+  "phone_original_untracked_preserved": 9585,
+  "default_production_enabled": false,
+  "pushed": false,
+  "deployed": false
+}
