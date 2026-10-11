@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
     private AgentCompareContextService comparisons;
     private AgentConversationSourceService sources;
     private AgentPresentationService presentations;
+    private AgentConversationCompletionService completion;
     private String contextProtocolVersion="2.0";
     /** 来源只在显式部署 2.1 后启用，旧入口保持既有构造与运行行为。 */
     @org.springframework.beans.factory.annotation.Autowired
@@ -22,6 +23,9 @@ import org.springframework.stereotype.Service;
     /** 展示登记发生在最终卡片重查之后，读取引用先于新来源和外部模型调用。 */
     @org.springframework.beans.factory.annotation.Autowired
     void attachPresentations(AgentPresentationService presentations) {this.presentations=presentations;}
+    /** 生产2.1出口合并短事务；旧手工构造测试保留原领域服务路径，外部调用始终在事务外。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    void attachCompletion(AgentConversationCompletionService completion) {this.completion=completion;}
     /** 生产装配只读可信对比服务；旧测试不带对比字段时继续原调用路径。 */
     @org.springframework.beans.factory.annotation.Autowired
     void attachComparisons(AgentCompareContextService comparisons){this.comparisons=comparisons;}
@@ -71,8 +75,11 @@ import org.springframework.stereotype.Service;
         if("2.1".equals(fixedVersion)) {
             // 来源先于模型签发；重试正文冲突在任何工具调用前失败。
             var source=started.source();
-            String messageId=messages==null ? null : messages.recordUserSource(userId,sessionId,runId,traceId,text,clientMessageKey);
-            trustedContext.put("conversationSource",sources.linkHistory(userId,sessionId,(String)source.get("sourceMessageId"),messageId));
+            String messageId=messages==null ? null : messages.recordUserLinkedSource(userId,sessionId,runId,traceId,text,clientMessageKey,(String)source.get("sourceMessageId"));
+            // 记录器只在同事务原文与来源均提交后返回ID；失败保留真实缺口，不再追加一次独立关联事务。
+            var linkedSource=new java.util.LinkedHashMap<String,Object>(source);
+            linkedSource.put("historyRecorded",messageId!=null || Boolean.TRUE.equals(source.get("historyRecorded")));
+            trustedContext.put("conversationSource",linkedSource);
         } else if(messages!=null)messages.recordUser(userId,sessionId,runId,traceId,text,clientMessageKey);
         if (compareDealIds==null && mode == AgentMode.CONFIRM && isConfirmation(text)) sessions.confirm(userId, sessionId);
         // 网关兼容事件也绑定真实输入链路，防止迟到的上一轮兼容终态停止当前轮动画；不伪造原事件身份。
@@ -84,18 +91,22 @@ import org.springframework.stereotype.Service;
                     runId, trustedContext, fixedVersion));
             // 模型只提交公开 ID；网关在返回 Android 前重新查询真实资源，防止客户端展示过期或伪造字段。
             result = enrichCards(userId, sessionId, result);
-            if("2.1".equals(fixedVersion)&&presentations!=null) {
+            if("2.1".equals(fixedVersion)&&presentations!=null&&completion==null) {
                 var registered=presentations.register(userId,sessionId,(String)started.source().get("sourceMessageId"),result.cards());
                 result=new AgentResult(result.status(),result.message(),result.nextAction(),result.candidateCart(),result.events(),registered,result.error(),result.eventsRecorded());
             }
             // 只接受新团购摘要；旧购物车/地址确认被明确拒绝，不再重查或授权外卖交易。
             if (result.candidateCart().containsKey("cartDraftId") || result.candidateCart().containsKey("addressId"))
                 result = AgentResult.failed("旧外卖动作已停用，请使用团购服务");
-            // 将最终公开且已重查的摘要绑定待确认动作，泛化“确认”只能授权该资源与输入正文。
-            if (result.status() == AgentResult.Status.AWAITING_CONFIRMATION && result.candidateCart().containsKey("action"))
-                sessions.bindPendingConfirmation(userId, sessionId, runId, result.candidateCart());
-            // 先保存暂停/终态，下一次补充或确认才能继续使用同一任务标识。
-            sessions.finishRun(userId, sessionId, runId, result.status());
+            if("2.1".equals(fixedVersion)&&completion!=null) {
+                // 重查后的展示、待确认摘要及终态作为同一出口提交；不跨越前面的模型或业务HTTP。
+                result=completion.complete(userId,sessionId,runId,(String)started.source().get("sourceMessageId"),result);
+            } else {
+                // B2及原手工装配继续既有事务路径，不能借部署开关升级旧活动任务的确认语义。
+                if (result.status() == AgentResult.Status.AWAITING_CONFIRMATION && result.candidateCart().containsKey("action"))
+                    sessions.bindPendingConfirmation(userId, sessionId, runId, result.candidateCart());
+                sessions.finishRun(userId, sessionId, runId, result.status());
+            }
             // 旧替身返回的事件仍由网关写入；V1 客户端已经逐行记录，避免同一事件重复审计。
             if (!result.eventsRecorded()) for (AgentResult.Event event: result.events()) events.record(userId,sessionId,event.type(),event.summary(),event.toolName(),event.status(),event.payload());
             String outcome = switch (result.status()) {

@@ -40,7 +40,13 @@ public class AgentConversationSourceService {
             catch(com.fasterxml.jackson.core.JsonProcessingException error) {throw new DomainException("展示引用无效");}
         }
         // 引用加入来源摘要，不改变记录及发给 Agent 的用户原句，也不成为交易幂等键。
-        Map<String,Object> source="2.1".equals(version) ? issue(userId,sessionId,fingerprintBody,clientMessageKey) : Map.of();
+        Map<String,Object> source=Map.of();
+        if("2.1".equals(version)) {
+            validateInput(fingerprintBody,clientMessageKey);
+            // start已在本事务持有会话行锁并核验归属；再次JPQL读取会话不仅多一次往返，
+            // 还会提前刷新trace更新，使来源顺序更新再产生一次UPDATE。直接复用同一受管实体。
+            source=issueLocked(session,userId,sessionId,fingerprintBody,clientMessageKey);
+        }
         return new StartedInput(session.getActiveRunId(),version,source);
     }
 
@@ -50,11 +56,18 @@ public class AgentConversationSourceService {
     /** 同展示键同正文复用来源，不同正文冲突；无键时每次真实输入独立签发。 */
     @Transactional
     public Map<String,Object> issue(Long userId,String sessionId,String body,String clientMessageKey) {
-        if(body==null || body.isBlank())throw new DomainException("消息不能为空");
-        if(clientMessageKey!=null && !clientMessageKey.matches("[A-Za-z0-9_-]{1,100}"))throw new DomainException("消息展示键无效");
+        validateInput(body,clientMessageKey);
         // 先核验归属并持有行锁，再查重及递增；顺序不依赖模型完成顺序。
         var session=sessions.findBySessionIdAndUserIdForUpdate(sessionId,userId)
                 .orElseThrow(() -> new DomainException("会话不存在或不属于当前用户"));
+        return issueLocked(session,userId,sessionId,body,clientMessageKey);
+    }
+
+    /** 仅复用本类公开入口已校验且持锁的会话；私有方法不接受外部传入的实体或省略正文校验。 */
+    private Map<String,Object> issueLocked(AgentSession session,Long userId,String sessionId,String body,String clientMessageKey) {
+        // 身份仍逐项核对；当前实体来自同一活动事务的行锁读取，不使用缓存中的旧epoch。
+        if(!session.getUser().getId().equals(userId)||!session.getSessionId().equals(sessionId))
+            throw new DomainException("会话不存在或不属于当前用户");
         String epoch=session.ensureConversationEpoch();
         String inputKey=clientMessageKey==null ? "input:"+UUID.randomUUID() : "client:"+clientMessageKey;
         String fingerprint=hash(body);
@@ -66,6 +79,12 @@ public class AgentConversationSourceService {
         }
         var created=new AgentConversationSource(userId,sessionId,epoch,inputKey,session.nextConversationTurn(),fingerprint);
         return sources.saveAndFlush(created).publicSource();
+    }
+
+    /** 原文和展示键验证统一保留；独立issue仍在数据库读取前拒绝非法输入。 */
+    private static void validateInput(String body,String clientMessageKey) {
+        if(body==null || body.isBlank())throw new DomainException("消息不能为空");
+        if(clientMessageKey!=null && !clientMessageKey.matches("[A-Za-z0-9_-]{1,100}"))throw new DomainException("消息展示键无效");
     }
 
     /** 关联历史实际结果；记录失败必须返回 false，不能伪装成完整历史。 */

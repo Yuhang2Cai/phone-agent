@@ -41,6 +41,20 @@ class SecurityErrorDispatchTest {
                 .andExpect(status().isServiceUnavailable());
     }
 
+    /** SSE容器异步二次分发不重新依赖请求线程认证；普通初始HTTP仍由原安全链认证。 */
+    @Test
+    void frameworkAsyncDispatchKeepsOriginalStatus() throws Exception {
+        mvc.perform(get("/api/private/error-probe").with(request -> {
+            request.setDispatcherType(DispatcherType.ASYNC);return request;
+        })).andExpect(status().isServiceUnavailable());
+    }
+
+    /** 未认证客户端不能借异步修复直接订阅任何会话。 */
+    @Test
+    void directAgentStreamRemainsProtected() throws Exception {
+        mvc.perform(get("/api/agent/sessions/synthetic/events")).andExpect(status().isUnauthorized());
+    }
+
     /** 普通用户直接访问同一路径不能借ERROR放行，仍返回401。 */
     @Test
     void directErrorProbeRemainsProtected() throws Exception {

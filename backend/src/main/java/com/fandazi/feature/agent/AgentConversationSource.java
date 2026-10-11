@@ -9,7 +9,7 @@ import java.time.Instant;
 @Table(name="agent_conversation_sources", uniqueConstraints={
         @UniqueConstraint(name="ux_context_input",columnNames={"user_id","session_id","epoch","input_key"}),
         @UniqueConstraint(name="ux_context_turn",columnNames={"user_id","session_id","epoch","turn_sequence"})})
-class AgentConversationSource {
+class AgentConversationSource implements org.springframework.data.domain.Persistable<String> {
     @Id @Column(name="source_id",length=100) private String sourceId;
     @Column(name="user_id",nullable=false) private Long userId;
     @Column(name="session_id",nullable=false,length=100) private String sessionId;
@@ -19,6 +19,8 @@ class AgentConversationSource {
     @Column(name="body_sha256",nullable=false,length=64) private String bodySha256;
     @Column(name="message_id",length=80) private String messageId;
     @Column(name="created_at",nullable=false) private Instant createdAt;
+    // UUID由本服务预先分配，非空ID不代表数据库已存在；明确新对象状态避免merge先执行无意义SELECT。
+    @Transient private boolean newRecord=true;
 
     /** 仅供 JPA 还原记录，不作为未校验请求构造入口。 */
     protected AgentConversationSource() {}
@@ -29,6 +31,12 @@ class AgentConversationSource {
         this.epoch=epoch;this.inputKey=inputKey;this.turnSequence=turnSequence;this.bodySha256=bodySha256;
         this.createdAt=Instant.now();
     }
+    /** 仅供Spring Data判定记录身份；对外来源仍由publicSource固定投影，不扩展公开协议。 */
+    @Override public String getId() {return sourceId;}
+    /** 新建来源直接persist；从库加载或插入完成后必须转为已有记录，防止再次保存产生重复插入。 */
+    @Override public boolean isNew() {return newRecord;}
+    /** JPA生命周期切换仅影响仓储新旧判断，不改变来源ID、正文摘要、epoch或轮次。 */
+    @PostPersist @PostLoad private void markExisting() {newRecord=false;}
     /** 正文摘要仅用于冲突检测，不作为用户授权签名。 */
     String bodySha256() { return bodySha256; }
     /** 返回来源身份以关联历史写入结果。 */

@@ -1,4 +1,4 @@
-// 助手事件服务：记录可追溯的交互事件。
+// 助手事件服务：持久化公开事件并通知会话订阅；断连只移除订阅，不能反向使业务事务失败。
 package com.fandazi.feature.agent;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
                 for (AgentEventEntity event : after(userId,sessionId,lastId)) send(emitter,event,responseFactory);
                 subscribers.computeIfAbsent(key, ignored -> new CopyOnWriteArrayList<>()).add(emitter);
             }
-        } catch (IOException exception) { emitter.completeWithError(exception); }
+        } catch (IOException | IllegalStateException exception) { disconnect(key,emitter,exception); }
         Runnable remove=()->remove(key,emitter); emitter.onCompletion(remove); emitter.onTimeout(remove); emitter.onError(ignored->remove.run());
         return emitter;
     }
@@ -39,8 +39,18 @@ import org.springframework.transaction.annotation.Transactional;
         SubscriptionKey key=new SubscriptionKey(event.getUserId(),event.getSessionId());
         synchronized (subscribers) {
             for (SseEmitter emitter : subscribers.getOrDefault(key,new CopyOnWriteArrayList<>())) {
-                try { send(emitter,event,AgentGatewayController.EventResponse::from); } catch (IOException exception) { emitter.completeWithError(exception); remove(key,emitter); }
+                // 发送和容器清理都可能遇到断连；将故障限定在当前订阅，其他订阅与持久事务继续。
+                try { send(emitter,event,AgentGatewayController.EventResponse::from); }
+                catch (IOException | IllegalStateException exception) { disconnect(key,emitter,exception); }
             }
+        }
+    }
+    /** 先移除失效订阅再尝试结束容器；异步上下文已经销毁时清理异常不能传播到业务HTTP。 */
+    private void disconnect(SubscriptionKey key,SseEmitter emitter,Exception failure) {
+        remove(key,emitter);
+        try { emitter.completeWithError(failure); }
+        catch (IllegalStateException ignored) {
+            // Tomcat错误回调可能已经结束AsyncContext；订阅已移除，不再访问容器或回滚事件。
         }
     }
 // 发送当前数据。

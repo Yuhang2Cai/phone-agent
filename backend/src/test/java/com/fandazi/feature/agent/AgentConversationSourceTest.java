@@ -14,13 +14,16 @@ import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 /** H2 证明 JPA 事务路径行为，MySQL 生产并发必须在 CC-02/10 另行验证，不能混称。 */
-@SpringBootTest
+@SpringBootTest(properties={"spring.jpa.properties.hibernate.generate_statistics=true",
+        "logging.level.org.hibernate.engine.internal.StatisticalLoggingSessionEventListener=OFF"})
 class AgentConversationSourceTest {
     @Autowired private AgentConversationSourceService sources;
     @Autowired private AgentSessionService sessions;
     @Autowired private UserRepository users;
     @Autowired private AgentHistoryRecordingService history;
     @Autowired private AgentEventService events;
+    @Autowired private jakarta.persistence.EntityManagerFactory entityManagers;
+    @Autowired private AgentConversationSourceRepository sourceRows;
     private Long userId;
     private String sessionId;
 
@@ -39,6 +42,39 @@ class AgentConversationSourceTest {
         assertThat(retry).isEqualTo(first);
         assertThatThrownBy(() -> sources.issue(userId,sessionId,"第一句 ","display-1")).isInstanceOf(DomainException.class);
         assertThat(sources.issue(userId,sessionId,"第二句","display-2")).containsEntry("turnSequence",2L);
+    }
+
+    @Test void beginInputReusesLockedSessionAndInsertsFreshSource() {
+        // 先建立真实等待停点，再只计下一次来源事务；不能把外层启动成本混入语句预算。
+        var first=sources.beginInput(userId,sessionId,"购买套餐","count-first",AgentMode.CONFIRM,"count-trace-1");
+        sessions.finishRun(userId,sessionId,first.runId(),AgentResult.Status.NEEDS_INPUT);
+        var statistics=entityManagers.unwrap(org.hibernate.SessionFactory.class).getStatistics();
+        statistics.clear();
+        var second=sources.beginInput(userId,sessionId,"取消","count-second",AgentMode.CONFIRM,"count-trace-2");
+        // 来源创建仍须有真实行锁、正文去重、插入和顺序更新；省掉重复锁查询、提前刷新和新UUID查存在。
+        assertThat(statistics.getPrepareStatementCount()).as("同事务来源分配不应重复读取会话或先查新UUID")
+                .isLessThanOrEqualTo(5);
+        // 语句数量下降后，等待任务、epoch和递增来源仍必须与之前的业务语义一致。
+        assertThat(second.runId()).isEqualTo(first.runId());
+        assertThat(second.source()).containsEntry("turnSequence",2L).containsEntry("historyRecorded",false);
+        assertThat(second.source().get("conversationEpoch")).isEqualTo(first.source().get("conversationEpoch"));
+        assertThat(second.source().get("sourceMessageId")).isNotEqualTo(first.source().get("sourceMessageId"));
+    }
+
+    @Test void assignedSourceIdPersistsOnceAndReloadedSourceStaysExisting() {
+        // 手工分配UUID仍是新来源；实际JPA不能先按ID读取不存在记录，也不能把加载后的来源再当新插入。
+        var statistics=entityManagers.unwrap(org.hibernate.SessionFactory.class).getStatistics();statistics.clear();
+        var value=sources.issue(userId,sessionId,"新来源","persist-source");
+        assertThat(statistics.getPrepareStatementCount()).as("新UUID来源应直接插入，不附加按主键存在性读取")
+                .isLessThanOrEqualTo(5);
+        // 重新从库加载必须清除新对象标志，后续保存及同正文重试不能重新插入来源或推进顺序。
+        var loaded=sourceRows.findById((String)value.get("sourceMessageId")).orElseThrow();
+        assertThat(loaded).isInstanceOf(org.springframework.data.domain.Persistable.class);
+        var state=(org.springframework.data.domain.Persistable<?>)loaded;
+        assertThat(state.isNew()).isFalse();
+        statistics.clear();sourceRows.saveAndFlush(loaded);
+        assertThat(statistics.getEntityInsertCount()).isZero();
+        assertThat(sources.issue(userId,sessionId,"新来源","persist-source")).isEqualTo(value);
     }
 
     @Test void missingDisplayKeyDoesNotGuessRetryFromIdenticalText() {

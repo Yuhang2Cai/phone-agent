@@ -27,6 +27,11 @@ public class AgentHistoryRecordingService {
         return record(userId,sessionId,runId,traceId,"user",content,clientMessageKey);
     }
 
+    /** 用户原文与已签发来源在同一事务关联；返回值只在提交成功后可用于公开historyRecorded。 */
+    public String recordUserLinkedSource(Long userId,String sessionId,String runId,String traceId,String content,String clientMessageKey,String sourceId) {
+        return record(userId,sessionId,runId,traceId,"user",content,clientMessageKey,sourceId);
+    }
+
     /** 保存本次输入的完整助手结果；重复终态由数据库唯一键防重，不触发任何业务重跑。 */
     public void recordAssistant(Long userId,String sessionId,String runId,String traceId,String content) {
         record(userId,sessionId,runId,traceId,"assistant",content,null);
@@ -37,14 +42,24 @@ public class AgentHistoryRecordingService {
 
     /** 事务提交异常在此边界捕获；保留故障标记直到人工修复，后续成功不能掩盖之前缺失。 */
     private String record(Long userId,String sessionId,String runId,String traceId,String role,String content,String clientMessageKey) {
-        try { return writer.write(userId,sessionId,runId,traceId,role,content,clientMessageKey).getPublicId(); }
+        return record(userId,sessionId,runId,traceId,role,content,clientMessageKey,null);
+    }
+
+    /** 共用记录与故障处理；2.1可合并来源关联，2.0和助手终态继续使用原消息事务。 */
+    private String record(Long userId,String sessionId,String runId,String traceId,String role,String content,String clientMessageKey,String sourceId) {
+        try { return sourceId==null ? writer.write(userId,sessionId,runId,traceId,role,content,clientMessageKey).getPublicId()
+            : writer.writeLinkedSource(userId,sessionId,runId,traceId,content,clientMessageKey,sourceId).getPublicId(); }
         catch(RuntimeException error) {
             // 两次终态并发查重可能同时未命中；唯一索引先提交的一条已完整可读时，后者是正常重复。
             if(error instanceof org.springframework.dao.DataIntegrityViolationException) {
                 try {
                     var existing=writer.existing(userId,sessionId,traceId,role,clientMessageKey);
                     // 唯一约束冲突后也核对精确正文，不能把不同内容当重复成功。
-                    if(existing.isPresent() && existing.get().getContent().equals(content))return existing.get().getPublicId();
+                    if(existing.isPresent() && existing.get().getContent().equals(content)) {
+                        // 唯一键竞争的首条消息确已提交后，仍必须在新事务完成来源关联，不能只返回旧ID伪装关联成功。
+                        return sourceId==null ? existing.get().getPublicId()
+                            : writer.writeLinkedSource(userId,sessionId,runId,traceId,content,clientMessageKey,sourceId).getPublicId();
+                    }
                 }
                 catch(RuntimeException ignored) { /* 读取也故障时继续标记恢复不可用，不推测已提交。 */ }
             }
