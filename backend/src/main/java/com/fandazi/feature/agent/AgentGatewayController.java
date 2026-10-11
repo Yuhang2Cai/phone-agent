@@ -13,11 +13,14 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 @RestController @RequestMapping("/api/agent/sessions") public class AgentGatewayController {
     /** 可选展示键只关联气泡身份；旧客户端仍可发送原text/mode，不提供任何交易权限。 */
     public record MessageRequest(@NotBlank String text,@NotNull AgentMode mode,
-            @jakarta.validation.constraints.Pattern(regexp="[A-Za-z0-9_-]{1,100}") String clientMessageKey, java.util.List<String> compareDealIds) {
+            @jakarta.validation.constraints.Pattern(regexp="[A-Za-z0-9_-]{1,100}") String clientMessageKey, java.util.List<String> compareDealIds,
+            java.util.Map<String,Object> selectionRef) {
         /** 保留原两参数构造器供旧调用，展示键缺失不拒绝正常消息。 */
-        public MessageRequest(String text,AgentMode mode) { this(text,mode,null,null); }
+        public MessageRequest(String text,AgentMode mode) { this(text,mode,null,null,null); }
         /** 原三字段构造器保持兼容；比较ID由独立可空字段表示，禁止从text修改或提取价格。 */
-        public MessageRequest(String text,AgentMode mode,String clientMessageKey){this(text,mode,clientMessageKey,null);}
+        public MessageRequest(String text,AgentMode mode,String clientMessageKey){this(text,mode,clientMessageKey,null,null);}
+        /** 保留比较入口原构造，旧客户端省略引用时继续保守处理。 */
+        public MessageRequest(String text,AgentMode mode,String clientMessageKey,java.util.List<String> compareDealIds){this(text,mode,clientMessageKey,compareDealIds,null);}
     }
     /** Android 公开事件 DTO；历史事件同样经过脱敏，避免部署前的旧数据在重连时泄漏凭证。 */
     public record EventResponse(Long id,String type,String summary,String toolName,String status,java.util.Map<String,Object> payload) {
@@ -35,7 +38,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 // 初始化对象依赖与默认状态。
     public AgentGatewayController(AgentGatewayService gateway,AgentSessionService sessions,AgentEventService events){this.gateway=gateway;this.sessions=sessions;this.events=events;}
 // 处理 `message` 相关逻辑。
-    @PostMapping("/{sessionId}/messages") public AgentResult message(@AuthenticationPrincipal Long userId,@PathVariable String sessionId,@Valid @RequestBody MessageRequest request){return gateway.handle(userId,sessionId,request.text(),request.mode(),request.clientMessageKey(),request.compareDealIds());}
+    @PostMapping("/{sessionId}/messages") public AgentResult message(@AuthenticationPrincipal Long userId,@PathVariable String sessionId,@Valid @RequestBody MessageRequest request){return gateway.handle(userId,sessionId,request.text(),request.mode(),request.clientMessageKey(),request.compareDealIds(),request.selectionRef());}
 // 处理 `stream` 相关逻辑。
     @GetMapping(value="/{sessionId}/events",produces=MediaType.TEXT_EVENT_STREAM_VALUE) public SseEmitter stream(@AuthenticationPrincipal Long userId,@PathVariable String sessionId,@RequestHeader(value="Last-Event-ID",required=false) Long lastEventId){sessions.owned(userId,sessionId);return events.subscribe(userId,sessionId,lastEventId,EventResponse::from);}
     /** 当前账户只读恢复V1历史；默认50条，非法limit或跨资源游标由服务明确拒绝。 */

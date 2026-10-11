@@ -433,7 +433,8 @@ tools:
     output: {type: order_detail, schema: {$ref: "#/definitions/order_detail"}}
     errors: [NOT_FOUND, FORBIDDEN, DEPENDENCY_UNAVAILABLE]
   - name: list_user_vouchers
-    description: "查询本人券公开摘要；不下发核销令牌，未支付订单不能推断可退款"
+    # 团购券是购买套餐后生成的voucher，不是用于抵扣的coupon；规划时两者不能替代。
+    description: "查询本人购买套餐后生成的团购券voucher公开摘要，不是优惠券；不下发核销令牌，未支付订单不能推断可退款"
     risk: READ_ONLY
     confirmationRequired: false
     businessCommitted: false
@@ -534,7 +535,8 @@ tools:
     output: {type: refund_result, schema: {$ref: "#/definitions/refund_result"}}
     errors: [VALIDATION_ERROR, NOT_FOUND, FORBIDDEN, CONFLICT, EXPIRED, DEPENDENCY_UNAVAILABLE]
   - name: query_coupon
-    description: "查询本人已领取券与适用规则；不能把未领取券当成可直接使用"
+    # 优惠券是抵扣用的coupon，不是购买后生成的voucher；只提供既有读取能力。
+    description: "查询本人已领取的优惠券coupon与抵扣适用规则，不是团购券；不能把未领取券当成可直接使用"
     risk: READ_ONLY
     confirmationRequired: false
     businessCommitted: false

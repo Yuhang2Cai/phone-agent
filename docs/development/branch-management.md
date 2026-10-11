@@ -28,6 +28,16 @@
 
 ## 当前台账
 
+2026-10-10 上下文重构开工：`codex/context-coreference` 从手机 master
+`3e5096b951a752d2d93a87b75dd6f8d745dbddbc` 创建，工作区
+`D:/project/phone-agent/.worktrees/codex/context-coreference`；对应 Agent 从
+`7487751815a1c8166271f3892ad10f8a35f69c1a` 创建同名分支，目录
+`C:/Users/caid0/.codex/worktrees/context-coreference/-Demo-master`。用户授权 CC-00
+至 CC-11 顺序开发、自测及同一主 Agent 按步骤验收，合并前另行询问。
+原主工作区未跟踪资料不移动；共享 8080/8091 服务不切换。本任务 MySQL
+容器 `fandazi-context-20261010-mysql` 仅监听 127.0.0.1:13315，合成库
+`dianping_intent`，随机凭据仅存忽略目录。状态：开发中。
+
 | 分支 | 任务/基线 | 工作区 | 状态 | 验收记录 |
 |---|---|---|---|---|
 | `master`，手机仓 | B2 固定来源 `55ea95a`，合并前 `11e7c83`；既有聊天/门店修复保留 | `D:\project\phone-agent` | 已合并，合并提交 `c4c3b16`；本地 Git 完成，共享部署未切换 | `docs/verification/intent13-b2-master/2026-10-10-phone-integration-report.md`；历史基线报告仍保留 |
@@ -42,3 +52,11 @@
 ASR 人工验证、模型许可、arm64 真机性能和既有延期核销仍以原报告为准。主工作区原冲突计划和原未跟踪 `AGENTS.md` 定向保留到命名 stash，恢复标识和证据位置见本次报告。
 
 2026-10-10 B2 本次合并授权为用户明确回复“同意合入”。两仓 master 合并树均与批准来源一致；合并后 Agent 610 通过/20 跳过、compileall 通过，Spring 202 项全通过及 package 成功。Android 与隔离快照产品无差异，复用 387 单测、lint、最终 APK 与 Maestro 证据；手机原未跟踪 9585 项保留。旧任务 6 个未收尾，部署不随 Git 合并自动切换。后续新分支仍统一从对应仓库最新 master 创建并记录完整起点。
+
+
+2026-10-11 CC-10/CC-11检查点（2026-10-11 23:44）：同一主Agent在既有`codex/context-coreference`双仓开发；当前Phone HEAD `cf772fba9f5d597c41f098d330a7ee922f4d42bc`、Agent HEAD `00c242350127cf7d984931c35aefb098ea0d1506`，两仓master相对开工记录未变。MySQL实际验收迁至本任务native `127.0.0.1:13316`，原13315容器记录保留为历史，不重新初始化数据库。独占端口完整8083/8093、近期8085/8095、B2 8084/8094；真实运行后均已停止，专用AVD5580已关闭；共享8080/8091未改变。
+
+Phone R2拟提交Git树`50322f9b8a866e445e079272dca99c10cac28ed2`的17文件增量经Maven230、Android392/lint0错误710警告及最新APK双构建通过；Agent R23 Git树`7e91632d2b1dad9d2cd68d08f72cbf53d27020b9`隔离1119通过42跳过/编译0，真实事务2通过，R4 Full39/39、最新Maestro八屏/4唯一执行/6轮及业务零增量通过。最终仅台账/报告与实验计量测试再闭合；原未跟踪ASR模型不纳入提交。最新APK SHA`650fe418c67bad87816f95cc954058f20bc1ea0af44a4c8849c5f5502b6c4954`，清理7个替代/临时包966765683字节，证据见任务.runtime及Agent CC-10/CC-11验收报告。状态：CC-10已按步骤验收、CC-11最终提交待完成；本次合入master仍须用户明确同意。
+
+
+2026-10-11 23:58 CC-11结案：Phone产品源提交`25feaa2f54d1e0958b27e9312abfc07d2d78292e`，对应Agent产品源提交`ea4ab99e8de6a5b437518b63e528b076ae2bcd20`；源树分别`d88a89e0c4e9a97579ce8f6c5a5d677164d143b4`、`5aeee2f698c4ac4c4d44d986988d17d0c2ac225f`。状态：已按步骤验收、已精确提交、待合并。1120/42显式跳过/编译0、Spring230、Android392/lint0错误710警告、R4 Full39/39、最新APK八屏/4唯一执行/6闭合及业务增量0。最终仅文档回写提交，不改变产品或APK字节。两仓master仍为开工基线，本次合并需用户明确同意；未push/部署，原ASR未跟踪资源保留。

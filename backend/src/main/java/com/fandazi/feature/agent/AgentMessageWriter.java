@@ -16,6 +16,14 @@ public class AgentMessageWriter {
     private final AgentMessageRepository messages;
     private final UserRepository users;
     private final AgentHistoryFaultRepository faults;
+    private AgentConversationSourceRepository sources;
+    private AgentSessionRepository sessions;
+
+    /** 生产装配同库来源依赖；原三参构造保持兼容，不改变旧2.0消息写入路径。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    void attachSources(AgentConversationSourceRepository sources,AgentSessionRepository sessions) {
+        this.sources=sources;this.sessions=sessions;
+    }
 
     /** 注入真实仓库，不接受模型构造的用户实体或授权信息。 */
     public AgentMessageWriter(AgentMessageRepository messages,UserRepository users,AgentHistoryFaultRepository faults) { this.messages=messages;this.users=users;this.faults=faults; }
@@ -39,6 +47,27 @@ public class AgentMessageWriter {
         // 正文直接保存，不为旧列长度截断；V16及实体LONGTEXT共同保证长消息可完整恢复。
         AgentMessageEntity row=new AgentMessageEntity(UUID.randomUUID().toString(),users.getReferenceById(userId),sessionId,traceId,runId,role,content,Instant.now(),clientMessageKey,key);
         return messages.saveAndFlush(row);
+    }
+
+    /**
+     * 在一个短事务内写用户原文并关联已签发来源；来源分配仍在此前独立提交。
+     * 参数来自鉴权网关，sourceId不是授权；先锁定会话并验证同用户/epoch，再写历史。
+     * 历史或关联失败时整体回滚，异常交外层记录服务标记缺口，不跨越模型和业务工具。
+     */
+    @Transactional
+    public AgentMessageEntity writeLinkedSource(Long userId,String sessionId,String runId,String traceId,
+                                                String content,String clientMessageKey,String sourceId) {
+        if(sources==null || sessions==null)throw new IllegalStateException("来源写入器尚未装配");
+        var session=sessions.findBySessionIdAndUserIdForUpdate(sessionId,userId)
+            .orElseThrow(() -> new com.fandazi.feature.DomainException("会话不存在或不属于当前用户"));
+        var source=sources.findById(sourceId)
+            .orElseThrow(() -> new com.fandazi.feature.DomainException("消息来源不存在"));
+        if(!source.ownedBy(userId,sessionId,session.ensureConversationEpoch()))
+            throw new com.fandazi.feature.DomainException("消息来源不属于当前会话");
+        // 本类调用write复用当前事务；只有真实原文写入成功，才能把该来源标记为历史已记录。
+        var message=write(userId,sessionId,runId,traceId,"user",content,clientMessageKey);
+        source.linkMessage(message.getPublicId());
+        return message;
     }
 
     /** 并发唯一键冲突后重新读取首个已提交消息；只用于识别重复记录，不覆盖正文或重新执行业务。 */

@@ -1,0 +1,86 @@
+# CC-10真实上下文链路：实际Spring/Agent、合成账号；查询和报价后取消，不点击创建订单。
+appId: com.fandazi.app
+---
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 查询门店${CC10_STORE_ID}的团购套餐
+- extendedWaitUntil:
+    # 四张真实卡片超过一屏，自动滚至底部；先等待末项，不能要求屏幕外标题可见。
+    visible: ${CC10_LAST_DEAL_TITLE}
+    timeout: 180000
+- takeScreenshot: cc10-deal-list-bottom
+# 对照后端权威列表和DB登记顺序，实际截图的卡片名称不能用录入假数据替代。
+- scrollUntilVisible:
+    element:
+      text: 找到 4 个团购套餐
+    direction: UP
+    timeout: 30000
+    centerElement: true
+- assertVisible: ${CC10_FIRST_DEAL_TITLE}
+- takeScreenshot: cc10-deal-list-order
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_input
+- setClipboard: 查询第二个套餐的详情
+- pasteText
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_send
+- takeScreenshot: cc10-keyboard-composer
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_send
+- extendedWaitUntil:
+    visible: 已读取指定套餐，未提供的使用规则不能据此推断。
+    timeout: 180000
+- back
+- takeScreenshot: cc10-second-deal
+# 冷重启只恢复真实历史，不重新发送查询或报价；保留原列表来源及顺序。
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible: 已读取指定套餐，未提供的使用规则不能据此推断。
+    timeout: 30000
+- takeScreenshot: cc10-history-restored
+# 超出真实列表序号必须追问，不选最近焦点代替第99项。
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 查询第99个套餐的详情
+- extendedWaitUntil:
+    visible: "(?s).*请明确.*"
+    timeout: 180000
+- takeScreenshot: cc10-reference-clarification
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 取消
+- extendedWaitUntil:
+    visible: 已取消本次操作
+    timeout: 30000
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 购买套餐${CC10_SECOND_DEAL_ID}，数量1份
+- extendedWaitUntil:
+    visible:
+      text: 取消本次操作
+      enabled: true
+    timeout: 180000
+- takeScreenshot: cc10-quote-confirmation
+- tapOn:
+    text: 取消本次操作
+    enabled: true
+- extendedWaitUntil:
+    visible: 已取消本次操作
+    timeout: 30000
+- assertNotVisible:
+    text: 确认
+    enabled: true
+- assertNotVisible: 处理进度
+- takeScreenshot: cc10-quote-cancelled

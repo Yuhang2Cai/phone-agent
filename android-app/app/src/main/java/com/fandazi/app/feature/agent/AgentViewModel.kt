@@ -60,6 +60,8 @@ class AgentViewModel(
     private var retryMessageKey: String? = null
     /** 重试保留公开资源摘要气泡；完整资源ID只用于原始请求，不因展示优化被截断。 */
     private var retryDisplayText: String? = null
+    /** 同一网络重试冻结展示引用；新轮不能因迟到列表改写原输入的绑定。 */
+    private var retrySelectionRef: AgentSelectionRef? = null
     private var requestedAmountLimit: String? = null
     private var preferTaskAutoForNextConfirmation = false
 
@@ -79,6 +81,7 @@ class AgentViewModel(
         identities.reset()
         archivedTraces.clear()
         retryMessageKey = null
+        retrySelectionRef = null
         // 账号变化必须清比较会话上下文与重试快照，不能让新账号继续上一轮输入。
         clearComparison();retryComparisonIds=null
         synchronized(messageJobs) { messageJobs.clear() }
@@ -188,7 +191,7 @@ class AgentViewModel(
             else -> emptySet()
         }
         if (request.text !in allowed) return false
-        sendText(request.text)
+        sendRequest(request.text,null,appendUser=true,explicitSelection=AgentPresentationReferences.card(card))
         return true
     }
 
@@ -242,7 +245,7 @@ class AgentViewModel(
     }
 
     /** 同一失败轮重试沿用原问题气泡；正常新轮仍追加用户输入并清空当前临时进度。 */
-    private fun sendRequest(text: String, displayText: String?, appendUser: Boolean) {
+    private fun sendRequest(text: String, displayText: String?, appendUser: Boolean, explicitSelection: AgentSelectionRef? = null) {
         val request = text.trim()
         if (request.isEmpty() || _uiState.value.isSending || _uiState.value.isRecoveringHistory) return
         // 恢复尚未成功时不得向不完整会话追加写入；先只读恢复，用户之后可重新明确发送。
@@ -258,6 +261,10 @@ class AgentViewModel(
         // 本轮冻结用户选择，HTTP/SSE交错或之后切换选择不能改写该轮重试资源。
         val selectedForRequest=if(appendUser)comparisonIds else retryComparisonIds
         retryComparisonIds=selectedForRequest
+        // 完整最终回复才有稳定登记顺序；明确点击使用单卡序号，普通后续输入只关联唯一列表。
+        val selectionForRequest=if(appendUser) explicitSelection ?: AgentPresentationReferences.current(
+            _uiState.value.messages.lastOrNull { !it.fromUser }?.cards.orEmpty()) else retrySelectionRef
+        retrySelectionRef=selectionForRequest
         retryText = request
         retryDisplayText = publicDisplay
         requestedAmountLimit = request.requestedAmountLimit()
@@ -287,7 +294,8 @@ class AgentViewModel(
             pointerStore.write(boundOwner, boundIdentity, AgentSessionPointer(sessionId, true))
         val messageJob = viewModelScope.launch(dispatcher, start = CoroutineStart.LAZY) {
             // 普通消息继续原四参入口，避免旧替身/协议行为变化；有比较引用才走兼容新入口。
-            val response=if(selectedForRequest==null)repository.sendMessage(sessionId,request,mode(),messageKey)
+            val response=if(selectionForRequest!=null)repository.sendMessage(sessionId,request,mode(),messageKey,selectedForRequest,selectionForRequest)
+                else if(selectedForRequest==null)repository.sendMessage(sessionId,request,mode(),messageKey)
                 else repository.sendMessage(sessionId,request,mode(),messageKey,selectedForRequest)
             when (val result = response) {
                 is ApiResult.Success -> {

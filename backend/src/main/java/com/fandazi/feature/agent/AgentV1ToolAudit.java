@@ -2,6 +2,10 @@
 package com.fandazi.feature.agent;
 
 import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +21,14 @@ class AgentV1ToolAudit {
     public void record(InternalV1ToolRequest request, String tool, Map<String, Object> result) {
         events.record(Long.valueOf(request.userId()), request.sessionId(), "tool_result", "工具执行结果", tool,
                 Boolean.TRUE.equals(result.get("ok")) ? "succeeded" : "failed",
-                Map.of("runId", request.runId(), "traceId", request.traceId(), "taskId", request.taskId(), "result", result));
+                // 接收审计携带动作版本及键摘要；重试可能重复接收，业务执行次数仍以幂等表核查。
+                // 不公开原始幂等键或准备凭证，关联摘要不能被当作交易授权。
+                Map.of("runId", request.runId(), "traceId", request.traceId(), "taskId", request.taskId(),
+                        "actionVersion", request.version(), "executionKeyHash", executionKeyHash(request.idempotencyKey()), "result", result));
+    }
+    /** 只对受控执行器键做SHA-256摘要，不读取业务载荷；标准算法缺失时明确失败由外层审计降级。 */
+    private static String executionKeyHash(String key) {
+        try { return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(key.getBytes(StandardCharsets.UTF_8))); }
+        catch (NoSuchAlgorithmException exception) { throw new IllegalStateException("工具证据摘要算法不可用",exception); }
     }
 }

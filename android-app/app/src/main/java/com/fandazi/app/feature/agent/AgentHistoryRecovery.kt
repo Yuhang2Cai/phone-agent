@@ -58,8 +58,10 @@ class AgentHistoryRecovery(private val repository: AgentRepository) {
         val grouped = events.groupBy { it.traceId }
         val restored = messages.map { message ->
             val own = message.traceId?.let { grouped[it] }.orEmpty()
+            // 有最终登记卡片时不再拼早先流式候选，避免同一资源重复且丢失唯一顺序关联。
+            val finalCards = own.lastOrNull { it.payload.containsKey("cards") }?.let(AgentPublicCards::fromEvent)
             ChatMessage(message.content, message.role == "user",
-                cards = if (message.role == "assistant") own.flatMap(AgentPublicCards::fromEvent)
+                cards = if (message.role == "assistant") (finalCards ?: own.flatMap(AgentPublicCards::fromEvent))
                     .distinct().map { it.copy(historicalReadOnly = true, confirmationIdentity = null) } else emptyList(),
                 events = if (message.role == "assistant") own else emptyList(),
                 displayKey = if (message.role == "user" && message.clientMessageKey != null) "user:${message.clientMessageKey}"

@@ -1,4 +1,4 @@
-// 智能助手模块：按部署配置消费独立 Agent 服务的 1.1 或 2.0 NDJSON 运行协议。
+// 智能助手模块：按受控配置及活动任务固定版本消费严格 NDJSON 协议。
 package com.fandazi.feature.agent;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -50,7 +50,7 @@ class HttpAgentServiceClient implements AgentServiceClient {
                            @Value("${agent.service.timeout-millis:5000}") long timeoutMillis,
                            ObjectMapper mapper, AgentMessageService messages,
                            @Value("${agent.service.protocol-version:1.1}") String protocolVersion) {
-        if (!java.util.Set.of("1.1", "2.0").contains(protocolVersion)) throw new IllegalArgumentException("Agent 协议版本不受支持");
+        if (!java.util.Set.of("1.1", "2.0", "2.1").contains(protocolVersion)) throw new IllegalArgumentException("Agent 协议版本不受支持");
         this.protocolVersion = protocolVersion;
         this.baseUrl = baseUrl;
         this.internalToken = internalToken;
@@ -75,7 +75,8 @@ class HttpAgentServiceClient implements AgentServiceClient {
     public AgentResult run(AgentRunRequest request) {
         try {
             log.info("agent request start: baseUrl={}, sessionId={}, mode={}", baseUrl, request.sessionId(), request.mode());
-            return client.post().uri("2.0".equals(protocolVersion) ? "/internal/v2/agent/runs" : "/internal/v1/agent/runs")
+            // 2.0/2.1 共用 v2 路由，但载荷和响应分别执行完整版本 Schema。
+            return client.post().uri("1.1".equals(versionFor(request)) ? "/internal/v1/agent/runs" : "/internal/v2/agent/runs")
                     .header("Authorization", "Bearer " + createInternalJwt(request))
                     .contentType(MediaType.APPLICATION_JSON)
                     .accept(MediaType.valueOf("application/x-ndjson"))
@@ -97,7 +98,7 @@ class HttpAgentServiceClient implements AgentServiceClient {
     /** 构造所配置版本的请求；工具、卡片仍遵循各自契约，不由运行协议版本推导。 */
     private Map<String, Object> requestBody(AgentRunRequest request) {
         Map<String, Object> body = new LinkedHashMap<>();
-        body.put("schemaVersion", protocolVersion);
+        body.put("schemaVersion", versionFor(request));
         body.put("userId", request.userId());
         body.put("sessionId", request.sessionId());
         body.put("traceId", request.traceId());
@@ -150,13 +151,18 @@ class HttpAgentServiceClient implements AgentServiceClient {
         Object sequence = raw.get("sequence");
         boolean validSequence = sequence instanceof Number number && number.doubleValue() == number.longValue()
                 && number.longValue() >= 0 && number.longValue() > previousSequence;
-        if (!protocolVersion.equals(raw.get("schemaVersion"))
+        if (!versionFor(request).equals(raw.get("schemaVersion"))
                 || !request.traceId().equals(raw.get("traceId")) || !request.runId().equals(raw.get("runId"))
                 || string(raw.get("eventId")) == null || string(raw.get("eventId")).isBlank()
                 || !validSequence) {
             throw new AgentServiceUnavailableException("Agent 事件版本、链路或结构不合法");
         }
         return ((Number) sequence).longValue();
+    }
+
+    /** 只允许可信网关固定旧活动任务版本，普通聊天 context 不参与版本选择。 */
+    private String versionFor(AgentRunRequest request) {
+        return request.transportVersion()==null ? protocolVersion : request.transportVersion();
     }
 
     /** 将公开协议事件映射为现有 SSE 网关使用的事件结构。 */
