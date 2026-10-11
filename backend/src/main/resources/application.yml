@@ -26,6 +26,11 @@ seed:
   path: ${SEED_PATH:../data/seed}
 
 agent:
+  task-lifecycle:
+    # 双服务执行栅栏/许可未装配前默认关闭；只读目录和历史不会因此自动执行业务。
+    enabled: ${AGENT_TASK_LIFECYCLE_ENABLED:false}
+    # 自动协调只派发同一持久命令；六次/60秒后停止apply，仅允许回读权威事实。
+    reconcile-enabled: ${AGENT_TASK_RECONCILE_ENABLED:true}
   internal-token: ${AGENT_INTERNAL_TOKEN:}
   service:
     base-url: ${AGENT_SERVICE_URL:http://127.0.0.1:8091}

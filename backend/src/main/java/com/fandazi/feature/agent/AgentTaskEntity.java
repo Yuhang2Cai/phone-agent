@@ -26,6 +26,7 @@ public class AgentTaskEntity {
     @Column(name="active_scope_key",length=255,unique=true) private String activeScopeKey;
     @Column(name="created_at",nullable=false) private Instant createdAt;
     @Column(name="last_paused_at") private Instant lastPausedAt;
+    @Column(name="pending_command_id",length=100) private String pendingCommandId;
 
     /** 仅供JPA反序列化；外部不能自行构造或指定未来任务ID。 */
     protected AgentTaskEntity() {}
@@ -35,6 +36,10 @@ public class AgentTaskEntity {
         id=UUID.randomUUID().toString();userId=scope.userId();sessionId=scope.sessionId();epoch=scope.epoch();
         taskKind=kind;this.intent=intent;this.title=title;lifecycle="active";stopKind="running";
         taskVersion=1;executionGeneration=1;activeScopeKey=scope.key();createdAt=Instant.now();
+    }
+    /** 仅恢复Spring预分配且持久命令已冻结的新目标身份；不接受公开请求/model指定ID。 */
+    static AgentTaskEntity reserved(AgentTaskRegistryService.Scope scope,String kind,String intent,String title,String trustedId) {
+        var task=new AgentTaskEntity(scope,kind,intent,title);task.id=trustedId;return task;
     }
 
     /** 逐项检查完整可信归属；其他用户或旧epoch不得观察任务存在性。 */
@@ -55,6 +60,8 @@ public class AgentTaskEntity {
     public String lastRunId() { return lastRunId; }
     /** 返回任务类型，决定run成功是否仍等待合法跟进。 */
     public String kind() { return taskKind; }
+    /** 返回待交接命令；有值时任何普通轮次都不得取得执行资格。 */
+    String pendingCommand() {return pendingCommandId;}
     /** 返回最近暂停时间，仅影响目录显示排序，不能用于语义目标猜测。 */
     Instant pausedAt() { return lastPausedAt; }
     /** 返回创建时间，作为稳定展示排序的次级键。 */
@@ -75,6 +82,16 @@ public class AgentTaskEntity {
         if("succeeded".equals(status)&&"selection".equals(taskKind))stopKind="awaiting_followup";
         else { lifecycle="succeeded".equals(status)?"completed":status;stopKind="terminal";activeScopeKey=null; }
     }
+    /** 预备只推进版本/代次并隔离执行，保留原生命周期与业务停点直到安全回执。 */
+    void prepareControl(String commandId) {pendingCommandId=commandId;taskVersion++;executionGeneration++;}
+    /** 提交明确调度状态；unique active key由同session事务先释放旧前台再设置目标。 */
+    void commitLifecycle(String value,AgentTaskRegistryService.Scope scope) {
+        lifecycle=value;pendingCommandId=null;activeScopeKey="active".equals(value)?scope.key():null;
+        if("paused".equals(value))lastPausedAt=Instant.now();
+        if(Set.of("completed","cancelled","failed").contains(value)){activeRunId=null;stopKind="terminal";}
+    }
+    /** 安全退出保持原状态/停点，签后续新代次；绝不回退版本或恢复旧确认。 */
+    void abortControl() {pendingCommandId=null;taskVersion++;executionGeneration++;}
 
     /** 只构造公开字段白名单；目录不包含slots、确认凭证或业务正文。 */
     Map<String,Object> projection() {

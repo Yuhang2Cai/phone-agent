@@ -59,13 +59,17 @@ public class AgentTaskRegistryService {
     List<AgentTaskEntity> scopedTasks(Scope scope) {
         return tasks.findLiveScope(scope.userId(),scope.sessionId(),scope.epoch());
     }
+    /** 只读取得当前完整scope，旧epoch命令/轮次不能借相同会话名重新获得访问资格。 */
+    @Transactional(readOnly=true)
+    public Scope scope(Long user,String sessionId) {
+        return scopeOf(sessions.findBySessionIdAndUserId(sessionId,user).orElseThrow(AgentTaskRegistryService::missing));
+    }
 
     /** 新建唯一前台目标；重复前台拒绝，不能覆盖或自动暂停旧任务。 */
     @Transactional
     public Map<String,Object> create(Long user,String sessionId,String kind,String intent,String title) {
         // 输入先校验，再读取归属和行锁；公开投影用权威意图枚举再次约束。
-        if(kind==null||!KINDS.contains(kind)||intent==null||!INTENT_KINDS.getOrDefault(intent,Set.of()).contains(kind)
-                ||title==null||title.isBlank()||title.length()>120)throw bad("任务描述无效");
+        validateDescription(kind,intent,title);
         var session=lockScope(user,sessionId);var scope=scopeOf(session);var rows=scopedTasks(scope);
         // 第二个前台必须显式走持久控制交接，不能在普通创建里自动挂起旧任务。
         if(session.currentTaskId()!=null||rows.stream().anyMatch(t -> "active".equals(t.lifecycle())))throw conflict("已有前台任务");
@@ -74,6 +78,11 @@ public class AgentTaskRegistryService {
         contracts.validateTaskPayload("publicTask",task.projection());
         tasks.saveAndFlush(task);session.bindTaskFocus(task.id());
         return task.projection();
+    }
+    /** 创建和插问共享冻结的十三意图/任务类型边界；模型不能自造业务类型。 */
+    void validateDescription(String kind,String intent,String title) {
+        if(kind==null||!KINDS.contains(kind)||intent==null||!INTENT_KINDS.getOrDefault(intent,Set.of()).contains(kind)
+                ||title==null||title.isBlank()||title.length()>120)throw bad("任务描述无效");
     }
 
     /** 读取目录与水位使用同一个可重复读快照；不初始化epoch、不写历史、不调用任何工具。 */
@@ -109,6 +118,7 @@ public class AgentTaskRegistryService {
     @Transactional
     public AgentTaskRunEntity beginRun(Long user,String sessionId,String taskId) {
         var session=lockScope(user,sessionId);var task=lockTask(scopeOf(session),taskId);
+        if(task.pendingCommand()!=null)throw conflict("任务控制尚未交接完成");
         // 先核验当前可执行焦点，再恢复原在途run；仅推荐跟进等无在途run状态才创建新ID。
         if(!"active".equals(task.lifecycle())||!task.id().equals(session.currentTaskId()))throw conflict("任务不在前台");
         if(task.activeRunId()!=null) {
@@ -124,6 +134,7 @@ public class AgentTaskRegistryService {
         if(!Set.of("running","waiting_input","waiting_confirmation","succeeded","cancelled","failed").contains(status))throw bad("运行状态无效");
         if((field!=null&&field.length()>100)||(goal!=null&&goal.length()>100))throw bad("停点身份无效");
         var session=lockScope(user,sessionId);var task=lockTask(scopeOf(session),taskId);
+        if(task.pendingCommand()!=null)throw conflict("任务控制尚未交接完成");
         var run=runs.lockById(runId).orElseThrow(AgentTaskRegistryService::missing);
         if(!run.taskId().equals(taskId))throw missing();
         // 重复终态补交只回读；不同终态或旧run不能改写任务，更不能清空新焦点。

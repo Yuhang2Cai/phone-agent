@@ -33,6 +33,8 @@ public class AgentSession {
     @Column(name="current_conversation_task_id",length=100) private String currentConversationTaskId;
     @Column(name="task_focus_version",nullable=false) private long taskFocusVersion;
     @Column(name="task_event_sequence",nullable=false) private long taskEventSequence;
+    // 新协议确认摘要显式归属task；旧摘要为空归属，不被后台控制误清。
+    @Column(name="pending_confirmation_task_id",length=100) private String pendingConfirmationTaskId;
     // 只保存 Spring 已重查的待确认动作；跨输入恢复时用于绑定用户看到的资源、金额、规则和正文。
     @Convert(converter = StringMapJsonConverter.class)
     @Column(name = "pending_confirmation", columnDefinition = "TEXT")
@@ -75,6 +77,24 @@ public class AgentSession {
     long focusVersion() { return taskFocusVersion; }
     /** 返回已纳入目录投影的事件水位；TL-03装配outbox前为0。 */
     long taskEventSequence() { return taskEventSequence; }
+    /** 在控制prepared事务推进焦点版本，commit只绑定身份而不再递增。 */
+    void advanceTaskFocus() {taskFocusVersion++;}
+    /** 控制commit/abort设置已核验焦点；prepared已推进版本，不能二次推进。 */
+    void commitTaskFocus(String taskId) {currentConversationTaskId=taskId;}
+    /** 公开事件与目录共用事务推进水位；事件写入失败必须回滚此序号。 */
+    long nextTaskEvent() {return ++taskEventSequence;}
+    /** 2.2确认摘要必须绑定当前任务，不能沿用泛化会话确认。 */
+    void awaitTaskConfirmation(String taskId,java.util.Map<String,Object> summary) {
+        pendingConfirmationTaskId=taskId;awaitConfirmation(summary);
+    }
+    /** 只清除受影响task摘要；取消其他paused任务不碰前台trace/确认。 */
+    void clearTaskConfirmation(java.util.Set<String> affected) {
+        if(pendingConfirmationTaskId!=null&&affected.contains(pendingConfirmationTaskId)) {
+            pendingConfirmationTaskId=null;pendingConfirmation=null;confirmed=false;confirmationConsumed=true;
+        }
+    }
+    /** 普通可执行输入只更新自己的trace；不调用旧update而误清确认/重分配run。 */
+    void bindTaskTrace(String value) {traceId=value;}
     /** 在会话锁内设置已核验焦点；只有焦点实际变化才推进版本。 */
     void bindTaskFocus(String taskId) {
         if(!java.util.Objects.equals(currentConversationTaskId,taskId))taskFocusVersion++;
