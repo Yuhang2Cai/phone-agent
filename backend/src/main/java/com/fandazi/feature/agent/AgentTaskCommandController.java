@@ -26,6 +26,14 @@ public class AgentTaskCommandController {
     @GetMapping("/{commandId}") public Map<String,Object> read(@AuthenticationPrincipal Long user,@PathVariable String sessionId,@PathVariable String commandId) {
         return controls.read(user,sessionId,commandId);
     }
+    /** 失去POST响应后只按原requestId查结果，不能用重发原业务文字实现恢复。 */
+    @GetMapping("/by-request/{requestId}") public Map<String,Object> readRequest(@AuthenticationPrincipal Long user,@PathVariable String sessionId,@PathVariable String requestId) {
+        return controls.readRequest(user,sessionId,requestId);
+    }
+    /** 冷启动列出本人当前epoch尚未终结的命令，供展示处理中或需要核查。 */
+    @GetMapping public java.util.List<Map<String,Object>> pending(@AuthenticationPrincipal Long user,@PathVariable String sessionId) {
+        return controls.pendingForSession(user,sessionId);
+    }
     /** 重查相同持久命令，不创建新的用户输入或重派业务；未知事实保持待核查。 */
     @PostMapping("/{commandId}/recheck") public Map<String,Object> recheck(@AuthenticationPrincipal Long user,@PathVariable String sessionId,@PathVariable String commandId) {
         return reconciliation.recheck(user,sessionId,commandId);

@@ -14,4 +14,8 @@ public class AgentTaskController {
     @GetMapping public Map<String,Object> directory(@AuthenticationPrincipal Long user,@PathVariable String sessionId) {
         return registry.directory(user,sessionId);
     }
+    /** 已知历史task仍可只读展示终态；epoch及本人校验复用目录作用域，不返回执行检查点。 */
+    @GetMapping("/{taskId}") public Map<String,Object> task(@AuthenticationPrincipal Long user,@PathVariable String sessionId,@PathVariable String taskId) {
+        return registry.task(user,sessionId,taskId,registry.scope(user,sessionId).epoch());
+    }
 }

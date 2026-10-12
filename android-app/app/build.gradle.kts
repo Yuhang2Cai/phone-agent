@@ -30,12 +30,15 @@ android {
         versionCode = 1
         versionName = "1.0"
         buildConfigField("String", "API_BASE_URL", "\"https://api.example.invalid/api/\"")
+        // AG03发布默认关闭；只有明确的本机debug验收属性启用2.2任务协议。
+        buildConfigField("boolean", "AG03_TASK_LIFECYCLE_ENABLED", "false")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         debug {
+            buildConfigField("boolean", "AG03_TASK_LIFECYCLE_ENABLED", providers.gradleProperty("ag03TaskLifecycleEnabled").orElse("false").get().also { require(it in setOf("true", "false")) })
             buildConfigField(
                 "String",
                 "API_BASE_URL",

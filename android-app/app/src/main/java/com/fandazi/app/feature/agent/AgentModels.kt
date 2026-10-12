@@ -61,6 +61,8 @@ data class AgentEvent(
     val runId: String? get() = payload["runId"]
     val traceId: String? get() = payload["traceId"]
     val sequence: Long? get() = payload["sequence"]?.toLongOrNull()
+    /** 只认服务端明确围栏；格式损坏时为null，不按最近任务猜测归属。 */
+    val taskContext: AgentTaskContext? get() = AgentTaskJson.context(payload["taskContext"])
 }
 
 /**
@@ -84,7 +86,8 @@ data class AgentCardPayload(
 }
 
 /** 同run重新准备仍产生新事件版本；trace与eventId共同约束原卡所属摘要，不以runId单独放行。 */
-data class AgentConfirmationIdentity(val runId: String, val traceId: String, val eventId: String, val sequence: Long?) : Serializable
+data class AgentConfirmationIdentity(val runId: String, val traceId: String, val eventId: String, val sequence: Long?,
+    val taskContext: AgentTaskContext? = null) : Serializable
 
 /** 展示引用仅用于指代，序号可省略表示关联整份列表，不携带候选数组或确认凭证。 */
 data class AgentSelectionRef(val presentationId: String, val version: Int, val ordinal: Int? = null) : Serializable
@@ -153,7 +156,9 @@ data class AgentMessageResult(
     val events: List<AgentEvent>,
     val error: String? = null,
     /** 由后端补全后的卡片列表，字段只用于渲染和受控导航。 */
-    val cards: List<AgentCardPayload> = emptyList()
+    val cards: List<AgentCardPayload> = emptyList(),
+    /** 2.2服务端重查后的规范公开摘要，仅当前HTTP结果使用，不能由历史卡片字段重建。 */
+    val taskConfirmationSummary: com.google.gson.JsonObject? = null
 )
 
 data class OrderConfirmation(
@@ -209,7 +214,11 @@ data class AgentUiState(
     val historyNotice: String? = null,
     /** 稳定消息锚点与像素偏移；由聊天列表读取/更新，不使用绝对列表位置作身份。 */
     val scrollAnchorKey: String? = null,
-    val scrollAnchorOffset: Int = 0
+    val scrollAnchorOffset: Int = 0,
+    /** AG03任务状态只在内存展示，薄检查点不会序列化目录、历史摘要或授权。 */
+    val taskState: AgentTaskUiState = AgentTaskUiState(),
+    /** 当前HTTP规范摘要的事件身份，仅驻留内存；摘要补齐必须参与状态相等性，通知SSE已展示卡片刷新资格。 */
+    val taskConfirmationIdentity: AgentConfirmationIdentity? = null
 )
 
 data class ThisTaskAutoRequest(

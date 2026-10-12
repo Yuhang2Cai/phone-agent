@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AG03-A/C/D/E/F/H任务条：固定在消息区外；实际停点与交接状态只从公开目录读取。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/agent_task_panel"
+    android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical"
+    android:paddingHorizontal="16dp" android:paddingTop="12dp" android:paddingBottom="12dp" android:visibility="gone">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:background="@drawable/agent_task_card">
+        <TextView android:id="@+id/agent_task_title" style="@style/AgentTaskTitle"/>
+        <TextView android:id="@+id/agent_task_status" style="@style/AgentTaskCaption" android:layout_marginTop="8dp"/>
+        <TextView android:id="@+id/agent_task_stop" style="@style/AgentTaskBody" android:layout_marginTop="16dp"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/agent_task_actions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+        <TextView android:id="@+id/agent_task_primary_action" style="@style/AgentTaskAction" android:text="@string/agent_task_pause"/>
+        <TextView android:id="@+id/agent_task_cancel_action" style="@style/AgentTaskAction" android:layout_marginStart="8dp" android:text="@string/agent_task_cancel"/>
+        <TextView android:id="@+id/agent_task_list_action" style="@style/AgentTaskAction" android:layout_marginStart="8dp" android:text="@string/agent_task_list"/>
+    </LinearLayout>
+    <TextView android:id="@+id/agent_task_notice" style="@style/AgentTaskCaption" android:layout_marginTop="12dp" android:visibility="gone"/>
+</LinearLayout>

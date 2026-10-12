@@ -32,6 +32,8 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 interface AgentRepository {
+    /** 新任务协议默认关闭；旧仓库与旧替身继续使用原消息契约。 */
+    val tasks: AgentTaskRepository? get() = null
     /** 旧替身默认委托原入口；正式 HTTP 实现发送独立展示引用，不修改原问题或比较候选。 */
     suspend fun sendMessage(sessionId:String,text:String,mode:AgentMode,clientMessageKey:String?,compareDealIds:List<String>?,selectionRef:AgentSelectionRef?):ApiResult<AgentMessageResult> = sendMessage(sessionId,text,mode,clientMessageKey,compareDealIds)
     /** 旧替身兼容入口；正式HTTP实现发送独立公开ID字段，普通null引用沿旧行为。 */
@@ -64,8 +66,14 @@ class HttpAgentRepository(
     private val reconnectDelayMillis: Long = 500L,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     /** 仅公开接口真实401通知身份仓库；传递实际请求令牌，防止迟到响应注销新会话。 */
-    private val onUnauthorized: suspend (String) -> Unit = {}
+    private val onUnauthorized: suspend (String) -> Unit = {},
+    /** 仅受控debug验收显式启用，发布默认保持关闭。 */
+    private val taskLifecycleEnabled: Boolean = false
 ) : AgentRepository {
+    /** 延迟装配以确保共用认证执行器已初始化；默认关闭时完全不创建任务通道。 */
+    override val tasks: AgentTaskRepository? by lazy {
+        if (taskLifecycleEnabled) HttpAgentTaskRepository(baseUrl, { request -> executeJson(request) { it } }, ::parseMessage) else null
+    }
     private val client = (client ?: OkHttpClient()).newBuilder()
         .connectTimeout(10, TimeUnit.SECONDS)
         .readTimeout(0, TimeUnit.SECONDS)
@@ -268,7 +276,9 @@ class HttpAgentRepository(
             events = value.array("events").mapNotNull { it.asJsonObjectOrNull()?.toEvent() },
             // 售后摘要不是旧外卖购物车；转换为独立确认卡后交给聊天页显式确认。
             cards = value.publicCards(),
-            error = value.string("error")
+            error = value.string("error"),
+            taskConfirmationSummary = if (taskLifecycleEnabled && value.string("status") == "AWAITING_CONFIRMATION")
+                value.objectOrNull("candidateCart")?.publicJson()?.asJsonObject else null
         )
     }
 

@@ -19,3 +19,5 @@ __pycache__/
 # Keep model files that are packaged into the Android APK.
 !android-app/app/src/main/assets/
 !android-app/app/src/main/assets/**
+# 固定ASR资源的再分发许可尚未闭合，仅允许受控脚本按摘要导入本机构建，不提交模型与词表。
+android-app/app/src/main/assets/sherpa-onnx/

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AG03确认稿次级动作：白底8dp圆角，禁用状态由控件明确设置。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@color/surface_card"/><corners android:radius="8dp"/></shape>

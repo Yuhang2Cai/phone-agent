@@ -67,8 +67,8 @@ public class AgentTaskGatewayService {
         var old=turnRows.findByUserIdAndSessionIdAndEpochAndRequestId(user,sessionId,scope.epoch(),requestId);
         if(old.isPresent()) {
             var turn=old.get();if(!inputHash.equals(turn.gatewayInputHash()))throw AgentTaskRegistryService.conflict("同请求内容已变化");
-            if(turn.fence()==null)return replyResult((String)turn.result().get("message"));
-            return execute(user,sessionId,turn.id(),turn.fence(),turn.gatewayQuery(),raw.get("confirmation")!=null&&confirmationText(original),true);
+            if(turn.fence()==null){recordShortReply(user,sessionId,turn,original,(String)turn.result().get("message"));return replyResult((String)turn.result().get("message"));}
+            return execute(user,sessionId,turn.id(),turn.fence(),turn.gatewayQuery(),original,raw.get("confirmation")!=null&&confirmationText(original),true);
         }
         var directory=registry.directory(user,sessionId);var front=directory.get("currentTask")==null?null:object(directory.get("currentTask"));
         // 本人同epoch展示登记负责解析引用；仅允许最小selectionRef，任意候选/凭证字段在解释和控制前拒绝。
@@ -139,7 +139,7 @@ public class AgentTaskGatewayService {
         var accepted=turns.admitGatewayTurn(user,sessionId,new AgentTaskTurnService.Input(requestId,body,(String)target.get("conversationTaskId"),
             version(target.get("taskVersion")),version(directory.get("focusVersion")),true),inputHash,selectedContext);
         if(confirmed)fences.confirmCurrent(object(accepted.admission().get("fence")),authority(user,sessionId,accepted.turnId()).get("traceId").toString(),shown);
-        return execute(user,sessionId,accepted.turnId(),object(accepted.admission().get("fence")),body,confirmed,false);
+        return execute(user,sessionId,accepted.turnId(),object(accepted.admission().get("fence")),body,original,confirmed,false);
     }
     /** 公共标题不复制退款原因、投诉全文或敏感对象，明确显示任务目的。 */
     private String title(String intent) {
@@ -170,25 +170,34 @@ public class AgentTaskGatewayService {
     /** 无工具短回复有独立幂等turn/outbox；不改前台trace、原待输入字段或确认期限。 */
     private AgentResult reply(Long user,String sessionId,String request,String body,String hash,String message) {
         var turn=turns.admitGatewayTurn(user,sessionId,new AgentTaskTurnService.Input(request,body,null,0,0,false),hash);
-        var result=turns.completeReply(user,sessionId,turn.turnId(),message);return replyResult((String)result.get("message"));
+        var result=turns.completeReply(user,sessionId,turn.turnId(),message);
+        recordShortReply(user,sessionId,turnRows.findById(turn.turnId()).orElseThrow(AgentTaskRegistryService::missing),body,(String)result.get("message"));
+        return replyResult((String)result.get("message"));
+    }
+    /** 无业务run短回复使用自己的trace幂等记录；重复回读可修复写历史前响应中断，不借用前台trace。 */
+    private void recordShortReply(Long user,String sessionId,AgentTaskTurnEntity turn,String original,String message) {
+        history.recordUserLinkedSource(user,sessionId,null,turn.traceId(),original,turn.requestId(),turn.source());
+        history.recordAssistant(user,sessionId,null,turn.traceId(),message);
     }
     /** 回复DTO没有业务run_completed事件；任务状态由真实task outbox展示。 */
     private AgentResult replyResult(String message){return new AgentResult(AgentResult.Status.COMPLETED,message,"task_state",Map.of(),List.of(),List.of(),null,true);}
     /** 完成后只读重查展示事实；2.2事件在领域重查前不得直接发布到旧SSE。 */
-    private AgentResult execute(Long user,String sessionId,String turnId,Map<String,Object> fence,String body,boolean confirmed,boolean repeated) {
+    private AgentResult execute(Long user,String sessionId,String turnId,Map<String,Object> fence,String body,String original,boolean confirmed,boolean repeated) {
         var row=authority(user,sessionId,turnId);var admission=new LinkedHashMap<>(object(row.get("admission")));
         // 重连用首次受理信封，Agent持久回执负责只补完成；completed许可绝不能变成新工具执行资格。
         admission.put("admissionState","admitted");admission.put("mayExecuteTools",true);
         var source=object(row.get("source"));String runId=(String)fence.get("runId"),trace=(String)row.get("traceId");
+        // 展示历史保留用户完整意图；业务来源仍固定为已审核的连续子句及其摘要，不把返回后缀送进执行。
+        // 同requestId的完整原文已在handle核对指纹；来源关联指向真实包含该子句的原始消息，不另造用户气泡。
+        if(!original.contains(body))throw AgentTaskRegistryService.conflict("业务子句不属于原输入");
+        history.recordUserLinkedSource(user,sessionId,runId,trace,original,(String)row.get("requestId"),(String)source.get("sourceMessageId"));
+        source=object(authority(user,sessionId,turnId).get("source"));
         if(repeated) {
             // 业务子句以Spring原来源为准，不能把控制前缀/返回后缀当成新业务指令重新执行。
             var existing=turnRows.findById(turnId).orElseThrow(AgentTaskRegistryService::missing);
-            if(existing.result()!=null){returns.completedTask((String)fence.get("conversationTaskId"));return completedReplay(user,sessionId,fence,object(existing.result().get("result")));}
-        }
-        if(!repeated) {
-            // 真实子句与来源摘要同文后才标记historyRecorded；重试继续使用首次固定来源。
-            history.recordUserLinkedSource(user,sessionId,runId,trace,body,(String)row.get("requestId"),(String)source.get("sourceMessageId"));
-            source=object(authority(user,sessionId,turnId).get("source"));
+            if(existing.result()!=null){returns.completedTask((String)fence.get("conversationTaskId"));
+                var recovered=completedReplay(user,sessionId,fence,object(existing.result().get("result")));
+                history.recordAssistant(user,sessionId,runId,trace,recovered.message());return recovered;}
         }
         var trusted=new LinkedHashMap<String,Object>();trusted.put("conversationSource",source);trusted.put("taskAdmission",admission);trusted.put("confirmationAccepted",confirmed);
         trusted.putAll(turnRows.findById(turnId).orElseThrow(AgentTaskRegistryService::missing).gatewayContext());
@@ -202,6 +211,12 @@ public class AgentTaskGatewayService {
         var rows=(List<?>)result.get("events");var converted=new ArrayList<AgentResult.Event>();var cardRows=new ArrayList<Map<String,Object>>();
         Map<String,Object> summary=Map.of();String message="原任务结果已恢复。";
         for(var item:rows){var event=object(item);var payload=object(event.get("payload"));String type=(String)event.get("eventType");
+            // 持久完成结果保存原协议事件；回读须与实时SSE使用同一原身份，不能靠当前目录或新随机值补造。
+            // 先复制业务负载，再以已验证顶层元数据覆盖同名字段；递归脱敏防止内部凭证进入公开HTTP。
+            payload=new LinkedHashMap<>(payload);
+            for(String key:List.of("schemaVersion","eventId","sequence","runId","traceId","status","taskContext"))
+                if(event.get(key)!=null)payload.put(key,event.get(key));
+            payload=AgentContractCompatibility.publicEventPayload(payload);
             converted.add(new AgentResult.Event(type,AgentContractCompatibility.summary(payload),null,(String)event.get("status"),payload));
             if("card".equals(type))cardRows.add(object(payload.get("card")));if("confirmation_required".equals(type))summary=object(payload.get("summary"));
             if(payload.get("message") instanceof String text)message=text;}

@@ -95,6 +95,12 @@ class AgentTaskInputGatewayTest {
         var directory=fixture.directory();assertNull(directory.get("currentTask"));assertEquals(original,AgentTaskTestFixtures.paused(directory).get(0).get("conversationTaskId"));
         assertEquals(2,jdbc.queryForObject("SELECT COUNT(*) FROM agent_conversation_tasks WHERE session_id=?",Integer.class,fixture.session));
         var again=send(request("先查营业时间"));assertEquals(200,again.getStatus(),again.getContentAsString());
+        // 完成回读必须保留原事件身份和任务围栏；缺身份会使Android无法把HTTP结果与SSE归并。
+        // 对象来自真实持久turn，不能由当前目录补造，更不能把完成回读变成第二次Agent运行。
+        var replay=json.readTree(again.getContentAsString()).get("events").get(0).get("payload");
+        assertEquals("synthetic-gateway-event",replay.path("eventId").asText(),"完成回读丢失原事件身份");
+        assertTrue(replay.has("taskContext"),"完成回读必须携带原任务围栏");
+        assertTrue(replay.has("traceId")&&replay.has("runId")&&replay.has("sequence"));
         verify(agent,times(1)).run(any());verify(input,times(1)).interpret(anyLong(),anyString(),anyMap());
     }
     @Test void pauseControlDoesNotStartBusinessWorkflow() throws Exception {
@@ -113,6 +119,24 @@ class AgentTaskInputGatewayTest {
         assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM agent_task_commands WHERE session_id=? AND return_status='completed'",Integer.class,fixture.session));
         assertEquals(200,send(request("😀先查营业时间，查完再继续这个任务")).getStatus());
         verify(agent,times(1)).run(any());verify(control,times(2)).dispatch(anyMap());
+    }
+    @Test void shortReplyIsRecoverableWithoutBorrowingBusinessRunOrDuplicatingHistory() throws Exception {
+        // 寒暄/澄清虽不调用业务Agent，也必须在冷启动历史保留原输入和完整短答。
+        fixture.selection();action="no_task";var raw=request("你好");
+        var response=send(raw);assertEquals(200,response.getStatus());assertEquals(200,send(raw).getStatus());
+        var rows=jdbc.queryForList("SELECT role,content,run_id FROM agent_messages WHERE session_id=? ORDER BY id",fixture.session);
+        assertEquals(2,rows.size());assertEquals("你好",rows.get(0).get("content"));assertEquals("user",rows.get(0).get("role"));
+        assertEquals(json.readTree(response.getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).get("message").asText(),rows.get(1).get("content"));
+        assertNull(rows.get(0).get("run_id"));assertNull(rows.get(1).get("run_id"));verifyNoInteractions(agent,control);
+    }
+    @Test void insertionHistoryKeepsFullOriginalWhileExecutionKeepsOnlyBusinessSpan() throws Exception {
+        // 返回后缀是用户原意的一部分；历史保留完整原文，业务Agent仍只能执行审核过的连续子句。
+        fixture.selection();action="insert";explicitReturn=true;String original="😀先查营业时间，查完再继续这个任务";
+        assertEquals(200,send(request(original)).getStatus());assertEquals(200,send(request(original)).getStatus());
+        var messages=jdbc.queryForList("SELECT role,content FROM agent_messages WHERE session_id=? ORDER BY id",fixture.session);
+        assertEquals(2,messages.size());assertEquals(original,messages.get(0).get("content"));
+        var captured=org.mockito.ArgumentCaptor.forClass(AgentRunRequest.class);verify(agent,times(1)).run(captured.capture());
+        assertEquals("😀先查营业时间",captured.getValue().text());
     }
     @Test void changedReturnTargetIsNeverAutomaticallyRestored() throws Exception {
         // 登记后原目标由真实后台取消提交，查询成功仍只显示入口/结果，不能复活取消任务。

@@ -170,6 +170,21 @@ public class AgentTaskControlService {
         if(!command.scope().equals(scope))throw AgentTaskRegistryService.missing();
         return command.projection();
     }
+    /** 按原requestId只读定位丢失响应的命令；未知返回404，不预备、派发或创建来源。 */
+    @Transactional(readOnly=true)
+    public Map<String,Object> readRequest(Long user,String sessionId,String requestId) {
+        if(requestId==null||requestId.isBlank()||requestId.length()>100)throw AgentTaskRegistryService.bad("请求身份无效");
+        var scope=registry.scope(user,sessionId);
+        return commands.findByUserIdAndSessionIdAndEpochAndRequestId(user,sessionId,scope.epoch(),requestId)
+            .orElseThrow(AgentTaskRegistryService::missing).projection();
+    }
+    /** 目录快照之外加载正在交接的公开命令；不从task可见性推断已完成交接。 */
+    @Transactional(readOnly=true)
+    public List<Map<String,Object>> pendingForSession(Long user,String sessionId) {
+        var scope=registry.scope(user,sessionId);
+        return commands.pendingForScope(user,sessionId,scope.epoch(),org.springframework.data.domain.PageRequest.of(0,100))
+            .stream().map(AgentTaskCommandEntity::projection).toList();
+    }
     /** 提供后台可信scope定位，不接受模型/用户直接传入其他用户身份。 */
     @Transactional(readOnly=true)
     public AgentTaskRegistryService.Scope scope(String id) {return commands.findById(id).orElseThrow(AgentTaskRegistryService::missing).scope();}

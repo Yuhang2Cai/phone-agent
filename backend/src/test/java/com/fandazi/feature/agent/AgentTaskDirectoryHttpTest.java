@@ -29,6 +29,7 @@ import static org.mockito.Mockito.*;
 class AgentTaskDirectoryHttpTest {
     @Autowired MockMvc mvc;@Autowired ObjectMapper json;@Autowired JdbcTemplate jdbc;
     @Autowired UserRepository users;@Autowired AgentSessionService sessions;@Autowired AgentTaskRegistryService registry;
+    @Autowired AgentTaskControlService controls;
     @MockBean AgentServiceClient model;
     private AgentTaskTestFixtures fixture;
     /** 重跑不依赖其他例的数据库状态，也不清空已有合成记录。 */
@@ -62,5 +63,35 @@ class AgentTaskDirectoryHttpTest {
         for(int i=0;i<3;i++)mvc.perform(get("/api/agent/sessions/{id}/tasks",fixture.session).with(authentication(identity(fixture.user)))).andExpect(status().isOk());
         assertEquals(before,fixture.directory());assertEquals(0L,sources);
         assertEquals(sources,jdbc.queryForObject("SELECT COUNT(*) FROM agent_conversation_sources WHERE session_id=?",Long.class,fixture.session));verifyNoInteractions(model);
+    }
+    @Test void lostControlResponseIsLocatedByRequestAndColdStartListsPendingOnly() throws Exception {
+        // POST响应丢失和进程重启都只能只读查询，不因查状态再预备或派发一次控制。
+        var task=fixture.selection();var request=Map.<String,Object>of("requestId","readback-request","action","pause",
+            "targetTaskId",AgentTaskTestFixtures.id(task),"expectedTaskVersion",task.get("taskVersion"),"expectedFocusVersion",fixture.directory().get("focusVersion"));
+        var prepared=controls.prepare(fixture.user,fixture.session,request);var before=writes();var directory=fixture.directory();
+        var response=mvc.perform(get("/api/agent/sessions/{id}/task-commands/by-request/{request}",fixture.session,"readback-request")
+            .with(authentication(identity(fixture.user)))).andExpect(status().isOk()).andReturn().getResponse();
+        assertEquals(json.readTree(json.writeValueAsString(prepared)),json.readTree(response.getContentAsString()));
+        var list=mvc.perform(get("/api/agent/sessions/{id}/task-commands",fixture.session).with(authentication(identity(fixture.user))))
+            .andExpect(status().isOk()).andReturn().getResponse();
+        assertEquals(1,json.readTree(list.getContentAsString()).size());assertEquals(before,writes());assertEquals(directory,fixture.directory());verifyNoInteractions(model);
+    }
+    @Test void requestLookupCannotExposeForeignScopeOrCreateUnknownRequest() throws Exception {
+        // 同名requestId不是跨用户或epoch的访问凭据，未知请求也不能初始化一条命令。
+        fixture.selection();var other=new AgentTaskTestFixtures(users,sessions,registry,jdbc);var before=writes();
+        mvc.perform(get("/api/agent/sessions/{id}/task-commands/by-request/{request}",fixture.session,"missing")
+            .with(authentication(identity(fixture.user)))).andExpect(status().isNotFound());
+        mvc.perform(get("/api/agent/sessions/{id}/task-commands",fixture.session).with(authentication(identity(other.user))))
+            .andExpect(status().isNotFound());assertEquals(before,writes());verifyNoInteractions(model);
+    }
+    @Test void terminalTaskIsReadableButHasNoResumeAction() throws Exception {
+        // 已结束任务不再出现在活动目录，但历史引用仍能只读查看；读取不能把终态重新激活。
+        var task=registry.create(fixture.user,fixture.session,"lookup","store_info","合成营业时间查询");
+        var run=registry.beginRun(fixture.user,fixture.session,AgentTaskTestFixtures.id(task));
+        registry.recordRunStop(fixture.user,fixture.session,AgentTaskTestFixtures.id(task),run.id(),"succeeded",null,null);
+        var before=writes();var response=mvc.perform(get("/api/agent/sessions/{id}/tasks/{task}",fixture.session,AgentTaskTestFixtures.id(task))
+            .with(authentication(identity(fixture.user)))).andExpect(status().isOk()).andReturn().getResponse();
+        var body=json.readTree(response.getContentAsString());assertEquals("completed",body.get("lifecycle").asText());assertEquals(0,body.get("availableActions").size());
+        assertEquals(before,writes());assertNull(fixture.directory().get("currentTask"));verifyNoInteractions(model);
     }
 }

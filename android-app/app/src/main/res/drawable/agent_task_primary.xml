@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AG03确认稿主动作：沿用既有珊瑚色，不另造业务状态颜色。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@color/group_buy_orange"/><corners android:radius="8dp"/></shape>

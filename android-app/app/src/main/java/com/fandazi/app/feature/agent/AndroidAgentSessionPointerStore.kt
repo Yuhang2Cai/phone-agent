@@ -6,7 +6,7 @@ import android.util.Log
 import java.security.MessageDigest
 import java.util.UUID
 
-/** 仅保存随机会话 ID 和已尝试发送标记；账号与认证会话身份先散列，不在偏好文件写入凭据或正文。 */
+/** 仅保存随机会话ID、控制请求ID及已尝试发送标记；账号与认证会话身份先散列，不在偏好文件写入凭据或正文。 */
 class AndroidAgentSessionPointerStore(context: Context) : AgentSessionPointerStore {
     private val preferences = context.applicationContext.getSharedPreferences("agent_session_pointer", Context.MODE_PRIVATE)
 
@@ -15,7 +15,8 @@ class AndroidAgentSessionPointerStore(context: Context) : AgentSessionPointerSto
         if (preferences.getString(KEY_IDENTITY_DIGEST, null) != digest(owner, authIdentity)) return@runCatching null
         val sessionId = preferences.getString(KEY_SESSION_ID, null) ?: return@runCatching null
         UUID.fromString(sessionId)
-        AgentSessionPointer(sessionId, preferences.getBoolean(KEY_HAS_ATTEMPTED, false))
+        val requestId = preferences.getString(KEY_TASK_REQUEST, null)?.also { UUID.fromString(it) }
+        AgentSessionPointer(sessionId, preferences.getBoolean(KEY_HAS_ATTEMPTED, false), requestId)
     }.onFailure { Log.w(TAG, "会话指针读取失败：${it.javaClass.simpleName}") }.getOrNull()
 
     /** 在发包前同步提交薄指针，防止进程恰在服务器受理请求后退出而失去恢复入口。 */
@@ -25,6 +26,7 @@ class AndroidAgentSessionPointerStore(context: Context) : AgentSessionPointerSto
                 .putString(KEY_IDENTITY_DIGEST, digest(owner, authIdentity))
                 .putString(KEY_SESSION_ID, value.sessionId)
                 .putBoolean(KEY_HAS_ATTEMPTED, value.hasAttempted)
+                .putString(KEY_TASK_REQUEST, value.taskRequestId)
                 .commit()
             if (!committed) Log.w(TAG, "会话指针持久化未提交")
         }.onFailure { Log.w(TAG, "会话指针持久化失败：${it.javaClass.simpleName}") }
@@ -47,5 +49,7 @@ class AndroidAgentSessionPointerStore(context: Context) : AgentSessionPointerSto
         const val KEY_IDENTITY_DIGEST = "identity_digest"
         const val KEY_SESSION_ID = "session_id"
         const val KEY_HAS_ATTEMPTED = "has_attempted"
+        /** 只保存随机请求ID；冷启动只读定位，不保存可重发的控制载荷。 */
+        const val KEY_TASK_REQUEST = "task_request_id"
     }
 }

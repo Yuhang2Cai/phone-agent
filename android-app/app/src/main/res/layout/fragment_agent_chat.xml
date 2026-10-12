@@ -51,12 +51,27 @@
         <TextView android:id="@+id/agent_compare_context_text" style="@style/CompareCaption" android:layout_width="0dp" android:layout_weight="1" />
         <TextView android:id="@+id/agent_compare_clear" style="@style/CompareText" android:layout_width="80dp" android:layout_height="44dp" android:gravity="center" android:text="清除对比" android:textColor="@color/group_buy_green" />
     </LinearLayout>
+    <!-- 用户确认八屏后接入任务条；默认开关关闭时完全隐藏，不改变旧消息入口。 -->
+    <include layout="@layout/include_agent_task_panel"/>
+    <!-- 任务列表复用原页面内容区；列表展示不选择任务，不产生控制或业务请求。 -->
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
     <!-- 唯一消息滚动容器，保持列表外头部和Task14输入；四类Holder以稳定身份回收。 -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/agent_chat_scroll"
-        android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:layout_width="match_parent" android:layout_height="match_parent"
         android:clipToPadding="false" android:paddingHorizontal="16dp"
         android:paddingTop="4dp" android:paddingBottom="16dp" />
+        <ScrollView android:id="@+id/agent_task_list_scroll" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:visibility="gone">
+            <LinearLayout android:id="@+id/agent_task_list_content" android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="16dp" android:orientation="vertical">
+                <TextView android:id="@+id/agent_task_list_title" style="@style/AgentTaskTitle" android:textSize="18sp"/>
+                <TextView android:id="@+id/agent_task_list_help" style="@style/AgentTaskCaption" android:layout_marginTop="12dp"/>
+                <LinearLayout android:id="@+id/agent_task_list_items" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical"/>
+                <!-- G屏只作显式选择，提示放在候选之后；B目录隐藏此说明，避免混淆取消与恢复。 -->
+                <TextView android:id="@+id/agent_task_choice_notice" style="@style/AgentTaskCaption" android:text="选择前不会填槽、恢复任务或调用业务工具。" android:visibility="gone"/>
+                <TextView android:id="@+id/agent_task_list_back" style="@style/AgentTaskAction" android:layout_width="match_parent" android:layout_weight="0" android:layout_marginTop="12dp" android:text="@string/agent_task_back"/>
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
 
     <!-- 本地语音状态独立于消息列表，不把录音进度伪装成服务端聊天事件。 -->
     <LinearLayout android:id="@+id/agent_voice_panel" android:layout_width="match_parent" android:layout_height="wrap_content"

@@ -17,6 +17,9 @@ public interface AgentTaskCommandRepository extends JpaRepository<AgentTaskComma
     /** 有界读候选，随后在真实行锁下核验租约/退避；列表本身不代表取得派发资格。 */
     @Query("select c from AgentTaskCommandEntity c where c.state in ('prepared','agent_acknowledged','aborting') order by c.createdAt,c.id")
     List<AgentTaskCommandEntity> pending(Pageable page);
+    /** 冷启动只读扫描本人当前epoch的交接命令，含needs_attention；有界结果不授予执行许可。 */
+    @Query("select c from AgentTaskCommandEntity c where c.userId=:user and c.sessionId=:session and c.epoch=:epoch and c.state in ('prepared','agent_acknowledged','aborting') order by c.createdAt,c.id")
+    List<AgentTaskCommandEntity> pendingForScope(@Param("user") Long user,@Param("session") String session,@Param("epoch") String epoch,Pageable page);
     /** 只扫描已提交且有明确返回指令的插入命令，故障重启不会创建未登记的自动返回。 */
     @Query("select c from AgentTaskCommandEntity c where c.state='committed' and c.returnStatus in ('registered','prepared') order by c.createdAt,c.id")
     List<AgentTaskCommandEntity> returnCandidates(Pageable page);

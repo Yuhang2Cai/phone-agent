@@ -1,0 +1,243 @@
+# TL-07正式界面链路：真实Spring/Agent和合成账号；数据库证据由验收驱动按相同session关联。
+# 账号密码只通过进程环境提供，资源ID从本轮开发夹具读取；不能把示例金额或业务对象写进安装包。
+appId: com.fandazi.app
+---
+- runFlow: flows/intent13-login.yaml
+# S01：查询完成的选择任务仍可插问，恢复只返回焦点，不自动重跑原业务。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 查询门店${AG03_STORE_ID}的团购套餐
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_title
+      text: 当前任务.*
+    timeout: 180000
+# 目录可能先于业务HTTP完成出现；等本轮输入解除忙碌，再发送下一条明确插问。
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_progress_card
+    timeout: 180000
+- takeScreenshot: ag03-a-current-task
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 先查下我的订单
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 恢复任务
+      enabled: true
+    timeout: 180000
+- tapOn:
+    id: com.fandazi.app:id/agent_task_primary_action
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 暂停
+      enabled: true
+    timeout: 30000
+# S21：明确后续限制归原选择task；服务端核对新run与150元约束，不能只看屏幕有回答。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 只看150元以内的
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_progress_card
+    timeout: 180000
+# 未给预算口径不能直接生效；不同校验阶段可提出对象/目的或口径澄清，均须原任务保持。
+- extendedWaitUntil:
+    # 模型归属/解释在业务进度事件之前执行；无进度卡不等于本轮HTTP已经完成，须等待原澄清金标。
+    visible: 请说明新请求的对象和要查询或办理的事项。|部分限制的口径、范围或纠正对象不明确，请补充；预算请说明人均、总价或每份。|当前目的或对象存在歧义，请明确要查询的信息或要申请的操作。
+    timeout: 180000
+- takeScreenshot: ag03-s21-budget-clarification
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 每份150元以内
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_status
+      text: .*等待后续选择.*
+    timeout: 180000
+# S05：购买报价、份数纠正、暂停与恢复；旧按钮不得执行。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 购买套餐${AG03_DEAL_ID}，数量1份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 改成2份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- tapOn:
+    id: com.fandazi.app:id/agent_task_primary_action
+- extendedWaitUntil:
+    visible: 请选择要继续的任务
+    timeout: 30000
+# 原选择任务也已暂停，购买暂停后会显示两个具名候选；先显式返回聊天检查历史卡。
+# 返回只改变展示，不恢复任何任务，也不能把列表遮挡误判为旧确认仍有执行资格。
+- back
+- extendedWaitUntil:
+    visible: 旧确认已失效
+    timeout: 30000
+- takeScreenshot: ag03-e-historical-confirmation
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_close
+- tapOn: 任务列表
+# 多候选场景必须按购买任务标题选择；不能用目录排序或最近暂停时间替代目标。
+- tapOn:
+    id: com.fandazi.app:id/agent_task_item_resume
+    below:
+      id: com.fandazi.app:id/agent_task_item_title
+      text: 团购订单
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 暂停
+      enabled: true
+    timeout: 30000
+- assertVisible:
+    text: 旧确认已失效
+    enabled: false
+# 恢复不自动准备：用户再次明确份数后才允许出现新的确认。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 改成2份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- takeScreenshot: ag03-f-fresh-confirmation
+# S22：问候保留当前确认；取消后台选择任务不会剥夺前台确认。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 你好
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agent_task_list_action
+# 手动查看目录是展示选择；问候引起的后台状态回读不得像自动歧义列表一样把它关闭。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 你好
+- assertVisible:
+    id: com.fandazi.app:id/agent_task_list_title
+    text: 任务列表.*
+- takeScreenshot: ag03-b-paused-tasks
+- tapOn:
+    id: com.fandazi.app:id/agent_task_item_cancel
+    index: 0
+# 终态历史可能让列表超过一屏；系统返回由任务面板拦截，只关闭列表，不离开聊天。
+- back
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agent_order_action
+    text: 确认
+    enabled: true
+# 不点击支付；驱动核对仅增加一次订单，退款和投诉保持零增量。
+- extendedWaitUntil:
+    visible: 确认模拟支付
+    timeout: 180000
+# S07：另起退款并暂停形成两个候选；歧义只展示选择，不默认恢复最近任务。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 申请退款，券号${AG03_VOUCHER_ID}
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_status
+      text: .*退款原因.*
+    timeout: 180000
+- tapOn:
+    id: com.fandazi.app:id/agent_task_primary_action
+    text: 暂停
+- extendedWaitUntil:
+    visible: 请选择要继续的任务
+    timeout: 30000
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 继续那个
+- assertVisible: 请选择要继续的任务
+# G屏只允许按具名候选恢复，取消操作属于手动目录；防止展示修复回归。
+- assertNotVisible:
+    id: com.fandazi.app:id/agent_task_item_cancel
+- takeScreenshot: ag03-g-ambiguous-selection
+- tapOn:
+    id: com.fandazi.app:id/agent_task_item_resume
+    # 按公开任务标题定位其下第一枚恢复按钮，不依赖事件归并/冷目录的暂停排序。
+    below:
+      id: com.fandazi.app:id/agent_task_item_title
+      text: 退款售后
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_status
+      text: .*退款原因.*
+    timeout: 30000
+# S26：完整原文及返回指令保留到历史；自动返回只恢复停点，不能提交退款。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 先查门店${AG03_STORE_ID}的营业时间，查完再继续这个任务
+# 插问开始前原停点仍短暂可见；必须等该输入完成，才能核对自动返回及截H屏。
+- extendedWaitUntil:
+    # 此scope此前只有套餐/订单卡；新的门店详情卡证明插问响应已实际呈现，不能截取旧退款停点冒充返回。
+    visible:
+      id: com.fandazi.app:id/agent_store_card
+    timeout: 180000
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_progress_card
+    timeout: 180000
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_status
+      text: .*退款原因.*
+    timeout: 180000
+- takeScreenshot: ag03-h-return-to-stop
+# S16：进程冷启动只读恢复，不能重发业务正文或重新授权历史卡。
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_status
+      text: .*退款原因.*
+    timeout: 30000
+- takeScreenshot: ag03-s16-cold-history
+# S24事件断档/过期、C/D交接核查及换账号由同一驱动在真实故障窗口继续运行补充流程。
+# 此主流程退出0不代表全部场景通过；最终报告必须逐项有补充流程和服务端证据。

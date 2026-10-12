@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AG03八屏确认稿共用文字与48dp操作尺寸；多行正文自然换行，不固定卡片高度。 -->
+<resources>
+    <style name="AgentTaskTitle"><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:textSize">14sp</item><item name="android:textColor">@color/group_buy_green</item><item name="android:includeFontPadding">false</item></style>
+    <style name="AgentTaskCaption"><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:textSize">12sp</item><item name="android:textColor">@color/group_buy_muted</item><item name="android:includeFontPadding">false</item></style>
+    <style name="AgentTaskBody"><item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item><item name="android:textSize">14sp</item><item name="android:textColor">@color/group_buy_text</item><item name="android:includeFontPadding">false</item><item name="android:lineSpacingExtra">3dp</item></style>
+    <style name="AgentTaskAction"><item name="android:layout_width">0dp</item><item name="android:layout_weight">1</item><item name="android:layout_height">48dp</item><item name="android:gravity">center</item><item name="android:textSize">14sp</item><item name="android:textColor">@color/group_buy_green</item><item name="android:background">@drawable/agent_task_secondary</item><item name="android:paddingHorizontal">8dp</item><item name="android:focusable">true</item><item name="android:clickable">true</item></style>
+    <string name="agent_task_pause">暂停</string><string name="agent_task_cancel">取消任务</string><string name="agent_task_list">任务列表</string><string name="agent_task_resume">恢复任务</string><string name="agent_task_recheck">重新核查</string><string name="agent_task_back">返回对话</string>
+</resources>

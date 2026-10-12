@@ -1,6 +1,7 @@
 // 卡片共用Holder：复用一组公开事实控件，不持有列表下标，不读取或消费任何授权凭证。
 package com.fandazi.app.feature.agent
 import android.view.View
+import android.view.Gravity
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -25,6 +26,7 @@ class AgentCardViewHolder(view:View,private val navigate:(AgentNavigationRequest
     private val meta=view.findViewById<TextView>(R.id.agent_reusable_card_meta)
     private val detail=view.findViewById<TextView>(R.id.agent_reusable_card_detail)
     private val amount=view.findViewById<TextView>(R.id.agent_reusable_card_amount)
+    private val actionRow=view.findViewById<LinearLayout>(R.id.agent_reusable_card_action_row)
     private val action=view.findViewById<TextView>(R.id.agent_reusable_card_action)
     private val discount=view.findViewById<TextView>(R.id.agent_reusable_card_discount)
     private val cancel=view.findViewById<TextView>(R.id.agent_after_sale_cancel)
@@ -95,8 +97,9 @@ class AgentCardViewHolder(view:View,private val navigate:(AgentNavigationRequest
                 val cents=f["amountCents"]?.toIntOrNull();val expiry=BusinessDisplay.time(f["expiresAt"]);val operation=f["action"]
                 val complete=!f["resourceId"].isNullOrBlank() && !f["ruleVersion"].isNullOrBlank() && !f["title"].isNullOrBlank() && cents!=null && cents>=0 && expiry!="时间未取得" && operation in setOf("create_group_buy_order","pay_mock_order")
                 title.text=f["title"].orEmpty().ifBlank{"请核对操作摘要"};meta.text=listOfNotNull(f["storeName"],f["dealTitle"],f["quantity"]?.let{"数量：$it"},"合计：${BusinessDisplay.money(cents)}","规则版本：${f["ruleVersion"].orEmpty().ifBlank{"未取得"}}","确认截止：$expiry").joinToString("\n")
-                button(if(complete)"确认" else "摘要不完整，请重新查询",if(complete && row.current)AgentNavigationRequest.AgentReply(if(operation=="pay_mock_order")"确认支付" else "确认",card)else null,card)
-                cancelButton("取消本次操作",if(complete && row.current)AgentNavigationRequest.AgentReply("取消",card)else null,card)
+                button(if(row.expiredConfirmation)"旧确认已失效" else if(complete)"确认" else "摘要不完整，请重新查询",if(complete && row.current)AgentNavigationRequest.AgentReply(if(operation=="pay_mock_order")"确认支付" else "确认",card)else null,card)
+                cancelButton(if(row.taskMode)"暂不确认" else "取消本次操作",if(complete && row.current)AgentNavigationRequest.AgentReply("取消",card)else null,card)
+                if(row.expiredConfirmation){title.text="历史确认 · 仅供查看";cancel.isVisible=false}
             }
             "coupon" -> {
                 // 优惠券完全只读，日期只作格式化，不按设备时间计算可用性，也不留下上项操作按钮。
@@ -108,15 +111,57 @@ class AgentCardViewHolder(view:View,private val navigate:(AgentNavigationRequest
                 // 两种售后共享摘要槽但保留独立合法动作语句，不让同Holder复用混用退款与投诉。
                 val refund=type=="after_sale_refund";val id=f.optional("voucherId","resourceId");val cents=f["amountCents"]?.toIntOrNull();val expiry=BusinessDisplay.time(f["expiresAt"])
                 val complete=expiry!="时间未取得" && if(refund)!id.isNullOrBlank() && !f["dealTitle"].isNullOrBlank() && !f["reason"].isNullOrBlank() && cents!=null && cents>0 else !f["subject"].isNullOrBlank() && !f["description"].isNullOrBlank()
-                title.text=if(refund)"退款申请确认" else "投诉与反馈确认"
+                title.text=if(row.expiredConfirmation)"历史确认 · 仅供查看" else if(refund)"退款申请确认" else "投诉与反馈确认"
                 meta.text=if(refund)listOfNotNull(f["storeName"],f["dealTitle"],id?.let{"券号末8位：${it.takeLast(8).uppercase()}"},"金额：${BusinessDisplay.money(cents)}",f["reason"]?.let{"原因：$it"},"确认截止：$expiry").joinToString("\n") else listOfNotNull(f["subject"]?.let{"主题：$it"},f["description"]?.let{"内容：$it"},"确认截止：$expiry").joinToString("\n")
-                button(if(refund)"确认退款" else "确认投诉",if(complete && row.current)AgentNavigationRequest.AgentReply(if(refund)"确认退款" else "确认投诉",card)else null,card)
-                cancelButton(if(refund)"取消退款" else "取消投诉",if(row.current)AgentNavigationRequest.AgentReply(if(refund)"取消退款" else "取消投诉",card)else null,card)
+                button(if(row.expiredConfirmation)"旧确认已失效" else if(refund)"确认退款" else "确认投诉",if(complete && row.current)AgentNavigationRequest.AgentReply(if(refund)"确认退款" else "确认投诉",card)else null,card)
+                cancelButton(if(row.taskMode)"暂不确认" else if(refund)"取消退款" else "取消投诉",if(row.current)AgentNavigationRequest.AgentReply(if(refund)"取消退款" else "取消投诉",card)else null,card)
+                if(row.expiredConfirmation)cancel.isVisible=false
             }
             // 未知扩展只呈现安全公开说明，默认隐藏金额/图像/全部动作，避免错误执行旧监听。
             else -> { title.text="助手信息";meta.text=f.value("title","name").ifBlank{"收到新的助手信息"} }
         }
+        // 新协议确认按已确认F屏横向呈现主次操作；这里只调整布局，不授予执行资格。
+        // 历史确认继续禁用，旧协议、目录卡和券选择保留既有展示，避免复用Holder串样式。
+        if(row.taskMode && type in setOf("confirmation","after_sale_refund","after_sale_complaint")) {
+            layoutTaskConfirmation(row.expiredConfirmation)
+        }
         itemView.tag=row.key
+    }
+    /**
+     * 将当前2.2确认的同一对控件排成48dp横向按钮；历史摘要仅显示中性失效按钮。
+     * 参数只决定视觉，原监听、完整性校验、current及服务端围栏均保持不变；不发网络请求。
+     */
+    private fun layoutTaskConfirmation(historical:Boolean) {
+        // 确认动作放在摘要白色表面之外，保持F稿的卡片→独立按钮行；历史E同样独立展示失效提示。
+        if(actionRow.parent!==root) {(actionRow.parent as LinearLayout).removeView(actionRow);root.addView(actionRow)}
+        actionRow.layoutParams=LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT).apply{topMargin=dp(12)}
+        // 历史确认没有次操作，不能给失效动作使用可执行主按钮的颜色。
+        if(historical) {
+            action.layoutParams=LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,dp(48))
+            action.setTextColor(color(R.color.group_buy_muted))
+            return
+        }
+        // 复用原取消控件，保持同一资源ID与回调；不新增重复确认控件或复制完整业务卡片。
+        if(cancel.parent!==actionRow) {(cancel.parent as LinearLayout).removeView(cancel);actionRow.addView(cancel)}
+        action.layoutParams=LinearLayout.LayoutParams(0,dp(48),1f)
+        cancel.layoutParams=LinearLayout.LayoutParams(0,dp(48),1f).apply{marginStart=dp(8)}
+        action.setBackgroundResource(R.drawable.agent_task_primary)
+        action.setTextColor(color(R.color.surface_card))
+        cancel.setBackgroundResource(R.drawable.agent_task_secondary)
+        cancel.setTextColor(color(R.color.group_buy_green))
+    }
+
+    /** 回收时恢复原骨架和颜色，防止新确认的权重/背景流入后续门店、旧协议或历史卡。 */
+    private fun resetActionLayout() {
+        // 目录和旧协议继续在原信息列显示价格与文字动作，不能受上一张任务确认的外置按钮影响。
+        if(actionRow.parent!==info) {(actionRow.parent as LinearLayout).removeView(actionRow);info.addView(actionRow,info.indexOfChild(discount))}
+        actionRow.layoutParams=LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT).apply{topMargin=dp(8)}
+        // 默认次操作位于信息列末尾；只在父容器变化时移动，避免留下重复父节点。
+        if(cancel.parent!==info) {(cancel.parent as LinearLayout).removeView(cancel);info.addView(cancel)}
+        action.layoutParams=LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,dp(40))
+        cancel.layoutParams=LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,dp(40)).apply{gravity=Gravity.END}
+        action.background=null;cancel.background=null
+        action.setTextColor(color(R.color.group_buy_orange));cancel.setTextColor(color(R.color.group_buy_muted))
     }
     /** 缺少公开ID或当前资格时按钮保留原文案但禁用，没有监听、透明度明确。 */
     private fun button(label:String,request:AgentNavigationRequest?,card:AgentCardPayload) {action.text=label;action.isVisible=true;action.isEnabled=request!=null;action.alpha=if(request!=null)1f else .4f;if(request!=null)action.setOnClickListener{navigate(request,card)}}
@@ -124,6 +169,7 @@ class AgentCardViewHolder(view:View,private val navigate:(AgentNavigationRequest
     private fun cancelButton(label:String,request:AgentNavigationRequest?,card:AgentCardPayload) {cancel.text=label;cancel.isVisible=true;cancel.isEnabled=request!=null;cancel.alpha=if(request!=null)1f else .4f;if(request!=null)cancel.setOnClickListener{navigate(request,card)}}
     /** 清除上一次图像请求、正文、金额、可见性和全部动作；绑定不inflate任何完整子树。 */
     fun recycle() {
+        resetActionLayout()
         Glide.with(image).clear(image);image.setImageDrawable(null);image.isVisible=false
         listOf(title,meta,detail,amount,discount,action,cancel).forEach{it.text="";it.setOnClickListener(null);it.alpha=1f}
         listOf(detail,amount,discount,action,cancel).forEach{it.isVisible=false};action.isEnabled=false;cancel.isEnabled=false;itemView.tag=null

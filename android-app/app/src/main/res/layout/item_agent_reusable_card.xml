@@ -2,8 +2,10 @@
 <!-- 卡片单一骨架：图片、标题/信息/补充说明、价格与操作槽按内容复用；不预堆各业务完整布局。 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/agent_reusable_card" android:layout_width="match_parent" android:layout_height="wrap_content"
-    android:layout_marginBottom="14dp" android:orientation="horizontal" android:padding="16dp"
-    android:background="@drawable/group_buy_card_background">
+    android:layout_marginBottom="14dp" android:orientation="vertical">
+    <!-- 内容表面保持原横向图文骨架；2.2确认操作可移至表面外，与已确认F屏的独立按钮行一致。 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="horizontal" android:padding="16dp" android:background="@drawable/group_buy_card_background">
     <ImageView android:id="@+id/agent_reusable_image" android:layout_width="92dp" android:layout_height="92dp"
         android:scaleType="centerCrop" android:contentDescription="菜品图片" />
     <LinearLayout android:id="@+id/agent_reusable_card_info" android:layout_width="0dp" android:layout_height="wrap_content"
@@ -25,5 +27,6 @@
             android:layout_marginTop="10dp" android:textColor="@color/group_buy_muted" android:textSize="12sp" android:visibility="gone" />
         <TextView android:id="@+id/agent_after_sale_cancel" android:layout_width="wrap_content" android:layout_height="40dp"
             android:layout_gravity="end" android:gravity="center" android:paddingHorizontal="16dp" android:textColor="@color/group_buy_muted" android:textSize="14sp" android:visibility="gone" />
+    </LinearLayout>
     </LinearLayout>
 </LinearLayout>

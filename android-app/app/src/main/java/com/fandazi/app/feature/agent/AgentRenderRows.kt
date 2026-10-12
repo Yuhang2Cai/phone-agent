@@ -15,7 +15,9 @@ sealed interface AgentRenderRow {
     data class Message(override val key: String, val body: String, val style: AgentMessageStyle,
         val title: String = "", val retry: Boolean = false) : AgentRenderRow { override val type = AgentRowType.MESSAGE }
     /** fields在投影时复制且封装为不可修改Map，避免Diff线程观察业务对象后续变更。 */
-    data class Card(override val key: String, val card: AgentCardPayload, val current: Boolean) : AgentRenderRow { override val type = AgentRowType.CARD }
+    data class Card(override val key: String, val card: AgentCardPayload, val current: Boolean,
+        /** 区分临时忙碌禁用和历史失效，短回复等待期间不能把仍有效的卡误标失效。 */
+        val expiredConfirmation: Boolean = false, val taskMode: Boolean = false) : AgentRenderRow { override val type = AgentRowType.CARD }
     /** 登录与空态互斥复用同一欢迎和操作槽。 */
     data class Guide(override val key: String, val login: Boolean) : AgentRenderRow { override val type = AgentRowType.GUIDE }
     /** 步骤在投影阶段去重并转为公开文案，Holder仅更新已有槽位。 */
@@ -43,7 +45,7 @@ object AgentRenderRows {
                     AgentMessageStyle.CONTEXT, "上次查看：" + listOfNotNull(card.fields["storeName"],card.fields["title"] ?: card.fields["name"]).joinToString(" · "))
             }
             if (!message.fromUser) {
-                rows += cards(parent, message.cards, isCurrent)
+                rows += cards(parent, message.cards, isCurrent, state)
             }
         }
         // 进度只属于正在处理的当前轮；完成、失败或等待用户补充/确认后隐藏，避免在回答下面重复显示。
@@ -51,7 +53,7 @@ object AgentRenderRows {
         val current = "message:${lastUser ?: "connection"}:current"
         if (state.isSending) rows += progress(current, state.events, true)
         if (state.messages.none { !it.fromUser && it.cards == state.cards } || state.isSending)
-            rows += cards(current, state.cards, isCurrent)
+            rows += cards(current, state.cards, isCurrent, state)
         if (state.isRecoveringHistory) rows += AgentRenderRow.Message("system:history", "正在恢复聊天历史…", AgentMessageStyle.ASSISTANT)
         else if (state.error == null) state.historyNotice?.let { rows += AgentRenderRow.Message("system:history", it, AgentMessageStyle.ASSISTANT) }
         // 只沿用原业务和只读历史重试入口，展示阶段绝不产生请求。
@@ -67,7 +69,7 @@ object AgentRenderRows {
     }
 
     /** 服务端资源/事件身份优先，缺身份只复用卡片创建时的展示键，不取正文hash或render随机键。 */
-    private fun cards(parent: String, input: List<AgentCardPayload>, isCurrent: (AgentCardPayload) -> Boolean): List<AgentRenderRow.Card> {
+    private fun cards(parent: String, input: List<AgentCardPayload>, isCurrent: (AgentCardPayload) -> Boolean, state: AgentUiState): List<AgentRenderRow.Card> {
         val seen = mutableSetOf<String>()
         // 按服务端顺序逐项展示并保留 presentation 原始字段，不在投影阶段排序或重编号。
         return input.mapNotNull { card ->
@@ -77,7 +79,9 @@ object AgentRenderRows {
             val key = "$parent:card:${card.type}:$identity"
             // 同一所属消息的公开资源重放不增加子行，不同所属消息仍独立显示。
             if (!seen.add(key)) null else AgentRenderRow.Card(key,card.copy(fields=java.util.Collections.unmodifiableMap(LinkedHashMap(card.fields))),
-                !card.historicalReadOnly && isCurrent(card))
+                !card.historicalReadOnly && isCurrent(card),
+                card.type in setOf("confirmation", "after_sale_refund", "after_sale_complaint") &&
+                    (card.historicalReadOnly || (state.taskState.enabled && !state.isSending && !isCurrent(card))), state.taskState.enabled)
         }
     }
 

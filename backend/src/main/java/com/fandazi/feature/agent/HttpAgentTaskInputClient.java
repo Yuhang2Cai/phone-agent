@@ -16,7 +16,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class HttpAgentTaskInputClient implements AgentTaskInputClient {
     private final URI uri;private final String secret;private final ObjectMapper mapper;
-    private final HttpClient http=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(3)).build();
+    // 内部Uvicorn只协商HTTP/1.1；Java默认h2c升级会使当前服务把POST正文判为空，必须在传输层显式关闭。
+    private final HttpClient http=HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(3)).build();
     /** 新归属/原分类/类内解释可能串行调用；连接有界且不持DB锁，性能在TL-10固定条件实测。 */
     public HttpAgentTaskInputClient(@Value("${agent.service.base-url:http://127.0.0.1:8091}") String base,
             @Value("${agent.internal-token:}") String secret,ObjectMapper mapper) {

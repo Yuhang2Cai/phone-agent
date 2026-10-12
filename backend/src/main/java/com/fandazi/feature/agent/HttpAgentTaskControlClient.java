@@ -21,7 +21,8 @@ class HttpAgentTaskControlClient implements AgentTaskControlClient {
     HttpAgentTaskControlClient(@Value("${agent.service.base-url:http://127.0.0.1:8091}") String base,
             @Value("${agent.internal-token:}") String secret,ObjectMapper mapper) {
         this.base=base.replaceAll("/$","");this.secret=secret;this.mapper=mapper;contracts=new AgentProtocolValidator(mapper);
-        http=HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(2)).proxy(new ProxySelector() {
+        // 固定HTTP/1.1防止明文h2c升级吞掉控制正文；不能把协议协商失败误报为任务已安全停点。
+        http=HttpClient.newBuilder().version(HttpClient.Version.HTTP_1_1).connectTimeout(Duration.ofSeconds(2)).proxy(new ProxySelector() {
             /** 内部服务地址由配置受控，禁用系统代理避免本机控制被意外转发。 */
             @Override public List<Proxy> select(URI uri) {return List.of(Proxy.NO_PROXY);}
             /** 连接失败向上按不可用处理，不尝试其他代理或旧服务。 */

@@ -31,6 +31,8 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
     private var adapter:AgentMessageAdapter?=null
     private var manager:LinearLayoutManager?=null
     private var voiceInput:AgentVoiceInputController?=null
+    /** 任务展示属于当前View，不跨账号保存任务目录或按钮监听。 */
+    private var taskPanel:AgentTaskPanelController?=null
     private val voicePermission=registerForActivityResult(ActivityResultContracts.RequestPermission()){voiceInput?.onPermissionResult(it)}
     private var pending:AgentUiState?=null
     private var rendered:AgentUiState?=null
@@ -57,6 +59,10 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
     override fun onViewCreated(view:View,savedInstanceState:Bundle?) {
         viewEpoch++;ownerInitialized=false;rendered=null;following=true;sendFocus.cancel()
         viewModel=ViewModelProvider(requireActivity(),AgentViewModelFactory((requireActivity().application as FandaziApplication).agentRepository, requireActivity().application))[AgentViewModel::class.java]
+        taskPanel=AgentTaskPanelController(view,viewModel)
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner,object:androidx.activity.OnBackPressedCallback(true){
+            override fun handleOnBackPressed(){if(taskPanel?.closeList()!=true){isEnabled=false;requireActivity().onBackPressedDispatcher.onBackPressed();isEnabled=true}}
+        })
         // 只有用户比较发送后带入上下文，明确展示数量及清除入口；不会自动再次发送。
         fun renderComparison(){val ids=viewModel.comparisonSelection();view.findViewById<View>(R.id.agent_compare_context).visibility=if(ids.isEmpty())View.GONE else View.VISIBLE;view.findViewById<android.widget.TextView>(R.id.agent_compare_context_text).text="正在比较${ids.size}个已选套餐；清除后恢复普通聊天。"}
         renderComparison();view.findViewById<View>(R.id.agent_compare_clear).setOnClickListener{viewModel.clearComparison();renderComparison()}
@@ -80,7 +86,8 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
         list!!.addOnLayoutChangeListener{_,_,top,_,bottom,_,oldTop,_,oldBottom->if(bottom-top!=oldBottom-oldTop && following && restoreKey==null && list?.scrollState!=RecyclerView.SCROLL_STATE_DRAGGING)scrollToBottom()}
         view.findViewById<View>(R.id.agent_chat_close).setOnClickListener{anchor->PopupMenu(requireContext(),anchor).apply{
             // 明确返回首页也复用保存栈，避免菜单/引导回调绕过Tab导航另建首页。
-            menu.add("返回首页");setOnMenuItemClickListener{saveAnchor();TopLevelNavigator.select(findNavController(),R.id.homeFragment);true};show()
+            if(viewModel.uiState.value.taskState.enabled)menu.add("任务列表")
+            menu.add("返回首页");setOnMenuItemClickListener{item->if(item.title=="任务列表")taskPanel?.showList() else {saveAnchor();TopLevelNavigator.select(findNavController(),R.id.homeFragment)};true};show()
         }}
         // 保留Task14独立草稿绑定；本任务不触发录音或ASR测试，发送仍委托原业务入口。
         val app=requireActivity().application as FandaziApplication
@@ -122,12 +129,13 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
         val current=if(changed)viewModel.uiState.value else state
         voiceInput?.refreshComposer();val before=rendered
         val immediate=force || changed || !authenticated || before==null || current.error!=before.error || current.isSending!=before.isSending ||
-            current.isRecoveringHistory!=before.isRecoveringHistory || current.pendingConfirmationCard!=before.pendingConfirmationCard || current.pendingAfterSaleCards!=before.pendingAfterSaleCards ||
+            current.isRecoveringHistory!=before.isRecoveringHistory || current.taskState!=before.taskState || current.pendingConfirmationCard!=before.pendingConfirmationCard || current.pendingAfterSaleCards!=before.pendingAfterSaleCards ||
             current.events.lastOrNull()?.type in setOf("final","error","completed","waiting_confirmation","waiting_input")
         if(immediate){cancelFrame();renderNow(current)}else{pending=current;if(!frameQueued){frameQueued=true;Choreographer.getInstance().postFrameCallback(frame)}}
     }
     /** 主线程冻结数据、捕获底部/首行锚点；异步Diff后仅同代且没有新拖动才定位。 */
     private fun renderNow(state:AgentUiState) {
+        taskPanel?.render(state)
         // 账号切换/显式清除后即时隐藏旧比较提示，不能只在第一次创建时决定可见性。
         val ids=viewModel.comparisonSelection()
         view?.findViewById<View>(R.id.agent_compare_context)?.visibility=if(ids.isEmpty())View.GONE else View.VISIBLE
@@ -202,7 +210,7 @@ class AgentChatFragment:Fragment(R.layout.fragment_agent_chat) {
     override fun onDestroyView() {
         saveAnchor();cancelFrame();sendFocus.cancel();viewEpoch++;submitEpoch++
         list?.let{r->for(i in 0 until r.childCount)adapter?.release(r.getChildViewHolder(r.getChildAt(i)));r.clearOnScrollListeners();r.adapter=null;r.layoutManager=null;r.recycledViewPool.clear()}
-        adapter=null;manager=null;list=null;rendered=null;ownerInitialized=false
+        adapter=null;manager=null;list=null;rendered=null;ownerInitialized=false;taskPanel=null
         draftWatcher?.let{draftInput?.removeTextChangedListener(it)};draftWatcher=null;draftInput=null
         voiceInput?.close();voiceInput=null;viewModel.closeAssistant();super.onDestroyView()
     }
