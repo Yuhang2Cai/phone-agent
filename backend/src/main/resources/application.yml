@@ -31,6 +31,9 @@ agent:
     enabled: ${AGENT_TASK_LIFECYCLE_ENABLED:false}
     # 自动协调只派发同一持久命令；六次/60秒后停止apply，仅允许回读权威事实。
     reconcile-enabled: ${AGENT_TASK_RECONCILE_ENABLED:true}
+    # 网关插入与后台派发竞争时只读等待同一持久命令；限1至10000毫秒，不重发模型/控制或自动执行业务。
+    # 未提交/待核查返回503并保留原请求摘要，后续显式同键只接续原目标，读取目录和重连不触发接续。
+    insert-wait-ms: ${AGENT_TASK_INSERT_WAIT_MS:10000}
   internal-token: ${AGENT_INTERNAL_TOKEN:}
   service:
     base-url: ${AGENT_SERVICE_URL:http://127.0.0.1:8091}

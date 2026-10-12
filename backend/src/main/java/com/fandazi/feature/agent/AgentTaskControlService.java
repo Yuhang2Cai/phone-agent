@@ -38,6 +38,22 @@ public class AgentTaskControlService {
     /** 插问先验证新目标再预备；新task只在安全提交后创建，拒绝/退出不留下幽灵任务。 */
     @Transactional
     public Map<String,Object> prepareInsert(Long user,String sessionId,NewGoal input) {
+        return prepareInsertInternal(user,sessionId,input,null,0,0);
+    }
+    /** 网关插入在同一预备事务固定原请求摘要及业务子句位置，供交接晚提交后的显式同键接续。
+     * 原文和页面证明仍由各自来源表管理；命令不复制正文、确认摘要或凭证。位置仅为服务端Java字符串下标，
+     * 不作为模型Unicode证据协议。输入摘要绑定完整网关信封，不能用同句但不同引用接续另一请求。
+     */
+    @Transactional
+    public Map<String,Object> prepareGatewayInsert(Long user,String sessionId,NewGoal input,String inputHash,String original) {
+        if(input==null||inputHash==null||!inputHash.matches("[a-f0-9]{64}")||original==null||input.originalSpan()==null)
+            throw AgentTaskRegistryService.bad("插入原请求恢复资料无效");
+        int start=original.indexOf(input.originalSpan());
+        if(start<0)throw AgentTaskRegistryService.bad("插入业务子句不属于原输入");
+        return prepareInsertInternal(user,sessionId,input,inputHash,start,start+input.originalSpan().length());
+    }
+    /** 共用既有短事务和锁序；只有网关入口增加恢复元数据，不改变旧NewGoal指纹或公开协议。 */
+    private Map<String,Object> prepareInsertInternal(Long user,String sessionId,NewGoal input,String inputHash,int spanStart,int spanEnd) {
         if(input==null||input.requestId()==null||input.requestId().isBlank()||input.requestId().length()>100||input.originalSpan()==null||input.originalSpan().isBlank())
             throw AgentTaskRegistryService.bad("新目标输入无效");
         registry.validateDescription(input.kind(),input.intent(),input.title());
@@ -45,7 +61,11 @@ public class AgentTaskControlService {
         if("chat".equals(input.kind())&&!"chitchat".equals(input.intent()))throw AgentTaskRegistryService.bad("非业务插问不能改变任务");
         var session=registry.lockScope(user,sessionId);var scope=registry.scopeOf(session);String hash=AgentTaskFingerprint.of(input);
         var previous=commands.findByUserIdAndSessionIdAndEpochAndRequestId(user,sessionId,scope.epoch(),input.requestId());
-        if(previous.isPresent()){if(!hash.equals(previous.get().fingerprint()))throw AgentTaskRegistryService.conflict("同请求身份关联了不同目标");return previous.get().projection();}
+        if(previous.isPresent()){
+            if(!hash.equals(previous.get().fingerprint())||inputHash!=null&&!inputHash.equals(previous.get().details().get("gatewayInputHash")))
+                throw AgentTaskRegistryService.conflict("同请求身份关联了不同目标或原输入");
+            return previous.get().projection();
+        }
         if(session.focusVersion()!=input.expectedFocusVersion())throw AgentTaskRegistryService.conflict("插问焦点已变化");
         var affected=new LinkedHashMap<String,AgentTaskEntity>();
         if(session.currentTaskId()!=null){var front=registry.lockTask(scope,session.currentTaskId());
@@ -68,6 +88,11 @@ public class AgentTaskControlService {
         details.put("beforeFocusId",session.currentTaskId());details.put("changesFocus",true);
         details.put("newTask",Map.of("id",fresh.id(),"kind",input.kind(),"intent",input.intent(),"title",input.title()));
         session.advanceTaskFocus();var command=new AgentTaskCommandEntity(scope,input.requestId(),hash,"insert",fresh.id(),(String)source.get("sourceMessageId"),session.focusVersion(),details);
+        if(inputHash!=null) {
+            // 在命令可被后台扫描之前原子保存恢复边界，避免控制已提交而网关尚未来得及记住原输入身份。
+            command.details().put("gatewayInputHash",inputHash);
+            command.details().put("gatewaySpanStartUtf16",spanStart);command.details().put("gatewaySpanEndUtf16",spanEnd);
+        }
         if(returnHint!=null) {
             command.details().put("returnTo",Map.of("taskId",returnHint.targetTaskId(),"pausedTaskVersion",returnHint.targetTaskVersion()+1,
                 "sourceMessageId",source.get("sourceMessageId"),"sourceStart",returnHint.start(),"sourceEnd",returnHint.end(),"insertFocusVersion",session.focusVersion()));
