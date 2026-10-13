@@ -25,9 +25,19 @@ class AgentTaskSession(private val repository: AgentTaskRepository?, private val
     private var polling: Job? = null
     private val reads = Mutex()
     private var requestPointer: String? = null
+    // 只保留本会话曾见过、被权威活动目录移除的公开ID及最低版本；不保存动作或确认资格。
+    // 网络读取失败时下轮继续只读查询，不能依据“目录里消失了”猜测已经取消或完成。
+    private val omittedTaskVersions = linkedMapOf<String, Long>()
+
+    private companion object {
+        // 与已有冷历史补读上限一致；过旧的待查引用仍可由聊天历史显式加载，不能无界积累。
+        const val MAX_OMITTED_TASKS = 100
+    }
     /** 身份变化先清内存状态；同账号进程恢复仅接收薄请求指针。 */
     fun reset(sessionId: String, established: Boolean, requestId: String? = null) {
         close();generation++;session = sessionId;this.established = established;requestPointer = requestId
+        // 身份边界同时清待查历史，避免旧账号迟到详情或未完成读取进入新scope。
+        omittedTaskVersions.clear()
         mutable.value = AgentTaskUiState(enabled = repository != null, unresolvedRequestId = requestId)
     }
     /** 页面可见时开始只读续接。 */
@@ -57,7 +67,20 @@ class AgentTaskSession(private val repository: AgentTaskRepository?, private val
                 is ApiResult.Success -> {
                     // 权威目录成功证明当前账号会话已建立，此后404必须按异常恢复处理，不能降为空目录。
                     established = true
-                    mutable.value = AgentTaskHistoryRecovery.snapshot(state.value, result.value)
+                    val previousTasks = state.value.tasks
+                    val recovered = AgentTaskHistoryRecovery.snapshot(state.value, result.value)
+                    mutable.value = recovered
+                    // 活动目录不包含终态；同版本预备/提交冲突后的重载会移除旧active项。
+                    // 仅登记此前已知且本次确实遗漏的对象，再向只读详情取得真实终态，不能本地推断。
+                    if (!recovered.requiresReload) {
+                        for ((id, known) in previousTasks) {
+                            if (id !in recovered.tasks && known.lifecycle in setOf("active", "paused")) {
+                                omittedTaskVersions[id] = maxOf(known.version, omittedTaskVersions[id] ?: 0L)
+                            }
+                        }
+                        // 固定待查缓存容量，只淘汰最旧公开引用；不修改当前任务、服务器状态或原业务正文。
+                        while (omittedTaskVersions.size > MAX_OMITTED_TASKS) omittedTaskVersions.remove(omittedTaskVersions.keys.first())
+                    }
                 }
                 is ApiResult.Failure -> {
                     val empty = !established && requestPointer == null && (result.error as? ApiError.Http)?.code == 404
@@ -91,6 +114,8 @@ class AgentTaskSession(private val repository: AgentTaskRepository?, private val
             if (!current(key, token)) return@withLock
             if (result is ApiResult.Success) acceptCommand(result.value)
         }
+        // 目录已裁决焦点后再补终态展示；详情不能新增活动任务或改写当前目录，仍不派发任何控制。
+        if (!recoverOmittedHistory(repo, key, token)) return@withLock
         repeat(10) {
             val watermark = state.value.directory?.watermark ?: return@withLock
             val result = repo.events(key, watermark)
@@ -152,6 +177,41 @@ class AgentTaskSession(private val repository: AgentTaskRepository?, private val
                 mutable.value = state.value.copy(tasks = state.value.tasks + (id to result.value))
             }
         }
+    }
+
+    /** 补读已知遗漏对象的权威历史；返回false表示身份改变或详情冲突，调用方停止本轮归并。
+     *
+     * 网络失败保留待查ID供后续轮询；404只放弃不可读引用，不伪造取消/完成。成功必须核对
+     * 请求身份、最低版本及终态，再只加入展示集合；目录、焦点和业务确认资格始终不变。
+     */
+    private suspend fun recoverOmittedHistory(repo: AgentTaskRepository, key: String, token: Long): Boolean {
+        if (state.value.requiresReload) return false
+        // 复制本轮待查键，挂起期间reset可能清空原集合；每次回包仍复核完整本地身份代次。
+        val pending = omittedTaskVersions.entries.take(MAX_OMITTED_TASKS).map { it.key to it.value }
+        for ((id, minimumVersion) in pending) {
+            if (!current(key, token)) return false
+            if (id in state.value.tasks) { omittedTaskVersions.remove(id);continue }
+            when (val result = repo.task(key, id)) {
+                is ApiResult.Success -> {
+                    if (!current(key, token)) return false
+                    val task = result.value
+                    // 不同对象、陈旧详情或仍活动的对象与刚取得的目录矛盾，必须重载，不能猜一个新焦点。
+                    if (task.id != id || task.version < minimumVersion ||
+                        task.lifecycle !in setOf("completed", "cancelled", "failed") || task.actions.isNotEmpty()) {
+                        mutable.value = state.value.copy(requiresReload = true)
+                        return false
+                    }
+                    mutable.value = state.value.copy(tasks = state.value.tasks + (id to task))
+                    omittedTaskVersions.remove(id)
+                }
+                is ApiResult.Failure -> {
+                    if (!current(key, token)) return false
+                    // 不能把404解释为控制成功；其它读取失败保留公开引用，下一轮只读重查，不自动重发POST。
+                    if ((result.error as? ApiError.Http)?.code == 404) omittedTaskVersions.remove(id)
+                }
+            }
+        }
+        return current(key, token) && !state.value.requiresReload
     }
 
     /** 两个异步读取间身份可能改变；每次回包都核对本地会话代次，不能只依赖取消信号。 */

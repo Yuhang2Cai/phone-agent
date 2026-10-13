@@ -1,0 +1,32 @@
+# TL-10/S04后半段：由驱动先重启原Agent/Spring，再冷启客户端只读恢复同一任务目录。
+# 不发送“继续”等正文，不填退款原因；具名恢复只返回原停点，禁止业务工具及退款写入。
+appId: com.fandazi.app
+---
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible: 请选择要继续的任务
+    timeout: 30000
+- takeScreenshot: ag03-s04-paused-after-services-restart
+- tapOn:
+    id: com.fandazi.app:id/agent_task_item_resume
+    below:
+      id: com.fandazi.app:id/agent_task_item_title
+      text: 退款售后
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_status
+      text: .*退款原因.*
+    timeout: 30000
+- assertVisible:
+    id: com.fandazi.app:id/agent_task_primary_action
+    text: 暂停
+    enabled: true
+- takeScreenshot: ag03-s04-resumed-same-stop

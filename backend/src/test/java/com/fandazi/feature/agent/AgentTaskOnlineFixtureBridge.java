@@ -24,14 +24,20 @@ public final class AgentTaskOnlineFixtureBridge {
         if(!"seed".equals(raw.get("op")))throw new IllegalArgumentException("未知在线前置操作");
         var setup=(Map<String,Object>)raw.get("setup");var registry=bean(AgentTaskRegistryService.class);var jdbc=bean(JdbcTemplate.class);
         if(Boolean.TRUE.equals(setup.get("legacy"))) {
-            // 旧协议隔离必须从真实2.0会话开始；本环境旧messages未开启2.1，不能先创建2.2再调用旧入口。
-            // 仅登记身份和真实来源以取得服务端epoch，尚不执行模型/业务；白名单登记后才发正式退款消息。
+            // 默认保留TL09的真实2.0隔离前置；TL10显式选择2.1时，必须同时提供随后真实输入的原文和防重键。
+            // 先经正式来源服务登记该输入身份以登记合成白名单，随后公开messages入口复用同键并真实保存原文。
+            // 此处不生成模型结果或购买停点；2.1停点只能由真实请求建立，不能先创建2.2再绕回旧入口。
             if(!Boolean.FALSE.equals(setup.get("current"))||((Number)setup.getOrDefault("paused",0)).intValue()!=0)
                 throw new IllegalArgumentException("旧会话前置不能创建2.2任务");
             String id=UUID.randomUUID().toString(),session="ag03-legacy-"+id;
             var user=bean(UserRepository.class).saveAndFlush(new UserEntity("ag03-"+id,"ag03-"+id+"@example.invalid","synthetic-hash"));
-            bean(AgentSessionService.class).start(user.getId(),session,AgentMode.CONFIRM,"synthetic-legacy-trace","2.0");
-            var source=bean(AgentConversationSourceService.class).issue(user.getId(),session,"合成旧会话前置",null);
+            String protocol=(String)setup.getOrDefault("legacyProtocol","2.0");
+            if(!java.util.Set.of("2.0","2.1").contains(protocol))throw new IllegalArgumentException("旧会话协议不受支持");
+            String body="2.1".equals(protocol) ? (String)setup.get("preludeText") : "合成旧会话前置";
+            String key="2.1".equals(protocol) ? (String)setup.get("preludeKey") : null;
+            if("2.1".equals(protocol)&&(body==null||key==null))throw new IllegalArgumentException("2.1前置须绑定真实输入");
+            bean(AgentSessionService.class).start(user.getId(),session,AgentMode.CONFIRM,"synthetic-legacy-trace",protocol);
+            var source=bean(AgentConversationSourceService.class).issue(user.getId(),session,body,key);
             return Map.of("userId",String.valueOf(user.getId()),"sessionId",session,"conversationEpoch",source.get("conversationEpoch"),"roles",Map.of());
         }
         var f=new AgentTaskTestFixtures(bean(UserRepository.class),bean(AgentSessionService.class),registry,jdbc);
