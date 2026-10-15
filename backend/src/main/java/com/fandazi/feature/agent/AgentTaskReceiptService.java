@@ -17,14 +17,23 @@ public class AgentTaskReceiptService {
         var scope=registry.scope(user,session);if(!scope.epoch().equals(epoch))throw new ToolBoundaryException("FORBIDDEN","原执行范围已失效");
         registry.task(user,session,task,epoch);var admitted=turns.findById(turn).orElseThrow(()->new ToolBoundaryException("NOT_FOUND","原轮次不存在"));
         if(!admitted.scope().equals(scope)||!task.equals(admitted.taskId())||!run.equals(admitted.runId()))throw new ToolBoundaryException("FORBIDDEN","原执行归属不一致");
-        var row=executions.findById(key);var result=new LinkedHashMap<String,Object>();result.put("schemaVersion","2.2");result.put("executionKeyHash",AgentTaskFingerprint.of(key));
+        // 回执格式绑定原turn持久协议；旧2.2字段保持不变，2.3才启用目标恢复安全映射。
+        String protocol=admitted.protocolVersion();var row=executions.findById(key);var result=new LinkedHashMap<String,Object>();result.put("schemaVersion",protocol);result.put("executionKeyHash",AgentTaskFingerprint.of(key));
         result.put("conversationTaskId",task);result.put("runId",run);result.put("turnId",turn);
         if(row.isEmpty()){result.put("state","unknown");result.put("resources",Map.of());result.put("summary",Map.of("reasonCode","record_not_found"));return result;}
         if(!row.get().ownedTask(scope,task,run,turn))throw new ToolBoundaryException("NOT_FOUND","原执行记录不可用");
         // 资源和安全状态来自已提交记录；不复制内部prepared、价格正文、授权或任意动态字段。
-        var resources=new LinkedHashMap<String,Object>();var data=row.get().getResult();
-        for(String field:List.of("orderId","voucherId","refundId","complaintId","quoteId"))if(data.get(field) instanceof String id)resources.put(field,id);
+        var resources=new LinkedHashMap<String,Object>();var data=row.get().getResult();String tool=row.get().tool();
+        if("2.3".equals(protocol)){
+            // 2.3按真实四写输出逐工具映射：恢复请求requestId与业务退款ID必须使用不同公开字段名。
+            for(String field:List.of("orderId","voucherId","quoteId"))if(data.get(field) instanceof String id)resources.put(field,id);
+            if("request_refund".equals(tool)&&data.get("requestId") instanceof String id)resources.put("refundRequestId",id);
+            if("submit_complaint".equals(tool)&&data.get("ticketId") instanceof String id)resources.put("complaintTicketId",id);
+        }else{
+            // 2.2回执已冻结，继续只读取原白名单，不能因2.3修复改变老任务字节语义。
+            for(String field:List.of("orderId","voucherId","refundId","complaintId","quoteId"))if(data.get(field) instanceof String id)resources.put(field,id);
+        }
         var summary=new LinkedHashMap<String,Object>();if(data.get("status") instanceof String status)summary.put("status",status);
-        result.put("state","committed");result.put("toolName",row.get().tool());result.put("resources",resources);result.put("summary",summary);return result;
+        result.put("state","committed");result.put("toolName",tool);result.put("resources",resources);result.put("summary",summary);return result;
     }
 }

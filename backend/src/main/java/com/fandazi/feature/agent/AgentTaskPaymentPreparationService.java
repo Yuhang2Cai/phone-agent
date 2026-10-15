@@ -24,6 +24,8 @@ public class AgentTaskPaymentPreparationService {
         try{contracts.validateTaskPayload("taskPaymentPreparationRequest",raw);}catch(AgentServiceUnavailableException invalid){throw new ToolBoundaryException("VALIDATION_ERROR","支付重准备结构无效");}
         @SuppressWarnings("unchecked") var fence=(Map<String,Object>)raw.get("fence");
         var turn=turns.findById((String)fence.get("turnId")).orElseThrow(()->new ToolBoundaryException("FORBIDDEN","支付轮次不存在"));
+        String protocol=(String)raw.get("schemaVersion");
+        if(!turn.protocolVersion().equals(protocol))throw new ToolBoundaryException("CONFLICT","支付重准备协议与原轮次不一致");
         var current=fences.requireCurrent(fence,turn.traceId());String orderId=(String)raw.get("orderId");
         if(!"transaction".equals(current.task().kind())||!"waiting_confirmation".equals(current.task().stopKind())||!orderId.equals(current.task().pendingPaymentOrderId()))
             throw new ToolBoundaryException("CONFLICT","支付重准备必须绑定原订单确认停点");
@@ -40,13 +42,16 @@ public class AgentTaskPaymentPreparationService {
         if(order.getStatus()!=GroupBuyOrderStatus.PENDING_PAYMENT||!order.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now()))
             throw new ToolBoundaryException("CONFLICT","原订单已支付、关闭或过期");
         return context.within(fence,()->{
+            // 业务资格核验通过后才撤销本任务旧授权；错误对象和过期订单不能破坏仍有效的原停点。
+            grants.revokeTasks(current.turn().scope().userId(),current.turn().scope().sessionId(),Set.of(current.task().id()));
+            current.session().clearTaskConfirmation(Set.of(current.task().id()));
             var grant=grants.issueForAction(current.turn().scope().userId(),current.turn().scope().sessionId(),"PAY_MOCK_ORDER",orderId,order.getTotalCents(),"pay-v1");
             var summary=Map.<String,Object>of("action","pay_mock_order","resourceId",orderId,"title","确认原订单支付","amountCents",order.getTotalCents(),"ruleVersion","pay-v1","expiresAt",grant.getExpiresAt().toString());
             var privateGrant=Map.<String,Object>of("confirmationGrantId",grant.getGrantId(),"userId",request.userId(),"sessionId",request.sessionId(),"action","pay_mock_order","resourceId",orderId,
                 "amountCents",order.getTotalCents(),"ruleVersion","pay-v1","expiresAt",grant.getExpiresAt().toString(),"consumed",false,
                 "conversationTaskId",current.task().id());
             var bound=new LinkedHashMap<>(privateGrant);bound.put("executionGeneration",current.task().generation());
-            var result=Map.<String,Object>of("schemaVersion","2.2","requestId",raw.get("requestId"),"summary",summary,"grant",bound);
+            var result=Map.<String,Object>of("schemaVersion",protocol,"requestId",raw.get("requestId"),"summary",summary,"grant",bound);
             contracts.validateTaskPayload("taskPaymentPreparationResult",result);
             executions.saveAndFlush(new AgentToolExecution(request,current.turn().scope().userId(),"internal_reprepare_payment",hash,result));return result;
         });

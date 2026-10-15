@@ -60,6 +60,66 @@ public final class AgentTaskLiveFixtureBridge {
         result.put("storeIds",List.of(first.getPublicId(),second.getPublicId()));return result;
     }
 
+    /** 建立2.3真实建单链路：目标版本、报价、展示确认和当前确认轮次均由产品服务持久化。 */
+    private Map<String,Object> seedGoalWrite(){
+        var users=bean(UserRepository.class);var sessions=bean(AgentSessionService.class);var registry=bean(AgentTaskRegistryService.class);
+        var turns=bean(AgentTaskTurnService.class);var tools=bean(AgentTaskToolBridge.class);var fences=bean(AgentTaskFenceService.class);
+        var jdbc=bean(JdbcTemplate.class);var purchase=new AgentTaskToolTestFixtures(users,sessions,registry,turns,tools,fences,jdbc,
+            bean(StoreRepository.class),bean(DealPackageRepository.class));var f=purchase.scope;
+        // 仅升级本夹具新建的合成任务和原准备轮次；目标版本仍通过真实短事务提交，不能直接SQL伪造投影或业务效果。
+        jdbc.update("UPDATE agent_sessions SET context_protocol_version='2.3' WHERE session_id=?",f.session);
+        jdbc.update("UPDATE agent_conversation_tasks SET protocol_version='2.3' WHERE conversation_task_id=?",purchase.taskId);
+        jdbc.update("UPDATE agent_task_turns SET protocol_version='2.3' WHERE turn_id=?",purchase.turn.turnId());
+        var current=AgentTaskTestFixtures.current(f.directory());long taskVersion=((Number)current.get("taskVersion")).longValue();
+        long focus=((Number)f.directory().get("focusVersion")).longValue();var initial=pendingOutcome("goal-order","创建唯一团购订单",List.of("order_created"));
+        var projection=new LinkedHashMap<String,Object>();projection.put("schemaVersion","2.3");projection.put("conversationTaskId",purchase.taskId);
+        projection.put("taskVersion",taskVersion);projection.put("goalRevision",2);projection.put("planRevision",2);projection.put("effectVersion",0);
+        projection.put("aggregateStatus","partial");projection.put("outcomes",List.of(initial));projection.put("availableActions",List.of());
+        var revision=new LinkedHashMap<String,Object>();revision.put("schemaVersion","2.3");revision.put("requestId","gr05-write-"+UUID.randomUUID());
+        revision.put("candidateHash","c".repeat(64));revision.put("expectedGoalRevision",1);revision.put("expectedPlanRevision",1);
+        revision.put("expectedEffectVersion",0);revision.put("goalRevision",2);revision.put("planRevision",2);revision.put("projection",projection);
+        revision.put("taskFence",Map.of("conversationTaskId",purchase.taskId,"taskVersion",taskVersion,"focusVersion",focus,
+            "executionGeneration",current.get("executionGeneration")));bean(AgentGoalService.class).commitRevision(f.user,f.session,purchase.taskId,revision);
+
+        // 报价仍由真实工具创建；随后用2.3完成事务保存“等待确认”目标和实际展示摘要，再由新轮次明确确认。
+        var quote=purchase.quote(1);var summary=Map.<String,Object>of("action","create_group_buy_order","resourceId",quote.get("quoteId"),
+            "title","合成购买确认","amountCents",quote.get("totalCents"),"ruleVersion",quote.get("confirmationRuleVersion"),
+            "dealTitle","合成双份套餐","quantity",2);var fence=purchase.fence();var taskContext=new LinkedHashMap<>(fence);
+        taskContext.remove("scope");taskContext.remove("runId");var waiting=pendingOutcome("goal-order","创建唯一团购订单",List.of("order_created"));
+        // 公开目标动作只能使用2.3冻结枚举；业务“确认”仍由独立 confirmation_required 事件表达。
+        waiting.put("status","waiting_confirmation");waiting.put("reasonCode","awaiting_confirmation");waiting.put("allowedActions",List.of("reprepare_remaining"));
+        var goalEvent=Map.<String,Object>of("schemaVersion","2.3","eventId","gr05-goal-"+UUID.randomUUID(),"eventType","goal_outcomes",
+            "traceId",purchase.trace(),"runId",fence.get("runId"),"sequence",0,"status","waiting_confirmation",
+            "payload",Map.of("aggregateStatus","waiting_confirmation","outcomes",List.of(waiting)),"taskContext",taskContext);
+        var confirmationEvent=Map.<String,Object>of("schemaVersion","2.3","eventId","gr05-confirm-"+UUID.randomUUID(),"eventType","confirmation_required",
+            "traceId",purchase.trace(),"runId",fence.get("runId"),"sequence",1,"status","waiting_confirmation",
+            "payload",Map.of("summary",summary,"actions",List.of(Map.of("actionId","gr05-confirm","actionType","create_group_buy_order",
+                "label","确认","resourceId",quote.get("quoteId"),"enabled",true))),"taskContext",taskContext);
+        var runResult=Map.<String,Object>of("schemaVersion","2.3","traceId",purchase.trace(),"runId",fence.get("runId"),
+            "status","waiting_confirmation","intent","group_buy_order","events",List.of(goalEvent,confirmationEvent));
+        turns.complete(f.user,f.session,Map.of("schemaVersion","2.3","turnId",purchase.turn.turnId(),"fence",fence,
+            "sourceMessageId",purchase.turn.admission().get("sourceMessageId"),"result",runResult));
+        var displayed=sessions.owned(f.user,f.session).getPendingConfirmation();purchase.admit("合成用户明确确认建单");fences.confirmCurrent(purchase.fence(),purchase.trace(),displayed);
+
+        var result=new LinkedHashMap<String,Object>();result.put("userId",String.valueOf(f.user));result.put("sessionId",f.session);
+        result.put("conversationEpoch",f.epoch);result.put("taskId",purchase.taskId);result.put("traceId",purchase.trace());
+        result.put("admission",purchase.turn.admission());result.put("goalContext",Map.of("goalRevision",2,"planRevision",2,"effectVersion",0,"goalIds",List.of("goal-order")));
+        result.put("creation",purchase.creation(quote));result.put("quoteId",quote.get("quoteId"));return result;
+    }
+
+    /** 建立真实待支付原订单和支付确认停点；只把当前恢复轮次改为2.3，供两服务调用重准备入口。 */
+    private Map<String,Object> seedGoalPayment(){
+        var purchase=new AgentTaskToolTestFixtures(bean(UserRepository.class),bean(AgentSessionService.class),bean(AgentTaskRegistryService.class),
+            bean(AgentTaskTurnService.class),bean(AgentTaskToolBridge.class),bean(AgentTaskFenceService.class),bean(JdbcTemplate.class),
+            bean(StoreRepository.class),bean(DealPackageRepository.class));var quote=purchase.quote(1);purchase.awaitAndConfirm(quote);
+        var order=bean(AgentTaskToolBridge.class).execute("create_group_buy_order",purchase.creation(quote));String orderId=(String)order.get("orderId");
+        purchase.awaitConfirmation(Map.of("action","pay_mock_order","resourceId",orderId,"title","合成支付确认","amountCents",order.get("totalCents"),"ruleVersion","pay-v1"));
+        purchase.admit("合成恢复原订单支付");bean(JdbcTemplate.class).update("UPDATE agent_task_turns SET protocol_version='2.3' WHERE turn_id=?",purchase.turn.turnId());
+        var result=new LinkedHashMap<String,Object>();result.put("userId",String.valueOf(purchase.scope.user));result.put("sessionId",purchase.scope.session);
+        result.put("conversationEpoch",purchase.scope.epoch);result.put("taskId",purchase.taskId);result.put("traceId",purchase.trace());
+        result.put("admission",purchase.turn.admission());result.put("orderId",orderId);result.put("oldPaymentGrantId",order.get("paymentConfirmationGrantId"));return result;
+    }
+
     /** 创建满足2.3公开Schema的初始目标行；最终状态只能由真实工具证据覆盖。 */
     private Map<String,Object> pendingOutcome(String goalId,String description,List<String> missing){
         var value=new LinkedHashMap<String,Object>();value.put("goalId",goalId);value.put("description",description);value.put("status","pending");
@@ -71,6 +131,8 @@ public final class AgentTaskLiveFixtureBridge {
     /** 合成身份与任务只由产品服务创建；购买前置由现有真实报价/确认夹具建立。 */
     public Map<String,Object> seed(String kind){
         if("goal-partial".equals(kind))return seedGoalPartial();
+        if("goal-write".equals(kind))return seedGoalWrite();
+        if("goal-payment".equals(kind))return seedGoalPayment();
         var users=bean(UserRepository.class);var sessions=bean(AgentSessionService.class);var registry=bean(AgentTaskRegistryService.class);
         var jdbc=bean(JdbcTemplate.class);var result=new LinkedHashMap<String,Object>();AgentTaskTestFixtures f;
         if("purchase".equals(kind)){
