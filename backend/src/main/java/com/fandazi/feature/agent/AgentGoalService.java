@@ -15,11 +15,13 @@ public class AgentGoalService {
     private static final Set<String> SAFE_EFFECT_FIELDS=Set.of("orderId","refundRequestId","complaintTicketId","status");
     private final AgentTaskRegistryService registry;private final AgentTaskRepository tasks;private final AgentGoalRepository goals;
     private final AgentGoalRecoveryRepository recoveries;private final AgentGoalEffectRepository effects;private final AgentProtocolValidator contracts;
+    private final ConfirmationGrantService grants;
 
     /** 注入同一JPA事务使用的仓储，并预编译2.3公开协议。 */
     public AgentGoalService(AgentTaskRegistryService registry,AgentTaskRepository tasks,AgentGoalRepository goals,
-            AgentGoalRecoveryRepository recoveries,AgentGoalEffectRepository effects,ObjectMapper mapper) {
+            AgentGoalRecoveryRepository recoveries,AgentGoalEffectRepository effects,ConfirmationGrantService grants,ObjectMapper mapper) {
         this.registry=registry;this.tasks=tasks;this.goals=goals;this.recoveries=recoveries;this.effects=effects;
+        this.grants=grants;
         contracts=new AgentProtocolValidator(mapper);
     }
 
@@ -72,7 +74,9 @@ public class AgentGoalService {
         for(Map<String,Object> outcome:outcomes)goals.save(new AgentGoalEntity(taskId,nextGoal,nextPlan,expectedEffect,outcome));
         recoveries.save(new AgentGoalRecoveryEntity(requestKey,requestId,scope,taskId,fingerprint,candidateHash,
                 expectedGoal,expectedPlan,expectedEffect,nextGoal,nextPlan,expectedEffect,receipt));
-        // 目标/计划变化撤销本任务旧确认；恢复许可本身不能消费或签发业务授权。
+        // 目标/计划变化在同一事务撤销本任务旧确认与未消费grant；修订许可本身不能消费或签发业务授权。
+        // 即使旧工具请求随后被三版本围栏挡住，授权记录也必须明确失效，不能留给其他入口误用。
+        grants.revokeTasks(user,sessionId,Set.of(taskId));
         session.clearTaskConfirmation(Set.of(taskId));tasks.save(task);return receipt;
     }
 
