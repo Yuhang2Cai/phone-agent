@@ -83,6 +83,36 @@ public class AgentGoalService {
         if(!task.ownedBy(scope))throw AgentTaskRegistryService.missing();return task.goalProjection();
     }
 
+    /** 在既有turn完成事务中保存同版本目标结果；调用方已持session/task锁并先写入本轮停点。 */
+    @Transactional
+    @SuppressWarnings("unchecked")
+    public Map<String,Object> commitTurnProjection(AgentTaskEntity task,Map<String,Object> payload) {
+        contracts.validateGoalPayload("goalOutcomePayload",payload);
+        if(!"2.3".equals(task.protocolVersion())||task.goalProjection()==null)throw AgentTaskRegistryService.conflict("任务没有活动目标投影");
+        List<Map<String,Object>> outcomes=new ArrayList<>();
+        for(Object item:(List<?>)payload.get("outcomes")){
+            if(!(item instanceof Map<?,?> raw))throw AgentTaskRegistryService.bad("目标结果无效");
+            var outcome=new LinkedHashMap<String,Object>();raw.forEach((key,value)->outcome.put(String.valueOf(key),value));outcomes.add(outcome);
+        }
+        var current=task.goalProjection();
+        Set<String> expectedIds=new LinkedHashSet<>();for(Object item:(List<?>)current.get("outcomes"))expectedIds.add(String.valueOf(((Map<?,?>)item).get("goalId")));
+        Set<String> actualIds=new LinkedHashSet<>();for(var outcome:outcomes){
+            actualIds.add(String.valueOf(outcome.get("goalId")));
+            if(version(outcome,"goalRevision",1)!=task.goalRevision()||version(outcome,"planRevision",1)!=task.planRevision()
+                    ||version(outcome,"effectVersion",0)!=task.effectVersion())throw AgentTaskRegistryService.conflict("目标结果版本已变化");
+        }
+        if(actualIds.size()!=outcomes.size()||!actualIds.equals(expectedIds))throw AgentTaskRegistryService.conflict("目标结果身份不一致");
+        var actions=new LinkedHashSet<String>();for(var outcome:outcomes)for(Object action:(List<?>)outcome.get("allowedActions"))actions.add(String.valueOf(action));
+        var projection=new LinkedHashMap<String,Object>();projection.put("schemaVersion","2.3");projection.put("conversationTaskId",task.id());
+        projection.put("taskVersion",task.version());projection.put("goalRevision",task.goalRevision());projection.put("planRevision",task.planRevision());
+        projection.put("effectVersion",task.effectVersion());projection.put("aggregateStatus",payload.get("aggregateStatus"));projection.put("outcomes",outcomes);
+        projection.put("availableActions",new ArrayList<>(actions));contracts.validateGoalPayload("goalProjection",projection);
+        var rows=goals.findByTaskIdAndGoalRevision(task.id(),task.goalRevision());var byId=new HashMap<String,AgentGoalEntity>();for(var row:rows)byId.put(row.goalId(),row);
+        if(!byId.keySet().equals(actualIds))throw AgentTaskRegistryService.conflict("目标历史行与当前结果不一致");
+        for(var outcome:outcomes)byId.get(String.valueOf(outcome.get("goalId"))).updateOutcome(task.planRevision(),task.effectVersion(),outcome);
+        task.commitGoalOutcomes(projection);goals.saveAll(byId.values());tasks.save(task);return projection;
+    }
+
     /** 按可信scope生成请求键并回读原回执；不能用裸requestId枚举其他账号。 */
     @Transactional(readOnly=true)
     public Map<String,Object> revision(Long user,String sessionId,String taskId,String requestId) {

@@ -17,6 +17,8 @@ public class AgentTaskTurnEntity {
     @Column(name="conversation_task_id",length=100,updatable=false) private String taskId;
     @Column(name="run_id",length=100,updatable=false) private String runId;
     @Column(name="trace_id",nullable=false,length=100,updatable=false) private String traceId;
+    // 固化受理时的任务协议版本；完成补交必须使用原许可版本，不能读取任务当前值后静默升级。
+    @Column(name="protocol_version",nullable=false,length=10,updatable=false) private String protocolVersion;
     @Column(nullable=false,length=30) private String state;
     @Column(name="may_execute_tools",nullable=false) private boolean mayExecuteTools;
     @Convert(converter=StringMapJsonConverter.class) @Column(name="fence_json",columnDefinition="TEXT") private Map<String,Object> fence;
@@ -34,13 +36,16 @@ public class AgentTaskTurnEntity {
     /** 仅供JPA恢复持久许可行。 */
     protected AgentTaskTurnEntity() {}
     /** 受理身份由Spring分配；有工具轮次才占单任务租约，无任务短回复的task/run为空。 */
-    AgentTaskTurnEntity(AgentTaskRegistryService.Scope scope,String request,String hash,String source,String task,String run,String trace,boolean executable) {
+    AgentTaskTurnEntity(AgentTaskRegistryService.Scope scope,String request,String hash,String source,String task,String run,String trace,String protocol,boolean executable) {
+        if(!Set.of("2.2","2.3").contains(protocol))throw AgentTaskRegistryService.bad("轮次协议版本无效");
         id=UUID.randomUUID().toString();userId=scope.userId();sessionId=scope.sessionId();epoch=scope.epoch();requestId=request;
-        fingerprint=hash;sourceId=source;taskId=task;runId=run;traceId=trace;mayExecuteTools=executable;state="admitted";createdAt=Instant.now();
+        fingerprint=hash;sourceId=source;taskId=task;runId=run;traceId=trace;protocolVersion=protocol;mayExecuteTools=executable;state="admitted";createdAt=Instant.now();
         if(executable){leaseTaskKey=task;leaseUntil=createdAt.plusSeconds(90);}
     }
     /** 返回普通轮次身份；它不是生命周期commandId。 */
     public String id() {return id;}
+    /** 返回受理时固化的协议版本；完成补交必须逐字匹配，不能以当前任务版本替换。 */
+    String protocolVersion() {return protocolVersion;}
     /** 返回原始输入链路；重试不能用新trace替换首次受理身份。 */
     public String traceId() {return traceId;}
     /** 返回精确归属，以拒绝跨账号/epoch完成补交。 */
@@ -98,7 +103,7 @@ public class AgentTaskTurnEntity {
     Map<String,Object> admission() {
         // 既有JSON转换器将SQL NULL还原为空Map；语义仍是没有许可，不能误签空栅栏。
         if(fence()==null)throw AgentTaskRegistryService.conflict("无业务轮次不签发执行许可");
-        var out=new LinkedHashMap<String,Object>();out.put("fence",fence);out.put("sourceMessageId",sourceId);out.put("protocolVersion","2.2");
+        var out=new LinkedHashMap<String,Object>();out.put("fence",fence);out.put("sourceMessageId",sourceId);out.put("protocolVersion",protocolVersion);
         out.put("admissionState","completed".equals(state)?"completed":"admitted".equals(state)?"admitted":"rejected");
         out.put("mayExecuteTools",mayExecuteTools);out.put("commandId",null);return out;
     }

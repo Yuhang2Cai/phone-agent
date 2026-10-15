@@ -8,6 +8,7 @@ import com.networknt.schema.SpecVersion;
 import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -19,7 +20,7 @@ final class AgentProtocolValidator {
     private final Map<String, JsonSchema> eventSchemas = new LinkedHashMap<>();
     private final Map<String, JsonSchema> requestSchemas = new LinkedHashMap<>();
     // 固定入口防止调用者通过任意Schema引用绕过受控任务边界。
-    private final Map<String, JsonSchema> taskSchemas = new LinkedHashMap<>();
+    private final Map<String, Map<String,JsonSchema>> taskSchemas = new LinkedHashMap<>();
     // 公开目标DTO只从2.3完整文档编译；不能借2.2任务入口或任意引用校验。
     private final Map<String, JsonSchema> goalSchemas = new LinkedHashMap<>();
     private static final java.util.Set<String> TASK_ENTRIES = java.util.Set.of(
@@ -60,9 +61,11 @@ final class AgentProtocolValidator {
             if (!version.equals(document.get("schemaVersion"))) throw new IllegalStateException("契约版本与文件不一致");
             eventSchemas.put(version, schema(factory, document, "agentEvent"));
             requestSchemas.put(version, schema(factory, document, "agentRunRequest"));
-            if ("2.2".equals(version)) {
-                // 所有引用在同一权威根解析，避免把嵌套字段降为宽松Map校验。
-                for (String entry : TASK_ENTRIES) taskSchemas.put(entry, schema(factory, document, entry));
+            if (Set.of("2.2","2.3").contains(version)) {
+                // 每个任务协议版本保留独立完整根；2.3目标事件不能借2.2宽松处理，旧请求也不能夹带新字段。
+                var entries=new LinkedHashMap<String,JsonSchema>();
+                for (String entry : TASK_ENTRIES) entries.put(entry, schema(factory, document, entry));
+                taskSchemas.put(version,entries);
             }
             if ("2.3".equals(version)) {
                 // 目标投影、恢复请求和结果均为固定公开入口，禁止调用者自选任意Schema路径。
@@ -88,7 +91,14 @@ final class AgentProtocolValidator {
 
     /** 验证固定任务载荷；结构合法不代表身份归属、版本、代次或执行资格合法。 */
     void validateTaskPayload(String entry, Map<String, Object> payload) {
-        JsonSchema selected = taskSchemas.get(entry);
+        Object rawVersion=payload==null?null:payload.get("schemaVersion");
+        // turnAdmission没有schemaVersion，但自身protocolVersion决定其常量约束；若仍按默认2.2校验，会拒绝合法的2.3许可。
+        Object admissionVersion="turnAdmission".equals(entry)&&payload!=null?payload.get("protocolVersion"):null;
+        // publicTask等其余嵌套结构没有独立版本，沿用既有2.2形状；完整请求仍按信封版本严格选择。
+        String version=rawVersion instanceof String schemaText?schemaText:
+            admissionVersion instanceof String admissionText?admissionText:"2.2";
+        Map<String,JsonSchema> versioned=taskSchemas.get(version);
+        JsonSchema selected = versioned==null?null:versioned.get(entry);
         if (selected == null) throw new AgentServiceUnavailableException("未知任务协议入口");
         validate(selected, payload);
     }

@@ -11,13 +11,13 @@ public class AgentTaskTurnService {
     private final AgentTaskRegistryService registry;private final AgentTaskTurnRepository turns;private final AgentTaskRunRepository runs;
     private final AgentConversationSourceService sources;private final AgentTaskEventOutbox outbox;private final AgentProtocolValidator contracts;
     private final AgentConversationSourceRepository sourceRows;
-    private final AgentCardEnrichmentService cards;private final AgentTaskExecutionContext execution;
+    private final AgentCardEnrichmentService cards;private final AgentTaskExecutionContext execution;private final AgentGoalService goals;
     /** 注入同库持久组件；不依赖HTTP/模型/业务工具，保证受理和完成为短事务。 */
     public AgentTaskTurnService(AgentTaskRegistryService registry,AgentTaskTurnRepository turns,AgentTaskRunRepository runs,
             AgentConversationSourceService sources,AgentTaskEventOutbox outbox,ObjectMapper mapper,AgentConversationSourceRepository sourceRows,
-            AgentCardEnrichmentService cards,AgentTaskExecutionContext execution) {
+            AgentCardEnrichmentService cards,AgentTaskExecutionContext execution,AgentGoalService goals) {
         this.registry=registry;this.turns=turns;this.runs=runs;this.sources=sources;this.outbox=outbox;this.sourceRows=sourceRows;
-        this.cards=cards;this.execution=execution;contracts=new AgentProtocolValidator(mapper);
+        this.cards=cards;this.execution=execution;this.goals=goals;contracts=new AgentProtocolValidator(mapper);
     }
     /** 内部输入对象由鉴权网关构造；task与版本仍须服务重新核验，不能相信模型身份。 */
     public record Input(String requestId,String body,String taskId,long taskVersion,long focusVersion,boolean executable) {}
@@ -58,8 +58,10 @@ public class AgentTaskTurnService {
             registry.lockTask(scope,input.taskId());
         }
         var source=sources.issue(user,sessionId,input.body(),"tt-"+AgentTaskFingerprint.of(input.requestId()));
+        // 有任务时取已锁定实体上的协议版本并随轮次固化；无任务短回复没有目标合同，继续使用兼容协议2.2。
+        String protocolVersion=task==null?"2.2":task.protocolVersion();
         var turn=new AgentTaskTurnEntity(scope,input.requestId(),hash,(String)source.get("sourceMessageId"),
-            input.taskId(),run==null?null:run.id(),UUID.randomUUID().toString(),input.executable());
+            input.taskId(),run==null?null:run.id(),UUID.randomUUID().toString(),protocolVersion,input.executable());
         if(task!=null) {
             var fence=Map.<String,Object>of("scope",AgentTaskFingerprint.scope(scope),"conversationTaskId",task.id(),"runId",run.id(),"turnId",turn.id(),
                 "focusVersion",session.focusVersion(),"taskVersion",task.version(),"executionGeneration",task.generation());
@@ -120,6 +122,8 @@ public class AgentTaskTurnService {
     public Map<String,Object> complete(Long user,String sessionId,Map<String,Object> raw) {
         contracts.validateTaskPayload("turnCompletionRequest",raw);
         var session=registry.lockScope(user,sessionId);var turn=lockTurn(session,(String)raw.get("turnId"));
+        // 完成信封继承原受理轮次版本；禁止2.3任务降级成不含目标结果的2.2完成。
+        if(!turn.protocolVersion().equals(raw.get("schemaVersion")))throw AgentTaskRegistryService.conflict("轮次完成协议版本不一致");
         String hash=AgentTaskFingerprint.of(raw);if("completed".equals(turn.state()))return repeated(turn,hash);
         if(!turn.executable()||!Objects.equals(turn.source(),raw.get("sourceMessageId"))||!AgentTaskFingerprint.of(turn.fence()).equals(AgentTaskFingerprint.of(raw.get("fence"))))
             throw AgentTaskRegistryService.conflict("轮次许可或来源已失效");
@@ -130,7 +134,7 @@ public class AgentTaskTurnService {
         @SuppressWarnings("unchecked") var result=(Map<String,Object>)raw.get("result");
         if(!turn.runId().equals(result.get("runId"))||!turn.traceId().equals(result.get("traceId")))throw AgentTaskRegistryService.conflict("完成运行身份不一致");
         @SuppressWarnings("unchecked") var events=(List<Map<String,Object>>)result.get("events");String field=null,goal=null;
-        int inputStops=0,confirmationStops=0;String status=(String)result.get("status");
+        int inputStops=0,confirmationStops=0,goalEvents=0;Map<String,Object> goalPayload=null;String status=(String)result.get("status");
         for(var event:events) {
             @SuppressWarnings("unchecked") var context=(Map<String,Object>)event.get("taskContext");
             var expected=new LinkedHashMap<>(fence);expected.remove("scope");expected.remove("runId");
@@ -150,12 +154,26 @@ public class AgentTaskTurnService {
                 var canonical=execution.within(fence,()->cards.enrichSummary(user,sessionId,summary));
                 session.awaitTaskConfirmation(task.id(),canonical);
             }
+            if("goal_outcomes".equals(event.get("eventType"))){
+                goalEvents++;goalPayload=payload;
+                if(!status.equals(event.get("status")))throw AgentTaskRegistryService.conflict("目标结果与轮次停点矛盾");
+            }
         }
         // 等待停点必须恰有一个对应事件；重复/缺失不能任取一个摘要或伪造可恢复状态。
         if(("waiting_input".equals(status)&&inputStops!=1)||("waiting_confirmation".equals(status)&&confirmationStops!=1))
             throw AgentTaskRegistryService.conflict("等待停点缺失或重复");
+        if("2.3".equals(raw.get("schemaVersion"))){
+            if(goalEvents!=1||goalPayload==null)throw AgentTaskRegistryService.conflict("2.3轮次缺少唯一目标结果");
+            String aggregate=String.valueOf(goalPayload.get("aggregateStatus"));String expected=switch(aggregate){
+                case "all_satisfied" -> "succeeded";case "waiting_confirmation" -> "waiting_confirmation";
+                case "failed" -> "failed";case "cancelled" -> "cancelled";
+                case "partial","waiting_input","recoverable","unknown_outcome" -> "waiting_input";
+                default -> throw AgentTaskRegistryService.conflict("目标聚合状态无效");};
+            if(!expected.equals(status))throw AgentTaskRegistryService.conflict("目标聚合状态与轮次终态矛盾");
+        }
         // 停点与完成回执/outbox共用本事务；失败时一起回滚，不产生只改目录未保存结果的状态。
         var projection=registry.recordRunStop(user,sessionId,task.id(),turn.runId(),(String)result.get("status"),field,goal);
+        if(goalPayload!=null)goals.commitTurnProjection(task,goalPayload);
         turn.complete(raw,hash);outbox.append(session,"task_projection",projection);return raw;
     }
 }

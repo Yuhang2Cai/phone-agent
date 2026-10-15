@@ -100,6 +100,15 @@ public class AgentTaskEntity {
                 ||(nextGoal==goalRevision&&nextPlan==planRevision))throw new ToolBoundaryException("CONFLICT","候选目标版本无效");
         goalRevision=nextGoal;planRevision=nextPlan;goalProjection=new LinkedHashMap<>(projection);pendingGoalRequestId=null;
     }
+    /** 在同一目标/计划/效果版本内提交本轮公开结果；taskVersion必须是停点写入后的当前值。 */
+    void commitGoalOutcomes(Map<String,Object> projection){
+        if(!"2.3".equals(protocolVersion)||goalRevision!=((Number)projection.get("goalRevision")).longValue()
+                ||planRevision!=((Number)projection.get("planRevision")).longValue()
+                ||effectVersion!=((Number)projection.get("effectVersion")).longValue()
+                ||taskVersion!=((Number)projection.get("taskVersion")).longValue())
+            throw new ToolBoundaryException("CONFLICT","目标运行投影版本不一致");
+        goalProjection=new LinkedHashMap<>(projection);
+    }
     /** 保存真实业务效果时推进effectVersion并同步公开投影版本；调用方负责幂等效果行。 */
     long commitBusinessEffect(long expectedGoal,long expectedPlan,long expectedEffect) {
         if(!"2.3".equals(protocolVersion)||goalRevision!=expectedGoal||planRevision!=expectedPlan||effectVersion!=expectedEffect)
