@@ -29,6 +29,14 @@ public class AgentTaskEntity {
     @Column(name="pending_command_id",length=100) private String pendingCommandId;
     // 原订单来自真实领域创建/读取，控制撤销确认时仍保留停点资源，禁止重新新建订单。
     @Column(name="pending_payment_order_id",length=100) private String pendingPaymentOrderId;
+    // 协议与目标三版本持久绑定；旧任务由迁移保留2.2和1/1/0，不能随开关自动升级。
+    @Column(name="protocol_version",nullable=false,length=10) private String protocolVersion;
+    @Column(name="goal_revision",nullable=false) private long goalRevision;
+    @Column(name="plan_revision",nullable=false) private long planRevision;
+    @Column(name="effect_version",nullable=false) private long effectVersion;
+    @Convert(converter=StringMapJsonConverter.class)
+    @Column(name="goal_projection_json",columnDefinition="TEXT") private Map<String,Object> goalProjection;
+    @Column(name="pending_goal_request_id",length=100) private String pendingGoalRequestId;
 
     /** 仅供JPA反序列化；外部不能自行构造或指定未来任务ID。 */
     protected AgentTaskEntity() {}
@@ -37,7 +45,8 @@ public class AgentTaskEntity {
     AgentTaskEntity(AgentTaskRegistryService.Scope scope,String kind,String intent,String title) {
         id=UUID.randomUUID().toString();userId=scope.userId();sessionId=scope.sessionId();epoch=scope.epoch();
         taskKind=kind;this.intent=intent;this.title=title;lifecycle="active";stopKind="running";
-        taskVersion=1;executionGeneration=1;activeScopeKey=scope.key();createdAt=Instant.now();
+        taskVersion=1;executionGeneration=1;protocolVersion="2.2";goalRevision=1;planRevision=1;effectVersion=0;
+        activeScopeKey=scope.key();createdAt=Instant.now();
     }
     /** 仅恢复Spring预分配且持久命令已冻结的新目标身份；不接受公开请求/model指定ID。 */
     static AgentTaskEntity reserved(AgentTaskRegistryService.Scope scope,String kind,String intent,String title,String trustedId) {
@@ -66,6 +75,47 @@ public class AgentTaskEntity {
     String pendingCommand() {return pendingCommandId;}
     /** 返回原支付停点资源，只用于内部重准备，不进入模型可改写字段。 */
     String pendingPaymentOrderId(){return pendingPaymentOrderId;}
+    /** 返回任务创建时固定的协议版本；当前部署开关不改变该值。 */
+    String protocolVersion(){return protocolVersion;}
+    /** 返回当前目标合同版本，供修订和工具围栏执行CAS。 */
+    long goalRevision(){return goalRevision;}
+    /** 返回当前计划版本，必须与目标版本分别比较。 */
+    long planRevision(){return planRevision;}
+    /** 返回已提交业务效果版本；只在业务提交事务中推进。 */
+    long effectVersion(){return effectVersion;}
+    /** 返回公开投影副本；转换器会把数据库NULL读成空Map，因此两种情况都按“尚未提交”处理。 */
+    Map<String,Object> goalProjection(){return goalProjection==null||goalProjection.isEmpty()?null:new LinkedHashMap<>(goalProjection);}
+    /** 仅在新任务尚无目标投影时绑定受控版本；旧任务不得中途升级。 */
+    void bindProtocol(String value){
+        if(!Set.of("2.2","2.3").contains(value))throw new IllegalArgumentException("任务协议版本无效");
+        if(goalProjection!=null&&!Objects.equals(protocolVersion,value))throw new ToolBoundaryException("CONFLICT","已有目标版本不能迁移协议");
+        protocolVersion=value;
+    }
+    /** 在持有任务行锁时原子提交目标版本和公开投影。 */
+    void commitGoalRevision(long expectedGoal,long expectedPlan,long expectedEffect,long nextGoal,long nextPlan,
+            Map<String,Object> projection,String requestId) {
+        if(!"2.3".equals(protocolVersion)||goalRevision!=expectedGoal||planRevision!=expectedPlan||effectVersion!=expectedEffect)
+            throw new ToolBoundaryException("CONFLICT","目标版本已变化");
+        if(nextGoal<goalRevision||nextGoal>goalRevision+1||nextPlan<planRevision||nextPlan>planRevision+1
+                ||(nextGoal==goalRevision&&nextPlan==planRevision))throw new ToolBoundaryException("CONFLICT","候选目标版本无效");
+        goalRevision=nextGoal;planRevision=nextPlan;goalProjection=new LinkedHashMap<>(projection);pendingGoalRequestId=null;
+    }
+    /** 保存真实业务效果时推进effectVersion并同步公开投影版本；调用方负责幂等效果行。 */
+    long commitBusinessEffect(long expectedGoal,long expectedPlan,long expectedEffect) {
+        if(!"2.3".equals(protocolVersion)||goalRevision!=expectedGoal||planRevision!=expectedPlan||effectVersion!=expectedEffect)
+            throw new ToolBoundaryException("CONFLICT","业务效果版本已变化");
+        effectVersion++;
+        if(goalProjection!=null) {
+            var projection=new LinkedHashMap<>(goalProjection);projection.put("effectVersion",effectVersion);
+            if(projection.get("outcomes") instanceof List<?> values) {
+                var updated=new ArrayList<Map<String,Object>>();
+                for(Object value:values) {var outcome=new LinkedHashMap<String,Object>((Map<String,Object>)value);outcome.put("effectVersion",effectVersion);updated.add(outcome);}
+                projection.put("outcomes",updated);
+            }
+            goalProjection=projection;
+        }
+        return effectVersion;
+    }
     /** 真实领域结果绑定支付对象；同一任务不得在等待支付期间悄悄替换原订单。 */
     void bindPaymentOrder(String orderId){
         if(pendingPaymentOrderId!=null&&!pendingPaymentOrderId.equals(orderId))throw new ToolBoundaryException("CONFLICT","任务已有不同支付停点");pendingPaymentOrderId=orderId;

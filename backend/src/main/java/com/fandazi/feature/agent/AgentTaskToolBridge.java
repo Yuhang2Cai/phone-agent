@@ -10,10 +10,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class AgentTaskToolBridge {
     private final AgentTaskFenceService fences;private final AgentV1ToolBridge domain;private final AgentToolExecutionRepository executions;
     private final AgentToolSchemaValidator schema;private final ConfirmationGrantService grants;private final AgentTaskExecutionContext context;
+    private final AgentGoalService goals;
     /** 唯一领域分派来自既有桥的dispatch，不复制17工具switch或绕回v1 execute。 */
     public AgentTaskToolBridge(AgentTaskFenceService fences,AgentV1ToolBridge domain,AgentToolExecutionRepository executions,
-            AgentToolSchemaValidator schema,ConfirmationGrantService grants,AgentTaskExecutionContext context){
-        this.fences=fences;this.domain=domain;this.executions=executions;this.schema=schema;this.grants=grants;this.context=context;
+            AgentToolSchemaValidator schema,ConfirmationGrantService grants,AgentTaskExecutionContext context,AgentGoalService goals){
+        this.fences=fences;this.domain=domain;this.executions=executions;this.schema=schema;this.grants=grants;this.context=context;this.goals=goals;
     }
     /** 输入归属→持久栅栏→键/指纹→确认→唯一领域→出口校验→原子执行记录。 */
     @Transactional
@@ -22,6 +23,9 @@ public class AgentTaskToolBridge {
         if(!request.userId().equals(scope.get("userId"))||!request.sessionId().equals(scope.get("sessionId"))||!request.runId().equals(request.taskFence().get("runId")))
             throw new ToolBoundaryException("FORBIDDEN","工具信封与任务身份不一致");
         var current=fences.requireCurrent(request.taskFence(),request.traceId());
+        boolean goalProtocol="2.1".equals(request.schemaVersion());
+        if(goalProtocol)fences.requireCurrentGoal(current,request.goalFence());
+        else if(request.goalFence()!=null)throw new ToolBoundaryException("VALIDATION_ERROR","旧工具请求不能携带目标围栏");
         String expected=request.runId()+":"+request.taskId()+":"+request.actionVersion();
         if(!expected.equals(request.idempotencyKey())||expected.length()>255)throw new ToolBoundaryException("VALIDATION_ERROR","执行器动作键不匹配");
         var key=Map.<String,Object>of("tool",tool,"user",request.userId(),"session",request.sessionId(),"run",request.runId(),"dagTask",request.taskId(),
@@ -48,6 +52,18 @@ public class AgentTaskToolBridge {
             }
             // 非法领域输出连同订单/凭证消费全部回滚，不能返回失败却留下已执行业务。
             if(schema.isWrite(tool))current.session().consumeConfirmation();
+            if(goalProtocol&&schema.isWrite(tool)) {
+                // 只保存允许公开的真实资源摘要；效果版本、领域写和执行回执处于同一外层事务。
+                var safe=new LinkedHashMap<String,Object>();
+                if(result.get("orderId") instanceof String value)safe.put("orderId",value);
+                if(result.get("requestId") instanceof String value)safe.put("refundRequestId",value);
+                if(result.get("ticketId") instanceof String value)safe.put("complaintTicketId",value);
+                if(result.get("status") instanceof String value)safe.put("status",value);
+                goals.commitBusinessEffect(current.turn().scope().userId(),request.sessionId(),current.task().id(),request.idempotencyKey(),
+                        AgentTaskFingerprint.version(request.goalFence().get("goalRevision")),
+                        AgentTaskFingerprint.version(request.goalFence().get("planRevision")),
+                        AgentTaskFingerprint.version(request.goalFence().get("effectVersion")),safe);
+            }
             executions.saveAndFlush(new AgentToolExecution(request,current.turn().scope().userId(),tool,hash,result));return result;
         });
     }

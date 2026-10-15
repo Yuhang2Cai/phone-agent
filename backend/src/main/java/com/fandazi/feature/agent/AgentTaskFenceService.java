@@ -42,6 +42,26 @@ public class AgentTaskFenceService {
         } catch(ResponseStatusException unavailable){throw new ToolBoundaryException(unavailable.getStatusCode().value()==404?"FORBIDDEN":"CONFLICT","任务归属或状态已变化");}
         catch(NumberFormatException invalid){throw new ToolBoundaryException("FORBIDDEN","任务账号不可用");}
     }
+    /** 2.3工具在读取缓存和领域写前核当前三版本及目标集合；旧版本或待发布目标一律拒绝。 */
+    void requireCurrentGoal(Current current,Map<String,Object> goalFence) {
+        if(goalFence==null||!goalFence.keySet().equals(Set.of("goalRevision","planRevision","effectVersion","goalIds"))
+                ||!(goalFence.get("goalIds") instanceof List<?> goalIds)||goalIds.isEmpty()
+                ||goalIds.stream().anyMatch(value->!(value instanceof String)))
+            throw new ToolBoundaryException("VALIDATION_ERROR","目标围栏结构无效");
+        long goal=AgentTaskFingerprint.version(goalFence.get("goalRevision"));
+        long plan=AgentTaskFingerprint.version(goalFence.get("planRevision"));
+        long effect=AgentTaskFingerprint.version(goalFence.get("effectVersion"));
+        if(!"2.3".equals(current.task().protocolVersion())||current.task().goalRevision()!=goal
+                ||current.task().planRevision()!=plan||current.task().effectVersion()!=effect)
+            throw new ToolBoundaryException("CONFLICT","目标版本已变化，请查询当前目标");
+        Map<String,Object> projection=current.task().goalProjection();
+        if(projection==null||!(projection.get("outcomes") instanceof List<?> outcomes))
+            throw new ToolBoundaryException("CONFLICT","目标投影尚未提交");
+        Set<String> currentIds=new HashSet<>();
+        for(Object value:outcomes)if(value instanceof Map<?,?> item&&item.get("goalId") instanceof String id)currentIds.add(id);
+        if(goalIds.size()!=new HashSet<>(goalIds).size()||!currentIds.containsAll(goalIds))
+            throw new ToolBoundaryException("CONFLICT","目标围栏引用不存在的目标");
+    }
     /** 普通输入显式确认绑定本turn及展示摘要；调用方必须先核验用户按钮/来源，不接受模型确认建议。 */
     @Transactional
     public void confirmCurrent(Map<String,Object> fence,String trace,Map<String,Object> shownSummary) {

@@ -41,7 +41,7 @@ public class AgentTaskRegistryService {
 
     /** 从持久会话核验归属；不存在和跨用户均404，旧协议隔离为409。 */
     Scope scopeOf(AgentSession session) {
-        if(!"2.2".equals(session.getContextProtocolVersion())||session.conversationEpoch()==null)
+        if(!Set.of("2.2","2.3").contains(session.getContextProtocolVersion())||session.conversationEpoch()==null)
             throw conflict("当前会话未启用任务协议");
         return new Scope(session.getUser().getId(),session.getSessionId(),session.conversationEpoch());
     }
@@ -74,7 +74,7 @@ public class AgentTaskRegistryService {
         // 第二个前台必须显式走持久控制交接，不能在普通创建里自动挂起旧任务。
         if(session.currentTaskId()!=null||rows.stream().anyMatch(t -> "active".equals(t.lifecycle())))throw conflict("已有前台任务");
         if(rows.stream().filter(t -> "paused".equals(t.lifecycle())).count()>MAX_PAUSED)throw conflict("暂停容量异常");
-        var task=new AgentTaskEntity(scope,kind,intent,title);
+        var task=new AgentTaskEntity(scope,kind,intent,title);task.bindProtocol(session.getContextProtocolVersion());
         contracts.validateTaskPayload("publicTask",task.projection());
         tasks.saveAndFlush(task);session.bindTaskFocus(task.id());
         return task.projection();
