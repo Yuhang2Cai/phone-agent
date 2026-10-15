@@ -26,6 +26,9 @@ seed:
   path: ${SEED_PATH:../data/seed}
 
 agent:
+  goal-recovery:
+    # AG04新2.3任务默认关闭；旧2.2任务继续按持久版本处理，不能由请求字段开启。
+    enabled: ${AGENT_GOAL_RECOVERY_ENABLED:false}
   task-lifecycle:
     # 双服务执行栅栏/许可未装配前默认关闭；只读目录和历史不会因此自动执行业务。
     enabled: ${AGENT_TASK_LIFECYCLE_ENABLED:false}

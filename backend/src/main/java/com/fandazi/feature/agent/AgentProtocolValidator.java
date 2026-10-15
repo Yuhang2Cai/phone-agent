@@ -15,15 +15,20 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 /** 只校验传输结构；任务身份、事件次序和资源授权由调用方与领域服务另外检查。 */
 final class AgentProtocolValidator {
     private final ObjectMapper mapper;
-    // 两版分别使用完整权威 Schema；不能去掉版本约束后共用宽松结构。
+    // 各版本分别使用完整权威 Schema；不能去掉版本约束后共用宽松结构。
     private final Map<String, JsonSchema> eventSchemas = new LinkedHashMap<>();
     private final Map<String, JsonSchema> requestSchemas = new LinkedHashMap<>();
     // 固定入口防止调用者通过任意Schema引用绕过受控任务边界。
     private final Map<String, JsonSchema> taskSchemas = new LinkedHashMap<>();
+    // 公开目标DTO只从2.3完整文档编译；不能借2.2任务入口或任意引用校验。
+    private final Map<String, JsonSchema> goalSchemas = new LinkedHashMap<>();
     private static final java.util.Set<String> TASK_ENTRIES = java.util.Set.of(
             "taskScope", "taskFence", "turnAdmission", "taskDirectory", "publicTask",
             "taskCommandRequest", "taskCommandView", "taskControlRequest", "controlAck", "taskDecision",
             "turnCompletionRequest", "taskPaymentPreparationRequest", "taskPaymentPreparationResult", "taskEvent");
+    private static final java.util.Set<String> GOAL_ENTRIES = java.util.Set.of(
+            "goalContext", "goalOutcome", "goalOutcomePayload", "goalProjection",
+            "goalRecoveryRequest", "goalRecoveryResult");
 
     /** 启动时完整加载契约；配置缺失或不合法必须阻止启动，不能以部分规则继续接收事件。 */
     AgentProtocolValidator(ObjectMapper mapper) {
@@ -34,6 +39,8 @@ final class AgentProtocolValidator {
         loadVersion("2.1", "agent-protocol-v2.1.yaml");
         // 独立加载任务协议；只提供结构能力，启用入口另由功能门禁控制。
         loadVersion("2.2", "agent-protocol-v2.2.yaml");
+        // 目标恢复使用另一份完整Schema；旧文件保持原字节并继续按原版本选择。
+        loadVersion("2.3", "agent-protocol-v2.3.yaml");
     }
 
     /** 仅加载随构建固定的版本；任一契约缺失都阻止启动，不静默降级。 */
@@ -57,6 +64,10 @@ final class AgentProtocolValidator {
                 // 所有引用在同一权威根解析，避免把嵌套字段降为宽松Map校验。
                 for (String entry : TASK_ENTRIES) taskSchemas.put(entry, schema(factory, document, entry));
             }
+            if ("2.3".equals(version)) {
+                // 目标投影、恢复请求和结果均为固定公开入口，禁止调用者自选任意Schema路径。
+                for (String entry : GOAL_ENTRIES) goalSchemas.put(entry, schema(factory, document, entry));
+            }
         } catch (Exception exception) {
             throw new IllegalStateException("无法加载 Agent 权威契约", exception);
         }
@@ -79,6 +90,13 @@ final class AgentProtocolValidator {
     void validateTaskPayload(String entry, Map<String, Object> payload) {
         JsonSchema selected = taskSchemas.get(entry);
         if (selected == null) throw new AgentServiceUnavailableException("未知任务协议入口");
+        validate(selected, payload);
+    }
+
+    /** 验证2.3有限目标DTO；身份、版本CAS和恢复资格仍由领域服务另行裁决。 */
+    void validateGoalPayload(String entry, Map<String, Object> payload) {
+        JsonSchema selected = goalSchemas.get(entry);
+        if (selected == null) throw new AgentServiceUnavailableException("未知目标协议入口");
         validate(selected, payload);
     }
 

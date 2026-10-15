@@ -107,6 +107,9 @@
                     <!-- 任务协议与工具栅栏必须同时进入部署产物；入口仍由生命周期门禁控制。 -->
                     <include>agent-protocol-v2.2.yaml</include>
                     <include>agent-tools-v2.yaml</include>
+                    <!-- AG04目标协议与目标围栏工具信封必须成对进入JAR，且默认门禁仍关闭。 -->
+                    <include>agent-protocol-v2.3.yaml</include>
+                    <include>agent-tools-v2.1.yaml</include>
                 </includes>
             </resource>
         </resources>

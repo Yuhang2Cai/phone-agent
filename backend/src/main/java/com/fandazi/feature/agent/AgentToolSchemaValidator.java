@@ -19,6 +19,9 @@ class AgentToolSchemaValidator {
     // 新传输独立约束栅栏；payload与领域分派沿用同一17工具，不复制业务实现。
     private final JsonSchema v2Request;
     private final JsonSchema v2Result;
+    // 2.1只增加目标围栏，业务工具目录和payload必须与1.1/2.0逐字段相同。
+    private final JsonSchema v21Request;
+    private final JsonSchema v21Result;
     private final Map<String, JsonSchema> inputs = new LinkedHashMap<>();
     private final Map<String, JsonSchema> outputs = new LinkedHashMap<>();
     private final Set<String> writes = new HashSet<>();
@@ -42,6 +45,15 @@ class AgentToolSchemaValidator {
                     throw new IllegalStateException("新版必须保持原17工具契约");
                 v2Request = compile(v2, Map.of("$ref", "#/commonRequest"));
                 v2Result = compile(v2, Map.of("$ref", "#/commonResult"));
+            }
+            try (InputStream newest = getClass().getResourceAsStream("/contracts/agent-tools-v2.1.yaml")) {
+                if (newest == null) throw new IllegalStateException("目标围栏工具契约缺失");
+                Map<String, Object> v21 = new Yaml(new SafeConstructor(options)).load(newest);
+                // 新目标围栏不得偷渡第18个业务工具或改变任一输入输出定义。
+                if (!"2.1".equals(v21.get("schemaVersion")) || !root.get("tools").equals(v21.get("tools")))
+                    throw new IllegalStateException("目标围栏必须保持原17工具契约");
+                v21Request = compile(v21, Map.of("$ref", "#/commonRequest"));
+                v21Result = compile(v21, Map.of("$ref", "#/commonResult"));
             }
             for (Map<String, Object> tool : (List<Map<String, Object>>) root.get("tools")) {
                 String name = (String) tool.get("name");
@@ -73,6 +85,14 @@ class AgentToolSchemaValidator {
     }
     /** 只校验新版结果信封，成功业务data仍须调用原validateData。 */
     void validateV2Result(Map<String, Object> result) { check(v2Result, result, "INTERNAL_ERROR"); }
+    /** 2.1请求必须同时含TaskFence与GoalFence，payload仍按原工具定义校验。 */
+    void validateV21Request(String tool, Map<String, Object> request) {
+        if (!inputs.containsKey(tool)) throw new ToolBoundaryException("NOT_FOUND", "工具不存在");
+        check(v21Request, request, "VALIDATION_ERROR");
+        check(inputs.get(tool), request.get("payload"), "VALIDATION_ERROR");
+    }
+    /** 2.1结果只升级信封版本，成功业务data仍须调用原validateData。 */
+    void validateV21Result(Map<String, Object> result) { check(v21Result, result, "INTERNAL_ERROR"); }
     /** 成功结果也必须满足契约；非法领域投影会导致事务回滚，不能已写业务后返回伪失败。 */
     void validateData(String tool, Map<String, Object> data) { check(outputs.get(tool), data, "INTERNAL_ERROR"); }
     /** 控制器出口验证标准结果互斥条件，失败时 data 必须为空。 */

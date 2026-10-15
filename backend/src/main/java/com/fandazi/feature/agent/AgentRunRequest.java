@@ -21,8 +21,8 @@ public record AgentRunRequest(String userId, String sessionId, String text, Stri
         if (context != null) trusted.putAll(context);
         trusted.put("mode", mode == null ? "recommend" : mode);
         context = java.util.Collections.unmodifiableMap(trusted);
-        // 2.2只由显式任务网关固定，旧/messages和部署默认版本仍保持原协商路径。
-        if(transportVersion!=null && !java.util.Set.of("1.1","2.0","2.1","2.2").contains(transportVersion))
+        // 2.2/2.3只由显式任务网关固定，旧/messages和部署默认版本仍保持原协商路径。
+        if(transportVersion!=null && !java.util.Set.of("1.1","2.0","2.1","2.2","2.3").contains(transportVersion))
             throw new IllegalArgumentException("Agent 协议版本不受支持");
     }
 
