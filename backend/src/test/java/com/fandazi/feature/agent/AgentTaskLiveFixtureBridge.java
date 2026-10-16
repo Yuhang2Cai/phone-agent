@@ -120,6 +120,90 @@ public final class AgentTaskLiveFixtureBridge {
         result.put("admission",purchase.turn.admission());result.put("orderId",orderId);result.put("oldPaymentGrantId",order.get("paymentConfirmationGrantId"));return result;
     }
 
+    /** 建立可受理只读恢复的2.3投影；双Agent只能竞争同一真实任务行，夹具不预建恢复记录。 */
+    private Map<String,Object> seedGoalRecovery(){
+        var f=new AgentTaskTestFixtures(bean(UserRepository.class),bean(AgentSessionService.class),bean(AgentTaskRegistryService.class),bean(JdbcTemplate.class));
+        var task=f.selection();String taskId=AgentTaskTestFixtures.id(task);var jdbc=bean(JdbcTemplate.class);
+        jdbc.update("UPDATE agent_sessions SET context_protocol_version='2.3' WHERE session_id=?",f.session);
+        jdbc.update("UPDATE agent_conversation_tasks SET protocol_version='2.3' WHERE conversation_task_id=?",taskId);
+        var outcome=pendingOutcome("goal-read","恢复真实只读查询",List.of("fresh_evidence"));
+        outcome.put("status","recoverable");outcome.put("reasonCode","read_temporarily_failed");outcome.put("allowedActions",List.of("retry_reads"));
+        var projection=new LinkedHashMap<String,Object>();projection.put("schemaVersion","2.3");projection.put("conversationTaskId",taskId);
+        projection.put("taskVersion",task.get("taskVersion"));projection.put("goalRevision",2);projection.put("planRevision",2);
+        projection.put("effectVersion",0);projection.put("aggregateStatus","recoverable");projection.put("outcomes",List.of(outcome));
+        projection.put("availableActions",List.of("retry_reads"));
+        var revision=new LinkedHashMap<String,Object>();revision.put("schemaVersion","2.3");revision.put("requestId","gr08-initial-"+UUID.randomUUID());
+        revision.put("candidateHash","d".repeat(64));revision.put("expectedGoalRevision",1);revision.put("expectedPlanRevision",1);
+        revision.put("expectedEffectVersion",0);revision.put("goalRevision",2);revision.put("planRevision",2);revision.put("projection",projection);
+        revision.put("taskFence",Map.of("conversationTaskId",taskId,"taskVersion",task.get("taskVersion"),
+            "focusVersion",f.directory().get("focusVersion"),"executionGeneration",task.get("executionGeneration")));
+        bean(AgentGoalService.class).commitRevision(f.user,f.session,taskId,revision);
+        return new LinkedHashMap<>(Map.of("userId",String.valueOf(f.user),"sessionId",f.session,"conversationEpoch",f.epoch,
+            "taskId",taskId,"directory",f.directory(),"projection",projection));
+    }
+
+    /**
+     * 为四类写动作建立各自独立的真实前置和待发送原请求。
+     * 前置订单、支付、准备与确认都走产品服务；目标写本身留给HTTP故障驱动执行，便于在事务提交后丢响应。
+     */
+    private Map<String,Object> seedGoalWriteCase(String toolName){
+        if(!Set.of("create_group_buy_order","pay_mock_order","request_refund","submit_complaint").contains(toolName))
+            throw new IllegalArgumentException("不支持的四写动作");
+        var purchase=new AgentTaskToolTestFixtures(bean(UserRepository.class),bean(AgentSessionService.class),bean(AgentTaskRegistryService.class),
+            bean(AgentTaskTurnService.class),bean(AgentTaskToolBridge.class),bean(AgentTaskFenceService.class),bean(JdbcTemplate.class),
+            bean(StoreRepository.class),bean(DealPackageRepository.class));var tools=bean(AgentTaskToolBridge.class);
+        var committedKeys=new ArrayList<String>();var quote=purchase.quote(1);purchase.awaitAndConfirm(quote);
+        InternalV2ToolRequest request=purchase.creation(quote);
+        Map<String,Object> order=null;
+        if(!"create_group_buy_order".equals(toolName)){
+            order=tools.execute("create_group_buy_order",request);
+            committedKeys.add(request.idempotencyKey());
+            confirm(purchase,Map.of("action","pay_mock_order","resourceId",order.get("orderId"),"title","确认原订单支付",
+                "amountCents",order.get("totalCents"),"ruleVersion","pay-v1"),"合成用户确认支付");
+            request=purchase.request("gr08-pay",1,Map.of("orderId",order.get("orderId"),
+                "confirmationGrantId",order.get("paymentConfirmationGrantId")));
+        }
+        if(Set.of("request_refund","submit_complaint").contains(toolName)){
+            tools.execute("pay_mock_order",request);
+            committedKeys.add(request.idempotencyKey());
+            if("request_refund".equals(toolName)){
+                String voucher=(String)((Map<?,?>)((List<?>)order.get("vouchers")).get(0)).get("publicId");
+                var prepared=tools.execute("prepare_refund",purchase.request("gr08-refund-prepare",1,Map.of("voucherId",voucher)));
+                confirm(purchase,Map.of("action","request_refund","resourceId",voucher,"title","确认退款申请",
+                    "amountCents",prepared.get("amountCents"),"dealTitle",prepared.get("dealTitle"),"reason","行程取消","ruleVersion","refund-v1"),
+                    "合成用户确认退款");
+                request=purchase.request("gr08-refund",1,Map.of("voucherId",voucher,"reason","行程取消",
+                    "confirmationGrantId",prepared.get("confirmationGrantId")));
+            }else{
+                var prepared=tools.execute("prepare_complaint",purchase.request("gr08-complaint-prepare",1,Map.of("orderId",order.get("orderId"))));
+                confirm(purchase,Map.of("action","submit_complaint","resourceId",order.get("orderId"),"title","确认投诉",
+                    "amountCents",0,"ruleVersion","complaint-v1","subject","服务问题","description","希望核实服务流程"),
+                    "合成用户确认投诉");
+                request=purchase.request("gr08-complaint",1,Map.of("orderId",order.get("orderId"),"subject","服务问题",
+                    "description","希望核实服务流程","confirmationGrantId",prepared.get("confirmationGrantId")));
+            }
+        }
+        bean(JdbcTemplate.class).update("UPDATE agent_task_turns SET protocol_version='2.3' WHERE turn_id=?",request.taskFence().get("turnId"));
+        var result=new LinkedHashMap<String,Object>();result.put("userId",String.valueOf(purchase.scope.user));result.put("sessionId",purchase.scope.session);
+        result.put("conversationEpoch",purchase.scope.epoch);result.put("taskId",purchase.taskId);result.put("toolName",toolName);
+        result.put("request",wire(request));result.put("executionKey",request.idempotencyKey());
+        result.put("committedExecutionKeys",committedKeys);
+        if(order!=null)result.put("orderId",order.get("orderId"));return result;
+    }
+
+    /** 完成真实等待确认停点，再用新轮次确认同一服务端展示摘要，不直接修改 grant 或 confirmed 字段。 */
+    private void confirm(AgentTaskToolTestFixtures purchase,Map<String,Object> summary,String body){
+        purchase.awaitConfirmation(summary);var displayed=bean(AgentSessionService.class).owned(purchase.scope.user,purchase.scope.session).getPendingConfirmation();
+        purchase.admit(body);bean(AgentTaskFenceService.class).confirmCurrent(purchase.fence(),purchase.trace(),displayed);
+    }
+
+    /** 把Java请求记录转换为实际HTTP正文；2.0请求删除空goalFence，避免夹具引入协议外字段。 */
+    @SuppressWarnings("unchecked")
+    private Map<String,Object> wire(InternalV2ToolRequest request){
+        var value=new LinkedHashMap<String,Object>(bean(com.fasterxml.jackson.databind.ObjectMapper.class).convertValue(request,Map.class));
+        if(value.get("goalFence")==null)value.remove("goalFence");return value;
+    }
+
     /** 创建满足2.3公开Schema的初始目标行；最终状态只能由真实工具证据覆盖。 */
     private Map<String,Object> pendingOutcome(String goalId,String description,List<String> missing){
         var value=new LinkedHashMap<String,Object>();value.put("goalId",goalId);value.put("description",description);value.put("status","pending");
@@ -133,6 +217,8 @@ public final class AgentTaskLiveFixtureBridge {
         if("goal-partial".equals(kind))return seedGoalPartial();
         if("goal-write".equals(kind))return seedGoalWrite();
         if("goal-payment".equals(kind))return seedGoalPayment();
+        if("goal-recovery".equals(kind))return seedGoalRecovery();
+        if(kind!=null&&kind.startsWith("goal-write:"))return seedGoalWriteCase(kind.substring("goal-write:".length()));
         var users=bean(UserRepository.class);var sessions=bean(AgentSessionService.class);var registry=bean(AgentTaskRegistryService.class);
         var jdbc=bean(JdbcTemplate.class);var result=new LinkedHashMap<String,Object>();AgentTaskTestFixtures f;
         if("purchase".equals(kind)){
@@ -170,6 +256,11 @@ public final class AgentTaskLiveFixtureBridge {
             case "directory" -> bean(AgentTaskRegistryService.class).directory(user,session);
             case "newTask" -> bean(AgentTaskRegistryService.class).create(user,session,"selection","deal_recommendation","合成新的前台任务");
             case "events" -> bean(AgentTaskEventOutbox.class).read(user,session,((Number)raw.getOrDefault("after",0)).longValue(),100);
+            case "goalProjection" -> bean(AgentGoalRecoveryService.class).projection(user,session,(String)raw.get("taskId"));
+            case "goalRecovery" -> bean(AgentGoalRecoveryService.class).accept(user,session,(String)raw.get("taskId"),(Map<String,Object>)raw.get("request"));
+            case "goalRecoveryRead" -> bean(AgentGoalRecoveryService.class).read(user,session,(String)raw.get("taskId"),(String)raw.get("requestId"));
+            case "goalRevision" -> bean(AgentGoalService.class).commitRevision(user,session,(String)raw.get("taskId"),(Map<String,Object>)raw.get("request"));
+            case "goalRevisionRead" -> bean(AgentGoalService.class).revision(user,session,(String)raw.get("taskId"),(String)raw.get("requestId"));
             case "prepare" -> controls.prepare(user,session,(Map<String,Object>)raw.get("request"));
             case "claim" -> controls.claim(user,session,id,(String)raw.get("owner"),Instant.now());
             case "ack" -> controls.acknowledge(user,session,id,(Map<String,Object>)raw.get("ack"));
