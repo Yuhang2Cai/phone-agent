@@ -43,7 +43,7 @@ class HttpAgentServiceClient implements AgentServiceClient {
     // 版本只能由受控服务配置决定；用户聊天字段不能切换 Agent 或跨版恢复任务。
     private final String protocolVersion;
     private AgentTaskExecutionContext taskContext;
-    /** 2.2公开摘要重查限定可信task代次，旧协议仍不绑定任务授权上下文。 */
+    /** 2.2及2.3公开摘要重查限定可信task代次，旧协议仍不绑定任务授权上下文。 */
     @Autowired void attachTaskContext(AgentTaskExecutionContext value){taskContext=value;}
 
     /** 初始化 HTTP 客户端、协议解析器和事件记录器。 */
@@ -129,10 +129,11 @@ class HttpAgentServiceClient implements AgentServiceClient {
                 // 在审计和展示前核对版本、链路和序号，拒绝其他任务事件或非法暂停终态。
                 previousSequence = validateEvent(event, request, previousSequence);
                 // 使用公开审计前重查后的事实事件，实时 SSE、历史重放和最终响应保持同一金额与资源。
-                if("2.2".equals(versionFor(request))) {
+                if(java.util.Set.of("2.2","2.3").contains(versionFor(request))) {
                     if(taskContext==null)throw new AgentServiceUnavailableException("任务展示校验尚未装配");
                     @SuppressWarnings("unchecked") var admission=(Map<String,Object>)request.context().get("taskAdmission");
                     @SuppressWarnings("unchecked") var fence=(Map<String,Object>)admission.get("fence");
+                    // 目标协议只扩展恢复数据，不改变任务授权边界；实时事件与最终完成必须使用同一受理围栏。
                     var received=event;event=taskContext.within(fence,()->messages.record(request,received));
                 } else event = messages.record(request, event);
                 events.add(event(event));

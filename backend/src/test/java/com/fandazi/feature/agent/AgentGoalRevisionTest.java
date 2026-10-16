@@ -25,6 +25,7 @@ class AgentGoalRevisionTest {
     @Autowired AgentGoalService goals;@Autowired UserRepository users;@Autowired AgentSessionService sessions;
     @Autowired AgentTaskRegistryService registry;@Autowired JdbcTemplate jdbc;
     @Autowired AgentTaskTurnService turns;@Autowired AgentTaskToolBridge tools;@Autowired AgentTaskFenceService fences;
+    @Autowired AgentTaskRepository taskRows;
     @Autowired StoreRepository stores;@Autowired DealPackageRepository deals;
     private AgentTaskTestFixtures fixture;private String task;private Map<String,Object> base;
 
@@ -97,12 +98,19 @@ class AgentGoalRevisionTest {
         run=(String)flow.fence().get("runId");var creation=new InternalV2ToolRequest("2.1",String.valueOf(flow.scope.user),
                 flow.scope.session,flow.trace(),run,"goal-create-order",run+":goal-create-order:1",1,
                 Map.of("quoteId",quote.get("quoteId"),"confirmationGrantId",quote.get("confirmationGrantId")),flow.fence(),goalFence);
-        var order=tools.execute("create_group_buy_order",creation);
+        var executed=tools.executeWithGoalContext("create_group_buy_order",creation);var order=executed.data();
 
         assertEquals("PENDING_PAYMENT",order.get("status"));
+        assertEquals(Map.of("goalRevision",2L,"planRevision",2L,"effectVersion",1L,"goalIds",List.of("goal-order")),executed.goalContext());
         assertEquals(1L,jdbc.queryForObject("SELECT effect_version FROM agent_conversation_tasks WHERE conversation_task_id=?",Long.class,flow.taskId));
         assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM agent_goal_effects WHERE conversation_task_id=?",Integer.class,flow.taskId));
         assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM group_buy_orders WHERE user_id=?",Integer.class,flow.scope.user));
+        // 真实写入后，同一目标修订的公开结果必须跟随权威效果版本前进；否则轮次完成会在最后一步整体回滚。
+        var updatedOutcome=new LinkedHashMap<>(outcome);updatedOutcome.put("effectVersion",1);
+        var goalResult=new LinkedHashMap<String,Object>();goalResult.put("aggregateStatus","partial");
+        goalResult.put("outcomes",List.of(updatedOutcome));
+        goals.commitTurnProjection(taskRows.findById(flow.taskId).orElseThrow(),goalResult);
+        assertEquals(1L,jdbc.queryForObject("SELECT effect_version FROM agent_task_goals WHERE conversation_task_id=?",Long.class,flow.taskId));
         // 已提交效果使旧goalFence失效；即使动作键相同也不能越过版本检查直接读取缓存。
         assertEquals("CONFLICT",assertThrows(ToolBoundaryException.class,()->tools.execute("create_group_buy_order",creation)).getCode());
     }

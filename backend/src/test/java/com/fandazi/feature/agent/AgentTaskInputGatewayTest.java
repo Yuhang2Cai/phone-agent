@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest(properties={"spring.datasource.url=${AG03_TEST_DB_URL:jdbc:h2:mem:ag03-input-gateway;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}",
     "spring.datasource.driver-class-name=${AG03_TEST_DB_DRIVER:org.h2.Driver}","spring.datasource.username=${AG03_TEST_DB_USER:sa}","spring.datasource.password=${AG03_TEST_DB_PASSWORD:}",
     "spring.jpa.hibernate.ddl-auto=validate","spring.flyway.enabled=true","agent.task-lifecycle.enabled=true","agent.task-lifecycle.reconcile-enabled=false",
-    "agent.task-lifecycle.insert-wait-ms=1000"})
+    "agent.task-lifecycle.insert-wait-ms=1000","agent.goal-recovery.enabled=true","agent.service.goal-recovery-enabled=true"})
 @AutoConfigureMockMvc
 class AgentTaskInputGatewayTest {
     @Autowired MockMvc http;@Autowired ObjectMapper json;@Autowired UserRepository users;@Autowired JdbcTemplate jdbc;
@@ -34,11 +34,12 @@ class AgentTaskInputGatewayTest {
     @Autowired AgentPresentationService presentations;@Autowired AgentConversationSourceService sources;
     @MockBean AgentTaskInputClient input;@MockBean AgentTaskControlClient control;@MockBean AgentServiceClient agent;
     // 归属原因是明确的组件输入，用于区分纯展示停点与普通字段继续，不冒称真实模型结果。
-    AgentTaskTestFixtures fixture;String action,ownershipReason;long businessBefore;boolean explicitReturn,cancelReturnTarget;
+    AgentTaskTestFixtures fixture;String action,ownershipReason,insertIntent,insertKind;long businessBefore;boolean explicitReturn,cancelReturnTarget;
     // 两个闩锁只用于精确冻结真实后台认领与回执之间的时序，不模拟命令已经提交。
     java.util.concurrent.CountDownLatch dispatchEntered,dispatchRelease;
     /** 单scope隔离且每例业务表增量0；测试替身不创建真实订单/申请，不冒称完整业务链路。 */
-    @BeforeEach void setup(){fixture=new AgentTaskTestFixtures(users,sessions,registry,jdbc);action="no_task";ownershipReason="reviewed_exact";explicitReturn=false;cancelReturnTarget=false;
+    @BeforeEach void setup(){fixture=new AgentTaskTestFixtures(users,sessions,registry,jdbc);action="no_task";ownershipReason="reviewed_exact";
+        insertIntent="store_info";insertKind="lookup";explicitReturn=false;cancelReturnTarget=false;
         dispatchEntered=null;dispatchRelease=null;
         businessBefore=jdbc.queryForObject("SELECT COUNT(*) FROM agent_tool_executions",Long.class);
         when(input.interpret(anyLong(),anyString(),anyMap())).thenAnswer(call->{
@@ -50,8 +51,8 @@ class AgentTaskInputGatewayTest {
             result.put("newRequest","insert".equals(action)?newQuery:null);
             result.put("returnTo",explicitReturn?Map.of("targetTaskId",front.get("conversationTaskId"),"targetTaskVersion",front.get("taskVersion"),
                 "focusVersion",directory.get("focusVersion"),"sourceStart",newQuery.codePointCount(0,newQuery.length()),"sourceEnd",query.codePointCount(0,query.length())):null);
-            result.put("intent","insert".equals(action)?"store_info":null);result.put("purpose","insert".equals(action)?"query":null);
-            result.put("taskKind","insert".equals(action)?"lookup":null);result.put("reasonCode",ownershipReason);result.put("question","请选择要继续的任务。");
+            result.put("intent","insert".equals(action)?insertIntent:null);result.put("purpose","insert".equals(action)?"query":null);
+            result.put("taskKind","insert".equals(action)?insertKind:null);result.put("reasonCode",ownershipReason);result.put("question","请选择要继续的任务。");
             result.put("bodySha256",sha256(query));result.put("executionQuerySha256",sha256("insert".equals(action)?newQuery:query));return result;});
         when(control.dispatch(anyMap())).thenAnswer(call->{Map<String,Object> wire=call.getArgument(0);var receipts=new ArrayList<Map<String,Object>>();
             // 竞态用例让另一个真实协调器已持租约但尚未回执；其余用例保持原即时组件回执。
@@ -113,6 +114,18 @@ class AgentTaskInputGatewayTest {
         assertTrue(replay.has("taskContext"),"完成回读必须携带原任务围栏");
         assertTrue(replay.has("traceId")&&replay.has("runId")&&replay.has("sequence"));
         verify(agent,times(1)).run(any());verify(input,times(1)).interpret(anyLong(),anyString(),anyMap());
+    }
+    @Test void capableCompositeFreezesV23AndServerBootstrapBeforeAgentExecution() throws Exception {
+        // 三方开关和客户端能力齐全时，只有复合新任务进入2.3；外部Agent失败也不能把已建任务降级成2.2重跑。
+        action="insert";insertIntent="composite";insertKind="composite";
+        var observed=new java.util.concurrent.atomic.AtomicReference<AgentRunRequest>();
+        doAnswer(call->{observed.set(call.getArgument(0));throw new AgentServiceUnavailableException("合成Agent不可用");}).when(agent).run(any());
+        var raw=new LinkedHashMap<>(request("查询门店并推荐套餐"));raw.put("clientCapabilities",List.of(AgentGoalFeatureGate.CLIENT_CAPABILITY));
+
+        assertThrows(jakarta.servlet.ServletException.class,()->send(raw),"外部Agent明确失败不能伪装成业务成功");
+        var sent=observed.get();assertNotNull(sent);assertEquals("2.3",sent.transportVersion());
+        var goal=(Map<?,?>)sent.context().get("goalContext");assertEquals(List.of("bootstrap-"+((Map<?,?>)((Map<?,?>)sent.context().get("taskAdmission")).get("fence")).get("conversationTaskId")),goal.get("goalIds"));
+        assertEquals("2.3",jdbc.queryForObject("SELECT protocol_version FROM agent_conversation_tasks WHERE session_id=?",String.class,fixture.session));
     }
     @Test void backgroundClaimedInsertStillAdmitsOriginalInputExactlyOnce() throws Exception {
         // 复现TL09实际投诉竞态：后台先认领同一插入命令，网关收到prepared快照后不能丢掉原业务输入。

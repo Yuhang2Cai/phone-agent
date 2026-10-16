@@ -16,9 +16,22 @@ public class AgentTaskToolBridge {
             AgentToolSchemaValidator schema,ConfirmationGrantService grants,AgentTaskExecutionContext context,AgentGoalService goals){
         this.fences=fences;this.domain=domain;this.executions=executions;this.schema=schema;this.grants=grants;this.context=context;this.goals=goals;
     }
-    /** 输入归属→持久栅栏→键/指纹→确认→唯一领域→出口校验→原子执行记录。 */
+    /** 2.1成功响应同时返回事务结束时的权威目标版本；业务数据仍按原十七工具输出校验。 */
+    public record GoalToolResult(Map<String,Object> data,Map<String,Object> goalContext) {}
+    /** 兼容既有组件调用，只返回原业务数据；目标协议HTTP入口使用带版本结果的方法。 */
     @Transactional
     public Map<String,Object> execute(String tool,InternalV2ToolRequest request) {
+        return executeTracked(tool,request).data();
+    }
+    /** 在同一工具事务内取得业务结果和最终目标版本，避免业务已提交后再用旧effectVersion复核。 */
+    @Transactional
+    public GoalToolResult executeWithGoalContext(String tool,InternalV2ToolRequest request) {
+        var result=executeTracked(tool,request);
+        if(result.goalContext()==null)throw new ToolBoundaryException("INTERNAL_ERROR","目标工具结果缺少权威版本");
+        return result;
+    }
+    /** 输入归属→持久栅栏→键/指纹→确认→唯一领域→出口校验→原子执行记录。 */
+    private GoalToolResult executeTracked(String tool,InternalV2ToolRequest request) {
         @SuppressWarnings("unchecked") var scope=(Map<String,Object>)request.taskFence().get("scope");
         if(!request.userId().equals(scope.get("userId"))||!request.sessionId().equals(scope.get("sessionId"))||!request.runId().equals(request.taskFence().get("runId")))
             throw new ToolBoundaryException("FORBIDDEN","工具信封与任务身份不一致");
@@ -32,11 +45,12 @@ public class AgentTaskToolBridge {
             "actionVersion",request.actionVersion(),"payload",request.payload(),"conversationTaskId",current.task().id(),"generation",current.task().generation());
         String hash=AgentTaskFingerprint.of(key);var existing=executions.findById(request.idempotencyKey());
         // 栅栏先于缓存；旧代次即使原键有结果也不能继续取得授权，须只读receipt核查原事实。
-        if(existing.isPresent()){if(!hash.equals(existing.get().getFingerprint()))throw new ToolBoundaryException("CONFLICT","动作键关联不同请求或代次");return existing.get().getResult();}
+        if(existing.isPresent()){if(!hash.equals(existing.get().getFingerprint()))throw new ToolBoundaryException("CONFLICT","动作键关联不同请求或代次");
+            return new GoalToolResult(existing.get().getResult(),goalProtocol?current.task().goalContext():null);}
         if(schema.isPreparation(tool)&&executions.countBySessionIdAndToolNameInAndCreatedAtAfter(request.sessionId(),
             List.of("create_purchase_quote","prepare_refund","prepare_complaint","internal_reprepare_payment"),Instant.now().minusSeconds(60))>=30)
             throw new ToolBoundaryException("RATE_LIMITED","确认准备过于频繁，请稍后重试");
-        return context.within(request.taskFence(),()->{
+        var data=context.within(request.taskFence(),()->{
             if(schema.isWrite(tool)) {
                 if(!current.session().taskTurnConfirmed(current.turn().id()))throw new ToolBoundaryException("FORBIDDEN","业务写需要本轮明确确认");
                 grants.requireTaskGrant(current.turn().scope().userId(),request.sessionId(),(String)request.payload().get("confirmationGrantId"));
@@ -66,5 +80,7 @@ public class AgentTaskToolBridge {
             }
             executions.saveAndFlush(new AgentToolExecution(request,current.turn().scope().userId(),tool,hash,result));return result;
         });
+        // 写效果已在上面的同一事务内推进；此处读取托管实体即可得到与业务结果同提交点的版本。
+        return new GoalToolResult(data,goalProtocol?current.task().goalContext():null);
     }
 }

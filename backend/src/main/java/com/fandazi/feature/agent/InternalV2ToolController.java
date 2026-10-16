@@ -34,7 +34,11 @@ public class InternalV2ToolController {
                 schema.validateV21Request(toolName,raw);
             } else schema.validateV2Request(toolName,raw);
             request=mapper.convertValue(raw,InternalV2ToolRequest.class);
-            var data=bridge.execute(toolName,request);result=new LinkedHashMap<>();result.put("schemaVersion",version);result.put("ok",true);result.put("data",data);result.put("error",null);
+            result=new LinkedHashMap<>();result.put("schemaVersion",version);result.put("ok",true);result.put("error",null);
+            if("2.1".equals(version)) {
+                // 业务写会在同一事务推进effectVersion；成功信封必须携带最终权威版本，Agent才能继续安全复核。
+                var executed=bridge.executeWithGoalContext(toolName,request);result.put("data",executed.data());result.put("goalContext",executed.goalContext());
+            } else result.put("data",bridge.execute(toolName,request));
             if("2.1".equals(version))schema.validateV21Result(result);else schema.validateV2Result(result);
         } catch(ToolBoundaryException denied){result=failure(version(raw),denied.getCode(),denied.getMessage());status="FORBIDDEN".equals(denied.getCode())?403:"NOT_FOUND".equals(denied.getCode())?404:200;}
         catch(DomainException denied){result=failure(version(raw),"CONFLICT","业务条件已变化，请查询事实后重新确认");}

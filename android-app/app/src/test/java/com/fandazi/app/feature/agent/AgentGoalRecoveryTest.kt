@@ -17,6 +17,29 @@ import org.junit.Test
 /** 生产仓库使用真实 OkHttp 请求，协调器测试只替换远端响应，不复制动作门控规则。 */
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class AgentGoalRecoveryTest {
+    /** 开启 AG04 时，业务输入必须显式声明客户端可展示目标恢复；关闭时请求字节保持原 2.2 结构。 */
+    @Test
+    fun taskInputDeclaresGoalRecoveryCapabilityOnlyWhenEnabled() = runTest {
+        MockWebServer().use { server ->
+            server.start()
+            server.enqueue(MockResponse().setBody(messageJson()))
+            server.enqueue(MockResponse().setBody(messageJson()))
+            val disabled = HttpAgentRepository(server.url("/api/").toString(), { "token" },
+                taskLifecycleEnabled = true, goalRecoveryEnabled = false)
+            val enabled = HttpAgentRepository(server.url("/api/").toString(), { "token" },
+                taskLifecycleEnabled = true, goalRecoveryEnabled = true)
+
+            assertTrue(disabled.tasks!!.input("session", "查询门店", "request-disabled") is ApiResult.Success)
+            assertTrue(enabled.tasks!!.input("session", "查询门店并推荐套餐", "request-enabled") is ApiResult.Success)
+
+            val oldBody = JsonParser.parseString(server.takeRequest().body.readUtf8()).asJsonObject
+            val newBody = JsonParser.parseString(server.takeRequest().body.readUtf8()).asJsonObject
+            assertEquals(setOf("schemaVersion", "requestId", "text"), oldBody.keySet())
+            assertEquals("2.2", oldBody["schemaVersion"].asString)
+            assertEquals(listOf("GOAL_RECOVERY_V1"), newBody["clientCapabilities"].asJsonArray.map { it.asString })
+        }
+    }
+
     /** 目标仓库只有 AG03 与 AG04 两个开关同时启用才装配，并复用正式认证传输。 */
     @Test
     fun applicationRepositoryRequiresBothFlagsAndCarriesAuthentication() = runTest {
@@ -167,6 +190,9 @@ class AgentGoalRecoveryTest {
 
     /** 投影夹具完整覆盖 2.3 必填字段，金额和资源均为测试合成值。 */
     private fun projectionJson() = """{"schemaVersion":"2.3","conversationTaskId":"task","taskVersion":7,"goalRevision":11,"planRevision":5,"effectVersion":3,"aggregateStatus":"recoverable","outcomes":[{"goalId":"goal","description":"服务端目标","status":"recoverable","reasonCode":"dependency_timeout","resourceSummary":{"resourceType":"order","resourceId":"order-public","title":"服务端订单","status":"PAID","amountCents":12800},"completedConditionLabels":["已选区域"],"missingConditionLabels":["营业时间"],"allowedActions":["retry_reads"],"goalRevision":11,"planRevision":5,"effectVersion":3}],"availableActions":["retry_reads"]}"""
+
+    /** 任务输入仓只需要一个合法空事件结果即可验证实际发送字节，不伪造目标或业务成功。 */
+    private fun messageJson() = """{"status":"COMPLETED","message":"合成回复","nextAction":"task_state","candidateCart":null,"events":[],"cards":[],"error":null,"taskProtocol":true}"""
 
     /** 回执只证明请求已受理，测试不会把 accepted 当作业务成功。 */
     private fun recoveryJson() = """{"schemaVersion":"2.3","requestId":"same-request","state":"accepted","action":"retry_reads","goalIds":["goal"],"goalRevision":11,"planRevision":5,"effectVersion":3,"allowedActions":["retry_reads"]}"""

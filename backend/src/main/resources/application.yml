@@ -40,6 +40,8 @@ agent:
   internal-token: ${AGENT_INTERNAL_TOKEN:}
   service:
     base-url: ${AGENT_SERVICE_URL:http://127.0.0.1:8091}
+    # Spring 对远端 Agent 2.3 能力的受控部署认知；必须与 Agent 自身开关同时发布，客户端字段不能修改。
+    goal-recovery-enabled: ${AGENT_SERVICE_GOAL_RECOVERY_ENABLED:false}
     # B2 使用内部 2.0 单标签协议；回退时由受控部署变量显式选择旧版。
     protocol-version: ${AGENT_SERVICE_PROTOCOL_VERSION:2.0}
     # 新服务真实模型/DAG 可能超过旧 5 秒限制；优先采用新脚本毫秒变量，历史变量仍兼容。

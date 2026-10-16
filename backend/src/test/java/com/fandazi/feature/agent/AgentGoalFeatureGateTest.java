@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
+import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -37,5 +38,18 @@ class AgentGoalFeatureGateTest {
         assertEquals("2.3",new AgentGoalFeatureGate(true,false).retainPersistedProtocol("2.3"));
         assertFalse(new AgentGoalFeatureGate(true,false).allowsGoalMutation("2.3",true));
         assertThrows(IllegalArgumentException.class,()->enabled.retainPersistedProtocol("latest"));
+    }
+
+    @Test void compositeNewGoalPersistsV23AndStartsWithServerBootstrapIdentity() {
+        /** 新复合任务必须把受控版本写进控制命令；首次规划前仅暴露服务端任务派生的占位身份。 */
+        var scope=new AgentTaskRegistryService.Scope(9L,"session-bootstrap","epoch-bootstrap");
+        var input=new AgentTaskControlService.NewGoal("request-bootstrap","查询门店并推荐套餐","composite","composite",
+                "复合业务任务",0,null,"2.3");
+        var task=AgentTaskEntity.reserved(scope,input.kind(),input.intent(),input.title(),"task-bootstrap");
+        task.bindProtocol(input.protocolVersion());
+
+        assertEquals("2.3",task.protocolVersion());
+        assertEquals(Map.of("goalRevision",1L,"planRevision",1L,"effectVersion",0L,
+                "goalIds",List.of("bootstrap-task-bootstrap")),task.goalContext());
     }
 }

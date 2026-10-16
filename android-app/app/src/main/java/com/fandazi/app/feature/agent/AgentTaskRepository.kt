@@ -37,7 +37,9 @@ interface AgentTaskRepository {
 
 /** 共享执行器注入已认证HTTP通道；公开DTO解析与普通消息解析分别执行，凭据不进入模型。 */
 class HttpAgentTaskRepository(private val baseUrl: String, private val transport: suspend (Request) -> ApiResult<String>,
-    private val parseMessage: (String) -> AgentMessageResult) : AgentTaskRepository {
+    private val parseMessage: (String) -> AgentMessageResult,
+    /** 只由应用构建开关注入；开启时声明客户端能够展示并操作 AG04 公开目标状态。 */
+    private val goalRecoveryEnabled: Boolean = false) : AgentTaskRepository {
     /** 路径逐段编码，requestId含斜杠时也只能作为标识，不能修改公开接口地址。 */
     private fun url(session: String, vararg path: String) = requireNotNull(baseUrl.toHttpUrl().resolve("agent/sessions/"))
         .newBuilder().addPathSegment(session).apply { path.forEach(::addPathSegment) }.build()
@@ -75,8 +77,10 @@ class HttpAgentTaskRepository(private val baseUrl: String, private val transport
     }
     override suspend fun input(sessionId: String, text: String, requestId: String, selection: AgentSelectionRef?, confirmation: JsonObject?): ApiResult<AgentMessageResult> {
         require(text.isNotBlank() && text.length <= 4000 && requestId.isNotBlank() && requestId.length <= 100)
-        // 保留原文，引用只发服务端登记身份；禁止旧mode和自定义授权字段混入2.2。
+        // 保留原文，引用只发服务端登记身份；协议仍由服务端按新任务能力和持久任务版本选择。
         val body = mutableMapOf<String, Any>("schemaVersion" to "2.2", "requestId" to requestId, "text" to text)
+        // 能力声明只说明客户端能消费2.3结果，不直接选择协议、更不授予任何业务工具或写权限。
+        if (goalRecoveryEnabled) body["clientCapabilities"] = listOf("GOAL_RECOVERY_V1")
         selection?.let {
             require(it.presentationId.isNotBlank() && it.version > 0 && (it.ordinal == null || it.ordinal > 0))
             body["selectionRef"] = mapOf("presentationId" to it.presentationId, "version" to it.version).toMutableMap<String, Any>().apply { it.ordinal?.let { ordinal -> put("ordinal", ordinal) } }

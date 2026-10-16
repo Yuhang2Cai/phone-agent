@@ -28,11 +28,20 @@ public class AgentTaskControlService {
     }
     /** 新目标描述来自已做来源区间与十三类分类的内部网关；不作为公开按钮自由字段。 */
     public record ReturnRequest(String targetTaskId,long targetTaskVersion,long focusVersion,String originalText,int start,int end) {}
-    /** 新目标可带已核验原文返回指令；旧六参调用保持无自动返回。 */
-    public record NewGoal(String requestId,String originalSpan,String kind,String intent,String title,long expectedFocusVersion,ReturnRequest returnRequest) {
+    /** 新目标可带已核验原文返回指令和受控协议；旧调用保持2.2且无自动返回。 */
+    public record NewGoal(String requestId,String originalSpan,String kind,String intent,String title,long expectedFocusVersion,
+            ReturnRequest returnRequest,String protocolVersion) {
         /** 旧调用未表达返回时不能猜测用户希望回来。 */
         public NewGoal(String requestId,String originalSpan,String kind,String intent,String title,long expectedFocusVersion) {
-            this(requestId,originalSpan,kind,intent,title,expectedFocusVersion,null);
+            this(requestId,originalSpan,kind,intent,title,expectedFocusVersion,null,"2.2");
+        }
+        /** 既有带返回提示的调用没有声明目标能力，继续固定为兼容协议2.2。 */
+        public NewGoal(String requestId,String originalSpan,String kind,String intent,String title,long expectedFocusVersion,ReturnRequest returnRequest) {
+            this(requestId,originalSpan,kind,intent,title,expectedFocusVersion,returnRequest,"2.2");
+        }
+        /** 协议来自功能门禁；命令落盘前拒绝未知值，不能在提交阶段再猜版本。 */
+        public NewGoal {
+            if(!Set.of("2.2","2.3").contains(protocolVersion))throw AgentTaskRegistryService.bad("新任务协议版本无效");
         }
     }
     /** 插问先验证新目标再预备；新task只在安全提交后创建，拒绝/退出不留下幽灵任务。 */
@@ -82,11 +91,12 @@ public class AgentTaskControlService {
             if(!Set.of("，查完再继续这个任务","，查完再继续当前任务","，查完再回来继续当前任务").contains(suffix))throw AgentTaskRegistryService.bad("返回指令缺少明确原文");
         }
         var leases=lockRunsAndTurns(affected.values());
-        var fresh=new AgentTaskEntity(scope,input.kind(),input.intent(),input.title());
+        var fresh=new AgentTaskEntity(scope,input.kind(),input.intent(),input.title());fresh.bindProtocol(input.protocolVersion());
         var source=sources.issue(user,sessionId,returnHint==null?input.originalSpan():returnHint.originalText(),"tc-"+AgentTaskFingerprint.of(input.requestId()));
         var details=new LinkedHashMap<String,Object>();var ids=new TreeSet<>(affected.keySet());ids.add(fresh.id());details.put("affectedTaskIds",new ArrayList<>(ids));
         details.put("beforeFocusId",session.currentTaskId());details.put("changesFocus",true);
-        details.put("newTask",Map.of("id",fresh.id(),"kind",input.kind(),"intent",input.intent(),"title",input.title()));
+        details.put("newTask",Map.of("id",fresh.id(),"kind",input.kind(),"intent",input.intent(),"title",input.title(),
+            "protocolVersion",input.protocolVersion()));
         session.advanceTaskFocus();var command=new AgentTaskCommandEntity(scope,input.requestId(),hash,"insert",fresh.id(),(String)source.get("sourceMessageId"),session.focusVersion(),details);
         if(inputHash!=null) {
             // 在命令可被后台扫描之前原子保存恢复边界，避免控制已提交而网关尚未来得及记住原输入身份。
@@ -308,6 +318,8 @@ public class AgentTaskControlService {
             if(original!=null){locked.tasks().get(original).commitLifecycle("paused",locked.scope());tasks.flush();}
             @SuppressWarnings("unchecked") var description=(Map<String,Object>)command.details().get("newTask");
             var fresh=AgentTaskEntity.reserved(locked.scope(),(String)description.get("kind"),(String)description.get("intent"),(String)description.get("title"),target);
+            // 协议与预备命令一同冻结；晚提交不能读取当前开关后改变原新任务版本。
+            fresh.bindProtocol((String)description.get("protocolVersion"));
             tasks.saveAndFlush(fresh);locked.tasks().put(target,fresh);locked.session().commitTaskFocus(target);locked.session().bindTaskRun(null,null);
         } else if(Set.of("resume","switch").contains(command.action())) {
             if(original!=null&&!original.equals(target)){locked.tasks().get(original).commitLifecycle("paused",locked.scope());tasks.flush();}

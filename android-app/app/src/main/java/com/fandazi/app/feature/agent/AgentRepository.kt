@@ -76,7 +76,8 @@ class HttpAgentRepository(
 ) : AgentRepository {
     /** 延迟装配以确保共用认证执行器已初始化；默认关闭时完全不创建任务通道。 */
     override val tasks: AgentTaskRepository? by lazy {
-        if (taskLifecycleEnabled) HttpAgentTaskRepository(baseUrl, { request -> executeJson(request) { it } }, ::parseMessage) else null
+        if (taskLifecycleEnabled) HttpAgentTaskRepository(baseUrl, { request -> executeJson(request) { it } }, ::parseMessage,
+            goalRecoveryEnabled) else null
     }
     /** 复用同一认证、401和超时边界；公开目标仓库自身不重试恢复 POST。 */
     override val goals: AgentGoalRepository? by lazy {

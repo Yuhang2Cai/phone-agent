@@ -14,7 +14,7 @@ public class AgentTaskGatewayService {
     private final AgentTaskReconciliationService reconcile;private final AgentTaskInputClient inputs;private final AgentServiceClient client;
     private final AgentTaskFenceService fences;private final AgentTaskExecutionContext context;
     private final AgentCardEnrichmentService cards;private final AgentHistoryRecordingService history;
-    private final boolean enabled;
+    private final boolean enabled;private final AgentGoalFeatureGate goalFeatureGate;private final boolean agentGoalRecoveryEnabled;
     // 只读等待同命令的预算上限；不是网络重试或业务执行期限，不随客户端输入变化。
     private static final long MAX_INSERT_WAIT_MILLIS=10000;
     // 短间隔只读取持久命令，无数据库锁跨等待；不调用模型或再次派发控制。
@@ -27,11 +27,14 @@ public class AgentTaskGatewayService {
             AgentTaskTurnRepository turnRows,AgentTaskControlService controls,AgentTaskCommandRepository commands,
             AgentTaskReconciliationService reconcile,AgentTaskInputClient inputs,AgentServiceClient client,
             AgentTaskFenceService fences,AgentTaskExecutionContext context,AgentCardEnrichmentService cards,
-            AgentHistoryRecordingService history,AgentTaskReturnService returns,AgentPresentationService presentations,@Value("${agent.task-lifecycle.enabled:false}") boolean enabled,
+            AgentHistoryRecordingService history,AgentTaskReturnService returns,AgentPresentationService presentations,
+            AgentGoalFeatureGate goalFeatureGate,@Value("${agent.service.goal-recovery-enabled:false}") boolean agentGoalRecoveryEnabled,
+            @Value("${agent.task-lifecycle.enabled:false}") boolean enabled,
             @Value("${agent.task-lifecycle.insert-wait-ms:10000}") long insertWaitMillis) {
         this.sessions=sessions;this.registry=registry;this.turns=turns;this.turnRows=turnRows;this.controls=controls;this.commands=commands;
         this.reconcile=reconcile;this.inputs=inputs;this.client=client;this.fences=fences;this.context=context;this.cards=cards;
-        this.history=history;this.returns=returns;this.presentations=presentations;this.enabled=enabled;
+        this.history=history;this.returns=returns;this.presentations=presentations;this.goalFeatureGate=goalFeatureGate;
+        this.agentGoalRecoveryEnabled=agentGoalRecoveryEnabled;this.enabled=enabled;
         if(insertWaitMillis<1||insertWaitMillis>MAX_INSERT_WAIT_MILLIS)throw new IllegalArgumentException("插入交接等待预算必须为1至10000毫秒");
         this.insertWaitMillis=insertWaitMillis;
     }
@@ -48,6 +51,15 @@ public class AgentTaskGatewayService {
     private static String text(Object value,int max) {
         if(!(value instanceof String s)||s.isBlank()||s.length()>max)throw AgentTaskRegistryService.bad("任务输入文本无效");return s;
     }
+    /** 只接受当前发布登记的客户端能力；重复、未知值和宽松字符串都在解释或任务变更前拒绝。 */
+    private static Set<String> clientCapabilities(Object value) {
+        if(value==null)return Set.of();
+        if(!(value instanceof List<?> list)||list.size()>8)throw AgentTaskRegistryService.bad("客户端能力结构无效");
+        var result=new LinkedHashSet<String>();
+        for(Object item:list)if(!(item instanceof String name)||!Set.of(AgentGoalFeatureGate.CLIENT_CAPABILITY).contains(name)||!result.add(name))
+            throw AgentTaskRegistryService.bad("客户端能力不受支持");
+        return Collections.unmodifiableSet(result);
+    }
     /** 只认本轮明确完整确认文字，附加修改必须先解释；真正消费还需当前turn与同展示摘要。 */
     private static boolean confirmationText(String text) {
         return Set.of("确认","确认购买","确认支付","确认退款","确认投诉").contains(text);
@@ -62,10 +74,11 @@ public class AgentTaskGatewayService {
     }
     /** 对本人新协议处理一条稳定requestId；所有新目标先分类成功才可推进控制代次。 */
     public AgentResult handle(Long user,String sessionId,Map<String,Object> raw) {
-        var allowed=Set.of("schemaVersion","requestId","text","button","confirmation","selectionRef");
+        var allowed=Set.of("schemaVersion","requestId","text","button","confirmation","selectionRef","clientCapabilities");
         if(raw==null||!allowed.containsAll(raw.keySet())||!raw.keySet().containsAll(Set.of("schemaVersion","requestId","text"))||!"2.2".equals(raw.get("schemaVersion")))
             throw AgentTaskRegistryService.bad("必须显式使用任务协议2.2");
         String requestId=text(raw.get("requestId"),100),original=text(raw.get("text"),4000),inputHash=AgentTaskFingerprint.of(raw);
+        Set<String> capabilities=clientCapabilities(raw.get("clientCapabilities"));
         if(raw.get("button")!=null) {
             var button=object(raw.get("button"));
             if(!button.keySet().equals(Set.of("taskId","taskVersion","action"))||!Set.of("pause","cancel","resume","switch").contains(button.get("action")))
@@ -167,8 +180,11 @@ public class AgentTaskGatewayService {
                 returnRequest=new AgentTaskControlService.ReturnRequest(text(hint.get("targetTaskId"),100),version(hint.get("targetTaskVersion")),
                     version(hint.get("focusVersion")),original,Math.toIntExact(version(hint.get("sourceStart"))),Math.toIntExact(version(hint.get("sourceEnd"))));
             }
+            // 当前2.3执行器只接管已有多目标DAG的恢复；单目标十三类继续用2.2兼容链路。
+            // 复合任务仍需客户端、Spring和Agent三方能力同时具备，任何一项缺失都固定为2.2。
+            String protocol="composite".equals(kind)?goalFeatureGate.protocolForNewTask(agentGoalRecoveryEnabled,capabilities):"2.2";
             var command=controls.prepareGatewayInsert(user,sessionId,new AgentTaskControlService.NewGoal("input-insert-"+AgentTaskFingerprint.of(requestId),body,kind,intent,
-                title(intent),version(decision.get("focusVersion")),returnRequest),inputHash,original);
+                title(intent),version(decision.get("focusVersion")),returnRequest,protocol),inputHash,original);
             return continueInsertedInput(user,sessionId,requestId,original,inputHash,selectedContext,(String)command.get("commandId"));
         } else if(!Set.of("continue","revise").contains(action)||target==null||!target.get("conversationTaskId").equals(decision.get("targetTaskId"))
                 ||version(target.get("taskVersion"))!=version(decision.get("targetTaskVersion")))throw AgentTaskRegistryService.conflict("当前输入归属目标无效");
@@ -281,7 +297,9 @@ public class AgentTaskGatewayService {
         }
         var trusted=new LinkedHashMap<String,Object>();trusted.put("conversationSource",source);trusted.put("taskAdmission",admission);trusted.put("confirmationAccepted",confirmed);
         trusted.putAll(turnRows.findById(turnId).orElseThrow(AgentTaskRegistryService::missing).gatewayContext());
-        var result=client.run(new AgentRunRequest(String.valueOf(user),sessionId,body,"confirm",trace,runId,trusted,"2.2"));
+        String protocol=(String)row.get("protocolVersion");
+        if("2.3".equals(protocol))trusted.put("goalContext",object(row.get("goalContext")));
+        var result=client.run(new AgentRunRequest(String.valueOf(user),sessionId,body,"confirm",trace,runId,trusted,protocol));
         returns.completedTask((String)fence.get("conversationTaskId"));
         history.recordAssistant(user,sessionId,runId,trace,result.message());
         return enrich(user,sessionId,fence,result);

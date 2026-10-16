@@ -85,6 +85,21 @@ public class AgentTaskEntity {
     long effectVersion(){return effectVersion;}
     /** 返回公开投影副本；转换器会把数据库NULL读成空Map，因此两种情况都按“尚未提交”处理。 */
     Map<String,Object> goalProjection(){return goalProjection==null||goalProjection.isEmpty()?null:new LinkedHashMap<>(goalProjection);}
+    /**
+     * 返回本轮发送给 Agent 的权威目标版本。
+     * 首次复合规划尚无真实子目标时，只使用由服务端 taskId 派生的占位身份；它不表示目标完成，
+     * Agent 必须在调用业务工具前用真实计划提交首个目标修订并替换该身份。
+     */
+    Map<String,Object> goalContext(){
+        if(!"2.3".equals(protocolVersion))return null;
+        List<String> ids;
+        if(goalProjection()==null)ids=List.of("bootstrap-"+id);
+        else {
+            ids=new ArrayList<>();
+            for(Object value:(List<?>)goalProjection.get("outcomes"))ids.add(String.valueOf(((Map<?,?>)value).get("goalId")));
+        }
+        return Map.of("goalRevision",goalRevision,"planRevision",planRevision,"effectVersion",effectVersion,"goalIds",ids);
+    }
     /** 仅在新任务尚无目标投影时绑定受控版本；旧任务不得中途升级。 */
     void bindProtocol(String value){
         if(!Set.of("2.2","2.3").contains(value))throw new IllegalArgumentException("任务协议版本无效");

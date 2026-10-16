@@ -89,8 +89,10 @@ public class AgentTaskTurnService {
         var turn=lockTurn(session,turnId);var source=sourceRows.findById(turn.source()).orElseThrow(AgentTaskRegistryService::missing);
         if(!source.ownedBy(user,sessionId,epoch))throw new ToolBoundaryException("FORBIDDEN","轮次来源不属于当前范围");
         var admission=turn.fence()==null?null:new LinkedHashMap<>(turn.admission());
+        // 轮次版本在受理时已固定；目标上下文从同一归属任务的当前权威行生成，客户端不能自报。
+        var task=turn.taskId()==null?null:registry.lockTask(scope,turn.taskId());
         if(admission!=null&&"admitted".equals(turn.state())) {
-            var task=registry.lockTask(scope,turn.taskId());var run=runs.lockById(turn.runId()).orElseThrow(AgentTaskRegistryService::missing);var fence=turn.fence();
+            var run=runs.lockById(turn.runId()).orElseThrow(AgentTaskRegistryService::missing);var fence=turn.fence();
             // 许可行未显式fenceOff也不能绕过当前焦点/代次；完成回读仍保留原结果供补交核验。
             boolean current=turn.executable()&&task.pendingCommand()==null&&"active".equals(task.lifecycle())&&task.id().equals(session.currentTaskId())
                 &&run.id().equals(task.activeRunId())&&!run.terminal()&&turn.traceId().equals(session.getTraceId())
@@ -101,7 +103,8 @@ public class AgentTaskTurnService {
         var result=new LinkedHashMap<String,Object>();result.put("schemaVersion","2.2");result.put("traceId",turn.traceId());result.put("bodySha256",source.bodySha256());
         result.put("source",source.publicSource());result.put("admission",admission);result.put("completedResult",turn.result());
         // Agent用原受理ID回读持久归属，不能接收请求context自报的另一份分类/控制结论。
-        result.put("requestId",turn.requestId());return result;
+        result.put("requestId",turn.requestId());result.put("protocolVersion",turn.protocolVersion());
+        result.put("goalContext",task==null?null:task.goalContext());return result;
     }
     /** 无工具完成只生成control_reply；同turn同文回读、异文409，不动前台资格/trace/确认。 */
     @Transactional

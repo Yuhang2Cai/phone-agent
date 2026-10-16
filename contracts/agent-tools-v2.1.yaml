@@ -118,6 +118,9 @@ commonResult:
     data:
       type: object
       description: 成功时按 output.schema 校验，失败时为空对象
+    goalContext:
+      $ref: '#/goalFence'
+      description: 成功时返回该工具事务结束后的权威目标版本；读取保持原版本，真实业务写递增effectVersion。
     error:
       oneOf:
       - $ref: '#/definitions/tool_error'
@@ -128,6 +131,8 @@ commonResult:
         ok:
           const: true
     then:
+      required:
+      - goalContext
       properties:
         error:
           type: 'null'
