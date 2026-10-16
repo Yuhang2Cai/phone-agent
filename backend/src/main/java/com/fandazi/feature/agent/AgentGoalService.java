@@ -122,7 +122,9 @@ public class AgentGoalService {
     public Map<String,Object> revision(Long user,String sessionId,String taskId,String requestId) {
         var scope=registry.scope(user,sessionId);String key=AgentTaskFingerprint.of(List.of(scope.key(),requestId));
         var row=recoveries.findByRequestKey(key).orElseThrow(AgentTaskRegistryService::missing);
-        if(!row.taskId().equals(taskId))throw AgentTaskRegistryService.missing();return row.receipt();
+        // 内部修订回查与公开恢复请求共用持久表但不共用语义；公开accepted行不能冒充候选修订ACK。
+        if(!row.taskId().equals(taskId)||!"revision".equals(row.action()))throw AgentTaskRegistryService.missing();
+        return row.receipt();
     }
 
     /** 保存真实业务安全回执并推进effectVersion；重复同体不再次递增，异体冲突。 */

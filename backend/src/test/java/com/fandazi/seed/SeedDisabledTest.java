@@ -35,7 +35,9 @@ class SeedDisabledTest {
         Path directory = Path.of("target", "surefire-reports");
         Files.createDirectories(directory);
         Path output = Files.createTempFile(directory, "seed-isolation-", ".log");
-        Process process = new ProcessBuilder(java, "-Xmx256m", "-Dfile.encoding=UTF-8", "-cp", classpath,
+        // AG04 会在两个真实上下文中同时加载目标协议校验器；512MB 保证探针进入表隔离断言，
+        // 避免把协议 YAML 解析阶段的堆不足误报为种子数据库隔离失败。
+        Process process = new ProcessBuilder(java, "-Xmx512m", "-Dfile.encoding=UTF-8", "-cp", classpath,
                 SeedSchemaIsolationProbe.class.getName()).redirectErrorStream(true).redirectOutput(output.toFile()).start();
         // 诊断必须有界且实际完成。启动/命令错误不是指定红测，单独按环境错误抛出。
         if (!process.waitFor(60, TimeUnit.SECONDS)) {

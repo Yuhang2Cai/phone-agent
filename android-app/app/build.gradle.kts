@@ -32,6 +32,8 @@ android {
         buildConfigField("String", "API_BASE_URL", "\"https://api.example.invalid/api/\"")
         // AG03发布默认关闭；只有明确的本机debug验收属性启用2.2任务协议。
         buildConfigField("boolean", "AG03_TASK_LIFECYCLE_ENABLED", "false")
+        // AG04发布默认关闭；目标恢复必须与AG03任务协议同时启用，不能由服务端数据单方面打开。
+        buildConfigField("boolean", "AG04_GOAL_RECOVERY_ENABLED", "false")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -39,6 +41,7 @@ android {
     buildTypes {
         debug {
             buildConfigField("boolean", "AG03_TASK_LIFECYCLE_ENABLED", providers.gradleProperty("ag03TaskLifecycleEnabled").orElse("false").get().also { require(it in setOf("true", "false")) })
+            buildConfigField("boolean", "AG04_GOAL_RECOVERY_ENABLED", providers.gradleProperty("ag04GoalRecoveryEnabled").orElse("false").get().also { require(it in setOf("true", "false")) })
             buildConfigField(
                 "String",
                 "API_BASE_URL",

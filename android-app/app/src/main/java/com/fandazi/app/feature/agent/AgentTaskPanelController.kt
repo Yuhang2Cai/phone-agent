@@ -16,6 +16,8 @@ class AgentTaskPanelController(private val root: View, private val model: AgentV
     private var listOpenedAutomatically = false
     private var dismissedFocus: Long? = null
     private var lastState: AgentUiState? = null
+    /** 目标页占用内容区时暂时抑制任务条；关闭目标页后按同一权威状态恢复。 */
+    private var suppressed = false
     private val panel: View = root.findViewById(R.id.agent_task_panel)
     private val list: View = root.findViewById(R.id.agent_task_list_scroll)
     private val messages: View = root.findViewById(R.id.agent_chat_scroll)
@@ -36,8 +38,17 @@ class AgentTaskPanelController(private val root: View, private val model: AgentV
         listOpen = false;listOpenedAutomatically = false;render(model.uiState.value, true);return true
     }
 
+    /** 只切换本地展示；进入目标页会关闭任务目录，但不会改变任务焦点或生命周期。 */
+    fun setSuppressed(value: Boolean) {
+        if (suppressed == value) return
+        suppressed = value
+        if (value) { listOpen = false;listOpenedAutomatically = false;panel.isVisible = false;list.isVisible = false }
+        else render(model.uiState.value, true)
+    }
+
     /** 同一公开状态只绑定一次；多行任务名/停点自然换行，不能按设计样例固定业务高度。 */
     fun render(state: AgentUiState, force: Boolean = false) {
+        if (suppressed) { panel.isVisible = false;list.isVisible = false;return }
         val tasks = state.taskState
         if (!force && lastState?.taskState == tasks && lastState?.messages?.lastOrNull()?.text == state.messages.lastOrNull()?.text) return
         lastState = state

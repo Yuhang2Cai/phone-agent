@@ -16,7 +16,11 @@ class AndroidAgentSessionPointerStore(context: Context) : AgentSessionPointerSto
         val sessionId = preferences.getString(KEY_SESSION_ID, null) ?: return@runCatching null
         UUID.fromString(sessionId)
         val requestId = preferences.getString(KEY_TASK_REQUEST, null)?.also { UUID.fromString(it) }
-        AgentSessionPointer(sessionId, preferences.getBoolean(KEY_HAS_ATTEMPTED, false), requestId)
+        val goalTaskId = preferences.getString(KEY_GOAL_TASK, null)?.takeIf(String::isNotBlank)
+        val goalRequestId = preferences.getString(KEY_GOAL_REQUEST, null)?.also { UUID.fromString(it) }
+        // 目标薄指针必须成对存在；单边损坏时丢弃目标入口，不影响同账号聊天和任务恢复。
+        AgentSessionPointer(sessionId, preferences.getBoolean(KEY_HAS_ATTEMPTED, false), requestId,
+            goalTaskId.takeIf { goalRequestId != null }, goalRequestId.takeIf { goalTaskId != null })
     }.onFailure { Log.w(TAG, "会话指针读取失败：${it.javaClass.simpleName}") }.getOrNull()
 
     /** 在发包前同步提交薄指针，防止进程恰在服务器受理请求后退出而失去恢复入口。 */
@@ -27,6 +31,8 @@ class AndroidAgentSessionPointerStore(context: Context) : AgentSessionPointerSto
                 .putString(KEY_SESSION_ID, value.sessionId)
                 .putBoolean(KEY_HAS_ATTEMPTED, value.hasAttempted)
                 .putString(KEY_TASK_REQUEST, value.taskRequestId)
+                .putString(KEY_GOAL_TASK, value.goalTaskId)
+                .putString(KEY_GOAL_REQUEST, value.goalRequestId)
                 .commit()
             if (!committed) Log.w(TAG, "会话指针持久化未提交")
         }.onFailure { Log.w(TAG, "会话指针持久化失败：${it.javaClass.simpleName}") }
@@ -51,5 +57,9 @@ class AndroidAgentSessionPointerStore(context: Context) : AgentSessionPointerSto
         const val KEY_HAS_ATTEMPTED = "has_attempted"
         /** 只保存随机请求ID；冷启动只读定位，不保存可重发的控制载荷。 */
         const val KEY_TASK_REQUEST = "task_request_id"
+        /** 目标任务公开ID只用于构造原请求GET路径，不表示当前焦点或授权。 */
+        const val KEY_GOAL_TASK = "goal_task_id"
+        /** 目标恢复随机请求ID只用于只读回查。 */
+        const val KEY_GOAL_REQUEST = "goal_request_id"
     }
 }

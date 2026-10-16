@@ -29,6 +29,7 @@
                 android:textSize="26sp"
                 android:textStyle="bold" />
             <TextView
+                android:id="@+id/agent_chat_subtitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="帮你发现更好的餐厅"
@@ -71,6 +72,8 @@
                 <TextView android:id="@+id/agent_task_list_back" style="@style/AgentTaskAction" android:layout_width="match_parent" android:layout_weight="0" android:layout_marginTop="12dp" android:text="@string/agent_task_back"/>
             </LinearLayout>
         </ScrollView>
+        <!-- AG04目标页与消息、任务目录共享唯一内容区域；运行时只允许其中一个可见。 -->
+        <include layout="@layout/include_agent_goal_panel" />
     </FrameLayout>
 
     <!-- 本地语音状态独立于消息列表，不把录音进度伪装成服务端聊天事件。 -->

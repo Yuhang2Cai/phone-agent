@@ -4,7 +4,11 @@ package com.fandazi.app.feature.agent
 /** 已认证会话的薄恢复指针；具体历史仍须从服务端按当前身份只读加载。 */
 data class AgentSessionPointer(val sessionId: String, val hasAttempted: Boolean,
     /** 唯一未定位控制请求的薄ID；不保存动作、目标版本、正文或授权，不能据此重发。 */
-    val taskRequestId: String? = null)
+    val taskRequestId: String? = null,
+    /** 目标恢复还需公开任务ID才能拼出原请求GET路径；仍不保存动作、目标列表或版本。 */
+    val goalTaskId: String? = null,
+    /** 唯一未定位目标恢复请求ID；冷启动只能查询该ID，不能据此重建POST正文。 */
+    val goalRequestId: String? = null)
 
 /** 持久层接口由 Android 实现，测试可注入内存替身以模拟进程终止和重新创建。 */
 interface AgentSessionPointerStore {

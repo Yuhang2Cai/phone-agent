@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AG04汇总状态标签：只表达界面层级，实际状态文字来自服务端投影后的受控映射。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/group_buy_discount" />
+    <corners android:radius="12dp" />
+</shape>

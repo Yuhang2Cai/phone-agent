@@ -41,8 +41,24 @@ public class AgentGoalRecoveryEntity {
         committedGoalRevision=committedGoal;committedPlanRevision=committedPlan;committedEffectVersion=committedEffect;
         state="committed";this.receipt=new LinkedHashMap<>(receipt);createdAt=Instant.now();
     }
+    /**
+     * 保存用户明确恢复动作的受理回执。
+     * 受理只证明动作和版本已通过服务端裁决，不代表业务执行、确认或目标完成。
+     */
+    AgentGoalRecoveryEntity(String requestKey,String requestId,AgentTaskRegistryService.Scope scope,String taskId,
+            String fingerprint,String sourceFingerprint,String action,long expectedGoal,long expectedPlan,long expectedEffect,
+            Map<String,Object> receipt) {
+        id=UUID.randomUUID().toString();this.requestKey=requestKey;this.requestId=requestId;userId=scope.userId();
+        sessionId=scope.sessionId();epoch=scope.epoch();this.taskId=taskId;this.fingerprint=fingerprint;
+        // 现有candidate_hash列用于保存不可逆来源锚点；公开回执不会返回该内部摘要。
+        candidateHash=sourceFingerprint;this.action=action;expectedGoalRevision=expectedGoal;
+        expectedPlanRevision=expectedPlan;expectedEffectVersion=expectedEffect;committedGoalRevision=expectedGoal;
+        committedPlanRevision=expectedPlan;committedEffectVersion=expectedEffect;state="accepted";
+        this.receipt=new LinkedHashMap<>(receipt);createdAt=Instant.now();
+    }
     /** 返回唯一scope请求键，供仓储比较。 */ String requestKey(){return requestKey;}
     /** 返回原请求指纹，同ID异体必须冲突。 */ String fingerprint(){return fingerprint;}
     /** 返回所属任务，不能借同requestId跨任务读取。 */ String taskId(){return taskId;}
+    /** 返回请求动作，用于区分内部版本修订与公开恢复动作，避免公开接口泄漏候选摘要。 */ String action(){return action;}
     /** 返回不可变原回执副本。 */ Map<String,Object> receipt(){return new LinkedHashMap<>(receipt);}
 }

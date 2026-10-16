@@ -217,6 +217,8 @@ data class AgentUiState(
     val scrollAnchorOffset: Int = 0,
     /** AG03任务状态只在内存展示，薄检查点不会序列化目录、历史摘要或授权。 */
     val taskState: AgentTaskUiState = AgentTaskUiState(),
+    /** AG04目标状态只在内存展示；仅未定位请求的任务ID和随机ID进入账号绑定的薄指针。 */
+    val goalState: AgentGoalUiState = AgentGoalUiState(),
     /** 当前HTTP规范摘要的事件身份，仅驻留内存；摘要补齐必须参与状态相等性，通知SSE已展示卡片刷新资格。 */
     val taskConfirmationIdentity: AgentConfirmationIdentity? = null
 )

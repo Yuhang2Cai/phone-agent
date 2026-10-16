@@ -84,7 +84,8 @@ class FandaziApplication : Application() {
             tokenProvider = { sessionRepository.tokenOrNull() },
             // HTTP与SSE认证拒绝同步唯一身份源；401对应旧令牌时由仓库拒绝误注销。
             onUnauthorized = { rejectedToken -> sessionRepository.invalidateToken(rejectedToken) },
-            taskLifecycleEnabled = BuildConfig.AG03_TASK_LIFECYCLE_ENABLED
+            taskLifecycleEnabled = BuildConfig.AG03_TASK_LIFECYCLE_ENABLED,
+            goalRecoveryEnabled = BuildConfig.AG04_GOAL_RECOVERY_ENABLED
         )
     }
 }

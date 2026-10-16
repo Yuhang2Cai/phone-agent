@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    AG04 六状态目标页：页面骨架复用 AG03 外壳，标题、卡片和动作只由 2.3 公开投影填充。
+    XML 不包含餐厅、时间、金额、订单或其他设计稿合成业务样例。
+-->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/agent_goal_panel_scroll"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="20dp">
+
+        <!-- 顶部进度卡只显示汇总状态，不展示 revision、内部原因码或执行标识。 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/agent_task_card"
+            android:orientation="vertical"
+            android:padding="18dp">
+
+            <TextView
+                android:id="@+id/agent_goal_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/group_buy_green"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/agent_goal_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/agent_goal_status"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="6dp"
+                android:textColor="@color/group_buy_orange"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/agent_goal_description"
+                style="@style/AgentTaskBody"
+                android:layout_marginTop="14dp" />
+        </LinearLayout>
+
+        <!-- 每个目标动态创建一张 item_agent_goal，避免设计样例变成运行期兜底。 -->
+        <LinearLayout
+            android:id="@+id/agent_goal_items"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical" />
+
+        <!-- 动作按服务端白名单和端侧身份门控动态生成；禁用状态仍保留说明价值。 -->
+        <LinearLayout
+            android:id="@+id/agent_goal_actions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:orientation="vertical" />
+
+        <TextView
+            android:id="@+id/agent_goal_notice"
+            style="@style/AgentTaskCaption"
+            android:layout_marginTop="12dp"
+            android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>

@@ -62,11 +62,16 @@ class AgentViewModel(
         savedState[TASK_REQUEST_ID] = requestId
         writeSessionPointer()
     }
+    /** 目标协调器只保存任务与原请求薄ID；回调在发包前同步进入账号绑定的指针存储。 */
+    private val goalSession = AgentGoalSession(repository.goals, CoroutineScope(viewModelScope.coroutineContext + dispatcher)) { taskId, requestId ->
+        savedState[GOAL_TASK_ID] = taskId
+        savedState[GOAL_REQUEST_ID] = requestId
+        writeSessionPointer()
+    }
     init {
         taskSession.reset(sessionId, needsHistory, savedState[TASK_REQUEST_ID])
-        if (repository.tasks != null) viewModelScope.launch(dispatcher) {
-            taskSession.state.collect { tasks -> updateState { it.copy(taskState = tasks) } }
-        }
+        goalSession.reset(sessionId, savedState[GOAL_TASK_ID], savedState[GOAL_REQUEST_ID])
+        collectProtocolState()
     }
     private var retryText: String? = null
     /** 同一用户气泡的网络重试保持展示关联；新输入才生成新键，不据此自动重执交易。 */
@@ -112,12 +117,29 @@ class AgentViewModel(
         savedState[SESSION_AUTH_IDENTITY] = authIdentity
         savedState[SESSION_ESTABLISHED] = needsHistory
         savedState[TASK_REQUEST_ID] = pointer?.taskRequestId
+        savedState[GOAL_TASK_ID] = pointer?.goalTaskId
+        savedState[GOAL_REQUEST_ID] = pointer?.goalRequestId
         taskSession.reset(sessionId, needsHistory, pointer?.taskRequestId)
+        goalSession.reset(sessionId, pointer?.goalTaskId, pointer?.goalRequestId)
         if (owner == null) pointerStore.clear()
         else if (authIdentity != null) writeSessionPointer()
-        updateState { AgentUiState(taskState = taskSession.state.value) }
+        updateState { AgentUiState(taskState = taskSession.state.value, goalState = goalSession.state.value) }
+        collectProtocolState()
+    }
+
+    /**
+     * 任务目录是目标投影的父身份：每次权威当前任务变化后只读刷新目标，再单独发布目标状态。
+     * 账号重绑会先取消旧收集器和递增两个协调器代次，迟到回包不能污染新账号。
+     */
+    private fun collectProtocolState() {
+        if (repository.goals != null) viewModelScope.launch(dispatcher) {
+            goalSession.state.collect { goals -> updateState { it.copy(goalState = goals) } }
+        }
         if (repository.tasks != null) viewModelScope.launch(dispatcher) {
-            taskSession.state.collect { tasks -> updateState { it.copy(taskState = tasks) } }
+            taskSession.state.collect { tasks ->
+                updateState { it.copy(taskState = tasks) }
+                goalSession.refresh(tasks.directory?.current)
+            }
         }
     }
 
@@ -758,11 +780,26 @@ class AgentViewModel(
     /** 任务状态核查仅只读调用，界面不会由此重放业务。 */
     fun recheckTaskState() { viewModelScope.launch(dispatcher) { taskSession.recheck() } }
 
+    /** 目标动作先用真实当前任务再次门控；按钮可见性不能替代提交时校验。 */
+    fun recoverGoal(action: String) {
+        val current = taskSession.state.value.directory?.current
+        if (!AgentGoalActionPolicy.canRecover(goalSession.state.value, current, action)) return
+        viewModelScope.launch(dispatcher) { goalSession.recover(action) }
+    }
+
+    /** 用户显式核查只运行原请求GET和目标投影GET，不重发恢复动作或聊天正文。 */
+    fun recheckGoalState() {
+        val current = taskSession.state.value.directory?.current
+        viewModelScope.launch(dispatcher) { goalSession.refresh(current) }
+    }
+
     /** 同步保存薄会话入口且保留正在核查的控制ID；普通发送不能覆盖掉这个恢复指针。 */
     private fun writeSessionPointer() {
         val owner = savedState.get<String>(SESSION_OWNER) ?: return
         val identity = savedState.get<String>(SESSION_AUTH_IDENTITY) ?: return
-        pointerStore.write(owner, identity, AgentSessionPointer(sessionId, savedState.get<Boolean>(SESSION_ESTABLISHED) == true, savedState[TASK_REQUEST_ID]))
+        pointerStore.write(owner, identity, AgentSessionPointer(sessionId,
+            savedState.get<Boolean>(SESSION_ESTABLISHED) == true, savedState[TASK_REQUEST_ID],
+            savedState[GOAL_TASK_ID], savedState[GOAL_REQUEST_ID]))
     }
 
     private companion object {
@@ -772,6 +809,9 @@ class AgentViewModel(
         const val SESSION_ID = "agent_session_id"
         const val SESSION_ESTABLISHED = "agent_session_established"
         const val TASK_REQUEST_ID = "agent_task_request_id"
+        /** 目标薄指针成对保存；不含动作、目标列表、版本或业务正文。 */
+        const val GOAL_TASK_ID = "agent_goal_task_id"
+        const val GOAL_REQUEST_ID = "agent_goal_request_id"
         const val LAST_EVENT_ID = "agent_last_event_id"
         const val SHEET_MODE = "agent_sheet_mode"
         const val COMPOSER = "agent_composer"
