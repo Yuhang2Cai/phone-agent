@@ -63,7 +63,8 @@ public class AgentGoalRecoveryService {
         var session=registry.lockScope(user,sessionId);var scope=registry.scopeOf(session);
         var task=registry.lockTask(scope,taskId);
         String requestKey=AgentTaskFingerprint.of(List.of(scope.key(),requestId));
-        var previous=recoveries.lockByRequestKey(requestKey).orElse(null);
+        // 同一scope已由session行锁串行化；普通读取避免给不同会话的不存在requestKey施加MySQL范围锁。
+        var previous=recoveries.findByRequestKey(requestKey).orElse(null);
         if(previous!=null) {
             if(!previous.taskId().equals(taskId)||!previous.fingerprint().equals(fingerprint)||"revision".equals(previous.action()))
                 throw AgentTaskRegistryService.conflict("同目标恢复请求正文冲突");

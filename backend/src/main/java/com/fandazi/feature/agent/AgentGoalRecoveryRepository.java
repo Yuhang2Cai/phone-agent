@@ -1,18 +1,17 @@
-// AG04目标请求仓储：唯一请求读取使用数据库行锁，跨进程重复提交只能回原结果或冲突。
+// AG04目标请求仓储：请求身份由可信scope摘要唯一，写入前已由会话行锁串行化同一scope。
 package com.fandazi.feature.agent;
 
-import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
 /** 裸requestId不唯一，必须先结合可信scope生成requestKey。 */
 public interface AgentGoalRecoveryRepository extends JpaRepository<AgentGoalRecoveryEntity,String> {
-    /** 在session/task锁后锁请求行，保持统一锁序并处理同体重试。 */
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("select r from AgentGoalRecoveryEntity r where r.requestKey=:key")
-    Optional<AgentGoalRecoveryEntity> lockByRequestKey(@Param("key") String requestKey);
-    /** 只读回查仍使用完整scope摘要键，不暴露其他账号请求存在性。 */
+    /**
+     * 按完整scope摘要键读取原请求。
+     * 写事务进入这里前已经锁定所属session；同一requestKey必然属于同一session，因此无需再对不存在的唯一索引键加悲观范围锁。
+     * 保持普通一致性读取可避免不同会话并发首写时在MySQL request_key空隙上互相死锁，数据库唯一约束仍是最终重复写保护。
+     */
     Optional<AgentGoalRecoveryEntity> findByRequestKey(String requestKey);
     /**
      * 任务行锁内查询同一三版本尚未消费的公开恢复动作。

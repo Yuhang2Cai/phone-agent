@@ -18,8 +18,9 @@ import static org.junit.jupiter.api.Assertions.*;
  * {@link AgentGoalRecoveryService}，因此每个线程都进入独立真实事务，不以 synchronized 测试替身冒充数据库锁。
  */
 @SpringBootTest(properties={
-    "spring.datasource.url=jdbc:h2:mem:ag04-goal-concurrency;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000",
-    "spring.datasource.driver-class-name=org.h2.Driver","spring.datasource.username=sa","spring.datasource.password=",
+    "spring.datasource.url=${AG04_GOAL_TEST_DB_URL:jdbc:h2:mem:ag04-goal-concurrency;MODE=MySQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;LOCK_TIMEOUT=10000}",
+    "spring.datasource.driver-class-name=${AG04_GOAL_TEST_DB_DRIVER:org.h2.Driver}",
+    "spring.datasource.username=${AG04_GOAL_TEST_DB_USER:sa}","spring.datasource.password=${AG04_GOAL_TEST_DB_PASSWORD:}",
     "spring.jpa.hibernate.ddl-auto=validate","spring.flyway.enabled=true","agent.task-lifecycle.enabled=true",
     "agent.goal-recovery.enabled=true","security.jwt.secret=synthetic-test-only-secret-0123456789012345678901234567890123456789"})
 class AgentGoalConcurrencyTest {
@@ -103,6 +104,30 @@ class AgentGoalConcurrencyTest {
         } finally {pool.shutdownNow();}
         assertEquals(1,count("SELECT COUNT(*) FROM agent_goal_recoveries WHERE conversation_task_id=? AND action='retry_reads'",value.taskId));
         assertZeroBusinessSideEffects(value);
+    }
+
+    /**
+     * 不同会话的只读恢复允许真实并行，不能因为查询不存在的 requestKey 在 MySQL 唯一索引上留下范围锁而互相死锁。
+     * 这里先顺序建立二十个互不共享用户、会话和任务的夹具，再用同一起跑栅栏提交恢复；任一 500 或事务回滚都会由 Future 原样抛出。
+     */
+    @Test void grS21DistinctScopesDoNotDeadlockOnMissingRequestRows() throws Exception {
+        var values=new ArrayList<GoalCase>();
+        for(int index=0;index<20;index++)values.add(fixture());
+        // 专用测试库先清空恢复索引，使全部不存在键落在同一空范围；这会稳定暴露 MySQL SELECT FOR UPDATE 后插入的范围锁死锁。
+        jdbc.update("DELETE FROM agent_goal_recoveries");
+        var start=new CountDownLatch(1);var pool=Executors.newFixedThreadPool(values.size());
+        try {
+            var futures=new ArrayList<Future<Map<String,Object>>>();
+            for(var value:values)futures.add(pool.submit(()->{start.await();return recoveries.accept(
+                value.scope.user,value.scope.session,value.taskId,request("distinct-"+UUID.randomUUID()));}));
+            start.countDown();
+            for(var future:futures)assertEquals("accepted",future.get(30,TimeUnit.SECONDS).get("state"));
+        } finally {pool.shutdownNow();}
+        // 每个任务只能产生自己的单条只读恢复；跨 scope 串行化或共享请求身份都会破坏该计数。
+        for(var value:values) {
+            assertEquals(1,count("SELECT COUNT(*) FROM agent_goal_recoveries WHERE conversation_task_id=? AND action='retry_reads'",value.taskId));
+            assertZeroBusinessSideEffects(value);
+        }
     }
 
     /** 在起跑栅栏后执行一次真实服务调用；只把预期 409 映射为竞争结果，其他异常继续使测试失败。 */

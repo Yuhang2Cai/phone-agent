@@ -25,7 +25,7 @@ public class AgentGoalService {
         contracts=new AgentProtocolValidator(mapper);
     }
 
-    /** 锁session→task→request，核任务围栏与三版本后原子提交公开目标版本。 */
+    /** 锁session→task，核任务围栏与三版本后原子提交公开目标版本；请求唯一性由同scope会话锁和数据库约束共同保证。 */
     @Transactional
     @SuppressWarnings("unchecked")
     public Map<String,Object> commitRevision(Long user,String sessionId,String taskId,Map<String,Object> request) {
@@ -48,7 +48,8 @@ public class AgentGoalService {
         if(task.version()!=version(fence,"taskVersion",1)||task.generation()!=version(fence,"executionGeneration",1)
                 ||session.focusVersion()!=version(fence,"focusVersion",0))throw AgentTaskRegistryService.conflict("目标任务围栏已变化");
         String requestKey=AgentTaskFingerprint.of(List.of(scope.key(),requestId));
-        var previous=recoveries.lockByRequestKey(requestKey).orElse(null);
+        // requestKey包含完整scope；同scope已由session行锁串行化，普通读取避免不同会话首写时产生唯一索引范围锁死锁。
+        var previous=recoveries.findByRequestKey(requestKey).orElse(null);
         if(previous!=null) {
             if(!previous.taskId().equals(taskId)||!previous.fingerprint().equals(fingerprint))throw AgentTaskRegistryService.conflict("同目标请求正文冲突");
             return previous.receipt();
