@@ -1,7 +1,10 @@
 // TL-06真实Spring/MySQL网关组件验收；归属模型、Agent运行与安全ACK均为明确替身，业务计数单独核对。
 package com.fandazi.feature.agent;
 import com.fandazi.feature.auth.UserRepository;
+import com.fandazi.feature.catalog.StoreEntity;
+import com.fandazi.feature.catalog.StoreRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.math.BigDecimal;
 import java.util.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -32,6 +35,7 @@ class AgentTaskInputGatewayTest {
     @Autowired AgentTaskControlService controls;@SpyBean AgentTaskReconciliationService reconciliation;
     @Autowired AgentTaskCommandRepository commandRows;
     @Autowired AgentPresentationService presentations;@Autowired AgentConversationSourceService sources;
+    @Autowired StoreRepository stores;
     @MockBean AgentTaskInputClient input;@MockBean AgentTaskControlClient control;@MockBean AgentServiceClient agent;
     // 归属原因是明确的组件输入，用于区分纯展示停点与普通字段继续，不冒称真实模型结果。
     AgentTaskTestFixtures fixture;String action,ownershipReason,insertIntent,insertKind;long businessBefore;boolean explicitReturn,cancelReturnTarget;
@@ -114,6 +118,35 @@ class AgentTaskInputGatewayTest {
         assertTrue(replay.has("taskContext"),"完成回读必须携带原任务围栏");
         assertTrue(replay.has("traceId")&&replay.has("runId")&&replay.has("sequence"));
         verify(agent,times(1)).run(any());verify(input,times(1)).interpret(anyLong(),anyString(),anyMap());
+    }
+    @Test void taskGatewayRegistersReturnedCardsForTrustedFollowupSelection() throws Exception {
+        // 2.2任务入口也必须为实际返回卡片登记展示引用，否则接口虽接受selectionRef，客户端却无法取得合法引用。
+        action="insert";String storeId=UUID.randomUUID().toString();
+        stores.saveAndFlush(new StoreEntity(storeId,"合成品牌","合成展示门店","310000","合成地址","合成电话","中餐",
+            new BigDecimal("31.2000000"),new BigDecimal("121.4000000"),8800,true,"09:00-22:00",null));
+        doAnswer(call->{
+            AgentRunRequest request=call.getArgument(0);var admission=(Map<?,?>)request.context().get("taskAdmission");
+            var fence=new LinkedHashMap<>((Map<String,Object>)admission.get("fence"));var context=new LinkedHashMap<>(fence);
+            context.remove("scope");context.remove("runId");
+            var event=Map.<String,Object>of("schemaVersion","2.2","eventId","synthetic-card-event","eventType","run_completed",
+                "traceId",request.traceId(),"runId",request.runId(),"sequence",0,"status","succeeded",
+                "payload",Map.of("message","合成门店推荐"),"taskContext",context);
+            var result=Map.<String,Object>of("schemaVersion","2.2","traceId",request.traceId(),"runId",request.runId(),
+                "status","succeeded","intent","store_recommendation","events",List.of(event));
+            turns.complete(fixture.user,fixture.session,Map.of("schemaVersion","2.2","turnId",fence.get("turnId"),"fence",fence,
+                "sourceMessageId",admission.get("sourceMessageId"),"result",result));
+            return new AgentResult(AgentResult.Status.COMPLETED,"合成门店推荐","task_state",Map.of(),List.of(),
+                List.of(Map.of("type","store","storePublicId",storeId)),null,false);
+        }).when(agent).run(any());
+
+        var response=send(request("推荐一家餐厅"));assertEquals(200,response.getStatus(),response.getContentAsString());
+        var card=json.readTree(response.getContentAsString(java.nio.charset.StandardCharsets.UTF_8)).path("cards").get(0);
+        assertTrue(card.has("presentation"),"任务入口返回卡片必须携带可用于下一轮的真实展示引用");
+        var presentation=json.convertValue(card.get("presentation"),Map.class);
+        var reference=Map.<String,Object>of("presentationId",presentation.get("presentationId"),
+            "version",presentation.get("version"),"ordinal",presentation.get("ordinal"));
+        var trusted=presentations.context(fixture.user,fixture.session,reference);
+        assertEquals(reference,trusted.get("selectionRef"),"返回引用必须能由本人同epoch权威登记重新解析");
     }
     @Test void capableCompositeFreezesV23AndServerBootstrapBeforeAgentExecution() throws Exception {
         // 三方开关和客户端能力齐全时，只有复合新任务进入2.3；外部Agent失败也不能把已建任务降级成2.2重跑。

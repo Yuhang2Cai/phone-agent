@@ -292,7 +292,7 @@ public class AgentTaskGatewayService {
             // 业务子句以Spring原来源为准，不能把控制前缀/返回后缀当成新业务指令重新执行。
             var existing=turnRows.findById(turnId).orElseThrow(AgentTaskRegistryService::missing);
             if(existing.result()!=null){returns.completedTask((String)fence.get("conversationTaskId"));
-                var recovered=completedReplay(user,sessionId,fence,object(existing.result().get("result")));
+                var recovered=completedReplay(user,sessionId,fence,(String)source.get("sourceMessageId"),object(existing.result().get("result")));
                 history.recordAssistant(user,sessionId,runId,trace,recovered.message());return recovered;}
         }
         var trusted=new LinkedHashMap<String,Object>();trusted.put("conversationSource",source);trusted.put("taskAdmission",admission);trusted.put("confirmationAccepted",confirmed);
@@ -302,10 +302,10 @@ public class AgentTaskGatewayService {
         var result=client.run(new AgentRunRequest(String.valueOf(user),sessionId,body,"confirm",trace,runId,trusted,protocol));
         returns.completedTask((String)fence.get("conversationTaskId"));
         history.recordAssistant(user,sessionId,runId,trace,result.message());
-        return enrich(user,sessionId,fence,result);
+        return enrich(user,sessionId,fence,(String)source.get("sourceMessageId"),result);
     }
     /** 已完成的HTTP重试只读原结果，既不新建任务、分类，也不重新发写工具。 */
-    private AgentResult completedReplay(Long user,String sessionId,Map<String,Object> fence,Map<String,Object> result) {
+    private AgentResult completedReplay(Long user,String sessionId,Map<String,Object> fence,String sourceId,Map<String,Object> result) {
         var rows=(List<?>)result.get("events");var converted=new ArrayList<AgentResult.Event>();var cardRows=new ArrayList<Map<String,Object>>();
         Map<String,Object> summary=Map.of();String message="原任务结果已恢复。";
         for(var item:rows){var event=object(item);var payload=object(event.get("payload"));String type=(String)event.get("eventType");
@@ -320,14 +320,17 @@ public class AgentTaskGatewayService {
             if(payload.get("message") instanceof String text)message=text;}
         var status=switch((String)result.get("status")){case "waiting_input" -> AgentResult.Status.NEEDS_INPUT;case "waiting_confirmation" -> AgentResult.Status.AWAITING_CONFIRMATION;
             case "failed" -> AgentResult.Status.FAILED;case "cancelled" -> AgentResult.Status.CANCELLED;default -> AgentResult.Status.COMPLETED;};
-        return enrich(user,sessionId,fence,new AgentResult(status,message,"task_state",summary,converted,cardRows,null,true));
+        return enrich(user,sessionId,fence,sourceId,new AgentResult(status,message,"task_state",summary,converted,cardRows,null,true));
     }
-    /** 卡片/金额/资格来自唯一领域重查；可信上下文只限本task代次，旧grant不能进入新确认。 */
-    private AgentResult enrich(Long user,String sessionId,Map<String,Object> fence,AgentResult result) {
+    /** 卡片/金额/资格来自唯一领域重查；最终列表按原来源登记，供下一轮本人同epoch选择。 */
+    private AgentResult enrich(Long user,String sessionId,Map<String,Object> fence,String sourceId,AgentResult result) {
         return context.within(fence,()->{
             var enriched=result.cards().stream().map(card->cards.enrich(user,sessionId,card)).toList();
             var summary=cards.enrichSummary(user,sessionId,result.candidateCart());
-            return new AgentResult(result.status(),result.message(),result.nextAction(),summary,result.events(),enriched,result.error(),true);
+            // 2.2任务入口已经接受selectionRef，必须把真实重查后的有序卡片绑定到本轮可信来源。
+            // 重放继续使用同一sourceId，register只复用或修订原展示，不创建第二份身份。
+            var registered=presentations.register(user,sessionId,sourceId,enriched);
+            return new AgentResult(result.status(),result.message(),result.nextAction(),summary,result.events(),registered,result.error(),true);
         });
     }
 }
