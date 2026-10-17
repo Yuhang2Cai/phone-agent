@@ -31,6 +31,25 @@ class AgentTaskMigrationTest {
         assertNotNull(jdbc.queryForObject("SELECT COUNT(*) FROM agent_conversation_tasks",Long.class));
         assertNotNull(jdbc.queryForObject("SELECT COUNT(*) FROM agent_task_runs",Long.class));
     }
+    /**
+     * 门店目录可能包含数十家门店，完整只读结果必须跨进程持久化，不能因 TEXT 的
+     * 64 KiB 上限把成功的 search_stores 事务回滚成 CONFLICT。
+     */
+    @Test void toolExecutionResultAcceptsLargeReadPayload() {
+        String executionKey="synthetic-large-result-"+java.util.UUID.randomUUID();
+        String largeResult="x".repeat(70_000);
+        try {
+            // 直接写入超过 MySQL TEXT 上限的结果，验证真实迁移后的列容量，而非只验证 JPA 映射。
+            jdbc.update("INSERT INTO agent_tool_executions(execution_key,user_id,session_id,tool_name,fingerprint,created_at,result_json) "
+                    +"VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?)",executionKey,fixture.user,fixture.session,
+                    "search_stores","f".repeat(64),largeResult);
+            assertEquals(largeResult.length(),jdbc.queryForObject(
+                    "SELECT CHAR_LENGTH(result_json) FROM agent_tool_executions WHERE execution_key=?",Integer.class,executionKey));
+        } finally {
+            // 测试失败后也移除合成记录，避免影响同一数据库中的后续真实链路验收。
+            jdbc.update("DELETE FROM agent_tool_executions WHERE execution_key=?",executionKey);
+        }
+    }
     @Test void databaseRejectsSecondActiveEvenWhenServiceIsBypassed() {
         // 直接SQL复制有效行也不能绕过唯一前台约束。
         String task=AgentTaskTestFixtures.id(fixture.selection());

@@ -15,7 +15,9 @@ class AgentToolExecution {
     @Column(name = "tool_name", nullable = false, length = 80) private String toolName;
     @Column(nullable = false, length = 64) private String fingerprint;
     @Column(name = "created_at", nullable = false) private Instant createdAt;
-    @Convert(converter = StringMapJsonConverter.class) @Column(name = "result_json", nullable = false, columnDefinition = "TEXT")
+    // 目录型只读工具会返回数十个真实对象，序列化结果可能超过 MySQL TEXT 的 64 KiB 上限。
+    // 执行记录承担跨进程幂等重放，必须保存完整成功结果，不能截断或只存摘要。
+    @Convert(converter = StringMapJsonConverter.class) @Column(name = "result_json", nullable = false, columnDefinition = "LONGTEXT")
     private Map<String, Object> result;
     // 旧执行记录允许为空，新工具回查必须匹配完整任务范围/原run/turn，当前焦点不替代原归属。
     @Column(name="conversation_task_id",length=100) private String conversationTaskId;
