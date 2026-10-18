@@ -18,9 +18,31 @@ public final class AgentTaskOnlineFixtureBridge {
     private <T>T bean(Class<T> type){return context.getBean(type);}
     /** 固定合成驱动主体并复用产品内部JWT校验；密钥不输出。 */
     public void authorize(String authorization){bean(InternalV1JwtValidator.class).validate(authorization,"910000");}
+
+    /**
+     * 为已创建的合成门店登记真实页面展示证据。
+     *
+     * 门店必须由真实目录仓储重查，来源顺序和 presentation 版本由产品服务持久化；
+     * 调用方不能传入 presentationId、version、ordinal、意图或期望结果，因此该前置
+     * 只能表达页面已经展示的权威对象，不能伪造测量结果或业务成功。
+     */
+    private Map<String,Object> registerPresentation(Map<String,Object> raw){
+        Long user=Long.valueOf((String)raw.get("userId"));String session=(String)raw.get("sessionId");
+        String resourceId=(String)raw.get("resourceId");
+        if(resourceId==null||resourceId.isBlank())throw new IllegalArgumentException("展示资源不能为空");
+        var store=bean(StoreRepository.class).findByPublicId(resourceId)
+            .orElseThrow(()->new IllegalArgumentException("展示门店不存在"));
+        var source=bean(AgentConversationSourceService.class).issue(user,session,
+            "AG05合成页面已展示门店"+store.getPublicId(),"ag05-presentation-"+UUID.randomUUID());
+        var card=new LinkedHashMap<String,Object>();card.put("type","store");card.put("resourceId",store.getPublicId());
+        var cards=bean(AgentPresentationService.class).register(user,session,(String)source.get("sourceMessageId"),List.of(card));
+        return Map.of("cards",cards);
+    }
+
     /** 按冻结前置创建合成scope；返回实际公开ID，不能接收金标动作或伪造模型答案。 */
     @SuppressWarnings("unchecked") public Object call(Map<String,Object> raw){
         if("database".equals(raw.get("op")))return bean(JdbcTemplate.class).queryForMap("SELECT DATABASE() AS database_name, VERSION() AS database_version");
+        if("presentation".equals(raw.get("op")))return registerPresentation(raw);
         if(!"seed".equals(raw.get("op")))throw new IllegalArgumentException("未知在线前置操作");
         var setup=(Map<String,Object>)raw.get("setup");var registry=bean(AgentTaskRegistryService.class);var jdbc=bean(JdbcTemplate.class);
         if(Boolean.TRUE.equals(setup.get("legacy"))) {

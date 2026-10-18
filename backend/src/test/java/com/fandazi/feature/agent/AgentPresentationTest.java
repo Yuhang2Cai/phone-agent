@@ -5,9 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import com.fandazi.feature.auth.UserEntity;
 import com.fandazi.feature.auth.UserRepository;
+import com.fandazi.feature.catalog.StoreEntity;
+import com.fandazi.feature.catalog.StoreRepository;
 import com.fandazi.feature.DomainException;
+import java.math.BigDecimal;
 import java.util.*;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -21,6 +25,8 @@ class AgentPresentationTest {
     @Autowired private AgentSessionService sessions;
     @Autowired private AgentSessionRepository sessionRepository;
     @Autowired private UserRepository users;
+    @Autowired private StoreRepository stores;
+    @Autowired private ApplicationContext context;
     private Long user;private String session;private String source;
 
     /** 每例使用独立合成身份和可信来源，不依赖测试顺序。 */
@@ -42,6 +48,23 @@ class AgentPresentationTest {
     private Map<String,Object> ref(Map<String,Object> card,int ordinal) {
         var metadata=(Map<?,?>)card.get("presentation");
         return Map.of("presentationId",metadata.get("presentationId"),"version",metadata.get("version"),"ordinal",ordinal);
+    }
+
+    @Test void liveFixtureRegistersOnlyAnExistingStoreThroughProductServices() {
+        // 夹具只接收真实公开门店 ID；来源、版本与序号必须由产品服务生成，不能由驱动传入。
+        var store=stores.saveAndFlush(new StoreEntity("ag05-presentation-"+UUID.randomUUID(),"合成品牌","AG05展示门店","310000",
+            "合成地址","021-10000000","中餐",new BigDecimal("31.20"),new BigDecimal("121.40"),100,true,"09:00-22:00",null));
+        var bridge=new AgentTaskOnlineFixtureBridge(context);
+        var result=(Map<?,?>)bridge.call(Map.of("op","presentation","userId",String.valueOf(user),"sessionId",session,
+            "resourceId",store.getPublicId()));
+        var cards=(List<?>)result.get("cards");var registered=(Map<?,?>)cards.get(0);var metadata=(Map<?,?>)registered.get("presentation");
+        assertThat(registered.get("resourceId")).isEqualTo(store.getPublicId());
+        assertThat(metadata.containsKey("presentationId")).isTrue();
+        assertThat(metadata.containsKey("version")).isTrue();
+        assertThat(metadata.containsKey("ordinal")).isTrue();
+        // 不存在对象必须在登记前失败，防止测试桥为任意客户端 ID 制造可信选择。
+        assertThatThrownBy(()->bridge.call(Map.of("op","presentation","userId",String.valueOf(user),"sessionId",session,
+            "resourceId","missing-store"))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test void exactOrderRetryAndPersistentReloadRemainStable() {
