@@ -20,21 +20,27 @@ public final class AgentTaskOnlineFixtureBridge {
     public void authorize(String authorization){bean(InternalV1JwtValidator.class).validate(authorization,"910000");}
 
     /**
-     * 为已创建的合成门店登记真实页面展示证据。
+     * 为已创建的合成门店或套餐登记真实页面展示证据。
      *
-     * 门店必须由真实目录仓储重查，来源顺序和 presentation 版本由产品服务持久化；
-     * 调用方不能传入 presentationId、version、ordinal、意图或期望结果，因此该前置
-     * 只能表达页面已经展示的权威对象，不能伪造测量结果或业务成功。
+     * 对象必须按明确类型由对应真实目录仓储重查，来源顺序和 presentation 版本由产品
+     * 服务持久化；调用方不能传入 presentationId、version、ordinal、意图或期望结果，
+     * 因此该前置只能表达页面已经展示的权威对象，不能伪造测量结果或业务成功。
      */
     private Map<String,Object> registerPresentation(Map<String,Object> raw){
         Long user=Long.valueOf((String)raw.get("userId"));String session=(String)raw.get("sessionId");
-        String resourceId=(String)raw.get("resourceId");
+        String resourceId=(String)raw.get("resourceId"),resourceType=(String)raw.get("resourceType");
         if(resourceId==null||resourceId.isBlank())throw new IllegalArgumentException("展示资源不能为空");
-        var store=bean(StoreRepository.class).findByPublicId(resourceId)
+        if(resourceType==null||!Set.of("store","deal").contains(resourceType))
+            throw new IllegalArgumentException("展示资源类型不受支持");
+        // 每种类型都必须命中对应产品仓储；不能因另一张表存在同名 publicId 就制造可信引用。
+        if("store".equals(resourceType))bean(StoreRepository.class).findByPublicId(resourceId)
             .orElseThrow(()->new IllegalArgumentException("展示门店不存在"));
+        else bean(DealPackageRepository.class).findByPublicId(resourceId)
+            .orElseThrow(()->new IllegalArgumentException("展示套餐不存在"));
         var source=bean(AgentConversationSourceService.class).issue(user,session,
-            "AG05合成页面已展示门店"+store.getPublicId(),"ag05-presentation-"+UUID.randomUUID());
-        var card=new LinkedHashMap<String,Object>();card.put("type","store");card.put("resourceId",store.getPublicId());
+            "AG05合成页面已展示"+resourceType+resourceId,"ag05-presentation-"+UUID.randomUUID());
+        // 卡片只携带已重查对象的类型和公开 ID；产品展示服务负责生成并持久化引用元数据。
+        var card=new LinkedHashMap<String,Object>();card.put("type",resourceType);card.put("resourceId",resourceId);
         var cards=bean(AgentPresentationService.class).register(user,session,(String)source.get("sourceMessageId"),List.of(card));
         return Map.of("cards",cards);
     }

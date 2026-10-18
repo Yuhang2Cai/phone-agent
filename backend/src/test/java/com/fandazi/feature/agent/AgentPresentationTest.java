@@ -26,6 +26,7 @@ class AgentPresentationTest {
     @Autowired private AgentSessionRepository sessionRepository;
     @Autowired private UserRepository users;
     @Autowired private StoreRepository stores;
+    @Autowired private com.fandazi.feature.catalog.DealPackageRepository deals;
     @Autowired private ApplicationContext context;
     private Long user;private String session;private String source;
 
@@ -50,21 +51,37 @@ class AgentPresentationTest {
         return Map.of("presentationId",metadata.get("presentationId"),"version",metadata.get("version"),"ordinal",ordinal);
     }
 
-    @Test void liveFixtureRegistersOnlyAnExistingStoreThroughProductServices() {
-        // 夹具只接收真实公开门店 ID；来源、版本与序号必须由产品服务生成，不能由驱动传入。
+    @Test void liveFixtureRegistersOnlyAnExistingCatalogObjectThroughProductServices() {
+        // 夹具只接收真实公开门店或套餐 ID；来源、版本与序号必须由产品服务生成，不能由驱动传入。
         var store=stores.saveAndFlush(new StoreEntity("ag05-presentation-"+UUID.randomUUID(),"合成品牌","AG05展示门店","310000",
             "合成地址","021-10000000","中餐",new BigDecimal("31.20"),new BigDecimal("121.40"),100,true,"09:00-22:00",null));
+        var deal=deals.saveAndFlush(new com.fandazi.feature.catalog.DealPackageEntity("ag05-deal-"+UUID.randomUUID(),store,
+            "AG05展示套餐","合成套餐说明",6800,8800,20,java.time.LocalDate.now().minusDays(1),
+            java.time.LocalDate.now().plusDays(30),true,5,1));
         var bridge=new AgentTaskOnlineFixtureBridge(context);
         var result=(Map<?,?>)bridge.call(Map.of("op","presentation","userId",String.valueOf(user),"sessionId",session,
-            "resourceId",store.getPublicId()));
+            "resourceId",store.getPublicId(),"resourceType","store"));
         var cards=(List<?>)result.get("cards");var registered=(Map<?,?>)cards.get(0);var metadata=(Map<?,?>)registered.get("presentation");
         assertThat(registered.get("resourceId")).isEqualTo(store.getPublicId());
         assertThat(metadata.containsKey("presentationId")).isTrue();
         assertThat(metadata.containsKey("version")).isTrue();
         assertThat(metadata.containsKey("ordinal")).isTrue();
-        // 不存在对象必须在登记前失败，防止测试桥为任意客户端 ID 制造可信选择。
+        // 套餐使用同一产品展示服务，但必须保留自己的类型和公开 ID，供正式购买请求回传。
+        var dealResult=(Map<?,?>)bridge.call(Map.of("op","presentation","userId",String.valueOf(user),"sessionId",session,
+            "resourceId",deal.getPublicId(),"resourceType","deal"));
+        var dealCard=(Map<?,?>)((List<?>)dealResult.get("cards")).get(0);
+        assertThat(dealCard.get("type")).isEqualTo("deal");
+        assertThat(dealCard.get("resourceId")).isEqualTo(deal.getPublicId());
+        assertThat(dealCard.get("presentation")).isInstanceOf(Map.class);
+        // 不存在对象或未知类型必须在登记前失败，防止测试桥为任意客户端 ID 制造可信选择。
         assertThatThrownBy(()->bridge.call(Map.of("op","presentation","userId",String.valueOf(user),"sessionId",session,
-            "resourceId","missing-store"))).isInstanceOf(IllegalArgumentException.class);
+            "resourceId","missing-store","resourceType","store"))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(()->bridge.call(Map.of("op","presentation","userId",String.valueOf(user),"sessionId",session,
+            "resourceId","missing-deal","resourceType","deal"))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(()->bridge.call(Map.of("op","presentation","userId",String.valueOf(user),"sessionId",session,
+            "resourceId",store.getPublicId(),"resourceType","coupon"))).isInstanceOf(IllegalArgumentException.class);
+        assertThatThrownBy(()->bridge.call(Map.of("op","presentation","userId",String.valueOf(user),"sessionId",session,
+            "resourceId",store.getPublicId()))).isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test void exactOrderRetryAndPersistentReloadRemainStable() {
