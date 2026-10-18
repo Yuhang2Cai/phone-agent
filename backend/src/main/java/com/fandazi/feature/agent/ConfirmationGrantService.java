@@ -111,6 +111,40 @@ public class ConfirmationGrantService {
                         && Integer.valueOf(amount).equals(value.getAmountCents()) && rule.equals(value.getRuleVersion()))
                 .findFirst().orElseThrow(() -> new ToolBoundaryException("EXPIRED", "该动作没有有效确认准备，请重新准备"));
     }
+    /**
+     * 用户点击确认时按服务端任务绑定重新核验待消费凭证。
+     *
+     * <p>公开确认摘要不含 grantId，因此先使用动作与资源缩小候选，再以当前任务、执行代次、
+     * 金额和规则定位服务端最近一次授权。客户端摘要已经由网关与会话快照比较，但授权可能在
+     * 展示后自然过期、被控制命令撤销或被并发请求消费，必须在把本轮标记为已确认前再次读取。</p>
+     *
+     * @param user 当前鉴权用户
+     * @param session 当前会话
+     * @param task 当前前台任务
+     * @param generation 当前执行代次
+     * @param summary 已与服务端展示快照匹配的公开摘要
+     * @throws ToolBoundaryException 授权不存在、已撤销、已消费或已过期时拒绝确认
+     */
+    @Transactional(propagation=org.springframework.transaction.annotation.Propagation.MANDATORY)
+    void requireConfirmableTaskGrant(Long user,String session,String task,long generation,java.util.Map<String,Object> summary) {
+        // 输入已来自服务端会话快照，但这里仍限定必需字段类型，防止历史脏数据绕过授权查询。
+        if(!(summary.get("action") instanceof String action)||action.isBlank()
+                ||!(summary.get("resourceId") instanceof String resource)||resource.isBlank()
+                ||!(summary.get("amountCents") instanceof Number amount)
+                ||!(summary.get("ruleVersion") instanceof String rule)||rule.isBlank())
+            throw new ToolBoundaryException("CONFLICT","确认摘要不完整，请重新准备");
+        String domainAction=action.toUpperCase(java.util.Locale.ROOT);
+        // 同资源可能存在历史重准备记录；只接受当前任务当前代次、金额与规则完全一致的最新授权。
+        var grant=grants.findByUserIdAndSessionIdAndActionAndResourceIdOrderByIdDesc(user,session,domainAction,resource).stream()
+                .filter(value->java.util.Objects.equals(task,value.getConversationTaskId())
+                        &&java.util.Objects.equals(generation,value.getExecutionGeneration())
+                        &&Integer.valueOf(amount.intValue()).equals(value.getAmountCents())
+                        &&rule.equals(value.getRuleVersion()))
+                .findFirst().orElseThrow(()->new ToolBoundaryException("CONFLICT","确认授权已变化，请重新准备"));
+        // 到期使用“必须晚于当前时刻”的闭区间边界；等于当前时刻也不能获得执行许可。
+        if(!grant.getExpiresAt().isAfter(Instant.now()))throw new ToolBoundaryException("EXPIRED","确认凭证已过期，请重新准备");
+        if(grant.isConsumed()||grant.isRevoked())throw new ToolBoundaryException("CONFLICT","确认授权已失效，请重新准备");
+    }
     /** 核验线程可信上下文归属；模型无法通过业务payload提供另一账号或会话。 */
     private void requireContextOwner(Long user,String session,java.util.Map<String,Object> fence) {
         @SuppressWarnings("unchecked") var scope=(java.util.Map<String,Object>)fence.get("scope");

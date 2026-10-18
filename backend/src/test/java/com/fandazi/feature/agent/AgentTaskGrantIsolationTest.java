@@ -40,6 +40,20 @@ class AgentTaskGrantIsolationTest {
         assertEquals("FORBIDDEN",assertThrows(ToolBoundaryException.class,()->confirmations.consumeBound(fixture.scope.user,fixture.scope.session,grant,"CREATE_GROUP_BUY_ORDER",
             (String)quote.get("quoteId"),2468,(String)quote.get("confirmationRuleVersion"))).getCode());assertFalse(grants.findByGrantId(grant).orElseThrow().isConsumed());
     }
+    @Test void expiredTaskGrantCannotMarkTurnConfirmed(){
+        // AG05-F07：展示之后服务端授权到期时，确认入口必须在调用 Agent 和领域写入前以 EXPIRED 拒绝。
+        var quote=fixture.quote(1);String grant=(String)quote.get("confirmationGrantId");
+        var summary=Map.<String,Object>of("action","create_group_buy_order","resourceId",quote.get("quoteId"),"title","合成过期确认",
+                "amountCents",quote.get("totalCents"),"ruleVersion",quote.get("confirmationRuleVersion"),"dealTitle","合成双份套餐","quantity",2);
+        fixture.awaitConfirmation(summary);var displayed=sessions.owned(fixture.scope.user,fixture.scope.session).getPendingConfirmation();
+        // 只改变服务端权威期限，保留客户端已展示摘要，复现“页面未变但授权刚刚过期”的真实时间竞态。
+        assertEquals(1,jdbc.update("UPDATE confirmation_grants SET expires_at=TIMESTAMP '2000-01-01 00:00:00' WHERE grant_id=?",grant));
+        fixture.admit("合成用户明确确认过期授权");
+        assertEquals("EXPIRED",assertThrows(ToolBoundaryException.class,
+                ()->fences.confirmCurrent(fixture.fence(),fixture.trace(),displayed)).getCode());
+        assertFalse(grants.findByGrantId(grant).orElseThrow().isConsumed());
+        assertEquals(0,jdbc.queryForObject("SELECT COUNT(*) FROM group_buy_orders WHERE user_id=?",Integer.class,fixture.scope.user));
+    }
     @Test void pauseRevokesOnlyAffectedTaskGrant(){
         // S05/S15：预备暂停与代次推进同时撤销未消费grant，普通新准备只能使用新动作键。
         var quote=fixture.quote(1);var task=AgentTaskTestFixtures.current(fixture.scope.directory());

@@ -190,7 +190,16 @@ public class AgentTaskGatewayService {
                 ||version(target.get("taskVersion"))!=version(decision.get("targetTaskVersion")))throw AgentTaskRegistryService.conflict("当前输入归属目标无效");
         var accepted=turns.admitGatewayTurn(user,sessionId,new AgentTaskTurnService.Input(requestId,body,(String)target.get("conversationTaskId"),
             version(target.get("taskVersion")),version(directory.get("focusVersion")),true),inputHash,selectedContext);
-        if(confirmed)fences.confirmCurrent(object(accepted.admission().get("fence")),authority(user,sessionId,accepted.turnId()).get("traceId").toString(),shown);
+        if(confirmed) {
+            try {
+                fences.confirmCurrent(object(accepted.admission().get("fence")),authority(user,sessionId,accepted.turnId()).get("traceId").toString(),shown);
+            } catch(ToolBoundaryException denied) {
+                // 工具层保留 EXPIRED 供内部恢复决策使用；公共任务输入把“展示后过期”表达为
+                // 当前确认状态冲突，返回 409，客户端据此重新准备而不是把请求结构当成 400。
+                if("EXPIRED".equals(denied.getCode()))throw AgentTaskRegistryService.conflict("确认授权已过期，请重新准备");
+                throw denied;
+            }
+        }
         return execute(user,sessionId,accepted.turnId(),object(accepted.admission().get("fence")),body,original,confirmed,false);
     }
     /** 仅接续原输入的插入命令；提交前不受理业务，提交后仍核原目标/焦点且普通轮次只受理一次。

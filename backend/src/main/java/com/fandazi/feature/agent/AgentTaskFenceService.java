@@ -68,6 +68,10 @@ public class AgentTaskFenceService {
         var current=requireCurrent(fence,trace);
         if(!current.task().id().equals(current.session().pendingConfirmationTaskId())||!AgentTaskFingerprint.of(current.session().getPendingConfirmation()).equals(AgentTaskFingerprint.of(shownSummary)))
             throw new ToolBoundaryException("CONFLICT","确认对象与当前展示摘要不一致");
+        // 任务版本和展示摘要一致仍不足以授权写入：展示后授权可能过期、撤销或被并发消费。
+        // 在持久化 confirmed 标记前读取当前任务代次的权威 grant，失败时整个事务保持未确认。
+        grants.requireConfirmableTaskGrant(current.turn().scope().userId(),current.turn().scope().sessionId(),
+                current.task().id(),current.task().generation(),shownSummary);
         current.session().confirmTaskTurn(current.turn().id());
     }
     /** 参数修订管理入口：只接收已校验字段名和动作版本，不执行任何业务工具；撤销结果必须持久幂等。 */
