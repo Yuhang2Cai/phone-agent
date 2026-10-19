@@ -1,0 +1,108 @@
+# AG05-08 当前候选最终组合旅程：指代、任务切换、确认失效、新确认和业务回读。
+# 登录与空会话绑定由外层驱动完成；所有业务请求均走真实 Android→Spring→Agent→MySQL 链路。
+appId: com.fandazi.app
+---
+# 真实列表只有一个套餐；“这个套餐”应解析到当前唯一展示对象。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 查询门店${AG05_STORE_ID}的团购套餐
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 查询这个套餐的详情
+- extendedWaitUntil:
+    visible: 已读取指定套餐，未提供的使用规则不能据此推断。
+    timeout: 180000
+- takeScreenshot: ag05-composite-r3-coreference
+# 当前代码必须把自有订单集合查询识别为独立查询并实际返回订单卡。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 先查下我的订单
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_card
+    timeout: 180000
+- assertNotVisible: 请说明新请求的对象和要查询或办理的事项。
+- takeScreenshot: ag05-composite-r3-order-readback
+# 准备购买后纠正数量，暂停必须使旧确认失效，恢复本身不得自动重新授权。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 购买套餐${AG05_DEAL_ID}，数量1份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 改成2份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- tapOn:
+    id: com.fandazi.app:id/agent_task_primary_action
+    text: 暂停
+- extendedWaitUntil:
+    visible: 请选择要继续的任务
+    timeout: 30000
+- back
+- extendedWaitUntil:
+    visible: 旧确认已失效
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_close
+- tapOn: 任务列表
+- tapOn:
+    id: com.fandazi.app:id/agent_task_item_resume
+    below:
+      id: com.fandazi.app:id/agent_task_item_title
+      text: 团购订单
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 暂停
+      enabled: true
+    timeout: 30000
+- assertVisible:
+    text: 旧确认已失效
+    enabled: false
+# 再次明确数量才生成新确认；点击一次后由数据库核对唯一订单，界面无需依赖长历史中的卡片位置。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 改成2份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- takeScreenshot: ag05-composite-r3-fresh-confirmation
+- tapOn:
+    id: com.fandazi.app:id/agent_order_action
+    text: 确认
+    enabled: true
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_progress_card
+    timeout: 180000
+# 切换到退款任务并停在原因输入，不确认退款，保证写入边界只含一笔订单。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 申请退款，券号${AG05_VOUCHER_ID}
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_status
+      text: .*退款原因.*
+    timeout: 180000
+- takeScreenshot: ag05-composite-r3-task-switch
