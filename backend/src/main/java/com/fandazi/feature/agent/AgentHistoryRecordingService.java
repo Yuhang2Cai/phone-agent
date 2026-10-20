@@ -29,7 +29,16 @@ public class AgentHistoryRecordingService {
 
     /** 用户原文与已签发来源在同一事务关联；返回值只在提交成功后可用于公开historyRecorded。 */
     public String recordUserLinkedSource(Long userId,String sessionId,String runId,String traceId,String content,String clientMessageKey,String sourceId) {
-        return record(userId,sessionId,runId,traceId,"user",content,clientMessageKey,sourceId);
+        return record(userId,sessionId,runId,traceId,"user",content,clientMessageKey,sourceId,null);
+    }
+
+    /**
+     * 记录刚由 2.1 输入边界签发的来源；epoch 仍由数据库条件更新复核，不能仅信任内存对象。
+     * 返回值为空表示消息与来源均未可靠提交，调用方必须公开 historyRecorded=false。
+     */
+    public String recordUserLinkedSourceVerified(Long userId,String sessionId,String runId,String traceId,String content,
+                                                 String clientMessageKey,String sourceId,String sourceEpoch) {
+        return record(userId,sessionId,runId,traceId,"user",content,clientMessageKey,sourceId,sourceEpoch);
     }
 
     /** 保存本次输入的完整助手结果；重复终态由数据库唯一键防重，不触发任何业务重跑。 */
@@ -42,13 +51,16 @@ public class AgentHistoryRecordingService {
 
     /** 事务提交异常在此边界捕获；保留故障标记直到人工修复，后续成功不能掩盖之前缺失。 */
     private String record(Long userId,String sessionId,String runId,String traceId,String role,String content,String clientMessageKey) {
-        return record(userId,sessionId,runId,traceId,role,content,clientMessageKey,null);
+        return record(userId,sessionId,runId,traceId,role,content,clientMessageKey,null,null);
     }
 
-    /** 共用记录与故障处理；2.1可合并来源关联，2.0和助手终态继续使用原消息事务。 */
-    private String record(Long userId,String sessionId,String runId,String traceId,String role,String content,String clientMessageKey,String sourceId) {
-        try { return sourceId==null ? writer.write(userId,sessionId,runId,traceId,role,content,clientMessageKey).getPublicId()
-            : writer.writeLinkedSource(userId,sessionId,runId,traceId,content,clientMessageKey,sourceId).getPublicId(); }
+    /**
+     * 共用记录与故障处理；sourceEpoch 非空时走已签发来源条件更新，旧协议继续走原事务边界。
+     * 两条来源路径都把消息与关联放在同一事务，任何异常都不能留下虚假的历史完整标记。
+     */
+    private String record(Long userId,String sessionId,String runId,String traceId,String role,String content,
+                          String clientMessageKey,String sourceId,String sourceEpoch) {
+        try { return write(userId,sessionId,runId,traceId,role,content,clientMessageKey,sourceId,sourceEpoch); }
         catch(RuntimeException error) {
             // 两次终态并发查重可能同时未命中；唯一索引先提交的一条已完整可读时，后者是正常重复。
             if(error instanceof org.springframework.dao.DataIntegrityViolationException) {
@@ -58,7 +70,7 @@ public class AgentHistoryRecordingService {
                     if(existing.isPresent() && existing.get().getContent().equals(content)) {
                         // 唯一键竞争的首条消息确已提交后，仍必须在新事务完成来源关联，不能只返回旧ID伪装关联成功。
                         return sourceId==null ? existing.get().getPublicId()
-                            : writer.writeLinkedSource(userId,sessionId,runId,traceId,content,clientMessageKey,sourceId).getPublicId();
+                            : write(userId,sessionId,runId,traceId,role,content,clientMessageKey,sourceId,sourceEpoch);
                     }
                 }
                 catch(RuntimeException ignored) { /* 读取也故障时继续标记恢复不可用，不推测已提交。 */ }
@@ -72,6 +84,14 @@ public class AgentHistoryRecordingService {
             LOG.warn("消息恢复记录失败：session={} trace={} role={} errorType={}",sessionId,traceId,role,error.getClass().getSimpleName());
             return null;
         }
+    }
+
+    /** 根据是否携带来源和冻结 epoch 选择精确写入边界；集中选择避免首次与唯一键恢复分支行为漂移。 */
+    private String write(Long userId,String sessionId,String runId,String traceId,String role,String content,
+                         String clientMessageKey,String sourceId,String sourceEpoch) {
+        if(sourceId==null)return writer.write(userId,sessionId,runId,traceId,role,content,clientMessageKey).getPublicId();
+        if(sourceEpoch!=null)return writer.writeLinkedSourceVerified(userId,sessionId,runId,traceId,content,clientMessageKey,sourceId,sourceEpoch).getPublicId();
+        return writer.writeLinkedSource(userId,sessionId,runId,traceId,content,clientMessageKey,sourceId).getPublicId();
     }
 
     /** 故障归属只保存内部标识，不携带用户正文、JWT或交易凭证。 */

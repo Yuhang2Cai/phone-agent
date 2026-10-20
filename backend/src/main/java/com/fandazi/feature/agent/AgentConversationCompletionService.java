@@ -25,15 +25,18 @@ public class AgentConversationCompletionService {
      */
     @Transactional
     public AgentResult complete(Long userId,String sessionId,String runId,String sourceId,AgentResult result) {
-        // 空列表也必须经过原登记逻辑：同来源重试可能使旧列表全部失效，不能直接省略。
-        var registered=presentations.register(userId,sessionId,sourceId,result.cards());
+        // 一次联合锁读核验会话与来源；空列表仍检查并失效同来源旧展示，不能直接省略。
+        var registration=presentations.registerForCompletion(userId,sessionId,sourceId,result.cards());
+        var registered=registration.cards();var session=registration.session();
         var completed=new AgentResult(result.status(),result.message(),result.nextAction(),result.candidateCart(),
             result.events(),registered,result.error(),result.eventsRecorded());
         // 仅实际等待确认且有合法动作的结果绑定摘要；登记对象不构成确认授权。
-        if(completed.status()==AgentResult.Status.AWAITING_CONFIRMATION && completed.candidateCart().containsKey("action"))
-            sessions.bindPendingConfirmation(userId,sessionId,runId,completed.candidateCart());
-        // 终态与展示/摘要共用本次事务；旧run的迟到普通结果仍由原会话服务防覆盖。
-        sessions.finishRun(userId,sessionId,runId,completed.status());
+        if(completed.status()==AgentResult.Status.AWAITING_CONFIRMATION && completed.candidateCart().containsKey("action")) {
+            if(!runId.equals(session.getActiveRunId()))throw new com.fandazi.feature.DomainException("任务已经变化");
+            session.awaitConfirmation(completed.candidateCart());
+        }
+        // 终态与展示/摘要共用已锁定的受管会话；旧run的迟到普通结果仍由实体原逻辑防覆盖。
+        session.finishRun(runId,completed.status());
         return completed;
     }
 }

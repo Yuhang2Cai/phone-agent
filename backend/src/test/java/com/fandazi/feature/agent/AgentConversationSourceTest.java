@@ -24,6 +24,8 @@ class AgentConversationSourceTest {
     @Autowired private AgentEventService events;
     @Autowired private jakarta.persistence.EntityManagerFactory entityManagers;
     @Autowired private AgentConversationSourceRepository sourceRows;
+    @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbc;
+    @Autowired private org.springframework.transaction.PlatformTransactionManager transactions;
     private Long userId;
     private String sessionId;
 
@@ -51,14 +53,61 @@ class AgentConversationSourceTest {
         var statistics=entityManagers.unwrap(org.hibernate.SessionFactory.class).getStatistics();
         statistics.clear();
         var second=sources.beginInput(userId,sessionId,"取消","count-second",AgentMode.CONFIRM,"count-trace-2");
-        // 来源创建仍须有真实行锁、正文去重、插入和顺序更新；省掉重复锁查询、提前刷新和新UUID查存在。
+        // 预算为会话行锁、来源查询、来源插入和会话顺序更新；来源不能并入悲观锁而制造间隙死锁。
         assertThat(statistics.getPrepareStatementCount()).as("同事务来源分配不应重复读取会话或先查新UUID")
-                .isLessThanOrEqualTo(5);
+                .isLessThanOrEqualTo(4);
         // 语句数量下降后，等待任务、epoch和递增来源仍必须与之前的业务语义一致。
         assertThat(second.runId()).isEqualTo(first.runId());
         assertThat(second.source()).containsEntry("turnSequence",2L).containsEntry("historyRecorded",false);
         assertThat(second.source().get("conversationEpoch")).isEqualTo(first.source().get("conversationEpoch"));
         assertThat(second.source().get("sourceMessageId")).isNotEqualTo(first.source().get("sourceMessageId"));
+    }
+
+    @Test void productionInputAndUserHistoryCommitInOneShortTransaction() throws Exception {
+        // 先用反射冻结生产入口契约；方法缺失时测试应明确失败，不能以编译错误冒充红测证据。
+        var method=java.util.Arrays.stream(AgentConversationSourceService.class.getMethods())
+            .filter(candidate -> candidate.getName().equals("beginInputRecorded"))
+            .findFirst().orElse(null);
+        assertThat(method).as("缺少来源分配与用户历史的单事务入口").isNotNull();
+        var manager=(org.springframework.transaction.ConfigurableTransactionManager)transactions;
+        var original=java.util.List.copyOf(manager.getTransactionExecutionListeners());
+        var commits=new java.util.concurrent.atomic.AtomicInteger();
+        var listener=new org.springframework.transaction.TransactionExecutionListener() {
+            /** 仅统计本轮同步入口成功提交；外部 Agent 和助手终态不属于该短事务。 */
+            @Override public void afterCommit(org.springframework.transaction.TransactionExecution transaction,Throwable failure) {
+                if(failure==null)commits.incrementAndGet();
+            }
+        };
+        manager.addListener(listener);
+        AgentConversationSourceService.StartedInput started;
+        var statistics=entityManagers.unwrap(org.hibernate.SessionFactory.class).getStatistics();
+        statistics.clear();
+        try {
+            started=(AgentConversationSourceService.StartedInput)method.invoke(sources,userId,sessionId,"合成单事务输入",
+                "combined-key",AgentMode.CONFIRM,"combined-trace",Map.of());
+        } finally {
+            // Spring 测试上下文跨用例复用；必须恢复原监听器，避免后续统计受到污染。
+            manager.setTransactionExecutionListeners(new java.util.ArrayList<>(original));
+        }
+        assertThat(commits.get()).as("来源、用户原文和来源关联必须只提交一次").isEqualTo(1);
+        // 新来源已由当前会话锁和唯一约束保护；首次历史写入不得再按 record_key 预读一次。
+        assertThat(statistics.getPrepareStatementCount()).as("首次输入应省掉不必要的历史防重查询")
+            .isLessThanOrEqualTo(6);
+        assertThat(started.source()).containsEntry("historyRecorded",true);
+        assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM agent_messages WHERE user_id=? AND session_id=? AND role='user'",
+            Integer.class,userId,sessionId)).isEqualTo(1);
+    }
+
+    @Test void sessionLocksDoNotJoinTheSharedOwnerRow() throws Exception {
+        // 同一用户可以并行操作多个独立会话；FOR UPDATE 若连接 app_users，会把不同会话错误串行化。
+        var repository=AgentSessionRepository.class;
+        var basic=repository.getMethod("findBySessionIdForUpdate",String.class)
+            .getAnnotation(org.springframework.data.jpa.repository.Query.class).value();
+        var completion=repository.getMethod("findOwnedSourceForUpdate",Long.class,String.class,String.class)
+            .getAnnotation(org.springframework.data.jpa.repository.Query.class).value();
+        // 两个悲观查询都只能锁各自 session/来源；归属直接比较 agent_sessions.user_id 的只读映射。
+        assertThat(basic).doesNotContain(".user");
+        assertThat(completion).doesNotContain("session.user").contains("session.ownerId");
     }
 
     @Test void assignedSourceIdPersistsOnceAndReloadedSourceStaysExisting() {

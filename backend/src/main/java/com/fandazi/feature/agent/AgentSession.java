@@ -9,7 +9,10 @@ import java.util.Objects;
 @Entity @Table(name = "agent_sessions", uniqueConstraints = @UniqueConstraint(columnNames = "session_id"))
 public class AgentSession {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
-    @ManyToOne(optional = false) private UserEntity user;
+    // 用户实体仅在确实需要资料时懒加载；悲观会话锁不能把所有同用户会话串行到 app_users 行。
+    @ManyToOne(optional = false,fetch = FetchType.LAZY) @JoinColumn(name="user_id",nullable=false) private UserEntity user;
+    // 只读外键用于归属判断和 JPQL 条件；写入仍由 user 关联唯一负责，避免同列双写。
+    @Column(name="user_id",insertable=false,updatable=false,nullable=false) private Long ownerId;
     @Column(name = "session_id", nullable = false, length = 100) private String sessionId;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private AgentMode mode;
     @Column(nullable = false, length = 100) private String traceId;
@@ -46,13 +49,15 @@ public class AgentSession {
     protected AgentSession() {}
 // 初始化对象依赖与默认状态。
     AgentSession(UserEntity user, String sessionId, AgentMode mode, String traceId) {
-        this.user = user; this.sessionId = sessionId; this.mode = mode; this.traceId = traceId;
+        this.user = user; this.ownerId=user.getId(); this.sessionId = sessionId; this.mode = mode; this.traceId = traceId;
         activeRunId = java.util.UUID.randomUUID().toString();
         activeRunStatus = "running";
     }
 // 获取id。
     // 获取用户。
     public Long getId() { return id; } public UserEntity getUser() { return user; }
+    /** 返回会话表中已持久化的用户外键；调用它不会加载或锁定共享用户实体。 */
+    public Long ownerId() { return ownerId; }
 // 获取会话、id。
     // 获取mode。
     public String getSessionId() { return sessionId; } public AgentMode getMode() { return mode; }

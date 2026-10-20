@@ -18,6 +18,9 @@ public class AgentPresentationService {
         this.sessions=sessions;this.sources=sources;this.presentations=presentations;
     }
 
+    /** 出口登记同时返回已锁定会话；调用方只能在当前事务内更新确认摘要和终态。 */
+    record CompletionRegistration(AgentSession session,List<Map<String,Object>> cards) {}
+
     /** 仅接收网关最终重查的卡片；保留顺序，非资源卡不登记，异常不产生半份列表。 */
     @Transactional
     public List<Map<String,Object>> register(Long userId,String sessionId,String sourceId,List<Map<String,Object>> finalCards) {
@@ -25,6 +28,21 @@ public class AgentPresentationService {
         String epoch=session.ensureConversationEpoch();
         var source=sources.findById(sourceId).orElseThrow(() -> invalid());
         if(!source.ownedBy(userId,sessionId,epoch))throw invalid();
+        return registerVerified(userId,sessionId,epoch,sourceId,finalCards);
+    }
+
+    /**
+     * 会话出口用一次联合锁读核验用户、会话、epoch 与来源，并在同一事务返回受管会话。
+     * 该入口不接受客户端来源；sourceId 来自本轮已冻结的服务端输入，联合查询仍执行最终归属复核。
+     */
+    @Transactional
+    CompletionRegistration registerForCompletion(Long userId,String sessionId,String sourceId,List<Map<String,Object>> finalCards) {
+        var session=sessions.findOwnedSourceForUpdate(userId,sessionId,sourceId).orElseThrow(() -> invalid());
+        return new CompletionRegistration(session,registerVerified(userId,sessionId,session.conversationEpoch(),sourceId,finalCards));
+    }
+
+    /** 已完成归属锁读后登记或失效展示；不再次读取同一会话和来源。 */
+    private List<Map<String,Object>> registerVerified(Long userId,String sessionId,String epoch,String sourceId,List<Map<String,Object>> finalCards) {
         var grouped=new LinkedHashMap<String,List<String>>();
         // 在卡片已重查的出口按实际类型登记，不能登记被过滤项或从确认卡猜关联资源。
         for(var card:finalCards) {

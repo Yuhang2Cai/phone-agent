@@ -12,8 +12,17 @@ import org.springframework.jdbc.core.JdbcTemplate;
 /** 仅在测试classpath，不能进入生产JAR；直接种暂停行为只代表前置，不算控制成功证据。 */
 public final class AgentTaskOnlineFixtureBridge {
     private final ApplicationContext context;
-    /** 注入真实容器，禁止通过请求替换实现、网络地址或数据库。 */
-    public AgentTaskOnlineFixtureBridge(ApplicationContext context){this.context=context;}
+    private final AgentTaskLiveFixtureBridge goalBridge;
+    /**
+     * 注入真实容器并复用目标恢复夹具边界。
+     *
+     * 两个桥都只存在于测试 classpath；复用已有目标夹具可避免在在线性能驱动中复制目标
+     * 投影、恢复记录或写入信封的构造逻辑，同时禁止请求替换实现、网络地址或数据库。
+     */
+    public AgentTaskOnlineFixtureBridge(ApplicationContext context){
+        this.context=context;
+        this.goalBridge=new AgentTaskLiveFixtureBridge(context);
+    }
     /** 所有事务仍交给产品容器代理，不在桥中复制控制/订单实现。 */
     private <T>T bean(Class<T> type){return context.getBean(type);}
     /** 固定合成驱动主体并复用产品内部JWT校验；密钥不输出。 */
@@ -47,9 +56,14 @@ public final class AgentTaskOnlineFixtureBridge {
 
     /** 按冻结前置创建合成scope；返回实际公开ID，不能接收金标动作或伪造模型答案。 */
     @SuppressWarnings("unchecked") public Object call(Map<String,Object> raw){
-        if("database".equals(raw.get("op")))return bean(JdbcTemplate.class).queryForMap("SELECT DATABASE() AS database_name, VERSION() AS database_version");
-        if("presentation".equals(raw.get("op")))return registerPresentation(raw);
-        if(!"seed".equals(raw.get("op")))throw new IllegalArgumentException("未知在线前置操作");
+        String op=(String)raw.get("op");
+        if("database".equals(op))return bean(JdbcTemplate.class).queryForMap("SELECT DATABASE() AS database_name, VERSION() AS database_version");
+        if("presentation".equals(op))return registerPresentation(raw);
+        // AG05 性能旅程只复用目标夹具的真实前置和权威回读。恢复受理与业务写仍由
+        // 正式 HTTP 入口执行，不能通过测试桥直接制造性能样本的成功结果。
+        if("goalSeed".equals(op))return goalBridge.seed((String)raw.get("kind"));
+        if(Set.of("goalProjection","goalRecovery","goalRecoveryRead").contains(op))return goalBridge.call(raw);
+        if(!"seed".equals(op))throw new IllegalArgumentException("未知在线前置操作");
         var setup=(Map<String,Object>)raw.get("setup");var registry=bean(AgentTaskRegistryService.class);var jdbc=bean(JdbcTemplate.class);
         if(Boolean.TRUE.equals(setup.get("legacy"))) {
             // 默认保留TL09的真实2.0隔离前置；TL10显式选择2.1时，必须同时提供随后真实输入的原文和防重键。

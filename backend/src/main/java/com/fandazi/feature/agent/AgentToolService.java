@@ -55,7 +55,8 @@ import org.springframework.transaction.annotation.Transactional;
         // 旧字段兼容仅在进入工具时发生一次，各业务分支只读取权威字段。
         request = new ToolRequest(request.userId(), request.sessionId(), request.traceId(), request.idempotencyKey(),
                 request.workflowId(), AgentContractCompatibility.toolPayload(name, request.payload()));
-        AgentSession session=sessions.trustedForUpdate(request.sessionId()); Long userId=session.getUser().getId();
+        // 会话锁内直接读取只读用户外键，避免工具并发时额外加载并锁住共享用户实体。
+        AgentSession session=sessions.trustedForUpdate(request.sessionId()); Long userId=session.ownerId();
         // 售后写工具不继承自动下单授权；即使模型已取得准备凭证，仍须本轮会话有明确用户确认。
         boolean afterSaleWrite = name.equals("request_refund") || name.equals("submit_complaint");
         if (afterSaleWrite && (session.getMode() != AgentMode.CONFIRM || !session.isConfirmed())) {

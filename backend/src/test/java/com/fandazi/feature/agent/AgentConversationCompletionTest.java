@@ -18,7 +18,8 @@ import org.springframework.transaction.TransactionExecutionListener;
 import static org.assertj.core.api.Assertions.*;
 
 /** 真实JPA事务统计仅证明原子边界；实际MySQL性能须另跑固定负载，不从注解推定收益。 */
-@SpringBootTest
+@SpringBootTest(properties={"spring.jpa.properties.hibernate.generate_statistics=true",
+        "logging.level.org.hibernate.engine.internal.StatisticalLoggingSessionEventListener=OFF"})
 class AgentConversationCompletionTest {
     @Autowired ApplicationContext application;
     @Autowired AgentConversationSourceService sources;
@@ -26,6 +27,7 @@ class AgentConversationCompletionTest {
     @Autowired AgentPresentationRepository presentations;
     @Autowired UserRepository users;
     @Autowired PlatformTransactionManager transactions;
+    @Autowired jakarta.persistence.EntityManagerFactory entityManagers;
 
     /** 稳定断言检查新边界存在；反射避免缺类的编译错误被算成指定红测。 */
     private Object completion() {
@@ -97,5 +99,18 @@ class AgentConversationCompletionTest {
         assertThat(presentations.findAllBySourceId(source)).hasSize(1).allSatisfy(row -> assertThat(row.ids()).isEmpty());
         assertThatThrownBy(() -> complete(service,owner+100000,session,started.runId(),source,AgentResult.completed("结束","none",List.of())))
             .hasRootCauseInstanceOf(com.fandazi.feature.DomainException.class);
+    }
+
+    @Test void emptyCompletionUsesOneOwnedSourceLockAndOneStateUpdate() throws Exception {
+        // 取消等无卡片终态仍须核验来源归属并检查旧展示，但不能在同一事务重复锁读会话。
+        Object service=completion();Long owner=owner();String session="count-"+UUID.randomUUID();
+        var started=sources.beginInput(owner,session,"合成取消","count-empty-key",AgentMode.CONFIRM,"trace-count");
+        String source=(String)started.source().get("sourceMessageId");
+        var statistics=entityManagers.unwrap(org.hibernate.SessionFactory.class).getStatistics();statistics.clear();
+        complete(service,owner,session,started.runId(),source,AgentResult.completed("已取消","cancelled",List.of()));
+        // 预算为：一次会话/来源联合归属锁读、一次该来源旧展示读取、一次会话终态更新。
+        assertThat(statistics.getPrepareStatementCount()).as("无卡片出口不应重复读取同一会话和来源")
+            .isLessThanOrEqualTo(3);
+        assertThat(sessions.owned(owner,session).getActiveRunStatus()).isEqualTo("succeeded");
     }
 }

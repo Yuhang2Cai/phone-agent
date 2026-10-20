@@ -20,7 +20,7 @@ public class AgentSessionService {
         if(existing.isPresent()) {
             var session=existing.get();
             // 越权与不存在使用相同404；旧活动run继续固定原协议，终态后才允许显式进入。
-            if(!session.getUser().getId().equals(userId))
+            if(!session.ownerId().equals(userId))
                 throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,"会话不存在");
             if(!"2.2".equals(session.getContextProtocolVersion())) {
                 String status=session.getActiveRunStatus();
@@ -48,18 +48,27 @@ public class AgentSessionService {
         if (sessionId == null || sessionId.isBlank()) throw new DomainException("会话不能为空");
         var existing = sessions.findBySessionIdForUpdate(sessionId);
         if (existing.isPresent()) {
-            if (!existing.get().getUser().getId().equals(userId)) throw new DomainException("会话不属于当前用户");
-            var session=existing.get();
-            // 旧消息入口不能覆盖2.2目录/停点；新协议必须经任务轮次受理服务进入。
-            if("2.2".equals(session.getContextProtocolVersion()))
-                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,"请通过任务协议入口继续当前会话");
-            boolean resume="waiting_input".equals(session.getActiveRunStatus()) || "waiting_confirmation".equals(session.getActiveRunStatus());
-            if(!resume)session.bindContextProtocol(requestedVersion);
-            session.update(mode, traceId); return session;
+            return startLocked(existing.get(),userId,mode,traceId,requestedVersion);
         }
         var created=new AgentSession(users.findById(userId).orElseThrow(() -> new DomainException("用户不存在")), sessionId, mode, traceId);
         created.bindContextProtocol(requestedVersion);
         return sessions.save(created);
+    }
+
+    /**
+     * 复用调用方已持有悲观锁的会话执行与 start 完全相同的归属、版本和运行状态转换。
+     * 该方法只在同包事务服务中调用；传入未锁实体会破坏串行来源顺序，因此不作为公开接口。
+     */
+    AgentSession startLocked(AgentSession session,Long userId,AgentMode mode,String traceId,String requestedVersion) {
+        if(!java.util.Set.of("2.0","2.1").contains(requestedVersion))throw new DomainException("任务协议版本不受支持");
+        if(!session.ownerId().equals(userId))throw new DomainException("会话不属于当前用户");
+        // 旧消息入口不能覆盖2.2目录/停点；新协议必须经任务轮次受理服务进入。
+        if("2.2".equals(session.getContextProtocolVersion()))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,"请通过任务协议入口继续当前会话");
+        boolean resume="waiting_input".equals(session.getActiveRunStatus()) || "waiting_confirmation".equals(session.getActiveRunStatus());
+        if(!resume)session.bindContextProtocol(requestedVersion);
+        session.update(mode,traceId);
+        return session;
     }
 // 处理 `owned` 相关逻辑。
     @Transactional(readOnly = true) public AgentSession owned(Long userId, String sessionId) {

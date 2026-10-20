@@ -43,7 +43,7 @@ public class AgentTaskRegistryService {
     Scope scopeOf(AgentSession session) {
         if(!Set.of("2.2","2.3").contains(session.getContextProtocolVersion())||session.conversationEpoch()==null)
             throw conflict("当前会话未启用任务协议");
-        return new Scope(session.getUser().getId(),session.getSessionId(),session.conversationEpoch());
+        return new Scope(session.ownerId(),session.getSessionId(),session.conversationEpoch());
     }
     /** 写事务第一把锁始终是session，调用方不得先锁task或run再调用。 */
     AgentSession lockScope(Long user,String sessionId) {

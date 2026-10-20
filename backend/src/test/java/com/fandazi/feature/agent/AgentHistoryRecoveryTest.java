@@ -135,6 +135,11 @@ class AgentHistoryRecoveryTest {
     void recordingFaultNeverRetriesBusinessAndHistoryIsUnavailable() throws Exception {
         UserEntity user=users.save(new UserEntity("fault-"+UUID.randomUUID(),"fault-"+UUID.randomUUID()+"@example.invalid","unused-test-hash"));
         String session="fault-"+UUID.randomUUID();
+        // 先让 2.1 合并入口失败，验证整笔回滚后网关会进入原隔离路径，而不会跳过业务或重复调用 Agent。
+        org.mockito.Mockito.doThrow(new IllegalStateException("合成合并记录故障"))
+            .when(writer).writeFreshLinkedSourceVerified(org.mockito.ArgumentMatchers.eq(user.getId()),
+                org.mockito.ArgumentMatchers.eq(session),any(),any(),any(),any(),any(),any());
+        // 降级后的旧记录路径继续失败时必须持久化缺口；助手终态写入同样不得掩盖此前故障。
         org.mockito.Mockito.doThrow(new IllegalStateException("合成记录故障"))
             .when(writer).write(org.mockito.ArgumentMatchers.eq(user.getId()),org.mockito.ArgumentMatchers.eq(session),any(),any(),any(),any(),any());
         when(client.run(any())).thenReturn(AgentResult.completed("业务已经正常完成","completed",List.of()));

@@ -70,6 +70,54 @@ public class AgentMessageWriter {
         return message;
     }
 
+    /**
+     * 为刚由同一网关签发的 2.1 来源写入原文，并用条件 UPDATE 再次验证权威归属。
+     *
+     * @param userId 已认证用户，不能取自模型输出
+     * @param sessionId 当前会话，必须与来源和当前会话记录同时匹配
+     * @param runId 本轮运行标识，只用于消息恢复
+     * @param traceId 本轮追踪标识，只用于消息恢复与诊断
+     * @param content 未改写的用户原文
+     * @param clientMessageKey 客户端展示去重键，不授予业务执行权限
+     * @param sourceId 紧邻输入事务签发的来源标识
+     * @param epoch 签发时冻结的会话 epoch，必须仍是数据库当前值
+     * @return 已提交关联的用户消息；归属或 epoch 变化时抛出领域异常并整体回滚
+     */
+    @Transactional
+    public AgentMessageEntity writeLinkedSourceVerified(Long userId,String sessionId,String runId,String traceId,
+                                                        String content,String clientMessageKey,String sourceId,String epoch) {
+        if(sources==null)throw new IllegalStateException("来源写入器尚未装配");
+        if(sourceId==null || sourceId.isBlank() || epoch==null || epoch.isBlank())
+            throw new com.fandazi.feature.DomainException("消息来源身份不完整");
+        // 先保存完整原文；后续条件更新若未命中会抛异常，使消息插入和来源关联一起回滚。
+        var message=write(userId,sessionId,runId,traceId,"user",content,clientMessageKey);
+        int linked=sources.linkOwnedCurrent(userId,sessionId,epoch,sourceId,message.getPublicId());
+        // 正常及同消息幂等重试都必须精确匹配一条来源；零行表示归属、epoch 或已有关联已变化。
+        if(linked!=1)throw new com.fandazi.feature.DomainException("消息来源不属于当前会话或已经失效");
+        return message;
+    }
+
+    /**
+     * 写入当前事务刚创建的来源及其首条用户历史；调用方必须持有会话锁并证明来源是新插入。
+     * 新记录无需先按 record_key 查询，数据库唯一约束仍是最终防线；冲突会整体回滚并交给网关旧路径复核。
+     */
+    @Transactional
+    public AgentMessageEntity writeFreshLinkedSourceVerified(Long userId,String sessionId,String runId,String traceId,
+                                                             String content,String clientMessageKey,String sourceId,String epoch) {
+        if(sources==null)throw new IllegalStateException("来源写入器尚未装配");
+        if(sourceId==null || sourceId.isBlank() || epoch==null || epoch.isBlank())
+            throw new com.fandazi.feature.DomainException("消息来源身份不完整");
+        String identity=clientMessageKey!=null ? "client:"+clientMessageKey : traceId;
+        String key=recordKey(userId,sessionId,identity,"user");
+        // 来源和展示键都在同一会话锁下首次创建；直接 INSERT 消除并发 C5 中每请求一次无意义预读。
+        var message=new AgentMessageEntity(UUID.randomUUID().toString(),users.getReferenceById(userId),sessionId,traceId,
+            runId,"user",content,Instant.now(),clientMessageKey,key);
+        message=messages.saveAndFlush(message);
+        int linked=sources.linkOwnedCurrent(userId,sessionId,epoch,sourceId,message.getPublicId());
+        if(linked!=1)throw new com.fandazi.feature.DomainException("消息来源不属于当前会话或已经失效");
+        return message;
+    }
+
     /** 并发唯一键冲突后重新读取首个已提交消息；只用于识别重复记录，不覆盖正文或重新执行业务。 */
     @Transactional(readOnly=true)
     public java.util.Optional<AgentMessageEntity> existing(Long userId,String sessionId,String traceId,String role,String clientMessageKey) {

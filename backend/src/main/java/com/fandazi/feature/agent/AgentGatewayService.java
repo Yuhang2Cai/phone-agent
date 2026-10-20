@@ -65,8 +65,22 @@ import org.springframework.stereotype.Service;
         if(compareDealIds!=null)trustedContext.putAll(comparisons.build(compareDealIds));
         trustedContext.put("confirmationAccepted",compareDealIds==null && mode==AgentMode.CONFIRM && isConfirmation(text));
         String traceId=UUID.randomUUID().toString();
-        var started="2.1".equals(contextProtocolVersion) ? sources.beginInput(userId,sessionId,text,clientMessageKey,mode,traceId,
-            selectionRef==null ? Map.of() : (Map<String,Object>)trustedContext.get("selectionRef")) : null;
+        AgentConversationSourceService.StartedInput started=null;
+        if("2.1".equals(contextProtocolVersion)) {
+            var trustedSelection=selectionRef==null ? Map.<String,Object>of() : (Map<String,Object>)trustedContext.get("selectionRef");
+            if(messages==null) {
+                // 旧手工装配没有历史服务时只签发来源，不能假报 historyRecorded。
+                started=sources.beginInput(userId,sessionId,text,clientMessageKey,mode,traceId,trustedSelection);
+            } else {
+                try {
+                    // 正常生产链把会话、来源和用户原文合并为一次短提交，外部 Agent 仍在事务之外。
+                    started=sources.beginInputRecorded(userId,sessionId,text,clientMessageKey,mode,traceId,trustedSelection);
+                } catch(AgentConversationSourceService.InputHistoryWriteException historyError) {
+                    // 合并写入失败已整体回滚；按原隔离链重建来源，后续记录器负责持久化缺口且不阻断业务。
+                    started=sources.beginInput(userId,sessionId,text,clientMessageKey,mode,traceId,trustedSelection);
+                }
+            }
+        }
         AgentSession session=started==null ? sessions.start(userId,sessionId,mode,traceId) : null;
         // 会话实体可能被交错请求更新，必须在外部调用前冻结本轮身份，不能返回后再读取实体。
         String runId = started==null ? session.getActiveRunId() : started.runId();
@@ -75,7 +89,10 @@ import org.springframework.stereotype.Service;
         if("2.1".equals(fixedVersion)) {
             // 来源先于模型签发；重试正文冲突在任何工具调用前失败。
             var source=started.source();
-            String messageId=messages==null ? null : messages.recordUserLinkedSource(userId,sessionId,runId,traceId,text,clientMessageKey,(String)source.get("sourceMessageId"));
+            // beginInput 已冻结来源及 epoch；记录事务仍通过条件 UPDATE 复核数据库当前归属，减少重复实体查询。
+            String messageId=Boolean.TRUE.equals(source.get("historyRecorded")) ? (String)source.get("messageId")
+                : messages==null ? null : messages.recordUserLinkedSourceVerified(userId,sessionId,runId,traceId,text,clientMessageKey,
+                    (String)source.get("sourceMessageId"),(String)source.get("conversationEpoch"));
             // 记录器只在同事务原文与来源均提交后返回ID；失败保留真实缺口，不再追加一次独立关联事务。
             var linkedSource=new java.util.LinkedHashMap<String,Object>(source);
             linkedSource.put("historyRecorded",messageId!=null || Boolean.TRUE.equals(source.get("historyRecorded")));

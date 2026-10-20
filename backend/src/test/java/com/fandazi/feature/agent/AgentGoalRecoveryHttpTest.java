@@ -8,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -43,7 +44,24 @@ class AgentGoalRecoveryHttpTest {
     @Autowired AgentSessionService sessions;
     @Autowired AgentTaskRegistryService registry;
     @Autowired AgentGoalService goals;
+    @Autowired ApplicationContext context;
     @MockBean AgentServiceClient model;
+
+    /**
+     * AG05 统一性能进程必须在同一测试端点建立可恢复目标，并通过产品服务回读投影。
+     * 该测试防止在线桥只识别普通任务 seed，导致性能清单虽标注恢复旅程却无法实际执行。
+     */
+    @Test void onlineFixtureBridgeExposesGoalRecoveryPreparationWithoutGoldFields() {
+        var bridge=new AgentTaskOnlineFixtureBridge(context);
+        @SuppressWarnings("unchecked") var seeded=(Map<String,Object>)bridge.call(
+            Map.of("op","goalSeed","kind","goal-recovery"));
+        assertNotNull(seeded.get("userId"));assertNotNull(seeded.get("sessionId"));assertNotNull(seeded.get("taskId"));
+        @SuppressWarnings("unchecked") var projection=(Map<String,Object>)bridge.call(Map.of(
+            "op","goalProjection","userId",seeded.get("userId"),"sessionId",seeded.get("sessionId"),
+            "taskId",seeded.get("taskId")));
+        assertEquals("recoverable",projection.get("aggregateStatus"));
+        assertFalse(projection.containsKey("expected"));
+    }
 
     /** HTTP安全链只接受已认证的Long账号主体，用户身份不从路径、查询或正文读取。 */
     private UsernamePasswordAuthenticationToken identity(Long user) {
