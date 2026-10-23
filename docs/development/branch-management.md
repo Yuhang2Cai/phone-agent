@@ -93,3 +93,10 @@ TL11首轮完整Maven341项有1个共享H2缺表错误，退出冻结后仅修�
 2026-10-15 用户本次已直接明确回复“同意合入两个 master”。AG03 TL00—TL11共60步骤已闭合；当前仅文档进度收尾，接下来顺序将双仓codex/ag03-task-lifecycle合入各自master，实际结果另记；不提前称已合入，不推送或部署。
 
 2026-10-15 AG03双仓master集成完成：按用户当次“同意合入两个 master”，Phone快进63c3a9c59f5579af9c134f7acfef8d122ac84c2f，Agent快进19fc983b9f114f31b40674d6b8c0de712a845688并以db8eb2e9aa7ddd822bfff0f3a3d3738766964b5c恢复冻结规格原状态行。业务源1179/448对象与验收候选一致；原9585未跟踪路径集合保留。两个缺少的既有ASR资产从已验证快照补齐、SHA一致且忽略，不提交权重或启用ASR。合入后104首轮1摘要失败保留，修复隔离104及master原失败1、编译通过。最终只做集成文档回写，无推送或部署；报告见Agent docs/verification/ag03-task-lifecycle/2026-10-15-master-integration.md。
+
+
+## AG06开工台账（2026-10-23）
+
+从master `1dd17b02cfc35082e93fbfc31b0ef84ddd547e90`新建`codex/ag06-latency-resources`，工作树`D:/project/phone-agent/.worktrees/codex/ag06-latency-resources`；对应Agent master `81dbbdd6bc479cb5b098abc7e24d6b710306563f`及同名方案分支。用户授权按r1顺序实施，合入前另问。AG06-01增加来源/历史事务和Agent往返的安全分段观测，不改业务、权限或数据库结构；实际验证继续记录在Agent项目AG06-01报告。原master、未跟踪资料、共享8080/8091和其他容器保留；本任务独占8116/8117，用13326测试库的新合成scope。状态：开发中，尚未合入。
+
+2026-10-23 AG06-01：安全阶段观测按步骤通过，四类Spring定向18项全过；Agent342个唯一用例及12+36真实旅程通过，固定本机成本/插桩行为一致。Phone拟提交树`14deac46bbfa7606bb5007aba566df4dcbe7e327`在仓库外精确归档Maven package退出0；仅主源码观测与测试，Android未变、未生成APK。首次隔离补丁作用域失败已由Agent驱动修复并逐文件核对，规格不改；正式质量/UI/性能在后续阶段。两仓master未变，未授权本次合并。报告见Agent `docs/verification/ag06-latency-resources/ag06-01/acceptance.md`。

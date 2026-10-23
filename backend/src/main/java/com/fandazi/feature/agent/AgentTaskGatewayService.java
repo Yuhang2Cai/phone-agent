@@ -136,7 +136,8 @@ public class AgentTaskGatewayService {
         preflight.put("scope",AgentTaskFingerprint.scope(scope));preflight.put("query",original);preflight.put("directory",directory);
         preflight.put("button",raw.get("button"));preflight.put("confirmationVerified",confirmed);
         preflight.put("selectedContext",selectedContext.isEmpty()?null:selectedContext);
-        var decision=inputs.interpret(user,sessionId,preflight);String action=text(decision.get("action"),30);
+        // 归属模型往返与来源事务分段，禁止从总耗时反推数据库热点。
+        var decision=AgentStageMetrics.measure("spring.task_interpret",requestId,()->inputs.interpret(user,sessionId,preflight));String action=text(decision.get("action"),30);
         // 同一解释固定原文身份/旧焦点；客户端不能通过另一个requestId消费缓存的新目标。
         var decisionFields=Set.of("schemaVersion","requestId","action","targetTaskId","targetTaskVersion","newRequest","reasonCode","question",
             "intent","purpose","taskKind","focusVersion","returnTo","bodySha256","executionQuerySha256");
@@ -188,8 +189,10 @@ public class AgentTaskGatewayService {
             return continueInsertedInput(user,sessionId,requestId,original,inputHash,selectedContext,(String)command.get("commandId"));
         } else if(!Set.of("continue","revise").contains(action)||target==null||!target.get("conversationTaskId").equals(decision.get("targetTaskId"))
                 ||version(target.get("taskVersion"))!=version(decision.get("targetTaskVersion")))throw AgentTaskRegistryService.conflict("当前输入归属目标无效");
-        var accepted=turns.admitGatewayTurn(user,sessionId,new AgentTaskTurnService.Input(requestId,body,(String)target.get("conversationTaskId"),
-            version(target.get("taskVersion")),version(directory.get("focusVersion")),true),inputHash,selectedContext);
+        // 来源签发及受理事务在代理外计时，包含实际提交等待，不移除任何锁或栅栏。
+        var metricInput=new AgentTaskTurnService.Input(requestId,body,(String)target.get("conversationTaskId"),
+            version(target.get("taskVersion")),version(directory.get("focusVersion")),true);
+        var accepted=AgentStageMetrics.measure("spring.task_source",requestId,()->turns.admitGatewayTurn(user,sessionId,metricInput,inputHash,selectedContext));
         if(confirmed) {
             try {
                 fences.confirmCurrent(object(accepted.admission().get("fence")),authority(user,sessionId,accepted.turnId()).get("traceId").toString(),shown);
@@ -222,8 +225,10 @@ public class AgentTaskGatewayService {
         if(front==null||!saved.target().equals(front.get("conversationTaskId"))||version(directory.get("focusVersion"))!=saved.focusVersion()
                 ||front.get("activeRunId")!=null||front.get("lastRunId")!=null)
             throw AgentTaskRegistryService.conflict("原插入目标已变化，请核查当前任务");
-        var accepted=turns.admitGatewayTurn(user,sessionId,new AgentTaskTurnService.Input(requestId,body,saved.target(),
-            version(front.get("taskVersion")),version(directory.get("focusVersion")),true),inputHash,selectedContext);
+        // 来源签发及受理事务在代理外计时，包含实际提交等待，不移除任何锁或栅栏。
+        var metricInput=new AgentTaskTurnService.Input(requestId,body,saved.target(),
+            version(front.get("taskVersion")),version(directory.get("focusVersion")),true);
+        var accepted=AgentStageMetrics.measure("spring.task_source",requestId,()->turns.admitGatewayTurn(user,sessionId,metricInput,inputHash,selectedContext));
         // 新目标只沿原输入准备/查询；插入流程本身不继承旧摘要或确认资格，写入仍等本任务新确认。
         // 受理事务返回后同键并发请求可能已经完成；始终先读原完成回执，不能只依据受理时的快照再发一次Agent。
         return execute(user,sessionId,accepted.turnId(),object(accepted.admission().get("fence")),body,original,false,true);
@@ -274,7 +279,9 @@ public class AgentTaskGatewayService {
     private Map<String,Object> authority(Long user,String sessionId,String turnId) {return turns.readAuthority(user,sessionId,registry.scope(user,sessionId).epoch(),turnId);}
     /** 无工具短回复有独立幂等turn/outbox；不改前台trace、原待输入字段或确认期限。 */
     private AgentResult reply(Long user,String sessionId,String request,String body,String hash,String message) {
-        var turn=turns.admitGatewayTurn(user,sessionId,new AgentTaskTurnService.Input(request,body,null,0,0,false),hash);
+        // 来源签发及受理事务在代理外计时，包含实际提交等待，不移除任何锁或栅栏。
+        var metricInput=new AgentTaskTurnService.Input(request,body,null,0,0,false);
+        var turn=AgentStageMetrics.measure("spring.task_source",request,()->turns.admitGatewayTurn(user,sessionId,metricInput,hash));
         var result=turns.completeReply(user,sessionId,turn.turnId(),message);
         recordShortReply(user,sessionId,turnRows.findById(turn.turnId()).orElseThrow(AgentTaskRegistryService::missing),body,(String)result.get("message"));
         return replyResult((String)result.get("message"));
@@ -295,7 +302,9 @@ public class AgentTaskGatewayService {
         // 展示历史保留用户完整意图；业务来源仍固定为已审核的连续子句及其摘要，不把返回后缀送进执行。
         // 同requestId的完整原文已在handle核对指纹；来源关联指向真实包含该子句的原始消息，不另造用户气泡。
         if(!original.contains(body))throw AgentTaskRegistryService.conflict("业务子句不属于原输入");
-        history.recordUserLinkedSource(user,sessionId,runId,trace,original,(String)row.get("requestId"),(String)source.get("sourceMessageId"));
+        // 历史写入与模型往返分别记录；来源稍后仍由原权威接口重新核对。
+        String historySource=(String)source.get("sourceMessageId");
+        AgentStageMetrics.measure("spring.history",trace,()->history.recordUserLinkedSource(user,sessionId,runId,trace,original,(String)row.get("requestId"),historySource));
         source=object(authority(user,sessionId,turnId).get("source"));
         if(repeated) {
             // 业务子句以Spring原来源为准，不能把控制前缀/返回后缀当成新业务指令重新执行。
@@ -308,7 +317,8 @@ public class AgentTaskGatewayService {
         trusted.putAll(turnRows.findById(turnId).orElseThrow(AgentTaskRegistryService::missing).gatewayContext());
         String protocol=(String)row.get("protocolVersion");
         if("2.3".equals(protocol))trusted.put("goalContext",object(row.get("goalContext")));
-        var result=client.run(new AgentRunRequest(String.valueOf(user),sessionId,body,"confirm",trace,runId,trusted,protocol));
+        // 完整Agent往返保留原请求与结果，仅补充同一trace摘要的墙钟观测。
+        var result=AgentStageMetrics.measure("spring.agent_run",trace,()->client.run(new AgentRunRequest(String.valueOf(user),sessionId,body,"confirm",trace,runId,trusted,protocol)));
         returns.completedTask((String)fence.get("conversationTaskId"));
         history.recordAssistant(user,sessionId,runId,trace,result.message());
         return enrich(user,sessionId,fence,(String)source.get("sourceMessageId"),result);
