@@ -24,7 +24,12 @@ public class AgentTaskAdmissionController {
             Object user=null,session=null;if(raw!=null&&raw.get("fence") instanceof Map<?,?> fence&&fence.get("scope") instanceof Map<?,?> scope){user=scope.get("userId");session=scope.get("sessionId");}
             jwt.validate(authorization,user instanceof String id?id:"");
             if(!turnId.equals(raw.get("turnId"))||!(session instanceof String sessionId))return ResponseEntity.badRequest().body(error("VALIDATION_ERROR"));
-            return ResponseEntity.ok(turns.complete(Long.valueOf((String)user),sessionId,raw));
+            // 身份和原turn校验先完成，非法输入不被记录成一次完成事务；计时不跨越JWT验证。
+            Long owner=Long.valueOf((String)user);
+            String trace=raw.get("result") instanceof Map<?,?> result&&result.get("traceId") instanceof String value?value:turnId;
+            // 在原短事务服务的代理外计时，包含真实提交等待；不改变结果、异常、事务或执行次数。
+            // 关联键只由安全观测器摘要化，禁止把原请求正文或内部凭证写入日志。
+            return ResponseEntity.ok(AgentStageMetrics.measure("spring.complete",trace,()->turns.complete(owner,sessionId,raw)));
         }catch(ToolBoundaryException denied){return ResponseEntity.status("FORBIDDEN".equals(denied.getCode())?403:409).body(error(denied.getCode()));}
         catch(NumberFormatException|AgentServiceUnavailableException invalid){return ResponseEntity.badRequest().body(error("VALIDATION_ERROR"));}
     }
