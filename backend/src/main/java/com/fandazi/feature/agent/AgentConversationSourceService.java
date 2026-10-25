@@ -10,7 +10,7 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/** 事务只覆盖来源分配，不跨越历史写入、HTTP 或模型调用。 */
+/** 事务覆盖本库会话、来源及可选用户历史写入；不跨越HTTP或模型调用。 */
 @Service
 public class AgentConversationSourceService {
     private final AgentSessionRepository sessions;
@@ -77,14 +77,9 @@ public class AgentConversationSourceService {
             try {fingerprintBody=body+"\u0000"+new com.fasterxml.jackson.databind.ObjectMapper().writeValueAsString(new java.util.TreeMap<>(selectionRef));}
             catch(com.fasterxml.jackson.core.JsonProcessingException error) {throw new DomainException("展示引用无效");}
         }
-        // 只锁当前会话行；把不存在的来源放进 FOR UPDATE 左连接会锁索引间隙，使同用户不同会话插入死锁。
-        var locked=sessions.findBySessionIdForUpdate(sessionId);
-        AgentSession session;
-        if(locked.isEmpty()) {
-            session=sessionService.start(userId,sessionId,mode,traceId,"2.1");
-        } else {
-            session=sessionService.startLocked(locked.get(),userId,mode,traceId,"2.1");
-        }
+        // 统一经会话服务先原子创建、再锁实际行；外层先锁缺失行会重新引入MySQL RR创建死锁。
+        // start加入本事务并返回已锁实体，来源分配和消息失败仍与会话创建一起回滚。
+        AgentSession session=sessionService.start(userId,sessionId,mode,traceId,"2.1");
         String version=session.getContextProtocolVersion();
         if(!"2.1".equals(version)&&!selectionRef.isEmpty())throw new DomainException("当前活动任务暂不支持展示引用");
         // 引用加入来源摘要，不改变记录及发给 Agent 的用户原句，也不成为交易幂等键。

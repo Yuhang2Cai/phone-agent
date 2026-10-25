@@ -16,25 +16,17 @@ public class AgentSessionService {
     @Transactional public AgentSession startTaskSession(Long userId,String sessionId,String traceId) {
         if(sessionId==null||sessionId.isBlank()||sessionId.length()>100)
             throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST,"会话身份无效");
-        var existing=sessions.findBySessionIdForUpdate(sessionId);
-        if(existing.isPresent()) {
-            var session=existing.get();
-            // 越权与不存在使用相同404；旧活动run继续固定原协议，终态后才允许显式进入。
-            if(!session.ownerId().equals(userId))
-                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,"会话不存在");
-            if(!"2.2".equals(session.getContextProtocolVersion())) {
-                String status=session.getActiveRunStatus();
-                if(status!=null&&!java.util.Set.of("succeeded","cancelled","failed").contains(status))
-                    throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,"旧活动run必须按原协议完成");
-                session.enterTaskProtocol(traceId);
-            }
-            return session;
+        var session=createMissingAndLock(userId,sessionId,AgentMode.CONFIRM,traceId,true);
+        // 冲突创建不得更新所有者；锁读后再按原404契约拒绝越权。
+        if(!session.ownerId().equals(userId))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,"会话不存在");
+        if(!"2.2".equals(session.getContextProtocolVersion())) {
+            String status=session.getActiveRunStatus();
+            if(status!=null&&!java.util.Set.of("succeeded","cancelled","failed").contains(status))
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,"旧活动run必须按原协议完成");
+            session.enterTaskProtocol(traceId);
         }
-        var user=users.findById(userId).orElseThrow(() -> new org.springframework.web.server.ResponseStatusException(
-                org.springframework.http.HttpStatus.NOT_FOUND,"用户不存在"));
-        var created=new AgentSession(user,sessionId,AgentMode.CONFIRM,traceId);
-        created.enterTaskProtocol(traceId);
-        return sessions.saveAndFlush(created);
+        return session;
     }
 // 处理 `start` 相关逻辑。
     @Transactional public AgentSession start(Long userId, String sessionId, AgentMode mode, String traceId) {
@@ -46,13 +38,25 @@ public class AgentSessionService {
     @Transactional public AgentSession start(Long userId,String sessionId,AgentMode mode,String traceId,String requestedVersion) {
         if(!java.util.Set.of("2.0","2.1").contains(requestedVersion))throw new DomainException("任务协议版本不受支持");
         if (sessionId == null || sessionId.isBlank()) throw new DomainException("会话不能为空");
-        var existing = sessions.findBySessionIdForUpdate(sessionId);
-        if (existing.isPresent()) {
-            return startLocked(existing.get(),userId,mode,traceId,requestedVersion);
+        return startLocked(createMissingAndLock(userId,sessionId,mode,traceId,false),userId,mode,traceId,requestedVersion);
+    }
+
+    /**
+     * 加入外层事务建立可锁行：普通存在性查询不取间隙锁，缺失时以数据库唯一键仲裁创建竞争。
+     * 不开新事务、不做应用锁或失败重试；后续来源/消息失败时占位行必须同事务撤销。
+     * 新占位没有活动run，之后由原协议转换分配；已存在记录不执行无意义更新。
+     */
+    private AgentSession createMissingAndLock(Long userId,String sessionId,AgentMode mode,String traceId,boolean taskProtocol) {
+        // 普通查询只是减少既有会话的重复写；即使两个实例同时读到缺失，原子插入仍只能留一行。
+        if(!sessions.existsBySessionId(sessionId)) {
+            if(users.findById(userId).isEmpty()) {
+                if(taskProtocol)throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,"用户不存在");
+                throw new DomainException("用户不存在");
+            }
+            sessions.createIfAbsent(userId,sessionId,mode.name(),traceId);
         }
-        var created=new AgentSession(users.findById(userId).orElseThrow(() -> new DomainException("用户不存在")), sessionId, mode, traceId);
-        created.bindContextProtocol(requestedVersion);
-        return sessions.save(created);
+        // 在创建完成之后才做当前读，跨实例并发以实际已提交/本事务创建的行核验，不信旧快照的归属。
+        return sessions.findBySessionIdForUpdate(sessionId).orElseThrow(()->new IllegalStateException("会话创建后未找到记录"));
     }
 
     /**
