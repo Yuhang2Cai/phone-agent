@@ -84,6 +84,8 @@ import org.springframework.stereotype.Service;
         AgentSession session=started==null ? sessions.start(userId,sessionId,mode,traceId) : null;
         // 会话实体可能被交错请求更新，必须在外部调用前冻结本轮身份，不能返回后再读取实体。
         String runId = started==null ? session.getActiveRunId() : started.runId();
+        // 旧入口同样关联已受理的消息键与run；缺消息键保留缺口，不从正文生成观测身份。
+        AgentOperationsCorrelation.bridge(clientMessageKey,runId,traceId,null);
         // 写入完整合法输入；记录故障由独立服务标记，不阻断模型或重执业务。
         String fixedVersion=started==null ? null : started.protocolVersion();
         if("2.1".equals(fixedVersion)) {

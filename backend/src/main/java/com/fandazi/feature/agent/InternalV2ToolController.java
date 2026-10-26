@@ -45,6 +45,9 @@ public class InternalV2ToolController {
         catch(ArithmeticException|IllegalArgumentException invalid){result=failure(version(raw),"VALIDATION_ERROR","请求字段超出业务支持范围");}
         catch(org.springframework.dao.DataIntegrityViolationException conflict){result=failure(version(raw),"CONFLICT","业务资源发生冲突，请查询事实");}
         catch(Exception failure){LOG.error("任务工具失败：tool={}，异常类型={}",toolName,failure.getClass().getSimpleName());result=failure(version(raw),"INTERNAL_ERROR","工具暂时无法完成，请稍后核查");}
+        // 失败只使用已验证信封身份；成功写由事务afterCommit记录，不能在HTTP出口提前猜提交。
+        if(request!=null && Boolean.FALSE.equals(result.get("ok")) && result.get("error") instanceof Map<?,?> error)
+            AgentOperationsCorrelation.failedTool(toolName,request,String.valueOf(error.get("code")));
         // 业务已提交才另行记录公开审计，审计失败不把已完成业务误报为工具失败。
         if(request!=null)try{audit.recordTask(request,toolName,result);}catch(Exception failed){LOG.error("任务工具审计失败：tool={}，runId={}，异常类型={}",toolName,request.runId(),failed.getClass().getSimpleName());}
         return ResponseEntity.status(status).body(result);

@@ -46,6 +46,8 @@ public class AgentTaskToolBridge {
         String hash=AgentTaskFingerprint.of(key);var existing=executions.findById(request.idempotencyKey());
         // 栅栏先于缓存；旧代次即使原键有结果也不能继续取得授权，须只读receipt核查原事实。
         if(existing.isPresent()){if(!hash.equals(existing.get().getFingerprint()))throw new ToolBoundaryException("CONFLICT","动作键关联不同请求或代次");
+            // 权威原回执重放同样在事务结束后观测，唯一提交按原键去重，不增加业务写。
+            if(schema.isWrite(tool))AgentOperationsCorrelation.afterToolCommit(tool,request);
             return new GoalToolResult(existing.get().getResult(),goalProtocol?current.task().goalContext():null);}
         if(schema.isPreparation(tool)&&executions.countBySessionIdAndToolNameInAndCreatedAtAfter(request.sessionId(),
             List.of("create_purchase_quote","prepare_refund","prepare_complaint","internal_reprepare_payment"),Instant.now().minusSeconds(60))>=30)
@@ -81,6 +83,7 @@ public class AgentTaskToolBridge {
             executions.saveAndFlush(new AgentToolExecution(request,current.turn().scope().userId(),tool,hash,result));return result;
         });
         // 写效果已在上面的同一事务内推进；此处读取托管实体即可得到与业务结果同提交点的版本。
+        if(schema.isWrite(tool))AgentOperationsCorrelation.afterToolCommit(tool,request);
         return new GoalToolResult(data,goalProtocol?current.task().goalContext():null);
     }
 }

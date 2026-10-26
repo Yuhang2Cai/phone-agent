@@ -90,6 +90,20 @@ public final class AgentOperationsRuntime {
         Frame frame=CURRENT.get();return frame==null?null:frame.runtime();
     }
 
+    /** 内部受信出口发安全事件；sink故障不影响事务/业务，应用身份不能被调用字段覆盖。 */
+    void emit(String type,Map<String,Object> facts) {
+        if(sink==null)return;
+        try {
+            var fields=new LinkedHashMap<String,Object>(facts);fields.putAll(identity);
+            fields.putIfAbsent("spanId",UUID.randomUUID().toString());
+            Frame parent=CURRENT.get();
+            if(parent!=null && parent.runtime()==this)fields.putIfAbsent("parentSpanId",parent.spanId());
+            sink.offer(AgentOperationsEvent.make(type,fields));
+        } catch(RuntimeException invalid) {
+            sink.offer(Map.of("eventType","invalid"));
+        }
+    }
+
     /** 原阶段观测适配器入口；新旧接收器异常彼此隔离，不改变原业务计数。 */
     <T> T measure(String stage,String trace,Supplier<T> operation,Consumer<Map<String,Object>> legacy) {
         Frame parent=CURRENT.get();

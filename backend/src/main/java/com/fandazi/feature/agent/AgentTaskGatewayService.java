@@ -299,6 +299,8 @@ public class AgentTaskGatewayService {
         // 重连用首次受理信封，Agent持久回执负责只补完成；completed许可绝不能变成新工具执行资格。
         admission.put("admissionState","admitted");admission.put("mayExecuteTools",true);
         var source=object(row.get("source"));String runId=(String)fence.get("runId"),trace=(String)row.get("traceId");
+        // 权威受理已返回后才建立请求/run桥；关联不改变权限，也不触发一次额外业务调用。
+        AgentOperationsCorrelation.bridge((String)row.get("requestId"),runId,trace,(String)fence.get("conversationTaskId"));
         // 展示历史保留用户完整意图；业务来源仍固定为已审核的连续子句及其摘要，不把返回后缀送进执行。
         // 同requestId的完整原文已在handle核对指纹；来源关联指向真实包含该子句的原始消息，不另造用户气泡。
         if(!original.contains(body))throw AgentTaskRegistryService.conflict("业务子句不属于原输入");
