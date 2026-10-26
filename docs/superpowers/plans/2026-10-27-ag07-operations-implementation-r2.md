@@ -29,9 +29,9 @@
 |AG07-00-E|任务规则/来源/复用与r2冻结|00|E-contract|完成；23定向/隔离23通过|
 |AG07-01|安全事件契约、跨服务关联和有界sink|00|O01/O02|步骤完成；真实回执关联仍待02/08|
 |AG07-02|请求/工具/模型错误耗时与费用汇总|01|O01/O03|开始|
-|AG07-03|本地可用告警、查询与确认闭环|02|O04|未开始|
+|AG07-03|本地可用告警、查询与确认闭环|02|O04|已完成|
 |AG07-04|受控入口准入与控制/核查独立通路|01|O05|已完成|
-|AG07-05|配对发布清单、维护与回退脚本|03/04|O06|未开始|
+|AG07-05|配对发布清单、维护与回退脚本|03/04|O06|已完成（真实切换待07）|
 |AG07-06|显式目标双库/索引备份恢复|05|O07|未开始|
 |AG07-07|五类真实故障及恢复演练|03—06|F01—F05|未开始|
 |AG07-08|必要真实模型组合和当前APK UI|07|O08|未开始|
@@ -117,10 +117,10 @@ Phone新增 `scripts/operations/release.py`、`scripts/operations/targets.py`、
 
 接口：`validate_release(manifest, observed) -> checked_plan`、`apply_release(checked_plan, maintenance_receipt) -> receipt`、`rollback_release(checked_plan, previous_release) -> receipt`。默认为只验证；实际动作必须有明确自有目标/产物SHA/操作类型，非交互执行不能默认启动生产目标。
 
-- [ ] 05.1 固定release manifest schema、协议/开关组合、迁移清单、归属与回退AG06基线；坏SHA/未知路径/他人容器/replicas>1/版本不兼容在变更前拒绝。
-- [ ] 05.2 实现维护状态：先阻止新普通请求，排空并核写结果，再停写者；120秒到期标未完成，不能kill后自称安全。只读目录与原receipt在正常排空期仍可用。
-- [ ] 05.3 复用隔离产物，部署入口不用动态工作区build。把旧集成说明的健康路径/2.0默认/SQL范围与当前实际代码对齐，保持旧文件作为历史参考。
-- [ ] 05.4 离线驱动测试一次预演所有失败守卫；真实前进/回退放到07统一演练，不在此阶段重复切服务。
+- [x] 05.1 固定release manifest schema、协议/开关组合、迁移清单、归属与回退AG06基线；坏SHA/未知路径/他人容器/replicas>1/版本不兼容在变更前拒绝。
+- [x] 05.2 实现维护状态：先阻止新普通请求，排空并核写结果，再停写者；120秒到期标未完成，不能kill后自称安全。只读目录与原receipt在正常排空期仍可用。
+- [x] 05.3 复用隔离产物，部署入口不用动态工作区build。把旧集成说明的健康路径/2.0默认/SQL范围与当前实际代码对齐，保持旧文件作为历史参考。
+- [x] 05.4 离线驱动测试一次预演所有失败守卫；真实前进/回退放到07统一演练，不在此阶段重复切服务。
 
 命令 `python -m pytest tests/test_ag07_release_manifest.py -q` 与Phone `python -m pytest scripts/operations/test_release.py -q`。断言 `validate_release(tampered, observed)`抛稳定身份错误且变更调用0；排空超时同样变更0。通过：脚本安全可预览、兼容配置不复活确认/不重置预算、未运行真实回退明确标待07。
 
@@ -293,3 +293,6 @@ assert synthetic_result["provenance"] == "synthetic_grader_test"
 ## 04完成检查点
 
 [04报告](../../verification/ag07-operations/ag07-04.md)：一次8HTTP/峰值3在途、拒绝不写库/原键仍可读、模型0、资源回收通过；Agent123项隔离有效证据及2项锁范围限定复用，Spring88/构建0。两次前置驱动失败保留、业务发送0；通过轮不再重复。下一步05配对发布/维护/回退驱动，真实发布与恢复统一待07。
+
+
+AG07-05：Agent15/Phone23隔离通过，双源码编译0；树0a07c86a/045609f4。真实切换按原计划待07，模型0。见[05报告](../../verification/ag07-operations/ag07-05.md)。

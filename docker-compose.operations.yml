@@ -1,0 +1,27 @@
+# AG07固定产物模板：仅受信部署器核验后使用；这里不build、不创建数据库或接管旧卷。
+# AGENT_IMAGE/SPRING_IMAGE必须是隔离产物构建所得完整sha256镜像，不能填浮动tag。
+# 本文件不是生产入口隔离证明；没有受信断流适配器时只允许config预览，禁止up。
+services:
+  agent:
+    image: ${AG07_AGENT_IMAGE:?需要已核摘要的Agent镜像}
+    container_name: ag07-agent
+    labels: {owner: ag07-20261027}
+    ports: ["127.0.0.1:18074:8091"]
+    env_file: ["${AG07_AGENT_PRIVATE_ENV:?需要私有Agent启动配置}"]
+    environment:
+      AG07_ADMISSION_ENABLED: "true"
+    restart: "no"
+    deploy:
+      replicas: 1
+  spring:
+    image: ${AG07_SPRING_IMAGE:?需要已核摘要的Spring镜像}
+    container_name: ag07-spring
+    labels: {owner: ag07-20261027}
+    ports: ["127.0.0.1:18073:8080"]
+    env_file: ["${AG07_SPRING_PRIVATE_ENV:?需要私有Spring启动配置}"]
+    environment:
+      AG07_ADMISSION_ENABLED: "true"
+      SEED_ENABLED: "false"
+    restart: "no"
+    deploy:
+      replicas: 1
