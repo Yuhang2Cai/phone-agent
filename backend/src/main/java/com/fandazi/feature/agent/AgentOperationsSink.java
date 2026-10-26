@@ -135,7 +135,8 @@ public final class AgentOperationsSink {
             expire();
             Path temp=root.resolve("status.tmp"), dest=root.resolve("status.json");
             rejectLink(temp);rejectLink(dest);
-            var state=snapshot();state.put("heartbeat",Instant.now().toString());
+            // 本机状态使用固定白名单与未知覆盖标记，不把sink正常推断成业务恢复。
+            var state=AgentOperationsHealth.project(snapshot());state.put("heartbeat",Instant.now().toString());
             state.put("consumer_stopped",finalizing);
             Files.writeString(temp,json.writeValueAsString(state),StandardCharsets.UTF_8);
             Files.move(temp,dest,StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);
