@@ -29,11 +29,16 @@ public final class AgentStageMetrics {
      * operation的返回值与异常原样传递，不自动重试、不更改提交或确认逻辑。
      */
     public static <T> T measure(String stage,String trace,Supplier<T> operation) {
-        if(!Boolean.parseBoolean(System.getenv("AG06_STAGE_METRICS_ENABLED")))return operation.get();
-        return measure(stage,trace,operation,System::nanoTime,metric->{
+        var runtime=AgentOperationsRuntime.current();
+        boolean legacyEnabled=Boolean.parseBoolean(System.getenv("AG06_STAGE_METRICS_ENABLED"));
+        if(!legacyEnabled && runtime==null)return operation.get();
+        Consumer<Map<String,Object>> legacy=metric->{
             try {LOG.info("AG06_METRIC {}",JSON.writeValueAsString(metric));}
             catch(Exception ignored) { /* 遥测序列化或日志故障不影响业务，不打印可能含敏感数据的异常正文。 */ }
-        });
+        };
+        // 新观测只归属于当前显式应用作用域；保留旧格式开关和事务代理外计时语义。
+        if(runtime!=null)return runtime.measure(stage,trace,operation,legacyEnabled?legacy:null);
+        return measure(stage,trace,operation,System::nanoTime,legacy);
     }
 
     /**
