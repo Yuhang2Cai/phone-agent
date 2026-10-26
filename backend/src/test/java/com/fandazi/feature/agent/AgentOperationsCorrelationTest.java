@@ -69,4 +69,14 @@ class AgentOperationsCorrelationTest {
         } finally {TransactionSynchronizationManager.clear();runtime.close();}
         assertTrue(records().isEmpty());
     }
+    @Test void admissionDenialIsObservedWithoutAccountData() throws Exception {
+        // 使用真实准入与sink输出，不通过手工emit代替拒绝路径。
+        var runtime=runtime();var gate=new AgentRequestAdmission(true,()->100000,4096);
+        try(var held=gate.acquire("private-account",false)) {
+            try {runtime.run(()->assertThrows(AgentRequestAdmission.Denied.class,()->gate.acquire("private-other",false)));}
+            finally {runtime.close();}
+        }
+        var rows=records();assertEquals(1,rows.size());assertEquals("admission",rows.get(0).get("eventType"));
+        assertEquals("denied",rows.get(0).get("status"));assertFalse(rows.toString().contains("private-"));
+    }
 }

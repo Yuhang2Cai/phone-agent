@@ -115,6 +115,13 @@ public class AgentTaskControlService {
         for(var task:affected.values())outbox.append(session,"task_projection",task.projection());outbox.append(session,"command_status",command.projection());return command.projection();
     }
     /** 普通按钮预备；同请求只推进一次，容量/版本/目标冲突在任何栅栏变化前拒绝。 */
+    @Transactional(readOnly=true)
+    public void preflight(Long user,String sessionId,Map<String,Object> raw) {
+        // 只读Schema和目标归属；版本竞争仍在prepare短事务重新核验，不能预先写source或grant。
+        validate("taskCommandRequest",raw);var scope=registry.scope(user,sessionId);
+        registry.task(user,sessionId,(String)raw.get("targetTaskId"),scope.epoch());
+    }
+    /** 预读只服务准入，真正预备仍在原行锁和事务内完成全部版本/状态判断。 */
     @Transactional
     public Map<String,Object> prepare(Long user,String sessionId,Map<String,Object> raw) {
         validate("taskCommandRequest",raw);
@@ -198,6 +205,12 @@ public class AgentTaskControlService {
     /** 目标ID由首次预备持久化；所有后续派发/对账使用原清单而非重新猜当前焦点。 */
     @SuppressWarnings("unchecked")
     private List<String> affectedIds(AgentTaskCommandEntity command) {return ((List<Object>)command.details().get("affectedTaskIds")).stream().map(String::valueOf).sorted().toList();}
+    /** 读取本人命令公开状态；不返回检查点、租约或私有ACK正文。 */
+    @Transactional(readOnly=true)
+    public void preflightScope(Long user,String sessionId) {
+        // 会话是全部命令读取的权限边界；具体命令仍在许可内按原scope查找和复核。
+        registry.scope(user,sessionId);
+    }
     /** 读取本人命令公开状态；不返回检查点、租约或私有ACK正文。 */
     @Transactional(readOnly=true)
     public Map<String,Object> read(Long user,String sessionId,String id) {

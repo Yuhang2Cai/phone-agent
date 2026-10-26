@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/agent/sessions/{sessionId}/tasks/{taskId}")
 public class AgentGoalController {
+    private AgentRequestAdmission admission=AgentRequestAdmission.disabled();
+    /** 恢复受理不启动业务，使用同应用控制额度；下一轮业务仍走普通输入保护。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    void attachAdmission(AgentRequestAdmission admission) {this.admission=admission;}
     private final AgentGoalRecoveryService recoveries;
 
     /** 注入唯一恢复服务，控制器不自行读取数据库、调用Agent或构造业务成功结果。 */
@@ -19,20 +23,25 @@ public class AgentGoalController {
     @GetMapping("/goals")
     public Map<String,Object> goals(@AuthenticationPrincipal Long user,@PathVariable String sessionId,
             @PathVariable String taskId) {
-        return recoveries.projection(user,sessionId,taskId);
+        if(admission.enabled())recoveries.preflight(user,sessionId,taskId);
+        try(var permit=admission.acquire(String.valueOf(user),true)) {return recoveries.projection(user,sessionId,taskId);}
     }
 
     /** 受理一次用户明确动作；HTTP 202只表示持久受理，不表示业务已完成。 */
     @PostMapping("/goal-recoveries")
     public ResponseEntity<Map<String,Object>> recover(@AuthenticationPrincipal Long user,@PathVariable String sessionId,
             @PathVariable String taskId,@RequestBody(required=false) Map<String,Object> request) {
-        return ResponseEntity.accepted().body(recoveries.accept(user,sessionId,taskId,request));
+        if(admission.enabled())recoveries.preflight(user,sessionId,taskId);
+        try(var permit=admission.acquire(String.valueOf(user),true)) {
+            return ResponseEntity.accepted().body(recoveries.accept(user,sessionId,taskId,request));
+        }
     }
 
     /** 断网未知POST只查询原requestId回执；此GET不创建来源、轮次、工具调用或业务写。 */
     @GetMapping("/goal-recoveries/{requestId}")
     public Map<String,Object> recovery(@AuthenticationPrincipal Long user,@PathVariable String sessionId,
             @PathVariable String taskId,@PathVariable String requestId) {
-        return recoveries.read(user,sessionId,taskId,requestId);
+        if(admission.enabled())recoveries.preflight(user,sessionId,taskId);
+        try(var permit=admission.acquire(String.valueOf(user),true)) {return recoveries.read(user,sessionId,taskId,requestId);}
     }
 }

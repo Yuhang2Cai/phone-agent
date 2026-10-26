@@ -37,6 +37,13 @@ public class AgentGoalRecoveryService {
      * 关闭恢复写开关时仍允许读取既有2.3历史；旧任务和空投影不会被伪造成空目标成功。
      */
     @Transactional(readOnly=true)
+    public void preflight(Long user,String sessionId,String taskId) {
+        // 只核账号/会话/任务；不解析投影或回执，不创建来源或恢复请求。
+        var scope=registry.scope(user,sessionId);
+        registry.task(user,sessionId,taskId,scope.epoch());
+    }
+    /** 在许可内读取并再次核归属；预检结果不能作为跨请求授权缓存。 */
+    @Transactional(readOnly=true)
     public Map<String,Object> projection(Long user,String sessionId,String taskId) {
         var scope=registry.scope(user,sessionId);
         var task=tasks.findById(taskId).orElseThrow(AgentTaskRegistryService::missing);

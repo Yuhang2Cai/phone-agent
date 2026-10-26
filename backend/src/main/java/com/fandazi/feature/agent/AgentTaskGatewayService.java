@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 /** 旧/messages不经过此模块；短回复/控制不伪造业务run完成，不授予工具权限。 */
 @Service
 public class AgentTaskGatewayService {
+    private AgentRequestAdmission admission=AgentRequestAdmission.disabled();
+    /** 生产注入同应用唯一额度；旧组件手工装配默认关闭，不能形成多个生产桶。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    void attachAdmission(AgentRequestAdmission admission) {this.admission=admission;}
     private final AgentSessionService sessions;private final AgentTaskRegistryService registry;
     private final AgentTaskTurnService turns;private final AgentTaskTurnRepository turnRows;
     private final AgentTaskControlService controls;private final AgentTaskCommandRepository commands;
@@ -91,119 +95,148 @@ public class AgentTaskGatewayService {
             text(confirmation.get("taskId"),100);version(confirmation.get("taskVersion"));version(confirmation.get("focusVersion"));object(confirmation.get("summary"));
         }
         if(!enabled)throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE,"任务输入暂未启用");
-        sessions.startTaskSession(user,sessionId,UUID.randomUUID().toString());var scope=registry.scope(user,sessionId);
-        // 查重先于新目录解释；首次受理后焦点/版本改变仍只能返回原结果，不新建第二任务或业务。
-        var old=turnRows.findByUserIdAndSessionIdAndEpochAndRequestId(user,sessionId,scope.epoch(),requestId);
-        if(old.isPresent()) {
-            var turn=old.get();if(!inputHash.equals(turn.gatewayInputHash()))throw AgentTaskRegistryService.conflict("同请求内容已变化");
-            if(turn.fence()==null){recordShortReply(user,sessionId,turn,original,(String)turn.result().get("message"));return replyResult((String)turn.result().get("message"));}
-            return execute(user,sessionId,turn.id(),turn.fence(),turn.gatewayQuery(),original,raw.get("confirmation")!=null&&confirmationText(original),true);
-        }
-        // 控制可能已晚提交但原业务turn尚未受理；同请求必须先定位原命令，不能拿已变化目录重新分类或新建任务。
-        var pendingInsert=commands.findByUserIdAndSessionIdAndEpochAndRequestId(user,sessionId,scope.epoch(),"input-insert-"+AgentTaskFingerprint.of(requestId));
-        if(pendingInsert.isPresent()) {
-            var saved=pendingInsert.get();
-            if(!inputHash.equals(saved.details().get("gatewayInputHash")))throw AgentTaskRegistryService.conflict("原插入请求内容已变化或恢复资料不完整");
-            var selected=raw.get("selectionRef")==null?Map.<String,Object>of():presentations.context(user,sessionId,object(raw.get("selectionRef")));
-            return continueInsertedInput(user,sessionId,requestId,original,inputHash,selected,saved.id());
-        }
-        var directory=registry.directory(user,sessionId);var front=directory.get("currentTask")==null?null:object(directory.get("currentTask"));
-        if(raw.get("button")!=null) {
-            // 结构合法不等于本人可操作：在归属模型/文字快捷规则之前核账号、会话、epoch、版本及动作。
-            // 外部按钮返回统一404；旧版本或终态动作409，不能忽略按钮后把“暂停”重绑到当前任务。
-            var button=object(raw.get("button"));var referenced=registry.task(user,sessionId,(String)button.get("taskId"),scope.epoch());
-            String permission="switch".equals(button.get("action"))?"resume":(String)button.get("action");
-            if(version(referenced.get("taskVersion"))!=version(button.get("taskVersion"))
-                    ||!((List<?>)referenced.get("availableActions")).contains(permission))
-                throw AgentTaskRegistryService.conflict("任务按钮引用或动作已失效");
-        }
-        // 本人同epoch展示登记负责解析引用；仅允许最小selectionRef，任意候选/凭证字段在解释和控制前拒绝。
-        Map<String,Object> selectedContext=raw.get("selectionRef")==null?Map.of():presentations.context(user,sessionId,object(raw.get("selectionRef")));
-        boolean confirmed=false;Map<String,Object> shown=null;
-        if(raw.get("confirmation")!=null) {
-            var confirmation=object(raw.get("confirmation"));
-            if(!confirmation.keySet().equals(Set.of("taskId","taskVersion","focusVersion","summary"))||front==null
-                    ||!front.get("conversationTaskId").equals(confirmation.get("taskId"))||version(front.get("taskVersion"))!=version(confirmation.get("taskVersion"))
-                    ||version(directory.get("focusVersion"))!=version(confirmation.get("focusVersion")))throw AgentTaskRegistryService.conflict("确认目标或版本已变化");
-            shown=object(confirmation.get("summary"));var session=sessions.owned(user,sessionId);
-            if(!AgentTaskFingerprint.of(shown).equals(AgentTaskFingerprint.of(session.getPendingConfirmation())))throw AgentTaskRegistryService.conflict("展示确认已变化");
-            // 版本/摘要一致仅证明用户看过该动作；不同动作文字仍明确拒绝，不能先交模型后误消费原购买授权。
-            if(confirmationText(original)&&!confirmationActionMatches(original,shown))
-                throw AgentTaskRegistryService.conflict("确认文字与当前展示动作不一致，请核对后重新确认");
-            confirmed=confirmationText(original);
-        }
-        var preflight=new LinkedHashMap<String,Object>();preflight.put("schemaVersion","2.2");preflight.put("requestId",requestId);
-        preflight.put("scope",AgentTaskFingerprint.scope(scope));preflight.put("query",original);preflight.put("directory",directory);
-        preflight.put("button",raw.get("button"));preflight.put("confirmationVerified",confirmed);
-        preflight.put("selectedContext",selectedContext.isEmpty()?null:selectedContext);
-        // 归属模型往返与来源事务分段，禁止从总耗时反推数据库热点。
-        var decision=AgentStageMetrics.measure("spring.task_interpret",requestId,()->inputs.interpret(user,sessionId,preflight));String action=text(decision.get("action"),30);
-        // 同一解释固定原文身份/旧焦点；客户端不能通过另一个requestId消费缓存的新目标。
-        var decisionFields=Set.of("schemaVersion","requestId","action","targetTaskId","targetTaskVersion","newRequest","reasonCode","question",
-            "intent","purpose","taskKind","focusVersion","returnTo","bodySha256","executionQuerySha256");
-        String executionQuery="insert".equals(action)?text(decision.get("newRequest"),4000):original;
-        if(!decision.keySet().equals(decisionFields)||!"2.2".equals(decision.get("schemaVersion"))||!requestId.equals(decision.get("requestId"))
-                ||!sha256(original).equals(decision.get("bodySha256"))||!sha256(executionQuery).equals(decision.get("executionQuerySha256"))
-                ||version(directory.get("focusVersion"))!=version(decision.get("focusVersion")))
-            throw AgentTaskRegistryService.conflict("输入归属快照已变化");
-        boolean showStop="show_current_stop".equals(decision.get("reasonCode"))||
-            "reviewed_exact".equals(decision.get("reasonCode"))&&Set.of("继续","继续当前任务").contains(original);
-        if("continue".equals(action)&&showStop) {
-            // Agent已校验纯展示的两个候选/原文/目标版本；服务端再核当前目录和输入摘要，只读原停点。
-            // 自然继续不是字段答案或交易确认，不新建业务turn、不消费/延长grant；普通字段continue仍走受理。
-            if(front==null||!front.get("conversationTaskId").equals(decision.get("targetTaskId"))
-                    ||version(front.get("taskVersion"))!=version(decision.get("targetTaskVersion")))throw AgentTaskRegistryService.conflict("原任务停点已变化");
-            return reply(user,sessionId,requestId,original,inputHash,stopPrompt(front));
-        }
-        if(Set.of("clarify","no_task").contains(action)) {
-            String message="clarify".equals(action)?text(decision.get("question"),1000):"reviewed_exact".equals(decision.get("reasonCode"))?
-                "你好，我是饭搭子助手。当前任务保留原停点。":"已收到，当前任务保留原停点；范围外事项暂不支持办理。";
-            return reply(user,sessionId,requestId,original,inputHash,message);
-        }
-        if(Set.of("pause","cancel","resume","switch").contains(action)) {
-            var command=controls.prepare(user,sessionId,Map.of("requestId","input-control-"+AgentTaskFingerprint.of(requestId),
-                "action",action,"targetTaskId",text(decision.get("targetTaskId"),100),"expectedTaskVersion",version(decision.get("targetTaskVersion")),
-                "expectedFocusVersion",version(decision.get("focusVersion"))));
-            var result=reconcile.process((String)command.get("commandId"),Instant.now());
-            // 恢复只展示停点，不调用业务Agent；处理中保留原command，不说取消/暂停成功。
-            String message="committed".equals(result.get("state"))?switch(action){case "pause" -> "当前任务已暂停。";case "cancel" -> "任务已取消，已产生的订单或申请仍保留。";default -> "已恢复任务焦点，请根据原停点继续；原确认需重新准备。";}:"任务正在交接或核查，请查看任务状态。";
-            return reply(user,sessionId,requestId,original,inputHash,message);
-        }
-        String body=original;Map<String,Object> target=front;
-        if("insert".equals(action)) {
-            body=text(decision.get("newRequest"),4000);
-            if(!original.contains(body))throw AgentTaskRegistryService.bad("新请求不属于原文连续区间");
-            String kind=text(decision.get("taskKind"),30),intent=text(decision.get("intent"),40);
-            AgentTaskControlService.ReturnRequest returnRequest=null;
-            if(decision.get("returnTo")!=null) {
-                var hint=object(decision.get("returnTo"));
-                if(!hint.keySet().equals(Set.of("targetTaskId","targetTaskVersion","focusVersion","sourceStart","sourceEnd")))throw AgentTaskRegistryService.bad("返回指令结构无效");
-                returnRequest=new AgentTaskControlService.ReturnRequest(text(hint.get("targetTaskId"),100),version(hint.get("targetTaskVersion")),
-                    version(hint.get("focusVersion")),original,Math.toIntExact(version(hint.get("sourceStart"))),Math.toIntExact(version(hint.get("sourceEnd"))));
+        boolean management=false;
+        if(admission.enabled()) {
+            sessions.preflightStart(user,sessionId);
+            // 本人按钮目标与版本必须在普通/控制额度之前核对，不能用伪造目标耗费他人额度。
+            if(raw.get("button")!=null) {
+                var button=object(raw.get("button"));var checkedScope=registry.scope(user,sessionId);
+                var target=registry.task(user,sessionId,(String)button.get("taskId"),checkedScope.epoch());
+                String permission="switch".equals(button.get("action"))?"resume":(String)button.get("action");
+                if(version(target.get("taskVersion"))!=version(button.get("taskVersion"))||!((List<?>)target.get("availableActions")).contains(permission))
+                    throw AgentTaskRegistryService.conflict("任务按钮引用或动作已失效");
+                management=Set.of("继续","暂停当前任务","取消当前任务","恢复任务","切换任务").contains(original);
             }
-            // 当前2.3执行器只接管已有多目标DAG的恢复；单目标十三类继续用2.2兼容链路。
-            // 复合任务仍需客户端、Spring和Agent三方能力同时具备，任何一项缺失都固定为2.2。
-            String protocol="composite".equals(kind)?goalFeatureGate.protocolForNewTask(agentGoalRecoveryEnabled,capabilities):"2.2";
-            var command=controls.prepareGatewayInsert(user,sessionId,new AgentTaskControlService.NewGoal("input-insert-"+AgentTaskFingerprint.of(requestId),body,kind,intent,
-                title(intent),version(decision.get("focusVersion")),returnRequest,protocol),inputHash,original);
-            return continueInsertedInput(user,sessionId,requestId,original,inputHash,selectedContext,(String)command.get("commandId"));
-        } else if(!Set.of("continue","revise").contains(action)||target==null||!target.get("conversationTaskId").equals(decision.get("targetTaskId"))
-                ||version(target.get("taskVersion"))!=version(decision.get("targetTaskVersion")))throw AgentTaskRegistryService.conflict("当前输入归属目标无效");
-        // 来源签发及受理事务在代理外计时，包含实际提交等待，不移除任何锁或栅栏。
-        var metricInput=new AgentTaskTurnService.Input(requestId,body,(String)target.get("conversationTaskId"),
-            version(target.get("taskVersion")),version(directory.get("focusVersion")),true);
-        var accepted=AgentStageMetrics.measure("spring.task_source",requestId,()->turns.admitGatewayTurn(user,sessionId,metricInput,inputHash,selectedContext));
-        if(confirmed) {
-            try {
-                fences.confirmCurrent(object(accepted.admission().get("fence")),authority(user,sessionId,accepted.turnId()).get("traceId").toString(),shown);
-            } catch(ToolBoundaryException denied) {
-                // 工具层保留 EXPIRED 供内部恢复决策使用；公共任务输入把“展示后过期”表达为
-                // 当前确认状态冲突，返回 409，客户端据此重新准备而不是把请求结构当成 400。
-                if("EXPIRED".equals(denied.getCode()))throw AgentTaskRegistryService.conflict("确认授权已过期，请重新准备");
-                throw denied;
+            if(raw.get("confirmation")!=null) {
+                var checkedScope=registry.scope(user,sessionId);
+                registry.task(user,sessionId,(String)object(raw.get("confirmation")).get("taskId"),checkedScope.epoch());
             }
         }
-        return execute(user,sessionId,accepted.turnId(),object(accepted.admission().get("fence")),body,original,confirmed,false);
+        // 许可覆盖整个网关真实调用；同步HTTP未返回前不会因上层断线提前归还。
+        try(var permit=admission.acquire(String.valueOf(user),management)) {
+            sessions.startTaskSession(user,sessionId,UUID.randomUUID().toString());var scope=registry.scope(user,sessionId);
+            // 查重先于新目录解释；首次受理后焦点/版本改变仍只能返回原结果，不新建第二任务或业务。
+            var old=turnRows.findByUserIdAndSessionIdAndEpochAndRequestId(user,sessionId,scope.epoch(),requestId);
+            if(old.isPresent()) {
+                var turn=old.get();if(!inputHash.equals(turn.gatewayInputHash()))throw AgentTaskRegistryService.conflict("同请求内容已变化");
+                if(turn.fence()==null){recordShortReply(user,sessionId,turn,original,(String)turn.result().get("message"));return replyResult((String)turn.result().get("message"));}
+                if(management)throw AgentTaskRegistryService.conflict("控制通道不能恢复业务执行");
+                return execute(user,sessionId,turn.id(),turn.fence(),turn.gatewayQuery(),original,raw.get("confirmation")!=null&&confirmationText(original),true);
+            }
+            // 控制可能已晚提交但原业务turn尚未受理；同请求必须先定位原命令，不能拿已变化目录重新分类或新建任务。
+            var pendingInsert=commands.findByUserIdAndSessionIdAndEpochAndRequestId(user,sessionId,scope.epoch(),"input-insert-"+AgentTaskFingerprint.of(requestId));
+            if(pendingInsert.isPresent()) {
+                if(management)throw AgentTaskRegistryService.conflict("控制通道不能接续新业务");
+                var saved=pendingInsert.get();
+                if(!inputHash.equals(saved.details().get("gatewayInputHash")))throw AgentTaskRegistryService.conflict("原插入请求内容已变化或恢复资料不完整");
+                var selected=raw.get("selectionRef")==null?Map.<String,Object>of():presentations.context(user,sessionId,object(raw.get("selectionRef")));
+                return continueInsertedInput(user,sessionId,requestId,original,inputHash,selected,saved.id());
+            }
+            var directory=registry.directory(user,sessionId);var front=directory.get("currentTask")==null?null:object(directory.get("currentTask"));
+            if(raw.get("button")!=null) {
+                // 结构合法不等于本人可操作：在归属模型/文字快捷规则之前核账号、会话、epoch、版本及动作。
+                // 外部按钮返回统一404；旧版本或终态动作409，不能忽略按钮后把“暂停”重绑到当前任务。
+                var button=object(raw.get("button"));var referenced=registry.task(user,sessionId,(String)button.get("taskId"),scope.epoch());
+                String permission="switch".equals(button.get("action"))?"resume":(String)button.get("action");
+                if(version(referenced.get("taskVersion"))!=version(button.get("taskVersion"))
+                        ||!((List<?>)referenced.get("availableActions")).contains(permission))
+                    throw AgentTaskRegistryService.conflict("任务按钮引用或动作已失效");
+            }
+            // 本人同epoch展示登记负责解析引用；仅允许最小selectionRef，任意候选/凭证字段在解释和控制前拒绝。
+            Map<String,Object> selectedContext=raw.get("selectionRef")==null?Map.of():presentations.context(user,sessionId,object(raw.get("selectionRef")));
+            boolean confirmed=false;Map<String,Object> shown=null;
+            if(raw.get("confirmation")!=null) {
+                var confirmation=object(raw.get("confirmation"));
+                if(!confirmation.keySet().equals(Set.of("taskId","taskVersion","focusVersion","summary"))||front==null
+                        ||!front.get("conversationTaskId").equals(confirmation.get("taskId"))||version(front.get("taskVersion"))!=version(confirmation.get("taskVersion"))
+                        ||version(directory.get("focusVersion"))!=version(confirmation.get("focusVersion")))throw AgentTaskRegistryService.conflict("确认目标或版本已变化");
+                shown=object(confirmation.get("summary"));var session=sessions.owned(user,sessionId);
+                if(!AgentTaskFingerprint.of(shown).equals(AgentTaskFingerprint.of(session.getPendingConfirmation())))throw AgentTaskRegistryService.conflict("展示确认已变化");
+                // 版本/摘要一致仅证明用户看过该动作；不同动作文字仍明确拒绝，不能先交模型后误消费原购买授权。
+                if(confirmationText(original)&&!confirmationActionMatches(original,shown))
+                    throw AgentTaskRegistryService.conflict("确认文字与当前展示动作不一致，请核对后重新确认");
+                confirmed=confirmationText(original);
+            }
+            var preflight=new LinkedHashMap<String,Object>();preflight.put("schemaVersion","2.2");preflight.put("requestId",requestId);
+            preflight.put("scope",AgentTaskFingerprint.scope(scope));preflight.put("query",original);preflight.put("directory",directory);
+            preflight.put("button",raw.get("button"));preflight.put("confirmationVerified",confirmed);
+            preflight.put("selectedContext",selectedContext.isEmpty()?null:selectedContext);
+            // 归属模型往返与来源事务分段，禁止从总耗时反推数据库热点。
+            var decision=AgentStageMetrics.measure("spring.task_interpret",requestId,()->inputs.interpret(user,sessionId,preflight));String action=text(decision.get("action"),30);
+            // 同一解释固定原文身份/旧焦点；客户端不能通过另一个requestId消费缓存的新目标。
+            var decisionFields=Set.of("schemaVersion","requestId","action","targetTaskId","targetTaskVersion","newRequest","reasonCode","question",
+                "intent","purpose","taskKind","focusVersion","returnTo","bodySha256","executionQuerySha256");
+            String executionQuery="insert".equals(action)?text(decision.get("newRequest"),4000):original;
+            if(!decision.keySet().equals(decisionFields)||!"2.2".equals(decision.get("schemaVersion"))||!requestId.equals(decision.get("requestId"))
+                    ||!sha256(original).equals(decision.get("bodySha256"))||!sha256(executionQuery).equals(decision.get("executionQuerySha256"))
+                    ||version(directory.get("focusVersion"))!=version(decision.get("focusVersion")))
+                throw AgentTaskRegistryService.conflict("输入归属快照已变化");
+            // 即使依赖返回了结构合法的业务候选，纯控制通道也只能接受同按钮动作与目标。
+            if(management) {
+                var button=object(raw.get("button"));
+                if(!action.equals(button.get("action"))||!Objects.equals(decision.get("targetTaskId"),button.get("taskId"))
+                        ||version(decision.get("targetTaskVersion"))!=version(button.get("taskVersion")))
+                    throw AgentTaskRegistryService.conflict("控制通道不得改变动作或启动业务");
+            }
+            boolean showStop="show_current_stop".equals(decision.get("reasonCode"))||
+                "reviewed_exact".equals(decision.get("reasonCode"))&&Set.of("继续","继续当前任务").contains(original);
+            if("continue".equals(action)&&showStop) {
+                // Agent已校验纯展示的两个候选/原文/目标版本；服务端再核当前目录和输入摘要，只读原停点。
+                // 自然继续不是字段答案或交易确认，不新建业务turn、不消费/延长grant；普通字段continue仍走受理。
+                if(front==null||!front.get("conversationTaskId").equals(decision.get("targetTaskId"))
+                        ||version(front.get("taskVersion"))!=version(decision.get("targetTaskVersion")))throw AgentTaskRegistryService.conflict("原任务停点已变化");
+                return reply(user,sessionId,requestId,original,inputHash,stopPrompt(front));
+            }
+            if(Set.of("clarify","no_task").contains(action)) {
+                String message="clarify".equals(action)?text(decision.get("question"),1000):"reviewed_exact".equals(decision.get("reasonCode"))?
+                    "你好，我是饭搭子助手。当前任务保留原停点。":"已收到，当前任务保留原停点；范围外事项暂不支持办理。";
+                return reply(user,sessionId,requestId,original,inputHash,message);
+            }
+            if(Set.of("pause","cancel","resume","switch").contains(action)) {
+                var command=controls.prepare(user,sessionId,Map.of("requestId","input-control-"+AgentTaskFingerprint.of(requestId),
+                    "action",action,"targetTaskId",text(decision.get("targetTaskId"),100),"expectedTaskVersion",version(decision.get("targetTaskVersion")),
+                    "expectedFocusVersion",version(decision.get("focusVersion"))));
+                var result=reconcile.process((String)command.get("commandId"),Instant.now());
+                // 恢复只展示停点，不调用业务Agent；处理中保留原command，不说取消/暂停成功。
+                String message="committed".equals(result.get("state"))?switch(action){case "pause" -> "当前任务已暂停。";case "cancel" -> "任务已取消，已产生的订单或申请仍保留。";default -> "已恢复任务焦点，请根据原停点继续；原确认需重新准备。";}:"任务正在交接或核查，请查看任务状态。";
+                return reply(user,sessionId,requestId,original,inputHash,message);
+            }
+            String body=original;Map<String,Object> target=front;
+            if("insert".equals(action)) {
+                body=text(decision.get("newRequest"),4000);
+                if(!original.contains(body))throw AgentTaskRegistryService.bad("新请求不属于原文连续区间");
+                String kind=text(decision.get("taskKind"),30),intent=text(decision.get("intent"),40);
+                AgentTaskControlService.ReturnRequest returnRequest=null;
+                if(decision.get("returnTo")!=null) {
+                    var hint=object(decision.get("returnTo"));
+                    if(!hint.keySet().equals(Set.of("targetTaskId","targetTaskVersion","focusVersion","sourceStart","sourceEnd")))throw AgentTaskRegistryService.bad("返回指令结构无效");
+                    returnRequest=new AgentTaskControlService.ReturnRequest(text(hint.get("targetTaskId"),100),version(hint.get("targetTaskVersion")),
+                        version(hint.get("focusVersion")),original,Math.toIntExact(version(hint.get("sourceStart"))),Math.toIntExact(version(hint.get("sourceEnd"))));
+                }
+                // 当前2.3执行器只接管已有多目标DAG的恢复；单目标十三类继续用2.2兼容链路。
+                // 复合任务仍需客户端、Spring和Agent三方能力同时具备，任何一项缺失都固定为2.2。
+                String protocol="composite".equals(kind)?goalFeatureGate.protocolForNewTask(agentGoalRecoveryEnabled,capabilities):"2.2";
+                var command=controls.prepareGatewayInsert(user,sessionId,new AgentTaskControlService.NewGoal("input-insert-"+AgentTaskFingerprint.of(requestId),body,kind,intent,
+                    title(intent),version(decision.get("focusVersion")),returnRequest,protocol),inputHash,original);
+                return continueInsertedInput(user,sessionId,requestId,original,inputHash,selectedContext,(String)command.get("commandId"));
+            } else if(!Set.of("continue","revise").contains(action)||target==null||!target.get("conversationTaskId").equals(decision.get("targetTaskId"))
+                    ||version(target.get("taskVersion"))!=version(decision.get("targetTaskVersion")))throw AgentTaskRegistryService.conflict("当前输入归属目标无效");
+            // 来源签发及受理事务在代理外计时，包含实际提交等待，不移除任何锁或栅栏。
+            var metricInput=new AgentTaskTurnService.Input(requestId,body,(String)target.get("conversationTaskId"),
+                version(target.get("taskVersion")),version(directory.get("focusVersion")),true);
+            var accepted=AgentStageMetrics.measure("spring.task_source",requestId,()->turns.admitGatewayTurn(user,sessionId,metricInput,inputHash,selectedContext));
+            if(confirmed) {
+                try {
+                    fences.confirmCurrent(object(accepted.admission().get("fence")),authority(user,sessionId,accepted.turnId()).get("traceId").toString(),shown);
+                } catch(ToolBoundaryException denied) {
+                    // 工具层保留 EXPIRED 供内部恢复决策使用；公共任务输入把“展示后过期”表达为
+                    // 当前确认状态冲突，返回 409，客户端据此重新准备而不是把请求结构当成 400。
+                    if("EXPIRED".equals(denied.getCode()))throw AgentTaskRegistryService.conflict("确认授权已过期，请重新准备");
+                    throw denied;
+                }
+            }
+            return execute(user,sessionId,accepted.turnId(),object(accepted.admission().get("fence")),body,original,confirmed,false);
+        }
     }
     /** 仅接续原输入的插入命令；提交前不受理业务，提交后仍核原目标/焦点且普通轮次只受理一次。
      * 调用只来自当前HTTP或用户显式同键请求，不由GET、重连、后台协调器自动执行业务。

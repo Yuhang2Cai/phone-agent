@@ -12,6 +12,18 @@ public class AgentSessionService {
     private final AgentSessionRepository sessions; private final UserRepository users;
 // 初始化对象依赖与默认状态。
     public AgentSessionService(AgentSessionRepository sessions, UserRepository users) { this.sessions = sessions; this.users = users; }
+    /**
+     * 准入前只读检查会话所有者，允许合法用户的新会话；不创建占位、不锁行、不升级协议。
+     * 后续原写事务仍复核归属与并发创建，不能用这次预读替代唯一键/行锁保护。
+     */
+    @Transactional(readOnly=true) public void preflightStart(Long userId,String sessionId) {
+        if(userId==null||sessionId==null||sessionId.isBlank()||sessionId.length()>100)
+            throw AgentTaskRegistryService.bad("会话身份无效");
+        var existing=sessions.findBySessionId(sessionId);
+        if(existing.isPresent()) {
+            if(!existing.get().ownerId().equals(userId))throw AgentTaskRegistryService.missing();
+        } else if(users.findById(userId).isEmpty())throw AgentTaskRegistryService.missing();
+    }
     /** 创建2.2空目录会话；只供受控任务入口，绝不把旧活动会话静默迁移到新协议。 */
     @Transactional public AgentSession startTaskSession(Long userId,String sessionId,String traceId) {
         if(sessionId==null||sessionId.isBlank()||sessionId.length()>100)

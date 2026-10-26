@@ -17,6 +17,13 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
  */
 @RestControllerAdvice
 public class DomainExceptionHandler {
+    /** 准入拒绝使用现有code/error信封；未受理不发业务ID，Retry-After不授权自动重发写。 */
+    @ExceptionHandler(com.fandazi.feature.agent.AgentRequestAdmission.Denied.class)
+    ResponseEntity<Map<String,String>> admission(com.fandazi.feature.agent.AgentRequestAdmission.Denied exception) {
+        return ResponseEntity.status(exception.status()).contentType(MediaType.APPLICATION_JSON)
+            .header("Retry-After",String.valueOf(exception.retryAfter()))
+            .body(Map.of("code",exception.status()==429?"RATE_LIMITED":"SERVICE_UNAVAILABLE","error","请求暂未受理，请稍后重试"));
+    }
     /**
      * 将领域异常转换为既有400响应；输入消息为空时采用公开兜底文案，不暴露栈或内部配置。
      * SSE客户端的Accept不能把此错误再次转换成不可表示响应，故明确指定JSON内容类型。

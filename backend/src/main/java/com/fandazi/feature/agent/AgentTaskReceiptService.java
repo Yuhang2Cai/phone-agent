@@ -12,11 +12,22 @@ public class AgentTaskReceiptService {
     public AgentTaskReceiptService(AgentTaskRegistryService registry,AgentTaskTurnRepository turns,AgentToolExecutionRepository executions){this.registry=registry;this.turns=turns;this.executions=executions;}
     /** 核验账号/session/epoch/原task/run/turn，返回committed或unknown，永不推断not_executed。 */
     @Transactional(readOnly=true)
-    public Map<String,Object> read(Long user,String session,String epoch,String task,String run,String turn,String key){
+    public void preflight(Long user,String session,String epoch,String task,String run,String turn,String key) {
+        // 仅核验原执行身份，实际执行记录及结果解析必须留在控制许可内。
+        identity(user,session,epoch,task,run,turn,key);
+    }
+    /** 共享只读身份核查；read再次核验以防准入前后范围发生变化，不缓存授权。 */
+    private AgentTaskTurnEntity identity(Long user,String session,String epoch,String task,String run,String turn,String key) {
         if(key==null||key.isBlank()||key.length()>255)throw new ToolBoundaryException("VALIDATION_ERROR","执行键无效");
         var scope=registry.scope(user,session);if(!scope.epoch().equals(epoch))throw new ToolBoundaryException("FORBIDDEN","原执行范围已失效");
         registry.task(user,session,task,epoch);var admitted=turns.findById(turn).orElseThrow(()->new ToolBoundaryException("NOT_FOUND","原轮次不存在"));
         if(!admitted.scope().equals(scope)||!task.equals(admitted.taskId())||!run.equals(admitted.runId()))throw new ToolBoundaryException("FORBIDDEN","原执行归属不一致");
+        return admitted;
+    }
+    /** 核验完整归属后读取权威记录；未知保持unknown，不重派任何领域写。 */
+    @Transactional(readOnly=true)
+    public Map<String,Object> read(Long user,String session,String epoch,String task,String run,String turn,String key){
+        var admitted=identity(user,session,epoch,task,run,turn,key);var scope=admitted.scope();
         // 回执格式绑定原turn持久协议；旧2.2字段保持不变，2.3才启用目标恢复安全映射。
         String protocol=admitted.protocolVersion();var row=executions.findById(key);var result=new LinkedHashMap<String,Object>();result.put("schemaVersion",protocol);result.put("executionKeyHash",AgentTaskFingerprint.of(key));
         result.put("conversationTaskId",task);result.put("runId",run);result.put("turnId",turn);

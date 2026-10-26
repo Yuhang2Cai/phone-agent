@@ -8,6 +8,10 @@ import org.springframework.web.server.ResponseStatusException;
 /** 只读回查不在模型17工具集合中；当前焦点变化不撤销本人原执行事实的可读性。 */
 @RestController @RequestMapping("/internal/v2/task-executions")
 public class AgentToolReceiptController {
+    private AgentRequestAdmission admission=AgentRequestAdmission.disabled();
+    /** 原键回执使用控制保留通道，普通输入饱和不阻断未知写的事实核查。 */
+    @org.springframework.beans.factory.annotation.Autowired
+    void attachAdmission(AgentRequestAdmission admission) {this.admission=admission;}
     private final InternalV1JwtValidator jwt;private final AgentTaskReceiptService receipts;
     /** 注入专用内部鉴权及无业务写依赖的回查服务。 */
     public AgentToolReceiptController(InternalV1JwtValidator jwt,AgentTaskReceiptService receipts){this.jwt=jwt;this.receipts=receipts;}
@@ -15,7 +19,14 @@ public class AgentToolReceiptController {
     @GetMapping("/{executionKey}") public ResponseEntity<Map<String,Object>> read(@RequestHeader(value="Authorization",required=false) String authorization,
             @PathVariable String executionKey,@RequestParam String userId,@RequestParam String sessionId,@RequestParam String conversationEpoch,
             @RequestParam String conversationTaskId,@RequestParam String runId,@RequestParam String turnId){
-        try{jwt.validate(authorization,userId);return ResponseEntity.ok(receipts.read(Long.valueOf(userId),sessionId,conversationEpoch,conversationTaskId,runId,turnId,executionKey));}
+        try{
+            jwt.validate(authorization,userId);
+            // 准入前只核身份，准入内再读结果；不在无许可时执行完整回查。
+            if(admission.enabled())receipts.preflight(Long.valueOf(userId),sessionId,conversationEpoch,conversationTaskId,runId,turnId,executionKey);
+            try(var permit=admission.acquire(userId,true)) {
+                return ResponseEntity.ok(receipts.read(Long.valueOf(userId),sessionId,conversationEpoch,conversationTaskId,runId,turnId,executionKey));
+            }
+        }
         catch(ToolBoundaryException denied){return ResponseEntity.status("NOT_FOUND".equals(denied.getCode())?404:"VALIDATION_ERROR".equals(denied.getCode())?400:403).body(error(denied.getCode()));}
         catch(ResponseStatusException denied){return ResponseEntity.status(denied.getStatusCode()).body(error("NOT_FOUND"));}
         catch(NumberFormatException invalid){return ResponseEntity.status(403).body(error("FORBIDDEN"));}
