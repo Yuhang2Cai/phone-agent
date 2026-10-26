@@ -5,7 +5,7 @@ services:
   agent:
     image: ${AG07_AGENT_IMAGE:?需要已核摘要的Agent镜像}
     container_name: ag07-agent
-    labels: {owner: ag07-20261027}
+    labels: {ag07.owner: ag07-20261027}
     ports: ["127.0.0.1:18074:8091"]
     env_file: ["${AG07_AGENT_PRIVATE_ENV:?需要私有Agent启动配置}"]
     environment:
@@ -16,7 +16,7 @@ services:
   spring:
     image: ${AG07_SPRING_IMAGE:?需要已核摘要的Spring镜像}
     container_name: ag07-spring
-    labels: {owner: ag07-20261027}
+    labels: {ag07.owner: ag07-20261027}
     ports: ["127.0.0.1:18073:8080"]
     env_file: ["${AG07_SPRING_PRIVATE_ENV:?需要私有Spring启动配置}"]
     environment:

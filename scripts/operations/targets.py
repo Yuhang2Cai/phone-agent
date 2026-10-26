@@ -19,14 +19,15 @@ expected只能来自本任务创建台账，不能取待检查对象的当前属
             or re.fullmatch('sha256:[0-9a-f]{64}',expected['image']) is None
             or any(not isinstance(expected[k],str) or re.fullmatch('ag07-[a-z0-9-]+',expected[k]) is None
                    for k in ('name','volume'))
-            or type(expected['port']) is not int or expected['port'] not in (13371,13372,18071)
-            or expected['container_port'] not in ('3306/tcp','8000/tcp')):
+            or type(expected['port']) is not int
+            or expected['container_port']!={13371:'3306/tcp',13372:'3306/tcp',13373:'3306/tcp',
+                13374:'3306/tcp',18071:'8000/tcp',18072:'8000/tcp'}.get(expected['port'])):
         raise ValueError('unregistered_target')
     try:
         # 名称和标签都可能被复用，因此完整容器ID及实际镜像ID同样是必需证据。
         if (actual['Id']!=expected['id'] or actual['Name']!='/'+expected['name']
                 or actual['Image']!=expected['image']
-                or actual['Config']['Labels']['owner']!=expected['owner']):
+                or actual['Config']['Labels']['ag07.owner']!=expected['owner']):
             raise ValueError('target_identity_mismatch')
         host = actual['HostConfig']
         if (host['Privileged'] is not False or host['NetworkMode']!='bridge' or host['PidMode']!=''
