@@ -20,6 +20,7 @@ class MaintenanceReceipt:
     """仅限同一受信后端、同一精确计划的一次停写凭证，序列化副本不可用于执行。"""
     plan_sha256: str
     stopped_at: float
+    observed_sha256: str
 
 
 def _revalidate(plan, backend):
@@ -68,7 +69,7 @@ def enter_maintenance(plan, backend):
     _before_deadline(backend, deadline)
     if not isinstance(stopped, dict) or stopped.get('stopped') is not True or stopped.get('forced') is not False:
         raise ValueError('writers_not_gracefully_stopped')
-    receipt = MaintenanceReceipt(digest(plan.manifest()), backend.clock())
+    receipt = MaintenanceReceipt(digest(plan.manifest()), backend.clock(), plan.observed_sha256)
     _ISSUED[receipt] = backend
     return receipt
 
@@ -119,6 +120,16 @@ def _require_stopped_state(backend):
     if (not isinstance(state,dict) or set(state)!=fields
             or any(type(value) is not int or value!=0 for value in state.values())):
         raise ValueError('maintenance_no_longer_stopped')
+
+
+def require_maintenance(receipt, backend):
+    """备份过程借用未消费的同后端停写凭证，不赋予发布或源库覆盖权限。"""
+    if not isinstance(receipt,MaintenanceReceipt) or _ISSUED.get(receipt) is not backend:
+        raise ValueError('invalid_maintenance_receipt')
+    if digest(backend.observe())!=receipt.observed_sha256:
+        raise ValueError('maintenance_release_identity_changed')
+    _before_deadline(backend,receipt.stopped_at+DRAIN_SECONDS)
+    _require_stopped_state(backend)
 
 
 def rollback_release(checked_plan, previous_release, backend):
