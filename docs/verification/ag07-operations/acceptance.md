@@ -65,3 +65,6 @@
 本地证据根：`.runtime/acceptance/ag07-operations/`。关键文件为 `final-action-index-r1.json`、`ag07-09/final-actions.json`、`final-regression-proof.json`、`failure-ledger.json`、`source-verification.json`、`resource-cleanup-final.json`、`apk-cleanup-final.json`、`live-review-r1.json`。私有账号/凭据/原请求不提交；报告只保留合成数据指标及摘要。
 
 本报告先于计划勾选；后续精确提交仅包含已验代码与本任务文档。**合入 master 仍需该次明确同意**，依据项目 AGENTS 的分支合并规则；当前开发完成不等于已经合并、推送或部署。
+
+
+精确提交及提交树核查见[最终提交回执](2026-10-28-completion-commits.md)。
