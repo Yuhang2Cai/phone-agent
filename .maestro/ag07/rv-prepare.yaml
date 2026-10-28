@@ -1,0 +1,22 @@
+# AG07获批复验分段；父驱动在每段后核真实来源和账本，失败不得执行下一文件。
+appId: com.fandazi.app
+---
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agentAssistantTab
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- runFlow:
+    file: ../../android-app/maestro/flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 购买套餐${AG07_DEAL_ID}，数量1份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- takeScreenshot: ag07-rv-prepare

@@ -17,6 +17,13 @@ import org.springframework.web.method.annotation.HandlerMethodValidationExceptio
  */
 @RestControllerAdvice
 public class DomainExceptionHandler {
+    /** 上游拒绝时Spring可能已保存输入与turn；不伪造业务成功，也不谎称整个请求没有持久记录。 */
+    @ExceptionHandler(com.fandazi.feature.agent.AgentUpstreamAdmissionException.class)
+    ResponseEntity<Map<String,String>> upstreamAdmission(com.fandazi.feature.agent.AgentUpstreamAdmissionException exception) {
+        return ResponseEntity.status(exception.status()).contentType(MediaType.APPLICATION_JSON)
+            .header("Retry-After",String.valueOf(exception.retryAfter()))
+            .body(Map.of("code",exception.status()==429?"RATE_LIMITED":"SERVICE_UNAVAILABLE","error",exception.getMessage()));
+    }
     /** 准入拒绝使用现有code/error信封；未受理不发业务ID，Retry-After不授权自动重发写。 */
     @ExceptionHandler(com.fandazi.feature.agent.AgentRequestAdmission.Denied.class)
     ResponseEntity<Map<String,String>> admission(com.fandazi.feature.agent.AgentRequestAdmission.Denied exception) {

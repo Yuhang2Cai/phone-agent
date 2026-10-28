@@ -154,6 +154,8 @@ import org.springframework.stereotype.Service;
                 events.record(userId,sessionId,"failed",exception.getMessage(),null,"retryable",Map.of("runId", runId, "traceId", traceId));
                 AgentResult failure=AgentResult.failed(exception.getMessage());
                 if(messages!=null)messages.recordAssistant(userId,sessionId,runId,traceId,failure.message());
+                // 旧协议仍记录失败终态，明确上游拒绝另沿公开HTTP信封返回，避免200掩盖429/503。
+                if(exception instanceof AgentUpstreamAdmissionException rejected)throw rejected;
                 return failure;
             }
         }

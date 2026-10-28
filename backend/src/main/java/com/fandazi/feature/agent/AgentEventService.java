@@ -13,6 +13,22 @@ import org.springframework.transaction.annotation.Transactional;
 // 初始化对象依赖与默认状态。
     private final AgentEventRepository events; public AgentEventService(AgentEventRepository events) { this.events=events; }
     private final Map<SubscriptionKey, CopyOnWriteArrayList<SseEmitter>> subscribers = new ConcurrentHashMap<>();
+    // 与订阅登记共用锁，防止关闭已清空后晚到请求再次挂入无限期SSE。
+    private boolean stopping;
+
+    /** ContextClosedEvent先于Web服务器优雅关闭阶段：主动结束本Bean拥有的订阅，不等待下一次业务事件。 */
+    @org.springframework.context.event.EventListener(org.springframework.context.event.ContextClosedEvent.class)
+    public void closeSubscriptions() {
+        synchronized(subscribers) {
+            stopping=true;
+            var closing=subscribers.values().stream().flatMap(List::stream).toList();
+            subscribers.clear();
+            for(var emitter:closing) {
+                try {emitter.complete();}
+                catch(IllegalStateException ignored) { /* 容器已清理的订阅不影响其余订阅完成。 */ }
+            }
+        }
+    }
     /** 记录可重放的公开事件；入库前移除内部凭证，避免历史查询与实时 SSE 泄漏授权信息。 */
     @Transactional public AgentEventEntity record(Long userId,String sessionId,String type,String summary,String toolName,String status,Map<String,Object> payload) {
         Map<String, Object> publicPayload = AgentContractCompatibility.publicEventPayload(payload);
@@ -27,6 +43,9 @@ import org.springframework.transaction.annotation.Transactional;
         SseEmitter emitter=new SseEmitter(0L); SubscriptionKey key=new SubscriptionKey(userId,sessionId);
         try {
             synchronized (subscribers) {
+                // 关闭窗口内不读取历史、不添加新订阅；上游账号归属检查仍由正式控制器完成。
+                if(stopping)throw new org.springframework.web.server.ResponseStatusException(
+                    org.springframework.http.HttpStatus.SERVICE_UNAVAILABLE,"服务正在关闭，请稍后重连");
                 for (AgentEventEntity event : after(userId,sessionId,lastId)) send(emitter,event,responseFactory);
                 subscribers.computeIfAbsent(key, ignored -> new CopyOnWriteArrayList<>()).add(emitter);
             }

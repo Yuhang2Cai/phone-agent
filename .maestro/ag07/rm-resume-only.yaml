@@ -1,0 +1,27 @@
+# 通过普通任务目录恢复唯一原购买任务；恢复只切换停点，仍禁止点击旧确认或发文本。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/agent_task_list_action
+    text: 任务列表
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_list_title
+      text: 任务列表 · 已暂停 1 项
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agent_task_item_resume
+    below:
+      id: com.fandazi.app:id/agent_task_item_title
+      text: 团购订单
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 暂停
+      enabled: true
+    timeout: 30000
+- assertVisible:
+    text: 旧确认已失效
+    enabled: false
+- takeScreenshot: ag07-rm-resumed-before-model

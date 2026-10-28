@@ -32,6 +32,9 @@ public class HttpAgentTaskInputClient implements AgentTaskInputClient {
             var message=HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(110)).header("Authorization","Bearer "+token)
                 .header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(request))).build();
             var response=http.send(message,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            // 输入解释和后续执行均可能被独立防御限流；仅传递固定状态/等待秒，不暴露上游正文。
+            if(response.statusCode()==429 || response.statusCode()==503)
+                throw new AgentUpstreamAdmissionException(response.statusCode(),response.headers().firstValue("Retry-After").orElse(null));
             if(response.statusCode()!=200||response.body().length()>100000)throw new IllegalStateException("归属响应无效");
             Map<String,Object> result=mapper.readValue(response.body(),new TypeReference<>(){});
             var fields=Set.of("schemaVersion","requestId","action","targetTaskId","targetTaskVersion","newRequest","reasonCode","question",
@@ -39,7 +42,8 @@ public class HttpAgentTaskInputClient implements AgentTaskInputClient {
             if(!result.keySet().equals(fields)||!"2.2".equals(result.get("schemaVersion"))||!request.get("requestId").equals(result.get("requestId")))
                 throw new IllegalStateException("归属协议无效");
             return result;
-        } catch(InterruptedException error){Thread.currentThread().interrupt();throw new AgentServiceUnavailableException("任务归属请求已中断");}
+        } catch(AgentUpstreamAdmissionException rejected){throw rejected;}
+        catch(InterruptedException error){Thread.currentThread().interrupt();throw new AgentServiceUnavailableException("任务归属请求已中断");}
         catch(Exception error){throw new AgentServiceUnavailableException("任务归属暂不可用，请稍后重试");}
     }
 }

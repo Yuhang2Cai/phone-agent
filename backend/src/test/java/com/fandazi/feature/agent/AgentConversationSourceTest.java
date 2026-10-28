@@ -24,6 +24,8 @@ class AgentConversationSourceTest {
     @Autowired private AgentEventService events;
     @Autowired private jakarta.persistence.EntityManagerFactory entityManagers;
     @Autowired private AgentConversationSourceRepository sourceRows;
+    // B01 为避免不存在会话的间隙锁增加一次普通存在性读取；单独核实该安全成本，不能吞掉额外查询。
+    @org.springframework.boot.test.mock.mockito.SpyBean private AgentSessionRepository sessionRows;
     @Autowired private org.springframework.jdbc.core.JdbcTemplate jdbc;
     @Autowired private org.springframework.transaction.PlatformTransactionManager transactions;
     private Long userId;
@@ -51,10 +53,13 @@ class AgentConversationSourceTest {
         var first=sources.beginInput(userId,sessionId,"购买套餐","count-first",AgentMode.CONFIRM,"count-trace-1");
         sessions.finishRun(userId,sessionId,first.runId(),AgentResult.Status.NEEDS_INPUT);
         var statistics=entityManagers.unwrap(org.hibernate.SessionFactory.class).getStatistics();
+        clearInvocations(sessionRows);
         statistics.clear();
         var second=sources.beginInput(userId,sessionId,"取消","count-second",AgentMode.CONFIRM,"count-trace-2");
-        // 预算为会话行锁、来源查询、来源插入和会话顺序更新；来源不能并入悲观锁而制造间隙死锁。
-        assertThat(statistics.getPrepareStatementCount()).as("同事务来源分配不应重复读取会话或先查新UUID")
+        // B01 已合入的存在性探针必须恰好一次；扣除此明确成本后保留原四语句来源分配预算。
+        verify(sessionRows,times(1)).existsBySessionId(sessionId);
+        assertThat(statistics.getPrepareStatementCount()).isGreaterThanOrEqualTo(1);
+        assertThat(statistics.getPrepareStatementCount()-1).as("扣除唯一 B01 探针后，来源分配仍不得重复读取会话或新UUID")
                 .isLessThanOrEqualTo(4);
         // 语句数量下降后，等待任务、epoch和递增来源仍必须与之前的业务语义一致。
         assertThat(second.runId()).isEqualTo(first.runId());
@@ -81,6 +86,7 @@ class AgentConversationSourceTest {
         manager.addListener(listener);
         AgentConversationSourceService.StartedInput started;
         var statistics=entityManagers.unwrap(org.hibernate.SessionFactory.class).getStatistics();
+        clearInvocations(sessionRows);
         statistics.clear();
         try {
             started=(AgentConversationSourceService.StartedInput)method.invoke(sources,userId,sessionId,"合成单事务输入",
@@ -90,8 +96,10 @@ class AgentConversationSourceTest {
             manager.setTransactionExecutionListeners(new java.util.ArrayList<>(original));
         }
         assertThat(commits.get()).as("来源、用户原文和来源关联必须只提交一次").isEqualTo(1);
-        // 新来源已由当前会话锁和唯一约束保护；首次历史写入不得再按 record_key 预读一次。
-        assertThat(statistics.getPrepareStatementCount()).as("首次输入应省掉不必要的历史防重查询")
+        // B01 的唯一存在性探针与历史工作分别计数；历史六语句预算和单次事务提交标准保持不变。
+        verify(sessionRows,times(1)).existsBySessionId(sessionId);
+        assertThat(statistics.getPrepareStatementCount()).isGreaterThanOrEqualTo(1);
+        assertThat(statistics.getPrepareStatementCount()-1).as("扣除唯一 B01 探针后，首次输入不得增加历史防重查询")
             .isLessThanOrEqualTo(6);
         assertThat(started.source()).containsEntry("historyRecorded",true);
         assertThat(jdbc.queryForObject("SELECT COUNT(*) FROM agent_messages WHERE user_id=? AND session_id=? AND role='user'",

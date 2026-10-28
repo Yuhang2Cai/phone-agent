@@ -115,6 +115,10 @@ class HttpAgentServiceClient implements AgentServiceClient {
     /** 逐行解析 NDJSON；只有收到合法终态才返回，不能把半截流误报成成功。 */
     private AgentResult consumeStream(org.springframework.http.client.ClientHttpResponse response,
                                        AgentRunRequest request) throws IOException {
+        int status=response.getStatusCode().value();
+        // 准入发生在上游执行前；保留明确拒绝，不能吞成未知500或重发一次确认。
+        if(status==429 || status==503)
+            throw new AgentUpstreamAdmissionException(status,response.getHeaders().getFirst("Retry-After"));
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new AgentServiceUnavailableException("Agent 服务返回 HTTP " + response.getStatusCode().value());
         }
