@@ -1,0 +1,22 @@
+# 正式游客路径：实际公开定义可见，任务详情为只读入口，登录由用户点击触发。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/skip_login_button
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: 金币游乐园
+- takeScreenshot: formal-guest
+- tapOn: 连续 3 天完成订单，查看连续任务
+- assertVisible: 领取后开始计算进度
+- takeScreenshot: formal-public-detail
+- tapOn: 查看完整活动规则
+- assertVisible: 01  先领取，再完成
+- takeScreenshot: formal-rules
+- back
+- back
+- tapOn:
+    text: 登录领取
+    index: 0
+- assertVisible:
+    id: com.fandazi.app:id/username_input

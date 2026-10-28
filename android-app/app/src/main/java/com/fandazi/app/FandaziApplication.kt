@@ -17,7 +17,11 @@ import com.fandazi.app.feature.voucher.VoucherRepository
 import com.fandazi.app.feature.support.AfterSaleRepository
 import com.fandazi.app.feature.support.HttpAfterSaleRepository
 
-class FandaziApplication : Application() {
+class FandaziApplication : Application(), com.facebook.react.ReactApplication {
+    /** 活动首次进入才创建运行时；其他四个根页面不预热 Hermes 或 JS。 */
+    val activityRuntime by lazy { com.fandazi.app.feature.activity.ActivityRuntime(this) }
+    /** ReactFragment 使用同一宿主，避免 Tab 切换创建多个运行时。 */
+    override val reactHost: com.facebook.react.ReactHost get() = activityRuntime.host
     /** 仅新增公开库懒装配；第一次目录IO调用才打开，不改原加密会话启动策略。 */
     private val publicCatalogDatabase by lazy { com.fandazi.app.core.cache.CatalogDatabase.create(this) }
     /** 记忆属于独立Agent，Android只通过Spring代理读取和管理。 */

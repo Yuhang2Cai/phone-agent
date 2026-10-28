@@ -1,0 +1,19 @@
+# 横屏旋转后的真实Activity重建，底栏与规则入口仍可达；结束后恢复原设备旋转配置。
+appId: com.fandazi.app
+---
+- assertVisible: 活动
+- assertVisible: 规则
+- assertVisible:
+    id: com.fandazi.app:id/homeFragment
+- assertVisible:
+    id: com.fandazi.app:id/agentAssistantTab
+- assertVisible:
+    id: com.fandazi.app:id/ordersFragment
+- assertVisible:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible:
+    id: com.fandazi.app:id/profileFragment
+- takeScreenshot: formal-landscape
+- tapOn: 规则
+- assertVisible: 返回，活动规则
+- back

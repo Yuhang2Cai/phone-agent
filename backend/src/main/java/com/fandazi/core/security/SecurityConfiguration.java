@@ -55,6 +55,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.HEAD, "/catalog-images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/merchants/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/stores/**", "/api/deals/**").permitAll()
+                        // 游客活动页只开放任务定义列表；实例、金币及所有写入仍要求有效认证。
+                        .requestMatchers(HttpMethod.GET, "/api/activities/tasks").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response, exception) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

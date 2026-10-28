@@ -1,0 +1,18 @@
+# 360dp兼容性：领取状态与余额从后端重读，详情和规则仍可操作。
+appId: com.fandazi.app
+---
+- assertVisible: 金币游乐园
+- assertVisible: '10'
+- takeScreenshot: formal-narrow-home
+- scrollUntilVisible:
+    element: 连续 3 天完成订单，查看连续任务
+    direction: DOWN
+- tapOn: 连续 3 天完成订单，查看连续任务
+- takeScreenshot: formal-narrow-detail
+- scrollUntilVisible:
+    element: 查看完整活动规则
+    direction: DOWN
+- tapOn: 查看完整活动规则
+- takeScreenshot: formal-narrow-rules
+- back
+- back

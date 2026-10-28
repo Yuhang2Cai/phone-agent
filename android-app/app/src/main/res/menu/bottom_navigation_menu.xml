@@ -4,5 +4,7 @@
     <!-- 第二项固定为 AI 助手；点击行为在 MainActivity 中受登录状态控制。 -->
     <item android:id="@+id/agentAssistantTab" android:icon="@drawable/ic_tab_ai" android:title="@string/agent_title" />
     <item android:id="@+id/ordersFragment" android:icon="@drawable/ic_tab_orders" android:title="@string/tab_orders" />
+    <!-- 用户确认的五 Tab 顺序：活动位于订单与我的之间。 -->
+    <item android:id="@+id/activityFragment" android:icon="@drawable/ic_tab_activity" android:title="活动" />
     <item android:id="@+id/profileFragment" android:icon="@drawable/ic_tab_profile" android:title="@string/tab_profile" />
 </menu>
