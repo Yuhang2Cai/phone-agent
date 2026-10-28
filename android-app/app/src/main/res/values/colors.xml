@@ -13,7 +13,8 @@
     <color name="surface_card">#FFFFFF</color>
     <color name="success_green">#18A058</color>
     <color name="warning_red">#E5484D</color>
-    <color name="bottom_nav_unselected">#68707D</color>
+    <!-- 已确认五 Tab 的未选中图标与文字颜色。 -->
+    <color name="bottom_nav_unselected">#6B7585</color>
     <color name="home_background">#FFF9F3</color>
     <color name="home_ink">#281713</color>
     <color name="home_secondary">#766B70</color>

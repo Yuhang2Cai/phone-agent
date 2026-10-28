@@ -32,6 +32,12 @@ import org.robolectric.annotation.Config
 @Config(sdk = [28])
 @SuppressLint("RestrictedApi") // 仅验收测试读取Navigation内部栈统计，不进入应用业务代码。
 class TopLevelNavigationStateTest {
+    /** 五个正式入口按确认稿排列，避免活动入口挤掉订单或个人中心。 */
+    @Test fun fiveTabsFollowApprovedOrder() = fixture(authenticated=false) { f ->
+        val menu = f.activity.findViewById<BottomNavigationView>(R.id.bottom_navigation).menu
+        assertEquals("应提供五个顶层入口", 5, menu.size())
+        assertEquals(listOf("首页", "AI助手", "订单", "活动", "我的"), (0 until menu.size()).map { menu.getItem(it).title.toString() })
+    }
     /** 同页重选及20轮往返必须有界；断言放在完整测量后，保留原实现的实际增长基线。 */
     @Test fun twentyRoundsKeepBoundedStackAndRetainHomeEntry() = fixture { f ->
         val first=f.nav.currentBackStackEntry!!.id

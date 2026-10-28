@@ -1,0 +1,14 @@
+# 连续点击真实领奖按钮；延迟且丢弃同一后端成功回执，验证提交态和未知态均不乐观加币。
+appId: com.fandazi.app
+---
+- doubleTapOn: 领取金币
+- assertVisible: 正在领取金币
+- assertVisible: '0'
+- assertNotVisible: 金币已到账！
+- takeScreenshot: formal-claim-processing
+- extendedWaitUntil:
+    visible: 查询领取结果
+    timeout: 35000
+- assertVisible: '0'
+- assertNotVisible: 金币已到账！
+- takeScreenshot: formal-claim-unknown

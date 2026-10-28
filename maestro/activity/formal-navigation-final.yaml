@@ -1,0 +1,36 @@
+# 五个原生入口组合回归；只读既有业务页，系统返回从活动根回首页。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/homeFragment
+- assertVisible:
+    id: com.fandazi.app:id/home_store_list
+- takeScreenshot: final-tab-home
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input
+- takeScreenshot: final-tab-ai
+- tapOn:
+    id: com.fandazi.app:id/ordersFragment
+- assertVisible: 双人蔬食套餐 2
+- takeScreenshot: final-tab-orders
+- tapOn:
+    id: com.fandazi.app:id/profileFragment
+- assertVisible:
+    id: com.fandazi.app:id/profile_logout
+- takeScreenshot: final-tab-profile
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: 金币游乐园
+- assertVisible: '0'
+- tapOn: 规则
+- assertVisible: 返回，活动规则
+- back
+- assertVisible: 金币游乐园
+- takeScreenshot: final-tab-activity
+- back
+- assertVisible:
+    id: com.fandazi.app:id/home_store_list
+- tapOn:
+    id: com.fandazi.app:id/activityFragment

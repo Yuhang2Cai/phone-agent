@@ -1,0 +1,12 @@
+# 进程重启后仅回读原生薄引用及真实回执；不能再发送领奖POST。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: '10'
+- assertVisible: 已领取
+- takeScreenshot: formal-process-recovered
+- tapOn: 查看金币明细
+- assertVisible: 任务奖励
+- assertVisible: '10'
+- takeScreenshot: formal-recovered-ledger

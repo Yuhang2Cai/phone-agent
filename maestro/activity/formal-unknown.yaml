@@ -1,0 +1,8 @@
+# 代理只丢弃实际提交后的首次领奖响应；页面必须保留0及核查入口，不允许乐观加币。
+appId: com.fandazi.app
+---
+- tapOn: 领取金币
+- assertVisible: 查询领取结果
+- assertVisible: '0'
+- assertNotVisible: 金币已到账！
+- takeScreenshot: formal-result-unknown
