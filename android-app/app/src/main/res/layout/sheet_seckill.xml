@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀用户端确认稿原生布局；业务文字和状态由服务器快照绑定。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/sk_sheet_root" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:paddingHorizontal="16dp" android:paddingBottom="16dp" android:background="@drawable/sk_bg_sheet">
+    <LinearLayout android:id="@+id/sk_sheet_header" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="16dp">
+        <TextView android:id="@+id/sk_sheet_title" style="@style/SkTitle" android:text="确认购买" android:textSize="19sp" android:layout_width="0dp" android:layout_weight="1"/>
+        <!-- 标题容器没有左右内边距，关闭按钮只向内扩展触达，不能把48dp的一部分伸到父容器外。 -->
+        <ImageView android:id="@+id/sk_sheet_close" style="@style/SkIconAction" android:layout_marginStart="-24dp" android:layout_marginEnd="0dp" android:paddingStart="24dp" android:paddingEnd="0dp" android:layout_marginVertical="-12dp" android:src="@drawable/sk_b9a08" android:contentDescription="关闭确认" android:importantForAccessibility="yes"/>
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:id="@+id/sk_sheet_content" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <include layout="@layout/include_seckill_summary"/>
+            <TextView android:id="@+id/sk_quantity_label" style="@style/SkText" android:text="购买数量" android:textStyle="bold" android:layout_marginTop="18dp"/>
+            <!-- 数量区与金额区分开，限购事实来自本人资格，不写死设计示例。 -->
+            <LinearLayout android:id="@+id/sk_quantity_row" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:padding="12dp" android:background="@drawable/sk_bg_white" android:layout_marginTop="8dp">
+                <TextView android:id="@+id/sk_quantity_limit" style="@style/SkMuted" android:layout_width="0dp" android:layout_weight="1"/>
+                <TextView android:id="@+id/sk_minus" style="@style/SkQuantityAction" android:text="−" android:contentDescription="减少数量"/>
+                <TextView android:id="@+id/sk_quantity" style="@style/SkText" android:layout_width="48dp" android:gravity="center"/>
+                <TextView android:id="@+id/sk_plus" style="@style/SkQuantityAction" android:text="+" android:contentDescription="增加数量"/>
+            </LinearLayout>
+            <include layout="@layout/include_seckill_info"/>
+            <!-- 原价与优惠为后端报价对应数量的展示明细，应付金额始终取服务器报价。 -->
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:background="@drawable/sk_bg_white" android:layout_marginTop="12dp">
+                <TextView android:id="@+id/sk_sheet_original" style="@style/SkMuted" android:drawableStart="@drawable/sk_de8b4" android:drawablePadding="10dp"/>
+                <TextView android:id="@+id/sk_sheet_discount" style="@style/SkMuted" android:drawableStart="@drawable/sk_7b061" android:drawablePadding="10dp" android:layout_marginTop="10dp"/>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E5E5DE" android:layout_marginVertical="12dp"/>
+                <TextView android:id="@+id/sk_sheet_total" style="@style/SkTitle" android:textSize="20sp" android:textColor="@color/group_buy_orange"/>
+            </LinearLayout>
+            <TextView android:id="@+id/sk_sheet_note" style="@style/SkMuted" android:text="提交后为你预留库存，请在5分钟内完成模拟支付。" android:padding="12dp" android:background="@drawable/sk_bg_peach" android:layout_marginTop="12dp"/>
+            <TextView android:id="@+id/sk_sheet_error" style="@style/SkMuted" android:textColor="@color/group_buy_orange" android:layout_marginTop="12dp"/>
+        </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/sk_sheet_hint" style="@style/SkMuted" android:text="当前尚未预留库存" android:gravity="center" android:layout_marginTop="12dp"/>
+    <TextView android:id="@+id/sk_sheet_confirm" style="@style/SkAction" android:text="确认并提交"/>
+</LinearLayout>

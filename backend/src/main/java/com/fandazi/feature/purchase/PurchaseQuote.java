@@ -41,6 +41,10 @@ public class PurchaseQuote {
     @Column(name = "created_at", nullable = false) private Instant createdAt;
     @Column(nullable = false, length = 40) private String status;
     @Column(name = "request_fingerprint", nullable = false, length = 128) private String requestFingerprint;
+    // 秒杀报价保存独立活动快照；普通报价保持null，不把券使用日期当作活动窗口。
+    @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name="seckill_activity_id")
+    private com.fandazi.feature.seckill.SeckillActivityEntity seckillActivity;
+    @Column(name="seckill_activity_version") private Long seckillActivityVersion;
 
     protected PurchaseQuote() {}
 
@@ -65,6 +69,15 @@ public class PurchaseQuote {
     public Instant getCreatedAt() { return createdAt; }
     public String getStatus() { return status; }
     public String getRequestFingerprint() { return requestFingerprint; }
+    /** 返回报价绑定的活动；null表示普通团购，写入端仍须检查当前套餐映射是否变化。 */
+    public com.fandazi.feature.seckill.SeckillActivityEntity getSeckillActivity(){return seckillActivity;}
+    /** 返回报价当时活动版本，不能读取当前实体版本冒充用户已经确认的版本。 */
+    public Long getSeckillActivityVersion(){return seckillActivityVersion;}
+    /** 首次报价时固定活动及版本，不提供客户端修改入口；与报价和确认凭证同事务保存。 */
+    public void bindSeckill(com.fandazi.feature.seckill.SeckillActivityEntity activity) {
+        if(seckillActivity!=null) throw new IllegalStateException("报价活动快照不能覆盖");
+        seckillActivity=activity;seckillActivityVersion=activity.getActivityVersion();
+    }
     /** 订单实际创建后关闭报价，不能用另一个动作键重复购买同一已确认快照。 */
     public void consume() { this.status = "CONSUMED"; }
 }

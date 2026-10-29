@@ -9,5 +9,7 @@ public enum GroupBuyOrderStatus {
     USED,
     REFUNDED,
     EXPIRED,
-    CANCELLED
+    CANCELLED,
+    // 秒杀未付款在独立支付截止关闭；不能与券自然到期EXPIRED混为一谈。
+    CLOSED_TIMEOUT
 }

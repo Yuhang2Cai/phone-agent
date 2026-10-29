@@ -40,6 +40,9 @@ class InternalV1ToolIntegrationTest {
     @Autowired AgentEventService audit;
     @Autowired com.fandazi.feature.coupon.CouponRepository couponDefinitions;
     @Autowired com.fandazi.feature.coupon.UserCouponRepository claimedCoupons;
+    // 秒杀只在隔离测试事务建立活动，无商家接口或生产初始化数据。
+    @jakarta.persistence.PersistenceContext jakarta.persistence.EntityManager entityManager;
+    @Autowired com.fandazi.feature.seckill.SeckillTimeSource seckillTime;
     private Long userId;
     private AgentSession session;
     private String storeId;
@@ -185,6 +188,50 @@ class InternalV1ToolIntegrationTest {
         var actual = (Map<?, ?>) ((List<?>) data(result).get("coupons")).get(0);
         assertThat(actual.get("validFrom")).isEqualTo("2026-09-30T16:00:00Z");
         assertThat(actual.get("validTo")).isEqualTo("2026-10-03T15:59:59.999999999Z");
+    }
+
+    /** 真实工具鉴权与分派拒绝未开抢，不签报价或预占库存；原因不靠中文消息识别。 */
+    @Test void seckillUpcomingUsesStableToolReasonWithoutWrites() throws Exception {
+        var activity=seckill(Instant.now().plusSeconds(60),Instant.now().plusSeconds(3600));
+        var rejected=call("create_purchase_quote",Map.of("dealId",dealId,"quantity",1),"upcoming");
+        assertError(rejected,"CONFLICT");
+        assertThat(((Map<?,?>)rejected.get("error")).get("reasonCode")).isEqualTo("NOT_STARTED");
+        assertThat(activity.getDeal().getInventory()).isEqualTo(20);
+    }
+
+    /** 从真实工具报价、两次独立确认到支付，待支付券不出现可用权益，支付后才可用。 */
+    @Test void seckillToolJourneyKeepsSeparateConfirmationAndVoucherRights() throws Exception {
+        seckill(Instant.now().minusSeconds(60),Instant.now().plusSeconds(3600));
+        var quote=data(call("create_purchase_quote",Map.of("dealId",dealId,"quantity",1),"sk-quote"));
+        assertThat(quote).containsKeys("activityId","activityVersion","serverTime","remainingQuota");
+        showConfirmation("create_group_buy_order",(String)quote.get("quoteId"),Map.of());sessions.confirm(userId,session.getSessionId());
+        var created=call("create_group_buy_order",Map.of("quoteId",quote.get("quoteId"),"confirmationGrantId",quote.get("confirmationGrantId")),"sk-create");
+        assertThat(created.get("ok")).isEqualTo(true);var order=data(created);
+        assertThat(order).containsEntry("status","PENDING_PAYMENT");
+        var pending=(Map<?,?>)((List<?>)order.get("vouchers")).get(0);
+        assertThat(pending.get("status")).isEqualTo("PENDING_PAYMENT");assertThat(pending.get("canUse")).isEqualTo(false);
+        assertThat(Instant.parse((String)order.get("paymentExpiresAt"))).isEqualTo(Instant.parse((String)order.get("createdAt")).plusSeconds(300));
+        // 支付确认只能覆盖原支付期限，不能因创建授权稍晚而把可确认时间延到库存释放之后。
+        assertThat(Instant.parse((String)order.get("paymentConfirmationExpiresAt"))).isEqualTo(Instant.parse((String)order.get("paymentExpiresAt")));
+        var pay=Map.of("orderId",order.get("orderId"),"confirmationGrantId",order.get("paymentConfirmationGrantId"));
+        assertError(call("pay_mock_order",pay,"sk-pay"),"FORBIDDEN");
+        showConfirmation("pay_mock_order",(String)order.get("orderId"),Map.of());sessions.confirm(userId,session.getSessionId());
+        var paid=data(call("pay_mock_order",pay,"sk-pay"));assertThat(paid).containsEntry("status","PAID");
+        assertThat(((Map<?,?>)((List<?>)paid.get("vouchers")).get(0)).get("canUse")).isEqualTo(true);
+    }
+
+    /** 活动即将结束时确认期限不得长于报价；否则界面会把已不可购买的确认展示为有效。 */
+    @Test void seckillConfirmationDeadlineDoesNotOutliveActivity() throws Exception {
+        Instant end=seckillTime.now().plusSeconds(30);seckill(end.minusSeconds(60),end);
+        var quote=data(call("create_purchase_quote",Map.of("dealId",dealId,"quantity",1),"sk-short"));
+        assertThat(Instant.parse((String)quote.get("confirmationExpiresAt"))).isEqualTo(end);
+    }
+
+    /** 仅追加本例专属活动与真实使用规则，保留普通团购测试夹具和业务预期。 */
+    private com.fandazi.feature.seckill.SeckillActivityEntity seckill(Instant start,Instant end){
+        var deal=deals.findByPublicId(dealId).orElseThrow();deal.replaceCompareFacts(2,null,"堂食使用");
+        var activity=new com.fandazi.feature.seckill.SeckillActivityEntity("activity-"+UUID.randomUUID(),deal,start,end);
+        entityManager.persist(activity);entityManager.flush();return activity;
     }
 
     /** 模拟网关已向用户展示 Spring 重查摘要；不能仅调用 confirm 跳过待确认动作绑定。 */

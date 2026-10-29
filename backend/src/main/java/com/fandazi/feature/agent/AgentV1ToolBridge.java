@@ -130,7 +130,10 @@ public class AgentV1ToolBridge {
                 var quote = quotes.requireForCreation(userId, text(input, "quoteId"));
                 var order = new LinkedHashMap<>(groupOrders.createFromQuote(userId, request.sessionId(), quote, text(input, "confirmationGrantId"), request.idempotencyKey()));
                 // 新订单支付授权独立签发；这里只返回内部凭证，绝不推进支付状态或复用购买确认。
-                var payment = grants.issueForAction(userId, request.sessionId(), "PAY_MOCK_ORDER", (String) order.get("orderId"), (Integer) order.get("totalCents"), "pay-v1");
+                // 秒杀授权截止沿用订单数据库支付截止；签发稍晚不能重新获得五分钟预留。
+                var payment = order.containsKey("paymentExpiresAt")
+                        ? grants.issueForActionUntil(userId,request.sessionId(),"PAY_MOCK_ORDER",(String)order.get("orderId"),(Integer)order.get("totalCents"),"pay-v1",Instant.parse((String)order.get("paymentExpiresAt")))
+                        : grants.issueForAction(userId, request.sessionId(), "PAY_MOCK_ORDER", (String) order.get("orderId"), (Integer) order.get("totalCents"), "pay-v1");
                 order.put("paymentConfirmationGrantId", payment.getGrantId()); order.put("paymentConfirmationExpiresAt", payment.getExpiresAt().toString());
                 order.put("ruleVersion", "pay-v1"); yield order;
             }

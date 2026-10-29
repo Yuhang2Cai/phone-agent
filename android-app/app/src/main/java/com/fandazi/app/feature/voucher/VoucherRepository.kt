@@ -87,11 +87,13 @@ class HttpVoucherRepository(
         getNullable("imageUrl"), getNullable("imageAlt"),
         // 所属订单数量/时间来自页面响应；没有值时保留缺失，不用设备时间或固定数量补造。
         get("orderQuantity")?.takeUnless { it.isJsonNull }?.asInt,
-        getNullable("orderStatus"), getNullable("orderCreatedAt"), getNullable("dealDescription")
+        getNullable("orderStatus"), getNullable("orderCreatedAt"), getNullable("dealDescription"),
+        // 可选字段只保留后端事实，不能因为新字段缺失就把旧券判为可使用。
+        getNullable("validFrom"),get("canUse")?.takeUnless {it.isJsonNull}?.let {requiredBoolean("canUse")}
     ).also { voucher ->
         // 空资源或业务名称不允许形成可点样例卡；状态按后端协议枚举，资格不由端上重算。
         require(listOf(voucher.publicId, voucher.orderId, voucher.dealId, voucher.storeId, voucher.dealTitle, voucher.storeName).all(String::isNotBlank))
-        require(voucher.status in setOf("UNUSED", "REDEEMED", "REFUNDED", "EXPIRED"))
+        require(voucher.status in setOf("UNUSED", "REDEEMED", "REFUNDED", "EXPIRED", "PENDING_PAYMENT", "CLOSED_TIMEOUT", "NOT_YET_VALID", "UNAVAILABLE"))
     }
 
     /** 解析订单和所属券；核对数量、身份与分摊守恒，非法输出不能继续导航或展示资格。 */
@@ -104,11 +106,15 @@ class HttpVoucherRepository(
         getNullable("imageUrl"), getNullable("imageAlt"),
         // 页面金额保持整数分且实付允许 null，避免 totalCents 被误当支付事实。
         cents("paidTotalCents"),
-        getNullable("paidAt"), getNullable("expiresAt"), getNullable("dealDescription")
+        getNullable("paidAt"), getNullable("expiresAt"), getNullable("dealDescription"),
+        // 秒杀支付页导航只有公开身份，不传金额、状态或授权。
+        getNullable("activityId"),getNullable("paymentExpiresAt")
     ).also { order ->
         require(order.quantity > 0 && order.voucherCount == order.vouchers.size && order.quantity == order.voucherCount)
         require(listOf(order.orderId, order.dealId, order.storeId, order.storeName, order.dealTitle).all(String::isNotBlank))
-        require(order.status in setOf("PENDING_PAYMENT", "PAID", "PARTIALLY_USED", "USED", "REFUNDED", "EXPIRED", "CANCELLED"))
+        require(order.status in setOf("PENDING_PAYMENT", "PAID", "PARTIALLY_USED", "USED", "REFUNDED", "EXPIRED", "CANCELLED", "CLOSED_TIMEOUT"))
+        // 新活动订单必须携带独立有效截止；非法身份和缺失期限不能进入错误支付页。
+        order.activityId?.let {require(it.isNotBlank());java.time.Instant.parse(requireNotNull(order.paymentExpiresAt))}
         require(order.vouchers.map { it.publicId }.distinct().size == order.vouchers.size)
         require(order.vouchers.all { it.orderId == order.orderId && it.storeId == order.storeId && it.dealId == order.dealId })
         // 实付快照存在时每张券必须有准确分摊，合计不能依赖当前套餐价格。

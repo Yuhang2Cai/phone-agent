@@ -13,10 +13,13 @@ public class AgentTaskPaymentPreparationService {
     private final AgentTaskFenceService fences;private final AgentTaskTurnRepository turns;private final GroupBuyOrderRepository orders;
     private final ConfirmationGrantService grants;private final AgentTaskExecutionContext context;private final AgentToolExecutionRepository executions;
     private final AgentProtocolValidator contracts;
+    private final com.fandazi.feature.seckill.SeckillTimeSource databaseTime;
+    @jakarta.persistence.PersistenceContext private jakarta.persistence.EntityManager em;
     /** 注入原订单只读/锁仓储及授权服务，刻意不注入创建订单或支付领域方法。 */
     public AgentTaskPaymentPreparationService(AgentTaskFenceService fences,AgentTaskTurnRepository turns,GroupBuyOrderRepository orders,
-            ConfirmationGrantService grants,AgentTaskExecutionContext context,AgentToolExecutionRepository executions,ObjectMapper mapper){
-        this.fences=fences;this.turns=turns;this.orders=orders;this.grants=grants;this.context=context;this.executions=executions;contracts=new AgentProtocolValidator(mapper);
+            ConfirmationGrantService grants,AgentTaskExecutionContext context,AgentToolExecutionRepository executions,ObjectMapper mapper,
+            com.fandazi.feature.seckill.SeckillTimeSource databaseTime){
+        this.fences=fences;this.turns=turns;this.orders=orders;this.grants=grants;this.context=context;this.executions=executions;contracts=new AgentProtocolValidator(mapper);this.databaseTime=databaseTime;
     }
     /** 校验结构→当前许可/原停点→原键去重→订单资格→新grant/安全摘要→原子回执。 */
     @Transactional
@@ -39,13 +42,21 @@ public class AgentTaskPaymentPreparationService {
             throw new ToolBoundaryException("RATE_LIMITED","确认准备过于频繁，请稍后重试");
         // 订单行锁核验提交时资格；查不到/过期/已支付不能靠延长grant复活原业务。
         var order=orders.findOwnedForUpdate(current.turn().scope().userId(),orderId).orElseThrow(()->new ToolBoundaryException("FORBIDDEN","原订单不可用"));
-        if(order.getStatus()!=GroupBuyOrderStatus.PENDING_PAYMENT||!order.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now()))
+        // MySQL可重复读下必须锁定刷新托管实例，避免沿旧快照签发已被支付/关闭订单的授权。
+        em.refresh(order,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        boolean payable=order.getSeckillActivity()==null
+                ? order.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now())
+                : order.getPaymentExpiresAt()!=null && order.getPaymentExpiresAt().isAfter(databaseTime.now());
+        if(order.getStatus()!=GroupBuyOrderStatus.PENDING_PAYMENT||!payable)
             throw new ToolBoundaryException("CONFLICT","原订单已支付、关闭或过期");
         return context.within(fence,()->{
             // 业务资格核验通过后才撤销本任务旧授权；错误对象和过期订单不能破坏仍有效的原停点。
             grants.revokeTasks(current.turn().scope().userId(),current.turn().scope().sessionId(),Set.of(current.task().id()));
             current.session().clearTaskConfirmation(Set.of(current.task().id()));
-            var grant=grants.issueForAction(current.turn().scope().userId(),current.turn().scope().sessionId(),"PAY_MOCK_ORDER",orderId,order.getTotalCents(),"pay-v1");
+            // 重准备只替换授权，不延长原预留。普通订单继续采用原授权期限规则。
+            var grant=order.getSeckillActivity()==null
+                    ? grants.issueForAction(current.turn().scope().userId(),current.turn().scope().sessionId(),"PAY_MOCK_ORDER",orderId,order.getTotalCents(),"pay-v1")
+                    : grants.issueForActionUntil(current.turn().scope().userId(),current.turn().scope().sessionId(),"PAY_MOCK_ORDER",orderId,order.getTotalCents(),"pay-v1",order.getPaymentExpiresAt());
             var summary=Map.<String,Object>of("action","pay_mock_order","resourceId",orderId,"title","确认原订单支付","amountCents",order.getTotalCents(),"ruleVersion","pay-v1","expiresAt",grant.getExpiresAt().toString());
             var privateGrant=Map.<String,Object>of("confirmationGrantId",grant.getGrantId(),"userId",request.userId(),"sessionId",request.sessionId(),"action","pay_mock_order","resourceId",orderId,
                 "amountCents",order.getTotalCents(),"ruleVersion","pay-v1","expiresAt",grant.getExpiresAt().toString(),"consumed",false,

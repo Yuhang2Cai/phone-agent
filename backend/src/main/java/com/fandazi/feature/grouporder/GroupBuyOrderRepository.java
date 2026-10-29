@@ -7,6 +7,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /** 团购订单仓储。 */
 public interface GroupBuyOrderRepository extends JpaRepository<GroupBuyOrderEntity, Long> {
+    /** 只读取有界到期秒杀身份，不在扫描事务中锁住整个批次；每笔结算随后独立重查。 */
+    @org.springframework.data.jpa.repository.Query("select o.publicId from GroupBuyOrderEntity o where o.seckillActivity is not null and o.status=com.fandazi.feature.grouporder.GroupBuyOrderStatus.PENDING_PAYMENT and o.paymentExpiresAt<=:now order by o.paymentExpiresAt,o.id")
+    List<String> expiredSeckillIds(@org.springframework.data.repository.query.Param("now") java.time.Instant now,
+                                  org.springframework.data.domain.Pageable pageable);
     Optional<GroupBuyOrderEntity> findByPublicId(String publicId);
     Optional<GroupBuyOrderEntity> findByUserIdAndIdempotencyKey(Long userId, String idempotencyKey);
     /** 查询当前用户的团购订单，按创建时间倒序供订单页展示。 */

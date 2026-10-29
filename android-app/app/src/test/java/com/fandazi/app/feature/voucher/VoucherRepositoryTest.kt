@@ -17,6 +17,26 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [28])
 class VoucherRepositoryTest {
+    /** 秒杀券新增状态不能导致整个本人券列表解析失败，中文也不能冒称可使用。 */
+    @Test fun seckillVoucherStatesRemainReadOnlyFacts() = runBlocking {
+        val server=MockWebServer();server.start()
+        try {
+            val repository=HttpVoucherRepository(ApiClient(server.url("/api/").toString(),tokenProvider={null}))
+            val labels=mapOf("PENDING_PAYMENT" to "待支付","CLOSED_TIMEOUT" to "超时关闭","NOT_YET_VALID" to "未到使用日期","UNAVAILABLE" to "暂不可用")
+            labels.forEach {(status,label)->
+                server.enqueue(MockResponse().setBody(voucher("v1","o1",false).replace("\"status\":\"UNUSED\"","\"status\":\"$status\"")))
+                val result=repository.getVoucher("v1")
+                assertTrue("秒杀券状态应被协议接受：$status",result is ApiResult.Success)
+                assertEquals(label,VoucherPresentation.voucherStatus(status))
+            }
+        } finally {server.shutdown()}
+    }
+    /** 超时关闭订单有明确中文状态，但没有付款事实且不属于可使用分段。 */
+    @Test fun timedOutOrderIsNotPaidOrAvailable() {
+        assertEquals("超时关闭",VoucherPresentation.orderStatus("CLOSED_TIMEOUT"))
+        assertFalse(VoucherPresentation.matches(order("CLOSED_TIMEOUT",null),OrderSegment.AVAILABLE))
+        assertTrue(VoucherPresentation.amount(order("CLOSED_TIMEOUT",null)).startsWith("合计"))
+    }
     /** 已有申请只读查询必须绑定原券；404/401不造空成功，身份串券也拒绝。 */
     @Test
     fun existingRefundLinkIsReadOnlyAndKeepsResourceIdentity() = runBlocking {

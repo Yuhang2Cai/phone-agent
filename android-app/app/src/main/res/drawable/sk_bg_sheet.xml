@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 确认弹层只有顶部圆角；底边与窗口相接，不能透出详情页的购买按钮。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/group_buy_background"/>
+    <corners android:topLeftRadius="24dp" android:topRightRadius="24dp"/>
+</shape>

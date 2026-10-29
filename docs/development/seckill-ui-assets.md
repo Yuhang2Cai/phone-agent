@@ -1,0 +1,33 @@
+# 秒杀用户端静态资源与设计来源
+
+已确认范围为U01—U13，Figma文件`FxsWKGs10z7BL1MhFAOqFN`，用户主流程298:368、边界302:349、缺图券面307:99。2026-10-29通过官方get_design_context读取全部画板高保真上下文及截图；没有修改已确认设计。原始上下文保存在本任务忽略目录`.runtime/figma/`，产品图片必须读取后端，不打包设计示例照片。
+
+复用既有group_buy_green/orange/background/text/muted色值、Material底部弹层及Glide依赖。Figma静态SVG使用工具指定的curl下载，再由工作区既有Sharp按216dpi无裁切转换PNG；Android放在drawable-xxhdpi，保持SVG固有逻辑尺寸。原SVG保留在assets/seckill供可追溯检查，应用不访问临时Figma URL。
+
+|资源|固有尺寸|用途|PNG SHA256|
+|---|---|---|---|
+|sk_0a067|18×18|绿色提示|af72042d7b67353f8d15432c0b0a96f66f97fbf7f51389e68d7890f6b5f4895e|
+|sk_0a4ce|64×64|品牌缺图券面|eaf323cb12e6623fd2a2132e7084df9ecfd80edac20621859bdc011cd021b366|
+|sk_20d59|32×32|售罄/开抢同步|fb077c27677ca6b59002594897cc88683383b6ee77d403cabf9732d58191269c|
+|sk_23d07|18×18|订单关闭|2aba89b67daeb48a50aaf584994ab93775ba18bfae72d375e57fe0e8705d8170|
+|sk_32431|24×24|导航返回|9f45e106c87880afd93eafb02cf3c329fdcb6c0182ddc7c311fd1ed873431f89|
+|sk_36794|48×48|限购|974e95466fea9372d5c11a2ec9921d713815e23488cc642073a35459386e5196|
+|sk_578ab|18×18|购买数量/支付状态|5a73b5c588644bb7a0529efbd8f6119ba268910a9895a60151006c73ac4fc303|
+|sk_5caed|48×48|离线|9eb5c6c2a2f0211e6e43c122da84f50efdc2d5d4f8fd70bae81ca1b195e90108|
+|sk_62040|32×32|U01门店标识|83e7cf275b810dab78e94adf04ed9ce6c00c1905f65c592c641324cd902a228d|
+|sk_65558|18×18|信息行|d2d00adcc1e0ae4fa7da8e48872fa83ab8ddc6612474f945710374f6f4951f5d|
+|sk_72d60|18×18|下单提示|b8aa6b6eaecdb0780c0b52b53cd9a4b8728ca6ea7cb33f868c0b52a970018243|
+|sk_7a596|18×18|待付款/请求状态|10f96a4932464bcc9740d62df9c8222244db4f3013ce343483da293a2c87911a|
+|sk_7b061|18×18|优惠明细|2fce46db1fd39e2d403fb00d1497f2bc4f3fbc85c13f0e9cd7965a5a787de7f1|
+|sk_9308a|48×48|等待支付/超时图标|5583746a5dcb4b8456787661eee535a8d4207c5e6d1b53c5619be5070f69e6a4|
+|sk_933f5|20×20|导航券图标|39f76c20067db0aab86de3f3cbb9d01ab50e50b098d88d8c5a361e6f47ea7741|
+|sk_97586|48×48|原请求核查|f70e1eaa82a60809694e685ec38059aacfe3a591d081097d25ae12f7fb5ed40f|
+|sk_b9a08|24×24|确认弹层关闭|5922c0cf0591f8eda9cadc9214643a6a05073f64dc4a69ff828dc0a603972e46|
+|sk_bcdac|18×18|使用信息门店|b62df09b8034fb15c6bbd4188f93420c2e9b019b5f0febbc20199e4166d596a8|
+|sk_cb363|48×48|支付成功|c63819b00394646e088bc9be9de182c0942ea01226175b443c384e4491b6cfa3|
+|sk_de8b4|18×18|使用规则/金额/库存|cb9104edf69b66d076c27e8fc1b08c5d59ba996d57bf771021c6d8f3a1eb7f6d|
+|sk_e3ac4|18×18|使用日期|5d6394d380d3b082209e8f61a743529951b5fe4afa94d67f6576c765b9c0f481|
+|sk_ee6f9|18×18|已付款|9e8415f2bad802805d654da4722b746490a653ebcb798185a2e703fc4e2a8dfc|
+|sk_ffbf3|32×32|活动结束|f1c3c2c1804cd123915cf1b1c1b2be515aec7a0c8831b2ae2b2d61984dc8ed7c|
+
+当前仅完成资源准备，实际XML调用位置、布局尺寸和设备截图尚待核对；不据此声称13屏UI验收通过。

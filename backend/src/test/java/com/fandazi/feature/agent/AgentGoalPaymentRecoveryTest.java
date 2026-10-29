@@ -21,6 +21,36 @@ class AgentGoalPaymentRecoveryTest {
     @Autowired AgentTaskTurnService turns;@Autowired AgentTaskToolBridge tools;@Autowired AgentTaskFenceService fences;
     @Autowired AgentTaskPaymentPreparationService payments;@Autowired JdbcTemplate jdbc;@Autowired StoreRepository stores;@Autowired DealPackageRepository deals;
     AgentTaskToolTestFixtures fixture;
+    @Autowired jakarta.persistence.EntityManager em;
+    @Autowired org.springframework.transaction.PlatformTransactionManager transactions;
+    @Autowired com.fandazi.feature.seckill.SeckillTimeSource databaseTime;
+
+    /** 先建立合法活动，再走原工具报价/确认/建单，不能直接伪造秒杀预留或授权。 */
+    private void seckillActivity(){
+        new org.springframework.transaction.support.TransactionTemplate(transactions).executeWithoutResult(status->{
+            var deal=deals.findByPublicId(fixture.dealId).orElseThrow();deal.replaceCompareFacts(2,null,"堂食使用");
+            var now=databaseTime.now();em.persist(new com.fandazi.feature.seckill.SeckillActivityEntity("sk-recovery-"+UUID.randomUUID(),deal,now.minusSeconds(60),now.plusSeconds(3600)));em.flush();
+        });
+    }
+
+    /** 原订单重准备只能沿用原支付截止，不能重新取得五分钟业务期限。 */
+    @Test void seckillReprepareRetainsOriginalPaymentDeadline(){
+        seckillActivity();var order=paymentStop();String id=(String)order.get("orderId");
+        jdbc.update("UPDATE agent_task_turns SET protocol_version='2.3' WHERE turn_id=?",fixture.turn.turnId());
+        var result=payments.reprepare(request(id,1));
+        var grant=(Map<?,?>)result.get("grant");
+        assertEquals(java.time.Instant.parse((String)order.get("paymentExpiresAt")),java.time.Instant.parse((String)grant.get("expiresAt")));
+    }
+
+    /** 支付截止已过但券仍在有效期内时拒绝新授权，不复活原订单，也不撤销原授权。 */
+    @Test void seckillExpiredPaymentCannotBeRepreparedUsingVoucherExpiry(){
+        seckillActivity();var order=paymentStop();String id=(String)order.get("orderId");
+        jdbc.update("UPDATE agent_task_turns SET protocol_version='2.3' WHERE turn_id=?",fixture.turn.turnId());
+        jdbc.update("UPDATE group_buy_orders SET payment_expires_at=TIMESTAMP '2000-01-01 00:00:00' WHERE public_id=?",id);
+        int before=jdbc.queryForObject("SELECT COUNT(*) FROM confirmation_grants WHERE user_id=?",Integer.class,fixture.scope.user);
+        assertThrows(ToolBoundaryException.class,()->payments.reprepare(request(id,1)));
+        assertEquals(before,jdbc.queryForObject("SELECT COUNT(*) FROM confirmation_grants WHERE user_id=?",Integer.class,fixture.scope.user));
+    }
 
     /** 每例建立独立真实待支付订单，避免共享授权或订单状态。 */
     @BeforeEach void setup(){fixture=new AgentTaskToolTestFixtures(users,sessions,registry,turns,tools,fences,jdbc,stores,deals);}

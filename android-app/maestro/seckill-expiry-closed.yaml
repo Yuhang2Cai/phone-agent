@@ -1,0 +1,12 @@
+# 超时观察后半段：在真实支付截止前不足一分钟时运行；只读取并等待服务端关闭。
+appId: com.fandazi.app
+name: 秒杀超时关闭结果
+---
+- launchApp:
+    stopApp: false
+    clearState: false
+- extendedWaitUntil:
+    visible: "这次预留已结束"
+    timeout: 60000
+- assertVisible: "订单未支付，库存与本次预留额度已释放"
+- takeScreenshot: "${EVIDENCE_DIR}/u07-closed"

@@ -1,0 +1,46 @@
+# 真实300秒超时前半段：实际点击预留最后一份；此流程绝不点击支付。
+appId: com.fandazi.app
+name: 秒杀最后库存预留
+---
+- launchApp:
+    clearState: false
+- scrollUntilVisible:
+    element: "秒杀超时小馆"
+    direction: DOWN
+    timeout: 15000
+- tapOn: "秒杀超时小馆"
+- tapOn:
+    id: "store_seckill_open"
+- tapOn:
+    id: "sk_primary"
+- extendedWaitUntil:
+    visible:
+      text: "立即抢购|这次预留已结束"
+    timeout: 15000
+# 原订单已明确关闭时先由用户点击返回活动；不删除未知写入或直接替换请求键。
+- runFlow:
+    when:
+      visible: "这次预留已结束"
+    commands:
+      - tapOn:
+          id: "sk_primary"
+- extendedWaitUntil:
+    visible:
+      text: "立即抢购"
+      enabled: true
+    timeout: 15000
+- tapOn:
+    id: "sk_primary"
+- extendedWaitUntil:
+    visible:
+      id: "sk_sheet_confirm"
+      enabled: true
+    timeout: 15000
+- takeScreenshot: "${EVIDENCE_DIR}/u04-expiry-confirm"
+- tapOn:
+    id: "sk_sheet_confirm"
+    retryTapIfNoChange: false
+- extendedWaitUntil:
+    visible: "已为你保留1份"
+    timeout: 15000
+- takeScreenshot: "${EVIDENCE_DIR}/u05-expiry-start"

@@ -37,6 +37,17 @@ class StoreFragment:Fragment(R.layout.fragment_store) {
         val binding=FragmentStoreBinding.bind(view)
         // 列表入口只导航选择页，不预选第一项，也不发送AI或产生交易请求。
         view.findViewById<View>(R.id.store_compare_open).setOnClickListener{view.findNavController().navigate(R.id.compareSelectionFragment)}
+        // 秒杀入口由后端活动列表控制，不能按普通套餐使用日期提前隐藏预告。
+        val seckillEntry=view.findViewById<View>(R.id.store_seckill_open)
+        seckillEntry.setOnClickListener {view.findNavController().navigate(R.id.seckillStoreFragment,Bundle().apply {putString("storePublicId",arguments?.getString("storePublicId").orEmpty())})}
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                when(val result=com.fandazi.app.feature.seckill.HttpSeckillRepository(application.apiClient).list(arguments?.getString("storePublicId").orEmpty())) {
+                    is com.fandazi.app.core.network.ApiResult.Success->seckillEntry.visibility=if(result.value.value.isNotEmpty())View.VISIBLE else View.GONE
+                    is com.fandazi.app.core.network.ApiResult.Failure->seckillEntry.visibility=View.GONE
+                }
+            }
+        }
         // 输入系统状态栏Insets，固定根容器安全区；Header滚动离屏时仍不能让菜品文字进入系统栏。
         ViewCompat.setOnApplyWindowInsetsListener(view) { root,insets ->
             root.updatePadding(top=insets.getInsets(WindowInsetsCompat.Type.statusBars()).top)
@@ -79,6 +90,8 @@ class StoreFragment:Fragment(R.layout.fragment_store) {
         CatalogRecoveryRefresh.attach(this,{CatalogRecoveryRefresh.needed(model.state.value.metadata) || CatalogRecoveryRefresh.needed(model.state.value.summaryMetadata)},{model.refreshAfterBusinessReturn()})
         model.initialize(arguments?.getString("storePublicId").orEmpty(),CatalogQuery(
             latitude=arguments?.takeIf{it.containsKey("latitude")}?.getDouble("latitude"),longitude=arguments?.takeIf{it.containsKey("longitude")}?.getDouble("longitude")))
+        // 秒杀页的栏目入口明确选择原有Tab；参数只允许固定枚举，不引入新业务类型。
+        arguments?.getString("initialStoreTab")?.let {tab->StoreTab.entries.firstOrNull {it.name==tab}?.let {model.select(it)}}
     }
     /** 离开先记录薄引用，再清理附着图片及回收池，旧视图不接收网络回调。 */
     override fun onDestroyView() {

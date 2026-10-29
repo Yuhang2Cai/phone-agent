@@ -40,7 +40,14 @@ public class InternalV2ToolController {
                 var executed=bridge.executeWithGoalContext(toolName,request);result.put("data",executed.data());result.put("goalContext",executed.goalContext());
             } else result.put("data",bridge.execute(toolName,request));
             if("2.1".equals(version))schema.validateV21Result(result);else schema.validateV2Result(result);
-        } catch(ToolBoundaryException denied){result=failure(version(raw),denied.getCode(),denied.getMessage());status="FORBIDDEN".equals(denied.getCode())?403:"NOT_FOUND".equals(denied.getCode())?404:200;}
+        } catch(ToolBoundaryException denied){
+            result=failure(version(raw),denied.getCode(),denied.getMessage());
+            // 任务及目标围栏入口使用与旧工具相同的业务原因，不因协议代次改变秒杀恢复策略。
+            if(denied instanceof com.fandazi.feature.seckill.SeckillRejectedException seckill){
+                result=new LinkedHashMap<>(result);result.put("error",seckill.toolError());
+            }
+            status="FORBIDDEN".equals(denied.getCode())?403:"NOT_FOUND".equals(denied.getCode())?404:200;
+        }
         catch(DomainException denied){result=failure(version(raw),"CONFLICT","业务条件已变化，请查询事实后重新确认");}
         catch(ArithmeticException|IllegalArgumentException invalid){result=failure(version(raw),"VALIDATION_ERROR","请求字段超出业务支持范围");}
         catch(org.springframework.dao.DataIntegrityViolationException conflict){result=failure(version(raw),"CONFLICT","业务资源发生冲突，请查询事实");}

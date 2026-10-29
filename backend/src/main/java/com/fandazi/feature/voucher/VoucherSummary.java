@@ -18,7 +18,13 @@ public final class VoucherSummary {
         data.put("publicId", voucher.getPublicId()); data.put("orderId", order.getPublicId());
         data.put("dealId", deal.getPublicId()); data.put("dealTitle", deal.getTitle());
         data.put("storeId", order.getStore().getPublicId()); data.put("storeName", order.getStore().getName());
-        data.put("status", voucher.getStatus().name()); data.put("canRefund", canRefund);
+        var now=BusinessTime.now();
+        data.put("status", voucher.publicStatusAt(now)); data.put("canRefund", canRefund);
+        if(order.getSeckillActivity()!=null){
+            // 未付款/已关闭券不能只因底层UNUSED显示“可使用”；日期取券快照，不读活动当前配置。
+            data.put("canUse",voucher.canUseAt(now));
+            data.put("validFrom",voucher.getValidFrom()==null?null:voucher.getValidFrom().toString());
+        }
         // 未付款没有可退金额；图片缺失保持 null，不能借用别的套餐图。
         data.put("amountCents", voucher.getAmountCents());
         data.put("imageUrl", deal.getImageUrl()); data.put("imageAlt", deal.getImageAlt());

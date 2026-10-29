@@ -28,6 +28,8 @@
             <TextView android:id="@+id/group_order_rules" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:paddingHorizontal="8dp" android:textColor="@color/group_buy_muted" android:textSize="13sp" />
             <TextView android:id="@+id/group_order_show_vouchers" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="24dp" android:background="@drawable/search_button_background" android:gravity="center" android:text="查看团购券" android:textColor="@android:color/white" android:textSize="16sp" />
             <!-- 多券分别绑定公开身份；退款选券不可默认消费第一张。 -->
+            <!-- 已有秒杀订单进入专用倒计时/结算页，公开订单ID不能替换为本机最近订单。 -->
+            <TextView android:id="@+id/group_order_seckill" style="@style/SkAction" android:text="查看秒杀订单" android:visibility="gone" />
             <LinearLayout android:id="@+id/group_voucher_list" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="vertical" android:visibility="gone" />
             <TextView android:id="@+id/group_order_refund" android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="12dp" android:background="@drawable/group_buy_card_background" android:gravity="center" android:text="申请退款" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:visibility="gone" />
             <!-- 原 Task8 评价入口仅在后端资格允许时显示。 -->

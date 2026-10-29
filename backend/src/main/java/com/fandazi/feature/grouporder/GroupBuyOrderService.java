@@ -25,20 +25,42 @@ public class GroupBuyOrderService {
     private final ConfirmationGrantService confirmations;
     private final StoreReviewRepository reviews;
     private final RefundService refunds;
+    private final com.fandazi.feature.seckill.SeckillQuotePolicy seckill;
+    private final com.fandazi.feature.seckill.SeckillLedger ledger;
+    private final com.fandazi.feature.seckill.SeckillRequestStore seckillRequests;
 
     /** 注入订单、用户、套餐和确认凭证依赖。 */
     public GroupBuyOrderService(GroupBuyOrderRepository orders, UserRepository users, DealPackageRepository deals,
                                 ConfirmationGrantService confirmations, StoreReviewRepository reviews,
-                                RefundService refunds) {
+                                RefundService refunds,com.fandazi.feature.seckill.SeckillQuotePolicy seckill,
+                                com.fandazi.feature.seckill.SeckillLedger ledger,com.fandazi.feature.seckill.SeckillRequestStore seckillRequests) {
         this.orders = orders; this.users = users; this.deals = deals; this.confirmations = confirmations;
         this.reviews = reviews;
         this.refunds = refunds;
+        this.seckill=seckill;this.ledger=ledger;
+        this.seckillRequests=seckillRequests;
     }
 
     /** 创建待支付团购订单；同一幂等键和指纹重复提交直接返回原订单。 */
     @Transactional
     public Map<String, Object> create(Long userId, String sessionId, String dealId, int quantity, String grantId, String idempotencyKey) {
         if (idempotencyKey == null || idempotencyKey.isBlank()) throw new DomainException("缺少订单幂等键");
+        var target=deals.findByPublicId(dealId).orElseThrow(()->new DomainException("套餐不存在"));
+        var activity=seckill.activityFor(target);
+        if(activity!=null){
+            // 历史参数形状可以兼容，但秒杀必须恢复真实报价再走统一事务，不能沿普通旧路径免检。
+            var binding=confirmations.owned(userId,sessionId,grantId);
+            var prepared=entityManager.createQuery("select q from PurchaseQuote q where q.publicId=:id",com.fandazi.feature.purchase.PurchaseQuote.class)
+                    .setParameter("id",binding.getResourceId()).getResultList();
+            if(prepared.isEmpty()){
+                seckill.requireOpen(activity,seckill.now(),quantity);
+                throw new com.fandazi.feature.seckill.SeckillRejectedException("ACTIVITY_CHANGED","秒杀需要重新报价并确认");
+            }
+            var quote=prepared.get(0);
+            if(!quote.getDeal().getPublicId().equals(dealId)||quote.getQuantity()!=quantity)
+                throw new com.fandazi.feature.seckill.SeckillRejectedException("REQUEST_CONFLICT","请求与已确认报价不一致");
+            return createFromQuote(userId,sessionId,quote,grantId,idempotencyKey);
+        }
         var existing = orders.findByUserIdAndIdempotencyKey(userId, idempotencyKey);
         if (existing.isPresent()) {
             // 同一幂等键只能代表同一个套餐、版本、数量请求；指纹不同必须拒绝，不能返回旧订单冒充新请求。
@@ -61,11 +83,14 @@ public class GroupBuyOrderService {
         // 页面支付串行锁住本人订单；两个按钮请求只能保存一次支付快照，不重新生成券。
         if (idempotencyKey == null || idempotencyKey.isBlank()) throw new DomainException("缺少支付幂等键");
         var order = orders.findOwnedForUpdate(userId, publicId).orElseThrow(() -> new DomainException("团购订单不存在"));
+        entityManager.refresh(order,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
         if (order.getStatus() == GroupBuyOrderStatus.PAID) return data(order);
+        if(order.getStatus()==GroupBuyOrderStatus.CLOSED_TIMEOUT)
+            throw new com.fandazi.feature.seckill.SeckillRejectedException("ORDER_CLOSED","订单已超时关闭");
         if (order.getStatus() != GroupBuyOrderStatus.PENDING_PAYMENT) throw new DomainException("订单当前不可支付");
         if (!order.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now()))
             throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "订单已过期，不能支付");
-        order.markPaid();
+        if(!ledger.pay(order))order.markPaid();
         return data(order);
     }
 
@@ -103,8 +128,9 @@ public class GroupBuyOrderService {
         result.put("paidTotalCents", order.getPaidTotalCents());
         result.put("paidAt", com.fandazi.core.time.BusinessTime.utc(order.getPaidAt()));
         result.put("expiresAt", com.fandazi.core.time.BusinessTime.utc(order.getExpiresAt()));
-        // 当前没有独立使用规则字段，原样显示套餐说明；不补 Figma 示例中的自动退款承诺。
+        // 套餐说明和独立使用规则来自真实目录，不补Figma示例中的退款承诺。
         result.put("dealDescription", order.getDeal().getDescription());
+        result.put("usageRules",order.getDeal().getUsageRules());
         return result;
     }
 
@@ -122,44 +148,72 @@ public class GroupBuyOrderService {
         // 与用户锁使用一致顺序，页面和 Agent 都从数据库权威状态判断期限/单次消费，不能依赖旧对象。
         quote = entityManager.find(com.fandazi.feature.purchase.PurchaseQuote.class, quote.getId(), jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
         if (quote == null) throw new com.fandazi.feature.agent.ToolBoundaryException("NOT_FOUND", "购买报价不存在");
+        // MySQL可重复读下已托管对象不会因find加锁自动刷新；必须用当前读覆盖旧快照属性。
+        entityManager.refresh(quote,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
         if (!quote.getUser().getId().equals(userId)) throw new com.fandazi.feature.agent.ToolBoundaryException("FORBIDDEN", "报价不属于当前用户");
         var binding = confirmations.owned(userId, sessionId, grantId);
         if (!quote.getPublicId().equals(binding.getResourceId()))
             throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "确认凭证对应不同报价");
-        var existing = orders.findByUserIdAndIdempotencyKey(userId, idempotencyKey);
-        if (existing.isPresent()) {
-            // 重放返回已经保存的事实；不同数量、金额或版本不能借相同键获得旧订单。
-            if (!existing.get().getRequestFingerprint().equals(quote.getRequestFingerprint()))
-                throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "幂等键对应不同报价");
-            return data(existing.get());
+        com.fandazi.feature.seckill.SeckillPurchaseRequest receipt=null;
+        if(quote.getSeckillActivity()!=null){
+            // 即便Agent外层事务早已建立旧快照，也必须在用户锁后当前读原回执，不能误建第二单。
+            receipt=seckillRequests.claim(userId,idempotencyKey,quote.getRequestFingerprint());
+            if(receipt.order()!=null){
+                var original=receipt.order();entityManager.refresh(original,jakarta.persistence.LockModeType.PESSIMISTIC_READ);
+                return data(original);
+            }
+        } else {
+            var existing = orders.findByUserIdAndIdempotencyKey(userId, idempotencyKey);
+            if (existing.isPresent()) {
+                // 普通团购保留既有重放语义；秒杀已在上方采用独立唯一回执。
+                if (!existing.get().getRequestFingerprint().equals(quote.getRequestFingerprint()))
+                    throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "幂等键对应不同报价");
+                return data(existing.get());
+            }
         }
-        if (!quote.getExpiresAt().isAfter(java.time.Instant.now()))
-            throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "购买报价已过期，请重新报价");
         if (!"ACTIVE".equals(quote.getStatus()))
             throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "购买报价已使用");
         // 数据恢复：报价是持久化事实，禁止退回默认数量或从载荷重新构造价格。
         var deal = deals.findByPublicId(quote.getDeal().getPublicId()).orElseThrow(() -> new DomainException("套餐不存在"));
         // 套餐行锁让库存校验和扣减成为原子步骤，避免两个会话同时消费最后一份库存。
         deal = entityManager.find(com.fandazi.feature.catalog.DealPackageEntity.class, deal.getId(), jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
-        entityManager.refresh(deal);
+        // 加锁后仍必须使用带锁refresh；普通refresh可能读取事务早先的一致性快照并重新暴露旧库存。
+        entityManager.refresh(deal,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        var activity=seckill.activityFor(deal);
+        if(activity!=null)entityManager.refresh(activity,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        // 在套餐与活动锁取得后才读取数据库时间，不能用排队前的时刻越过开抢或结束边界。
+        var now=activity==null?java.time.Instant.now():seckill.now();
+        if(activity!=null){
+            if(quote.getSeckillActivity()==null || !activity.getId().equals(quote.getSeckillActivity().getId())
+                    || !Long.valueOf(activity.getActivityVersion()).equals(quote.getSeckillActivityVersion()))
+                throw new com.fandazi.feature.seckill.SeckillRejectedException("ACTIVITY_CHANGED","活动已变化，请重新报价并确认");
+            seckill.requireOpen(activity,now,quote.getQuantity());
+        } else if(quote.getSeckillActivity()!=null){
+            throw new com.fandazi.feature.seckill.SeckillRejectedException("ACTIVITY_CHANGED","活动关联已变化，请重新确认");
+        }
+        if(!quote.getExpiresAt().isAfter(now))
+            throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED","购买报价已过期，请重新报价");
         int quantity = quote.getQuantity();
-        String expected = deal.getPublicId() + ":" + deal.getVersion() + ":" + quantity + ":" + quote.getTotalCents();
+        String expected = com.fandazi.feature.seckill.SeckillQuotePolicy.fingerprint(deal,activity,quantity,quote.getTotalCents());
         if (!quote.getRequestFingerprint().equals(expected) || quote.getTotalCents() != Math.multiplyExact(deal.getPriceCents(), quantity))
             throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "套餐价格或版本已变化，请重新报价");
         if (!deal.isActive() || quantity > deal.getInventory() || quantity > deal.getPurchaseLimit())
             throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "套餐库存或限购条件已变化");
-        if (java.time.LocalDate.now().isBefore(deal.getValidFrom()) || java.time.LocalDate.now().isAfter(deal.getValidTo()))
+        if (activity==null && (java.time.LocalDate.now().isBefore(deal.getValidFrom()) || java.time.LocalDate.now().isAfter(deal.getValidTo())))
             throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "套餐不在有效期内");
         // 规则判断：专属凭证绑定报价编号、金额和当前套餐版本，消费与订单写入一起提交。
         confirmations.consumeBound(userId, sessionId, grantId, "CREATE_GROUP_BUY_ORDER", quote.getPublicId(), quote.getTotalCents(), "deal-v" + deal.getVersion());
         var order = orders.save(new GroupBuyOrderEntity(UUID.randomUUID().toString(), quote.getUser(), deal.getStore(), deal,
                 idempotencyKey, quantity, quote.getTotalCents(), GroupBuyOrderStatus.PENDING_PAYMENT,
                 deal.getValidTo().plusDays(1).atStartOfDay(), quote.getRequestFingerprint()));
+        // 额度与每订单唯一预留在同一事务建立；任一写入失败均回滚确认、订单、券和库存。
+        if(activity!=null)ledger.reserve(order,activity,now);
         quote.consume();
         // 原子更新真实库存；不改动历史金额字段或 Task2 页面迁移结构，刷新实体避免后续投影读取旧库存。
         entityManager.createQuery("update DealPackageEntity d set d.inventory = d.inventory - :quantity where d.id = :id")
                 .setParameter("quantity", quantity).setParameter("id", deal.getId()).executeUpdate();
-        entityManager.refresh(deal);
+        entityManager.refresh(deal,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if(receipt!=null)receipt.complete(order);
         return data(order);
     }
 
@@ -169,13 +223,16 @@ public class GroupBuyOrderService {
         // 旧页面不能先锁订单再等待任务凭证；新任务支付只从已校验栅栏的内部路径进入。
         confirmations.requireDomainEntry(userId,sessionId,grantId);
         var order = orders.findOwnedForUpdate(userId, orderId).orElseThrow(() -> new com.fandazi.feature.agent.ToolBoundaryException("NOT_FOUND", "团购订单不存在"));
+        entityManager.refresh(order,jakarta.persistence.LockModeType.PESSIMISTIC_WRITE);
+        if(order.getStatus()==GroupBuyOrderStatus.CLOSED_TIMEOUT)
+            throw new com.fandazi.feature.seckill.SeckillRejectedException("ORDER_CLOSED","订单已超时关闭");
         if (order.getStatus() != GroupBuyOrderStatus.PENDING_PAYMENT)
             throw new com.fandazi.feature.agent.ToolBoundaryException("CONFLICT", "订单当前不可支付");
         // 支付授权有效也不能支付业务已到期订单，日期与凭证期限分别校验。
         if (!order.getExpiresAt().isAfter(com.fandazi.core.time.BusinessTime.now()))
             throw new com.fandazi.feature.agent.ToolBoundaryException("EXPIRED", "订单已过期，不能支付");
         confirmations.consumeBound(userId, sessionId, grantId, "PAY_MOCK_ORDER", orderId, order.getTotalCents(), "pay-v1");
-        order.markPaid();
+        if(!ledger.pay(order))order.markPaid();
         return data(order);
     }
 
@@ -191,6 +248,13 @@ public class GroupBuyOrderService {
         data.put("storeName", order.getStore().getName()); data.put("dealTitle", order.getDeal().getTitle());
         // 创建时间来自订单事实，供评价页显示下单时间；不能让客户端用当前时间或订单号冒充。
         data.put("createdAt", com.fandazi.core.time.BusinessTime.utc(order.getCreatedAt()));
+        if(order.getSeckillActivity()!=null){
+            data.put("activityId",order.getSeckillActivity().getPublicId());
+            data.put("paymentExpiresAt",order.getPaymentExpiresAt().toString());
+            data.put("serverTime",seckill.now().toString());
+            data.put("closedAt",order.getClosedAt()==null?null:order.getClosedAt().toString());
+            data.put("closeReason",order.getCloseReason());
+        }
         // 图片来自订单所购套餐；缺图保留 null 供 Android 使用统一占位。
         data.put("imageUrl", order.getDeal().getImageUrl()); data.put("imageAlt", order.getDeal().getImageAlt());
         // 评价入口由服务端按核销事实与订单唯一评价记录计算，客户端不根据展示状态猜测资格。

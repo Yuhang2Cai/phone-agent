@@ -17,6 +17,7 @@ object VoucherPresentation {
         "REFUNDED" -> "已退款"
         "EXPIRED" -> "已过期"
         "CANCELLED" -> "已取消"
+        "CLOSED_TIMEOUT" -> "超时关闭"
         else -> "状态未取得"
     }
 
@@ -26,6 +27,11 @@ object VoucherPresentation {
         "REDEEMED" -> "已使用"
         "REFUNDED" -> "已退款"
         "EXPIRED" -> "已过期"
+        // 秒杀权益状态只解释服务器事实，不能把待支付或未来使用日期显示为待使用。
+        "PENDING_PAYMENT" -> "待支付"
+        "CLOSED_TIMEOUT" -> "超时关闭"
+        "NOT_YET_VALID" -> "未到使用日期"
+        "UNAVAILABLE" -> "暂不可用"
         else -> "状态未取得"
     }
 

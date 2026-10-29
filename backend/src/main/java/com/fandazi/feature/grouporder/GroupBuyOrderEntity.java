@@ -51,6 +51,13 @@ public class GroupBuyOrderEntity {
     @Column(name = "created_at", nullable = false) private LocalDateTime createdAt;
     @Column(name = "expires_at", nullable = false) private LocalDateTime expiresAt;
     @Column(name = "request_fingerprint", nullable = false, length = 128) private String requestFingerprint;
+    // 秒杀支付截止独立保存，不能覆盖既有券有效期；普通历史订单保持NULL。
+    @ManyToOne(fetch=FetchType.LAZY) @JoinColumn(name="seckill_activity_id")
+    private com.fandazi.feature.seckill.SeckillActivityEntity seckillActivity;
+    @Column(name="seckill_activity_version") private Long seckillActivityVersion;
+    @Column(name="payment_expires_at") private java.time.Instant paymentExpiresAt;
+    @Column(name="closed_at") private java.time.Instant closedAt;
+    @Column(name="close_reason",length=40) private String closeReason;
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     // 持久化后仍以券内部主键顺序展示，和迁移分配余分的顺序一致，不能依赖数据库任意行顺序。
     @jakarta.persistence.OrderBy("id ASC")
@@ -112,6 +119,31 @@ public class GroupBuyOrderEntity {
     public LocalDateTime getExpiresAt() { return expiresAt; }
     public String getRequestFingerprint() { return requestFingerprint; }
     public List<VoucherEntity> getVouchers() { return List.copyOf(vouchers); }
+    /** 返回已购买活动，普通订单为null；不根据当前套餐映射追溯改变历史订单。 */
+    public com.fandazi.feature.seckill.SeckillActivityEntity getSeckillActivity(){return seckillActivity;}
+    /** 返回独立UTC支付截止；null保持普通团购既有期限语义。 */
+    public java.time.Instant getPaymentExpiresAt(){return paymentExpiresAt;}
+    /** 返回已持久化关闭瞬时；尚未关闭时为null，不能由前端倒计时推算成业务事实。 */
+    public java.time.Instant getClosedAt(){return closedAt;}
+    /** 返回稳定关闭原因，未关闭时不提供猜测原因。 */
+    public String getCloseReason(){return closeReason;}
+    /** 仅统一结算在预留成功释放后调用；活动结束不能提前关闭有效待支付订单。 */
+    public void closeSeckillAt(java.time.Instant now){
+        if(seckillActivity==null || status!=GroupBuyOrderStatus.PENDING_PAYMENT || now.isBefore(paymentExpiresAt))
+            throw new IllegalStateException("订单不满足秒杀超时关闭条件");
+        status=GroupBuyOrderStatus.CLOSED_TIMEOUT;closedAt=now;closeReason="PAYMENT_EXPIRED";
+    }
+    /** 创建事务中固定活动版本和权威创建时间，且支付截止严格为同一瞬时加300秒。 */
+    public void bindSeckill(com.fandazi.feature.seckill.SeckillActivityEntity activity,java.time.Instant now){
+        if(seckillActivity!=null)throw new IllegalStateException("订单活动不可重新绑定");
+        seckillActivity=activity;seckillActivityVersion=activity.getActivityVersion();
+        createdAt=java.time.LocalDateTime.ofInstant(now,com.fandazi.core.time.BusinessTime.ZONE);
+        paymentExpiresAt=now.plusSeconds(300);
+    }
+    /** 秒杀统一结算在锁内授予支付资格后调用，沿用金额分摊并固定数据库支付时刻。 */
+    public void markPaidAt(java.time.Instant now){
+        markPaid();paidAt=java.time.LocalDateTime.ofInstant(now,com.fandazi.core.time.BusinessTime.ZONE);
+    }
 
     /** 将待支付订单推进为已支付，重复调用保持幂等。 */
     public void markPaid() {

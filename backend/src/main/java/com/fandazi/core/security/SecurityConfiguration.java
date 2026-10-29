@@ -55,6 +55,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.HEAD, "/catalog-images/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/merchants/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/stores/**", "/api/deals/**").permitAll()
+                        // 仅公开活动详情这一层路径；eligibility等子资源仍须登录，不能使用递归通配放开。
+                        .requestMatchers(HttpMethod.GET, "/api/seckill-activities/*").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response, exception) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

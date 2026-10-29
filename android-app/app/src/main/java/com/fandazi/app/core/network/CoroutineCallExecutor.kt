@@ -42,7 +42,7 @@ internal class CoroutineCallExecutor(
             currentCoroutineContext().ensureActive()
             // 结果构造：消费结束后再次检查取消，旧页面只停止等待，不意味着服务器已回滚任何写入。
             if (wire.successful) ApiResult.Success(wire.body)
-            else ApiResult.Failure(ApiError.Http(wire.code, errorMessage(wire.body, wire.message)))
+            else ApiResult.Failure(ApiError.Http(wire.code, errorMessage(wire.body, wire.message), businessReason(wire.body)))
         } catch (cancelled: CancellationException) {
             throw cancelled
         } catch (failure: IOException) {
@@ -88,3 +88,9 @@ private fun defaultErrorMessage(body: String, fallback: String): String = runCat
     val value = JsonParser.parseString(body).asJsonObject
     value.get("error")?.asString ?: value.get("message")?.asString
 }.getOrNull().orEmpty().ifBlank { fallback.ifBlank { "Request failed" } }
+
+/** 只保留服务端固定原因标识；非法错误正文不改变HTTP分类，也不把任意对象变成业务状态。 */
+private fun businessReason(body: String): String? = runCatching {
+    JsonParser.parseString(body).asJsonObject.get("reasonCode")?.takeIf { it.isJsonPrimitive && it.asJsonPrimitive.isString }
+        ?.asString?.takeIf { it.matches(Regex("[A-Z_]{1,40}")) }
+}.getOrNull()

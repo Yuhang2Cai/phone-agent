@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀用户端确认稿原生布局；业务文字和状态由服务器快照绑定。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/sk_info" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:background="@drawable/sk_bg_white" android:layout_marginTop="12dp">
+    <LinearLayout android:id="@+id/sk_info_store" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="8dp">
+        <ImageView android:id="@+id/sk_info_icon_store" android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/sk_bcdac" android:importantForAccessibility="no"/>
+        <!-- 标签与正文之间留固定间隙，大字体换行也不会贴合；行高随内容增长。 -->
+        <TextView style="@style/SkMuted" android:layout_width="64dp" android:layout_marginStart="8dp" android:layout_marginEnd="8dp" android:text="适用门店"/>
+        <TextView android:id="@+id/sk_store" style="@style/SkText" android:layout_width="0dp" android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/sk_info_dates" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="8dp">
+        <ImageView android:id="@+id/sk_info_icon_dates" android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/sk_e3ac4" android:importantForAccessibility="no"/>
+        <TextView style="@style/SkMuted" android:layout_width="64dp" android:layout_marginStart="8dp" android:layout_marginEnd="8dp" android:text="使用日期"/>
+        <TextView android:id="@+id/sk_dates" style="@style/SkText" android:layout_width="0dp" android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/sk_info_rules" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:paddingVertical="8dp">
+        <ImageView android:id="@+id/sk_info_icon_rules" android:layout_width="18dp" android:layout_height="18dp" android:src="@drawable/sk_de8b4" android:importantForAccessibility="no"/>
+        <TextView style="@style/SkMuted" android:layout_width="64dp" android:layout_marginStart="8dp" android:layout_marginEnd="8dp" android:text="使用须知"/>
+        <TextView android:id="@+id/sk_rules" style="@style/SkText" android:layout_width="0dp" android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>

@@ -54,4 +54,13 @@
     <fragment android:id="@+id/dealCompareFragment" android:name="com.fandazi.app.feature.compare.DealCompareFragment" android:label="套餐对比" />
     <fragment android:id="@+id/compareQuestionFragment" android:name="com.fandazi.app.feature.compare.CompareQuestionFragment" android:label="问AI" />
     <fragment android:id="@+id/comparePurchaseFragment" android:name="com.fandazi.app.feature.compare.ComparePurchaseFragment" android:label="查看购买" />
+    <!-- 秒杀用户端只接受公开资源ID，登录返回不携带报价授权或自动提交指令。 -->
+    <fragment android:id="@+id/seckillFragment" android:name="com.fandazi.app.feature.seckill.SeckillFragment" android:label="限时秒杀">
+        <argument android:name="activityId" app:argType="string" />
+        <!-- 可选原订单用于跨设备恢复；仅ID，仍需后端本人权限核对。 -->
+        <argument android:name="orderId" app:argType="string" app:nullable="true" android:defaultValue="@null" />
+    </fragment>
+    <fragment android:id="@+id/seckillStoreFragment" android:name="com.fandazi.app.feature.seckill.SeckillStoreFragment" android:label="限时好券">
+        <argument android:name="storePublicId" app:argType="string" />
+    </fragment>
 </navigation>

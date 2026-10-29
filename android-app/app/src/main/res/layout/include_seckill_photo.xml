@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀用户端确认稿原生布局；业务文字和状态由服务器快照绑定。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/sk_bg_green" android:clipToOutline="true">
+
+
+    <LinearLayout android:id="@+id/sk_photo_fallback" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center">
+
+
+        <ImageView android:layout_width="64dp" android:layout_height="64dp" android:src="@drawable/sk_0a4ce" android:importantForAccessibility="no"/>
+
+
+        <TextView android:id="@+id/sk_photo_brand" style="@style/SkTitle" android:gravity="center" android:text="限时好券" android:textColor="#FFFFFF" android:layout_marginTop="10dp"/>
+
+
+        <TextView android:id="@+id/sk_photo_message" style="@style/SkMuted" android:gravity="center" android:textColor="#FFFFFF" android:text="商品图片暂未提供" android:layout_marginTop="4dp"/>
+
+
+    </LinearLayout>
+    <!-- 隐藏但保留测量尺寸，图片加载器可在占位显示期间取得目标宽高。 -->
+    <ImageView android:id="@+id/sk_photo" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="centerCrop" android:visibility="invisible"/>
+
+
+</FrameLayout>

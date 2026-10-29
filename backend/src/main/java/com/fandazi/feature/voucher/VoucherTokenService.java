@@ -31,6 +31,9 @@ public class VoucherTokenService {
      * @return 含券、门店、签发时间和过期时间的签名令牌
      */
     public String issue(VoucherEntity voucher) {
+        // 签名本身不证明付款；所有旧展示入口签发前先核秒杀券的真实支付及使用日期资格。
+        if(voucher.getOrder().getSeckillActivity()!=null&&!voucher.canUseAt(com.fandazi.core.time.BusinessTime.now()))
+            throw new com.fandazi.feature.seckill.SeckillRejectedException("FORBIDDEN","当前秒杀券尚不可使用");
         Instant now = Instant.now();
         return Jwts.builder().subject(voucher.getPublicId())
                 .claim("storeId", voucher.getDeal().getStore().getPublicId())

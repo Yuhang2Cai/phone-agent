@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 待支付事实区对应确认稿三行结构；金额和数量来自原订单，券日期由服务器活动详情提供。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/sk_payment_facts" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:background="@drawable/sk_bg_white" android:layout_marginTop="12dp">
+    <TextView android:id="@+id/sk_payment_quantity" style="@style/SkText" android:drawableStart="@drawable/sk_de8b4" android:drawablePadding="10dp"/>
+    <TextView android:id="@+id/sk_payment_amount" style="@style/SkText" android:drawableStart="@drawable/sk_de8b4" android:drawablePadding="10dp" android:layout_marginTop="14dp"/>
+    <TextView android:id="@+id/sk_payment_dates" style="@style/SkText" android:drawableStart="@drawable/sk_e3ac4" android:drawablePadding="10dp" android:layout_marginTop="14dp"/>
+</LinearLayout>

@@ -18,7 +18,8 @@ sealed interface ApiResult<out T> {
 }
 
 sealed interface ApiError {
-    data class Http(val code: Int, val message: String) : ApiError
+    /** 可选业务原因保留服务端状态机语义；旧接口仅有状态和文案时保持null。 */
+    data class Http(val code: Int, val message: String, val reasonCode: String? = null) : ApiError
     data class Network(val message: String) : ApiError
     data object Timeout : ApiError
     data object Storage : ApiError

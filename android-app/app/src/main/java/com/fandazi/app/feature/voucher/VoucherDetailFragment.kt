@@ -66,6 +66,8 @@ class VoucherDetailFragment : Fragment(R.layout.fragment_voucher_detail) {
                         "购买数量  ${voucher.orderQuantity?.let { "$it 份" } ?: "未取得"}",
                         if (voucher.amountCents != null) "本券实付  ${BusinessDisplay.money(voucher.amountCents)}" else "本券尚无付款记录",
                         "购买时间  ${BusinessDisplay.time(voucher.orderCreatedAt)}",
+                        // 使用起日属于服务器权益快照，未来有效券不能只显示结束日期造成误解。
+                        "使用开始  ${voucher.validFrom ?: "以使用规则为准"}",
                         "有效期  ${BusinessDisplay.time(voucher.expiresAt)}").joinToString("\n")
                     view.findViewById<TextView>(R.id.voucher_detail_rules).text = voucher.dealDescription?.takeIf(String::isNotBlank) ?: "使用说明暂未提供"
                     // 缺图仅读取本对象的图片字段，不重绘资格/表单，也不准备报价或确认凭证。

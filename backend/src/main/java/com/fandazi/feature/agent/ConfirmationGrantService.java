@@ -34,10 +34,21 @@ public class ConfirmationGrantService {
     /** 为指定写动作签发独立凭证；资源与动作一起绑定，避免跨工具复用。 */
     @Transactional
     public ConfirmationGrantEntity issueForAction(Long userId, String sessionId, String action, String resourceId, int amountCents, String ruleVersion) {
+        return issueForActionUntil(userId,sessionId,action,resourceId,amountCents,ruleVersion,Instant.now().plusSeconds(300));
+    }
+
+    /**
+     * 按领域已计算的截止签发授权；截止只来自可信业务调用，不接受客户端或模型传值。
+     * 用于秒杀报价结束和订单支付期限，避免授权摘要晚于实际可执行时间；签发不消费或提交业务。
+     */
+    @Transactional
+    public ConfirmationGrantEntity issueForActionUntil(Long userId,String sessionId,String action,String resourceId,
+            int amountCents,String ruleVersion,Instant expiresAt){
         if (action == null || action.isBlank() || resourceId == null || resourceId.isBlank()) throw new DomainException("确认资源不完整");
+        if(expiresAt==null)throw new DomainException("确认截止不能为空");
         var user = users.findById(userId).orElseThrow(() -> new DomainException("用户不存在"));
         var grant=new ConfirmationGrantEntity(UUID.randomUUID().toString(), user, sessionId,
-                action, resourceId, amountCents, ruleVersion, Instant.now().plusSeconds(300));
+                action, resourceId, amountCents, ruleVersion, expiresAt);
         // 领域报价/退款/投诉/独立支付授权共享本路径，不能漏掉某个工具的新授权绑定。
         var fence=taskContext.current();if(fence!=null){requireContextOwner(userId,sessionId,fence);grant.bindTask((String)fence.get("conversationTaskId"),AgentTaskFingerprint.version(fence.get("executionGeneration")));}
         return grants.save(grant);

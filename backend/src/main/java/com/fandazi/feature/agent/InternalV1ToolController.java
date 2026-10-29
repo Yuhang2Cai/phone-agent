@@ -41,6 +41,10 @@ public class InternalV1ToolController {
             schema.validateResult(result);
         } catch (ToolBoundaryException exception) {
             result = failure(exception.getCode(), exception.getMessage());
+            // 秒杀拒绝保留既有信封及恢复策略；细粒度原因不能直接替换旧 code 枚举。
+            if(exception instanceof com.fandazi.feature.seckill.SeckillRejectedException denied){
+                result=new LinkedHashMap<>(result);result.put("error",denied.toolError());
+            }
             status = "FORBIDDEN".equals(exception.getCode()) ? 403 : "NOT_FOUND".equals(exception.getCode()) ? 404 : 200;
         } catch (DomainException exception) {
             // 历史领域消息只用于选择稳定分类，公开文本使用预定义中文，不能回传异常原文。

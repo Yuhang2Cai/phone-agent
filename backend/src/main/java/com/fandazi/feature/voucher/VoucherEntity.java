@@ -29,6 +29,8 @@ public class VoucherEntity {
     @Enumerated(EnumType.STRING) @Column(nullable = false, length = 40) private VoucherStatus status;
     @Column(name = "qr_token", nullable = false, unique = true, length = 128) private String qrToken;
     @Column(name = "expires_at", nullable = false) private LocalDateTime expiresAt;
+    // 新建券固定使用起日，秒杀付款期限独立；历史普通券允许NULL并保留原规则。
+    @Column(name="valid_from") private java.time.LocalDate validFrom;
     @Column(name = "redeemed_at") private LocalDateTime redeemedAt;
     @Column(name = "created_at", nullable = false) private LocalDateTime createdAt;
     // 券金额由订单支付实付分摊，未付款为 null；退款只读取此列，不对现价重复计算。
@@ -43,6 +45,7 @@ public class VoucherEntity {
         this.order = order; this.user = user; this.deal = deal; this.publicId = publicId;
         this.qrToken = "qr-" + publicId; this.status = VoucherStatus.UNUSED;
         this.expiresAt = expiresAt; this.createdAt = com.fandazi.core.time.BusinessTime.now();
+        this.validFrom=deal.getValidFrom();
     }
 
     public Long getId() { return id; }
@@ -57,6 +60,26 @@ public class VoucherEntity {
     public LocalDateTime getCreatedAt() { return createdAt; }
     /** 返回该券实付分摊整数分，订单未支付为 null。 */
     public Integer getAmountCents() { return amountCents; }
+    /** 返回创建时固定的使用起日；旧普通券为null时不反填或改变原权益。 */
+    public java.time.LocalDate getValidFrom(){return validFrom;}
+    /**
+     * 秒杀公开状态必须先检查付款事实和独立日期；UNUSED持久值本身不能证明当前可用。
+     * 普通团购保留原投影，不在新增场景中追溯改变历史核销语义。
+     */
+    public String publicStatusAt(LocalDateTime now){
+        if(order.getSeckillActivity()==null)return status.name();
+        if(order.getStatus()==com.fandazi.feature.grouporder.GroupBuyOrderStatus.CLOSED_TIMEOUT)return "CLOSED_TIMEOUT";
+        if(order.getStatus()==com.fandazi.feature.grouporder.GroupBuyOrderStatus.PENDING_PAYMENT)return "PENDING_PAYMENT";
+        if(order.getPaidTotalCents()==null||amountCents==null)return "UNAVAILABLE";
+        if(status!=VoucherStatus.UNUSED)return status.name();
+        if(order.getStatus()!=com.fandazi.feature.grouporder.GroupBuyOrderStatus.PAID
+                &&order.getStatus()!=com.fandazi.feature.grouporder.GroupBuyOrderStatus.PARTIALLY_USED)return "UNAVAILABLE";
+        if(!expiresAt.isAfter(now))return "EXPIRED";
+        if(validFrom==null||now.toLocalDate().isBefore(validFrom))return "NOT_YET_VALID";
+        return "UNUSED";
+    }
+    /** 返回当前是否具备使用权益，输入为服务端业务时间，不能采用手机时间授予资格。 */
+    public boolean canUseAt(LocalDateTime now){return "UNUSED".equals(publicStatusAt(now));}
 
     /** 仅订单支付聚合调用；已确定金额不能改写，负数或改价抛出异常阻止退款快照漂移。 */
     public void capturePaymentAmount(int cents) {
@@ -89,6 +112,9 @@ public class VoucherEntity {
         }
         // 已核销请求重复到达时直接返回幂等结果，不重复修改时间和订单统计。
         if (status == VoucherStatus.REDEEMED) return false;
+        // 只封闭既有入口对秒杀未付款/关闭/日期外券的绕过，不新增本期延期的核销产品能力。
+        if(order.getSeckillActivity()!=null&&!canUseAt(com.fandazi.core.time.BusinessTime.now()))
+            throw new IllegalStateException("当前秒杀券不可使用");
         if (status != VoucherStatus.UNUSED) {
             throw new IllegalStateException("团购券当前不可核销");
         }

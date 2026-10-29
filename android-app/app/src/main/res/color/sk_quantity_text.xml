@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 数量边界使用灰色提示禁用；可增减时沿用确认稿深绿色，最终资格仍由后端复核。 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:color="#6B7585"/>
+    <item android:color="#092E29"/>
+</selector>

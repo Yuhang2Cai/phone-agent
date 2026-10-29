@@ -194,6 +194,8 @@ class MainActivity : AppCompatActivity() {
             R.id.homeFragment, R.id.searchFragment, R.id.storeFragment, R.id.ordersFragment,
             R.id.profileFragment,
             R.id.agentChatFragment, R.id.dealDetailFragment, R.id.dealCheckoutBottomSheetFragment,
+            // 秒杀公开入口与交易结果复用同一页面，身份更新由页面清确认并回读，不能误判为未知路由。
+            R.id.seckillFragment, R.id.seckillStoreFragment,
             // 对比属于公开目录路由，会话普通派发不能误退首页丢失当前选择。
             R.id.compareSelectionFragment, R.id.dealCompareFragment, R.id.compareQuestionFragment, R.id.comparePurchaseFragment,
             // Task7 本人订单/券详情属于已登录业务路由，状态重新派发时不能丢失当前资源退回首页。

@@ -188,6 +188,10 @@ object AgentCardRenderer {
         "PARTIALLY_USED" -> "部分已使用"
         "COMPLETED", "REDEEMED", "USED" -> "已完成"
         "CANCELLED" -> "已取消"
+        // 新秒杀投影沿用服务器终态与权益限制，不通过本机倒计时推算。
+        "CLOSED_TIMEOUT" -> "超时关闭"
+        "NOT_YET_VALID" -> "未到使用日期"
+        "UNAVAILABLE" -> "暂不可用"
         "REFUNDED" -> "已退款"
         "EXPIRED" -> "已过期"
         else -> "状态未取得"

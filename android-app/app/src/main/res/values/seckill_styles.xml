@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀用户端确认稿原生布局；业务文字和状态由服务器快照绑定。 -->
+<resources>
+
+
+    <!-- 字阶复用Figma颜色，正文允许系统字体缩放和换行；固定高度只用于触控/数字区域。 -->
+
+
+    <style name="SkText">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/group_buy_text</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+
+    <style name="SkMuted" parent="SkText">
+        <item name="android:textColor">@color/group_buy_muted</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:lineSpacingExtra">3dp</item>
+    </style>
+
+
+    <style name="SkTitle" parent="SkText">
+        <item name="android:textColor">@color/group_buy_green</item>
+        <item name="android:textSize">23sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
+    <style name="SkAction" parent="SkText">
+        <item name="android:layout_height">52dp</item>
+        <item name="android:gravity">center</item>
+        <!-- 禁用时使用深灰字配浅灰底，仍可辨认预告、售罄及同步状态。 -->
+        <item name="android:textColor">@color/sk_action_text</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:background">@drawable/sk_action</item>
+        <item name="android:clickable">true</item>
+        <item name="android:focusable">true</item>
+        <item name="android:layout_marginTop">8dp</item>
+    </style>
+
+
+    <!-- 24dp图标保留视觉尺寸，48dp控件提供触达范围；负边距抵消新增空白，保持原文字排布。 -->
+    <style name="SkIconAction">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:layout_marginStart">-12dp</item>
+        <item name="android:layout_marginEnd">-12dp</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <!-- 订单图标原为20dp，同样扩大到48dp触达并维持20dp券形图像。 -->
+    <style name="SkOrdersAction" parent="SkIconAction">
+        <item name="android:padding">14dp</item>
+        <item name="android:layout_marginStart">-14dp</item>
+        <item name="android:layout_marginEnd">-14dp</item>
+    </style>
+    <!-- 数量按钮是交互控件，不能沿用纯展示数字格的43×38dp尺寸。 -->
+    <style name="SkQuantityAction" parent="SkDigit">
+        <item name="android:layout_width">48dp</item>
+        <item name="android:layout_height">48dp</item>
+        <item name="android:textColor">@color/sk_quantity_text</item>
+        <item name="android:focusable">true</item>
+    </style>
+    <style name="SkDigit" parent="SkTitle">
+        <item name="android:layout_width">43dp</item>
+        <item name="android:layout_height">38dp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:background">@drawable/sk_bg_digit</item>
+        <item name="android:textSize">21sp</item>
+    </style>
+
+
+</resources>

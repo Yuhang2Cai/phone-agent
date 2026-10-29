@@ -77,6 +77,8 @@ definitions:
       code: {type: string, enum: [VALIDATION_ERROR, NOT_FOUND, FORBIDDEN, CONFLICT, EXPIRED, RATE_LIMITED, DEPENDENCY_UNAVAILABLE, INTERNAL_ERROR]}
       message: *text
       retryable: {type: boolean}
+      # 秒杀沿用原错误大类；原因码用于准确提示，业务拒绝不可自动重发。
+      reasonCode: {type: string, enum: [NOT_STARTED, ENDED, STOPPED, SOLD_OUT, LIMIT_REACHED, ACTIVITY_CHANGED, PAYMENT_EXPIRED, ORDER_CLOSED, FORBIDDEN, REQUEST_CONFLICT, RESULT_UNKNOWN, AMOUNT_EXCEEDED]}
   store:
     type: object
     additionalProperties: false
@@ -137,7 +139,7 @@ definitions:
       dealTitle: *text
       storeId: *publicId
       storeName: *text
-      status: {type: string, enum: [UNUSED, REDEEMED, EXPIRED, REFUNDED]}
+      status: {type: string, enum: [UNUSED, REDEEMED, EXPIRED, REFUNDED, PENDING_PAYMENT, CLOSED_TIMEOUT, NOT_YET_VALID, UNAVAILABLE]}
       canRefund: {type: boolean, description: "来自 Spring 资格判断，UNUSED 本身不足以推断可退款"}
       expiresAt: *timestamp
       redeemedAt: {type: [string, "null"], format: date-time}
@@ -146,6 +148,9 @@ definitions:
       # 支付快照按券分摊；待支付券没有已付金额，不能把现价或零元当作可退款金额。
       amountCents: {type: [integer, "null"], minimum: 0}
       createdAt: *timestamp
+      # 秒杀券必须已支付且到使用日期；历史普通券可省略这两个字段。
+      canUse: {type: boolean}
+      validFrom: {type: [string, "null"], format: date}
   order:
     type: object
     additionalProperties: false
@@ -156,7 +161,7 @@ definitions:
       storeId: *publicId
       quantity: {type: integer, minimum: 1}
       totalCents: *cents
-      status: {type: string, enum: [PENDING_PAYMENT, PAID, PARTIALLY_USED, USED, REFUNDED, EXPIRED, CANCELLED]}
+      status: {type: string, enum: [PENDING_PAYMENT, PAID, PARTIALLY_USED, USED, REFUNDED, EXPIRED, CANCELLED, CLOSED_TIMEOUT]}
       voucherCount: {type: integer, minimum: 0}
       createdAt: *timestamp
       canReview: {type: boolean, description: "由已核销事实与订单唯一评价记录计算"}
@@ -170,6 +175,12 @@ definitions:
       paymentConfirmationGrantId: *text
       paymentConfirmationExpiresAt: *timestamp
       ruleVersion: {type: string, const: "pay-v1", description: "独立模拟支付确认规则"}
+      # 活动和支付截止均为后端事实；关闭时间可空，不能拿券有效期替代支付截止。
+      activityId: {type: string, minLength: 1}
+      paymentExpiresAt: {type: string, format: date-time}
+      serverTime: {type: string, format: date-time}
+      closedAt: {type: [string, "null"], format: date-time}
+      closeReason: {type: [string, "null"], enum: [PAYMENT_EXPIRED, null]}
   coupon:
     type: object
     additionalProperties: false
@@ -269,6 +280,11 @@ definitions:
       # 确认截止与报价截止独立保存，展示确认摘要仅使用确认凭证的实际期限。
       confirmationExpiresAt: *timestamp
       confirmationRuleVersion: *text
+      # 报价只保存活动条件快照，不预占库存；剩余额度仍须在建单事务重查。
+      activityId: {type: string, minLength: 1}
+      activityVersion: {type: integer, minimum: 0}
+      serverTime: {type: string, format: date-time}
+      remainingQuota: {type: integer, minimum: 0}
   refund_preparation:
     type: object
     additionalProperties: false

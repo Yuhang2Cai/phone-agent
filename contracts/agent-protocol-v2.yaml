@@ -872,6 +872,7 @@ orderCardData:
       - REFUNDED
       - EXPIRED
       - CANCELLED
+      - CLOSED_TIMEOUT
     createdAt: *id004
     canReview:
       type: boolean
@@ -882,6 +883,12 @@ orderCardData:
       type:
       - string
       - 'null'
+    # 秒杀订单按后端截止展示；关闭可空，不以券期限推断支付资格。
+    activityId: {type: string, minLength: 1}
+    paymentExpiresAt: {type: string, format: date-time}
+    serverTime: {type: string, format: date-time}
+    closedAt: {type: [string, "null"], format: date-time}
+    closeReason: {type: [string, "null"], enum: [PAYMENT_EXPIRED, null]}
 voucherCardData:
   type: object
   additionalProperties: false
@@ -905,6 +912,10 @@ voucherCardData:
       - REDEEMED
       - EXPIRED
       - REFUNDED
+      - PENDING_PAYMENT
+      - CLOSED_TIMEOUT
+      - NOT_YET_VALID
+      - UNAVAILABLE
     canRefund:
       type: boolean
     expiresAt: *id004
@@ -926,6 +937,9 @@ voucherCardData:
       type:
       - string
       - 'null'
+    # 秒杀未支付或未到使用日期不可用，资格由后端返回。
+    canUse: {type: boolean}
+    validFrom: {type: [string, "null"], format: date}
 couponCardData:
   type: object
   additionalProperties: false

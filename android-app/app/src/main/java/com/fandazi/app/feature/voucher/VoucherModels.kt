@@ -26,7 +26,10 @@ data class VoucherSummary(
     val orderQuantity: Int? = null,
     val orderStatus: String? = null,
     val orderCreatedAt: String? = null,
-    val dealDescription: String? = null
+    val dealDescription: String? = null,
+    // 秒杀券使用起日与资格由后端提供，普通历史券缺失时保持未知，不能按端上时间补造。
+    val validFrom: String? = null,
+    val canUse: Boolean? = null
 )
 
 /** 后端返回的团购订单摘要，列表和详情共用。 */
@@ -52,7 +55,10 @@ data class GroupOrderSummary(
     val paidTotalCents: Int? = null,
     val paidAt: String? = null,
     val expiresAt: String? = null,
-    val dealDescription: String? = null
+    val dealDescription: String? = null,
+    // 秒杀订单独立支付截止与活动入口；普通订单为null，券有效期不能替代支付截止。
+    val activityId: String? = null,
+    val paymentExpiresAt: String? = null
 )
 
 /** 按需生成的短时二维码展示令牌。 */

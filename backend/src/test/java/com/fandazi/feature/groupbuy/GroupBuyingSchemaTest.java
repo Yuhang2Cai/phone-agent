@@ -2,9 +2,10 @@
 package com.fandazi.feature.groupbuy;
 
 import com.fandazi.feature.grouporder.GroupBuyOrderEntity;
+import com.fandazi.feature.catalog.DealPackageEntity;
 import com.fandazi.feature.grouporder.GroupBuyOrderStatus;
 import com.fandazi.feature.voucher.VoucherStatus;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import javax.sql.DataSource;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,22 +43,28 @@ class GroupBuyingSchemaTest {
         assertThat(tableCount("CONFIRMATION_GRANTS")).isEqualTo(1);
     }
 
+    /** 合法套餐购买三份时生成三张券，并固定同一使用起日，防止数量规则或权益快照回归。 */
     @Test
     void onePurchasedQuantityCreatesOneVoucher() {
         // 一个订单购买三份固定套餐时，领域对象必须先建立三张未使用券，后续核销按券粒度进行。
+        // 套餐为生产订单的必需关联；显式提供起日，不能用空对象绕过新券权益快照所需的输入。
+        LocalDate validFrom = LocalDate.of(2026, 10, 29);
+        DealPackageEntity deal = new DealPackageEntity("quantity-deal", null, "数量测试套餐", "合成测试数据",
+                1000, 1500, 10, validFrom, validFrom.plusDays(1), true, 3, 1);
         GroupBuyOrderEntity order = new GroupBuyOrderEntity(
                 "group-order-fixture",
                 null,
                 null,
-                null,
+                deal,
                 3,
                 3000,
                 GroupBuyOrderStatus.PAID,
-                LocalDateTime.now().plusDays(1)
+                validFrom.plusDays(2).atStartOfDay()
         );
 
         assertThat(order.getVouchers()).hasSize(3);
         assertThat(order.getVouchers()).allMatch(v -> v.getStatus() == VoucherStatus.UNUSED);
+        assertThat(order.getVouchers()).allMatch(v -> validFrom.equals(v.getValidFrom()));
     }
 
     private int tableCount(String tableName) {

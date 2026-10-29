@@ -13,6 +13,17 @@ import org.junit.Test
 class ApiClientTest {
     private lateinit var server: MockWebServer
 
+    /** 秒杀错误要保留固定原因，界面不能根据中文提示猜测售罄或限购。 */
+    @Test fun businessReasonSurvivesHttpErrorParsing() = runBlocking {
+        server.enqueue(MockResponse().setResponseCode(409).setBody("""{"code":"SOLD_OUT","reasonCode":"SOLD_OUT","error":"库存已抢完"}"""))
+        val client=ApiClient(server.url("/api/").toString(),tokenProvider={null})
+        val result=client.get("seckill-activities/test/eligibility") as ApiResult.Failure
+        val error=result.error as ApiError.Http
+        assertEquals("库存已抢完",error.message)
+        // 反射只用于建立字段缺失的有效失败断言，避免把编译失败当产品红灯。
+        assertEquals("SOLD_OUT",error.javaClass.methods.firstOrNull { it.name=="getReasonCode" }?.invoke(error))
+    }
+
     @Before
 // 为测试准备依赖、替身和初始状态。
     fun setUp() {

@@ -25,6 +25,11 @@ seed:
   enabled: ${SEED_ENABLED:false}
   path: ${SEED_PATH:../data/seed}
 
+seckill:
+  expiry:
+    # 生产每秒补偿到期订单；关闭仅用于受控维护/验收，不改变已建订单原支付截止。
+    enabled: ${SECKILL_EXPIRY_ENABLED:true}
+
 agent:
   goal-recovery:
     # AG04新2.3任务默认关闭；旧2.2任务继续按持久版本处理，不能由请求字段开启。

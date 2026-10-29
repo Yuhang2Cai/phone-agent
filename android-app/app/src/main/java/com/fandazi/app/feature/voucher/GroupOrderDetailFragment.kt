@@ -70,6 +70,12 @@ class GroupOrderDetailFragment : Fragment(R.layout.fragment_group_order_detail) 
         view.findViewById<View>(R.id.group_order_body).isVisible = true
         view.findViewById<TextView>(R.id.group_order_number).text = "订单号 " + order.orderId
         view.findViewById<TextView>(R.id.group_order_state).text = VoucherPresentation.orderStatus(order.status)
+        // 跨设备、Agent或旧入口创建的秒杀订单也能按原订单恢复，不依赖本机创建回执。
+        view.findViewById<TextView>(R.id.group_order_seckill).apply {
+            isVisible=order.activityId!=null
+            text=if(order.status=="PENDING_PAYMENT")"继续支付秒杀订单" else "查看秒杀订单"
+            setOnClickListener {order.activityId?.let {activityId->it.findNavController().navigate(R.id.seckillFragment,Bundle().apply {putString("activityId",activityId);putString("orderId",order.orderId)})}}
+        }
         view.findViewById<TextView>(R.id.group_order_state_description).text = when {
             order.status == "PENDING_PAYMENT" -> "订单尚未支付"
             order.paidTotalCents != null -> "已支付；券状态及可操作资格以当前记录为准"
