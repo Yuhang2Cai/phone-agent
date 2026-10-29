@@ -106,6 +106,8 @@ class AgentGatewayTest {
 
 // 验证 `publishesEventsCreatedAfterSseConnectionToTheExistingSubscriber` 覆盖场景的预期行为与边界。
     @Test
+    // 生产事件只在事务提交后推送；本场景必须退出类级回滚事务，才能真实验证提交后的 SSE 可见性。
+    @Transactional(propagation=org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
     void publishesEventsCreatedAfterSseConnectionToTheExistingSubscriber() throws Exception {
         UserEntity user = users.save(new UserEntity("agent-realtime", "agent-realtime@example.com", "hash"));
         sessions.start(user.getId(), "realtime-session", AgentMode.CONFIRM, "server-trace");

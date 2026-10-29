@@ -14,6 +14,20 @@ public class AgentEventEntity {
     @Column(length = 100) private String toolName; @Column(nullable = false, length = 40) private String status;
     @Convert(converter = StringMapJsonConverter.class) @Column(nullable = false, columnDefinition = "LONGTEXT") private Map<String, Object> payload;
     @Column(nullable = false) private Instant createdAt;
+    // 内部交付关联独立于公开载荷；只有事件服务可设置，不接受模型或客户端提供的许可标识。
+    @Column(name="knowledge_delivery_ref",length=255) private String knowledgeDeliveryRef;
+    // 零明确表示取消全部知识目标后通过业务事实校验；空值表示旧版本没有保存数量证明。
+    @Column(name="knowledge_delivery_scope_count") private Integer knowledgeDeliveryScopeCount;
+
+    /** 返回原始交付关联供历史重新核验；公开DTO不暴露此内部字段，旧记录保持空值。 */
+    public String getKnowledgeDeliveryRef(){return knowledgeDeliveryRef;}
+
+    /** 仅同包事件持久化入口设置，必须与许可同事务保存；不允许覆盖已有交付身份。 */
+    void attachKnowledgeDelivery(String reference,int scopeCount) {
+        if(knowledgeDeliveryRef!=null)throw new IllegalStateException("知识交付身份不可覆盖");
+        if(scopeCount<0)throw new IllegalArgumentException("来源数量不能为负");
+        knowledgeDeliveryRef=reference;knowledgeDeliveryScopeCount=scopeCount;
+    }
 // 初始化对象依赖与默认状态。
     protected AgentEventEntity() {}
 // 初始化对象依赖与默认状态。

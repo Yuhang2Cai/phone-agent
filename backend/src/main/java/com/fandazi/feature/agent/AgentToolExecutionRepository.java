@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 /** 会话锁由桥接层持有，唯一执行键再防止跨会话伪造重复动作。 */
 interface AgentToolExecutionRepository extends JpaRepository<AgentToolExecution, String> {
+    /** 规划前失败关闭只能用于从未调用工具的任务；范围按服务端任务ID，不能仅按当前轮次过滤。 */
+    long countByConversationTaskId(String conversationTaskId);
     /** 只统计指定时间窗口内的凭证准备动作，拒绝滥用而不影响真实查询。 */
     long countBySessionIdAndToolNameInAndCreatedAtAfter(String sessionId, Collection<String> toolNames, Instant since);
 }

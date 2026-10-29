@@ -12,12 +12,19 @@ final class AgentTaskToolTestFixtures {
     final AgentTaskTestFixtures scope;final String taskId,dealId;final AgentTaskRegistryService registry;
     final AgentTaskTurnService turns;final AgentTaskToolBridge tools;final AgentTaskFenceService fences;final JdbcTemplate jdbc;
     final AgentSessionService sessions;
+    final String intent;
     AgentTaskTurnService.Accepted turn;
     /** 通过真实仓储建立独立合成对象，生命周期仍经产品服务，不直接伪造任务/凭证。 */
     AgentTaskToolTestFixtures(UserRepository users,AgentSessionService sessions,AgentTaskRegistryService registry,AgentTaskTurnService turns,
             AgentTaskToolBridge tools,AgentTaskFenceService fences,JdbcTemplate jdbc,StoreRepository stores,DealPackageRepository deals){
+        this(users,sessions,registry,turns,tools,fences,jdbc,stores,deals,"transaction");
+    }
+    /** 复合任务同样通过真实目录创建；仅改变任务类别，业务、确认和订单仍由原服务执行。 */
+    AgentTaskToolTestFixtures(UserRepository users,AgentSessionService sessions,AgentTaskRegistryService registry,AgentTaskTurnService turns,
+            AgentTaskToolBridge tools,AgentTaskFenceService fences,JdbcTemplate jdbc,StoreRepository stores,DealPackageRepository deals,String kind){
         scope=new AgentTaskTestFixtures(users,sessions,registry,jdbc);this.registry=registry;this.turns=turns;this.tools=tools;this.fences=fences;this.jdbc=jdbc;this.sessions=sessions;
-        taskId=AgentTaskTestFixtures.id(registry.create(scope.user,scope.session,"transaction","group_buy_order","合成购买"));String suffix=UUID.randomUUID().toString();
+        intent="composite".equals(kind)?"composite":"group_buy_order";
+        taskId=AgentTaskTestFixtures.id(registry.create(scope.user,scope.session,kind,intent,"合成购买"));String suffix=UUID.randomUUID().toString();
         var store=stores.saveAndFlush(new StoreEntity("ag03-store-"+suffix,"合成品牌","合成门店","310000","合成地址","合成电话","中餐",new BigDecimal("31.2"),new BigDecimal("121.4"),1234,true,"09:00-22:00",null));
         dealId="ag03-deal-"+suffix;deals.saveAndFlush(new DealPackageEntity(dealId,store,"合成双份套餐","合成测试",1234,2000,20,LocalDate.now().minusDays(1),LocalDate.now().plusDays(20),true,5,7));
         admit("合成购买输入");
@@ -48,7 +55,7 @@ final class AgentTaskToolTestFixtures {
         var payload=Map.of("summary",summary,"actions",List.of(Map.of("actionId","synthetic-confirm","actionType",summary.get("action"),"label","确认","resourceId",summary.get("resourceId"),"enabled",true)));
         var event=Map.<String,Object>of("schemaVersion","2.2","eventId",UUID.randomUUID().toString(),"eventType","confirmation_required","traceId",trace(),"runId",fence().get("runId"),"sequence",0,
             "status","waiting_confirmation","payload",payload,"taskContext",context);
-        var result=Map.<String,Object>of("schemaVersion","2.2","traceId",trace(),"runId",fence().get("runId"),"status","waiting_confirmation","intent","group_buy_order","events",List.of(event));
+        var result=Map.<String,Object>of("schemaVersion","2.2","traceId",trace(),"runId",fence().get("runId"),"status","waiting_confirmation","intent",intent,"events",List.of(event));
         turns.complete(scope.user,scope.session,Map.of("schemaVersion","2.2","turnId",turn.turnId(),"fence",fence(),"sourceMessageId",turn.admission().get("sourceMessageId"),"result",result));
     }
     /** 原报价/原grant参与购买，领域恢复真实数量/金额，禁止以测试SQL创建订单。 */

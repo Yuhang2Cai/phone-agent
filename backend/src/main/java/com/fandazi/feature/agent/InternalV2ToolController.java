@@ -50,7 +50,12 @@ public class InternalV2ToolController {
             AgentOperationsCorrelation.failedTool(toolName,request,String.valueOf(error.get("code")));
         // 业务已提交才另行记录公开审计，审计失败不把已完成业务误报为工具失败。
         if(request!=null)try{audit.recordTask(request,toolName,result);}catch(Exception failed){LOG.error("任务工具审计失败：tool={}，runId={}，异常类型={}",toolName,request.runId(),failed.getClass().getSimpleName());}
-        return ResponseEntity.status(status).body(result);
+        // 2.0/2.1均由真实目录绑定后声明能力；头部不是授权凭证，最终事件仍需取得当前交付许可。
+        // 不增加第18个模型工具、不改变goalContext，不给失败或普通业务工具附带知识成功声明。
+        var response=ResponseEntity.status(status);
+        if("query_faq".equals(toolName) && Boolean.TRUE.equals(result.get("ok")))
+            response.header("X-Knowledge-Authority","delivery-v1");
+        return response.body(result);
     }
     /** 错误JSON仍返回固定新信封，不能泄漏框架或SQL正文。 */
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)

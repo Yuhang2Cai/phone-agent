@@ -66,7 +66,7 @@ public class AgentV1ToolBridge {
         var existing = executions.findById(request.idempotencyKey());
         if (existing.isPresent()) {
             if (!fingerprint.equals(existing.get().getFingerprint())) throw new ToolBoundaryException("CONFLICT", "动作键对应不同请求");
-            return existing.get().getResult();
+            return replayKnowledge(tool, request, existing.get().getResult());
         }
         // 规则判断：准备只签发凭证且有速率限制；业务写必须获得当前 trace 的明确确认，每轮最多消费一次。
         if (schema.isPreparation(tool) && executions.countBySessionIdAndToolNameInAndCreatedAtAfter(request.sessionId(),
@@ -82,6 +82,16 @@ public class AgentV1ToolBridge {
         if (schema.isWrite(tool)) session.consumeConfirmation();
         executions.saveAndFlush(new AgentToolExecution(request, userId, tool, fingerprint, result));
         return result;
+    }
+    /** 两代工具桥共用知识回放边界；其它已提交业务动作仍直接返回原事实，不重新执行。 */
+    Map<String,Object> replayKnowledge(String tool, InternalV1ToolRequest request, Map<String,Object> result) {
+        if (!"query_faq".equals(tool)) return result;
+        try {
+            return faqs.replayForAgent(new KnowledgeCatalog.Scope(request.idempotencyKey(), request.userId(), request.sessionId(), request.runId(), request.taskId()), result);
+        } catch (IllegalStateException failure) {
+            // 仅返回安全错误，不把来源正文、内部SQL或授权详情放进公开工具错误。
+            throw new ToolBoundaryException("DEPENDENCY_UNAVAILABLE", "知识来源已失效，请重新提出问题");
+        }
     }
     /** 具体动作与用户看过的摘要绑定；持有其他准备凭证不能借一次泛化确认替换动作、资源或正文。 */
     void validatePending(String tool, Long userId, InternalV1ToolRequest request, AgentSession session) {
@@ -142,8 +152,9 @@ public class AgentV1ToolBridge {
                 if (input.containsKey("dealId")) deals.require(text(input, "dealId"));
                 yield Map.of("coupons", coupons.list(userId).stream().map(AgentDomainProjection::coupon).toList());
             }
-            // 模型传来完整问句而非页面搜索词；由后端知识目录召回，回答仍是原始审核内容。
-            case "query_faq" -> Map.of("faqs", faqs.queryForAgent(text(input, "question"), text(input, "topic")));
+            // 模型只提供问题；来源绑定身份全部来自已核验工具信封，V1和Task桥共享此唯一分发。
+            case "query_faq" -> Map.of("faqs", faqs.queryForAgent(text(input, "question"), text(input, "topic"),
+                    new KnowledgeCatalog.Scope(request.idempotencyKey(), request.userId(), request.sessionId(), request.runId(), request.taskId())));
             case "submit_complaint" -> complaints.submit(userId, request.sessionId(), text(input, "orderId"), text(input, "subject"), text(input, "description"), text(input, "confirmationGrantId"));
             default -> throw new ToolBoundaryException("NOT_FOUND", "工具不存在");
         };

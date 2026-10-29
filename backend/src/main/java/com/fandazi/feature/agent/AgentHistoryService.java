@@ -1,4 +1,4 @@
-// 私有会话历史恢复：校验所有权→固定双上界→有界分页→公开脱敏，只读执行而不恢复旧授权。
+// 私有会话历史恢复：校验所有权→固定双上界→有界分页→重新核对知识许可→公开脱敏，不恢复交易授权。
 package com.fandazi.feature.agent;
 
 import java.util.List;
@@ -17,17 +17,20 @@ public class AgentHistoryService {
     private final AgentEventRepository events;
     private final AgentHistoryCursor cursors;
     private final AgentHistoryRecordingService recording;
+    private final AgentKnowledgeDelivery knowledge;
 
     /** 注入既有归属、公开事件及独立记录服务；不依赖模型、交易工具或私人缓存。 */
-    public AgentHistoryService(AgentSessionService sessions,AgentMessageRepository messages,AgentEventRepository events,AgentHistoryCursor cursors,AgentHistoryRecordingService recording) {
+    public AgentHistoryService(AgentSessionService sessions,AgentMessageRepository messages,AgentEventRepository events,AgentHistoryCursor cursors,AgentHistoryRecordingService recording,AgentKnowledgeDelivery knowledge) {
         this.sessions=sessions;this.messages=messages;this.events=events;this.cursors=cursors;this.recording=recording;
+        this.knowledge=knowledge;
     }
 
     /**
      * 返回V1有界页；首次在同一可重复读事务固定两组上界，后续只沿签名游标前进。
      * 未授权会话404、非法输入400、已观察到记录缺口503；均不假造历史或重发业务。
+     * 知识正文重新取得交付许可，因此事务允许写许可账本；不修改消息、业务对象或交易确认。
      */
-    @Transactional(readOnly=true,isolation=Isolation.REPEATABLE_READ)
+    @Transactional(isolation=Isolation.REPEATABLE_READ)
     public AgentHistoryResponse page(Long ownerId,String sessionId,String cursor,int limit) {
         if(limit<1 || limit>100)throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"历史limit必须为1至100");
         final AgentSession session;
@@ -44,6 +47,10 @@ public class AgentHistoryService {
         var eventRows=moreMessages ? List.<AgentEventEntity>of()
                 : events.snapshotPage(ownerId,sessionId,snapshot.eventAfter(),snapshot.eventUpper(),PageRequest.of(0,remaining+1));
         var acceptedEvents=eventRows.stream().limit(remaining).toList();
+        // 消息页和事件页都是交付出口，必须在响应构造前同时核对；当前读不继承分页快照中的旧有效性。
+        // 任一正文已经撤回时整页失败，事务回滚该页新许可，不返回一部分正文伪装完整历史。
+        knowledge.replayMessages(ownerId,sessionId,acceptedMessages);
+        knowledge.replay(ownerId,sessionId,acceptedEvents);
         boolean more=moreMessages || eventRows.size()>remaining;
         long messageAfter=acceptedMessages.isEmpty()?snapshot.messageAfter():acceptedMessages.get(acceptedMessages.size()-1).getId();
         long eventAfter=acceptedEvents.isEmpty()?snapshot.eventAfter():acceptedEvents.get(acceptedEvents.size()-1).getId();

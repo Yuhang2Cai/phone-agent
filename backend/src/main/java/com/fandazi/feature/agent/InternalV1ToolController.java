@@ -59,7 +59,12 @@ public class InternalV1ToolController {
             try { audit.record(request, toolName, result); }
             catch (Exception exception) { log.error("V1 tool audit failed: tool={}, runId={}, traceId={}", toolName, request.runId(), request.traceId(), exception); }
         }
-        return ResponseEntity.status(status).body(result);
+        // 内部响应头只声明当前成功FAQ具备来源绑定和最终交付能力，不扩展模型工具或业务信封。
+        // 不缓存实例能力；失败信封不声明成功，旧Agent可忽略该头但仍受本服务交付门控约束。
+        var response=ResponseEntity.status(status);
+        if("query_faq".equals(toolName) && Boolean.TRUE.equals(result.get("ok")))
+            response.header("X-Knowledge-Authority","delivery-v1");
+        return response.body(result);
     }
     /** 非法 JSON 也转换为工具结果，避免框架默认错误页面泄漏不同结构。 */
     @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)

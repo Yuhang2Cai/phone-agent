@@ -130,7 +130,9 @@ class Task1NestedPublicEventAcceptanceTest {
     }
 
     @Test
+    @Transactional(propagation = org.springframework.transaction.annotation.Propagation.NOT_SUPPORTED)
     void liveSsePublishesOnlySanitizedNestedPayload() throws Exception {
+        // 实时事件只允许在数据库提交后发布；本用例必须退出测试回滚事务，才能验证真实提交边界的SSE。
         // 先建立真实 MVC SSE 订阅，再由事件服务发布新事件，覆盖实时路径而非只序列化 DTO。
         UserEntity user = users.save(new UserEntity("acceptance-live", "acceptance-live@example.invalid", "unused-test-hash"));
         sessions.start(user.getId(), "acceptance-live-session", AgentMode.CONFIRM, "live-trace");

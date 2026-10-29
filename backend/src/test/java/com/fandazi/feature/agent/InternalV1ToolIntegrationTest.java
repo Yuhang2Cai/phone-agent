@@ -210,9 +210,14 @@ class InternalV1ToolIntegrationTest {
 
     /** 将响应读取为 JSON 对象，同时要求服务始终返回标准业务结果而非框架错误页面。 */
     private Map<String, Object> send(String name, Map<String, Object> body, String token) throws Exception {
-        String json = http.perform(post("/internal/v1/tools/" + name).header("Authorization", "Bearer " + token)
-                .contentType("application/json").content(mapper.writeValueAsBytes(body))).andReturn().getResponse().getContentAsString(StandardCharsets.UTF_8);
-        return mapper.readValue(json, new com.fasterxml.jackson.core.type.TypeReference<>() {});
+        var response = http.perform(post("/internal/v1/tools/" + name).header("Authorization", "Bearer " + token)
+                .contentType("application/json").content(mapper.writeValueAsBytes(body))).andReturn().getResponse();
+        Map<String,Object> result=mapper.readValue(response.getContentAsString(StandardCharsets.UTF_8),new com.fasterxml.jackson.core.type.TypeReference<>() {});
+        // 仅实际成功的知识工具声明完整交付能力；失败或其它工具不借成功头伪装知识可用。
+        if("query_faq".equals(name) && Boolean.TRUE.equals(result.get("ok")))
+            assertThat(response.getHeader("X-Knowledge-Authority")).isEqualTo("delivery-v1");
+        else assertThat(response.getHeader("X-Knowledge-Authority")).isNull();
+        return result;
     }
 
     /** 校验失败不会携带业务数据、堆栈或泄漏请求内容，且错误码稳定。 */

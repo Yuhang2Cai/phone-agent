@@ -72,4 +72,21 @@ class AgentGoalPaymentRecoveryTest {
         assertFalse(jdbc.queryForObject("SELECT revoked FROM confirmation_grants WHERE grant_id=?",Boolean.class,oldGrant));
         assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM group_buy_orders WHERE user_id=?",Integer.class,fixture.scope.user));
     }
+
+    /** 复合图已经展示原订单支付确认后可重新准备；不能仅凭“同账号有该订单”绕过实际停点。 */
+    @Test void composite_payment_stop_is_bound_by_validated_confirmation() {
+        fixture=new AgentTaskToolTestFixtures(users,sessions,registry,turns,tools,fences,jdbc,stores,deals,"composite");
+        var order=paymentStop();String orderId=(String)order.get("orderId");
+        jdbc.update("UPDATE agent_task_turns SET protocol_version='2.3' WHERE turn_id=?",fixture.turn.turnId());
+        assertEquals(orderId,jdbc.queryForObject("SELECT pending_payment_order_id FROM agent_conversation_tasks WHERE conversation_task_id=?",String.class,fixture.taskId));
+        assertEquals("2.3",payments.reprepare(request(orderId,1)).get("schemaVersion"));
+        assertEquals(1,jdbc.queryForObject("SELECT COUNT(*) FROM group_buy_orders WHERE user_id=?",Integer.class,fixture.scope.user));
+        assertThrows(ToolBoundaryException.class,()->payments.reprepare(request("other-order",2)));
+        // 后续转为购买确认时必须清除旧支付停点，不能仅因旧订单尚未支付就重新签发授权。
+        jdbc.update("UPDATE agent_task_turns SET protocol_version='2.2' WHERE turn_id=?",fixture.turn.turnId());
+        var nextQuote=fixture.quote(2);fixture.awaitAndConfirm(nextQuote);
+        assertNull(jdbc.queryForObject("SELECT pending_payment_order_id FROM agent_conversation_tasks WHERE conversation_task_id=?",String.class,fixture.taskId));
+        jdbc.update("UPDATE agent_task_turns SET protocol_version='2.3' WHERE turn_id=?",fixture.turn.turnId());
+        assertThrows(ToolBoundaryException.class,()->payments.reprepare(request(orderId,3)));
+    }
 }
