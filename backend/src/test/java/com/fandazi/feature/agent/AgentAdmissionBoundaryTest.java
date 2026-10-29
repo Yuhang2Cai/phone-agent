@@ -28,7 +28,9 @@ class AgentAdmissionBoundaryTest {
     }
     @Test void taskGatewayRejectsBeforePersistentSessionAndTurn() throws Exception {
         var sessions=mock(AgentSessionService.class);var turns=mock(AgentTaskTurnService.class);
-        var gateway=new AgentTaskGatewayService(sessions,null,turns,null,null,null,null,null,null,null,null,null,null,null,null,null,false,true,10000);
+        // 本例在准入处停止，不执行任何知识交付；显式提供新版依赖替身，不放宽“未触碰持久化”的断言。
+        var gateway=new AgentTaskGatewayService(sessions,null,turns,null,null,null,null,null,null,null,null,null,null,null,null,
+            mock(AgentKnowledgeDelivery.class),null,false,true,10000);
         var gate=new AgentRequestAdmission(true,()->100000,4096);attach(gateway,gate);
         try(var occupied=gate.acquire("someone",false)) {
             assertThrows(AgentRequestAdmission.Denied.class,()->gateway.handle(1L,"s",Map.of("schemaVersion","2.2","requestId","r","text","合成")));

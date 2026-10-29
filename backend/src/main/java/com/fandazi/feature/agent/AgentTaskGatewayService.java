@@ -26,18 +26,20 @@ public class AgentTaskGatewayService {
     private final long insertWaitMillis;
     private final AgentTaskReturnService returns;
     private final AgentPresentationService presentations;
+    private final AgentKnowledgeDelivery knowledge;
     /** 只注入短事务服务，网关自身不加@Transactional，模型/HTTP始终在事务外。 */
     public AgentTaskGatewayService(AgentSessionService sessions,AgentTaskRegistryService registry,AgentTaskTurnService turns,
             AgentTaskTurnRepository turnRows,AgentTaskControlService controls,AgentTaskCommandRepository commands,
             AgentTaskReconciliationService reconcile,AgentTaskInputClient inputs,AgentServiceClient client,
             AgentTaskFenceService fences,AgentTaskExecutionContext context,AgentCardEnrichmentService cards,
-            AgentHistoryRecordingService history,AgentTaskReturnService returns,AgentPresentationService presentations,
+            AgentHistoryRecordingService history,AgentTaskReturnService returns,AgentPresentationService presentations,AgentKnowledgeDelivery knowledge,
             AgentGoalFeatureGate goalFeatureGate,@Value("${agent.service.goal-recovery-enabled:false}") boolean agentGoalRecoveryEnabled,
             @Value("${agent.task-lifecycle.enabled:false}") boolean enabled,
             @Value("${agent.task-lifecycle.insert-wait-ms:10000}") long insertWaitMillis) {
         this.sessions=sessions;this.registry=registry;this.turns=turns;this.turnRows=turnRows;this.controls=controls;this.commands=commands;
         this.reconcile=reconcile;this.inputs=inputs;this.client=client;this.fences=fences;this.context=context;this.cards=cards;
         this.history=history;this.returns=returns;this.presentations=presentations;this.goalFeatureGate=goalFeatureGate;
+        this.knowledge=knowledge;
         this.agentGoalRecoveryEnabled=agentGoalRecoveryEnabled;this.enabled=enabled;
         if(insertWaitMillis<1||insertWaitMillis>MAX_INSERT_WAIT_MILLIS)throw new IllegalArgumentException("插入交接等待预算必须为1至10000毫秒");
         this.insertWaitMillis=insertWaitMillis;
@@ -188,8 +190,19 @@ public class AgentTaskGatewayService {
                 return reply(user,sessionId,requestId,original,inputHash,stopPrompt(front));
             }
             if(Set.of("clarify","no_task").contains(action)) {
-                String message="clarify".equals(action)?text(decision.get("question"),1000):"reviewed_exact".equals(decision.get("reasonCode"))?
-                    "你好，我是饭搭子助手。当前任务保留原停点。":"已收到，当前任务保留原停点；范围外事项暂不支持办理。";
+                // 归属原因只说明如何得到候选，不能替代十三类意图。模型回退识别的问候/闲聊
+                // 与审核整句具有相同的无业务语义；仍只保存回复，不启动工具或改变任务焦点。
+                String message;
+                if("clarify".equals(action))message=text(decision.get("question"),1000);
+                else {
+                    Object intent=decision.get("intent");
+                    if("greeting".equals(intent)||intent==null&&"reviewed_exact".equals(decision.get("reasonCode")))
+                        message="你好，我是饭搭子助手。";
+                    else if("chitchat".equals(intent))message="可以和我聊聊用餐需求；涉及具体业务时请说明对象和事项。";
+                    else message="范围外事项暂不支持办理。";
+                    // 空目录不存在可保留的停点，只有权威目录确有前台任务时才追加该事实。
+                    if(front!=null)message+="当前任务保留原停点。";
+                }
                 return reply(user,sessionId,requestId,original,inputHash,message);
             }
             if(Set.of("pause","cancel","resume","switch").contains(action)) {
@@ -361,7 +374,7 @@ public class AgentTaskGatewayService {
     /** 已完成的HTTP重试只读原结果，既不新建任务、分类，也不重新发写工具。 */
     private AgentResult completedReplay(Long user,String sessionId,Map<String,Object> fence,String sourceId,Map<String,Object> result) {
         var rows=(List<?>)result.get("events");var converted=new ArrayList<AgentResult.Event>();var cardRows=new ArrayList<Map<String,Object>>();
-        Map<String,Object> summary=Map.of();String message="原任务结果已恢复。";
+        Map<String,Object> terminal=Map.of();
         for(var item:rows){var event=object(item);var payload=object(event.get("payload"));String type=(String)event.get("eventType");
             // 持久完成结果保存原协议事件；回读须与实时SSE使用同一原身份，不能靠当前目录或新随机值补造。
             // 先复制业务负载，再以已验证顶层元数据覆盖同名字段；递归脱敏防止内部凭证进入公开HTTP。
@@ -369,12 +382,19 @@ public class AgentTaskGatewayService {
             for(String key:List.of("schemaVersion","eventId","sequence","runId","traceId","status","taskContext"))
                 if(event.get(key)!=null)payload.put(key,event.get(key));
             payload=AgentContractCompatibility.publicEventPayload(payload);
-            converted.add(new AgentResult.Event(type,AgentContractCompatibility.summary(payload),null,(String)event.get("status"),payload));
-            if("card".equals(type))cardRows.add(object(payload.get("card")));if("confirmation_required".equals(type))summary=object(payload.get("summary"));
-            if(payload.get("message") instanceof String text)message=text;}
-        var status=switch((String)result.get("status")){case "waiting_input" -> AgentResult.Status.NEEDS_INPUT;case "waiting_confirmation" -> AgentResult.Status.AWAITING_CONFIRMATION;
-            case "failed" -> AgentResult.Status.FAILED;case "cancelled" -> AgentResult.Status.CANCELLED;default -> AgentResult.Status.COMPLETED;};
-        return enrich(user,sessionId,fence,sourceId,new AgentResult(status,message,"task_state",summary,converted,cardRows,null,true));
+            converted.add(new AgentResult.Event(type,AgentContractCompatibility.summary(payload),
+                payload.get("toolName") instanceof String tool?tool:null,(String)event.get("status"),payload));
+            if("card".equals(type))cardRows.add(object(payload.get("card")));
+            // 只有原终态决定HTTP结果；中间进度文本不能覆盖追问或失败，原身份也不重新生成。
+            if(java.util.Set.of("run_completed","error","input_required","confirmation_required").contains(type))
+                terminal=Map.of("status",event.get("status"),"payload",payload);
+        }
+        // 持久结果若丢失终态或状态不一致，拒绝伪造“恢复成功”；正常完成回执由提交事务校验。
+        if(terminal.isEmpty() || !java.util.Objects.equals(terminal.get("status"),result.get("status")))
+            throw new AgentServiceUnavailableException("原任务终态缺失或不一致");
+        // 私有完成回执只是历史事实，不能继承当时的知识有效性；新许可失败时不返回正文也不重执工具。
+        knowledge.replayResult(user,sessionId,converted);
+        return enrich(user,sessionId,fence,sourceId,HttpAgentServiceClient.fromTerminal(terminal,converted,cardRows));
     }
     /** 卡片/金额/资格来自唯一领域重查；最终列表按原来源登记，供下一轮本人同epoch选择。 */
     private AgentResult enrich(Long user,String sessionId,Map<String,Object> fence,String sourceId,AgentResult result) {

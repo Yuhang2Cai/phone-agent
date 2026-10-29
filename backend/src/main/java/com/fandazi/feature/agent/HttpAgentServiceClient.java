@@ -60,11 +60,20 @@ class HttpAgentServiceClient implements AgentServiceClient {
         this.mapper = mapper;
         this.messages = messages;
         this.protocol = new AgentProtocolValidator(mapper);
-        this.client = RestClient.builder().baseUrl(baseUrl)
-                .requestFactory(new org.springframework.http.client.SimpleClientHttpRequestFactory() {{
+        var legacyFactory=new org.springframework.http.client.SimpleClientHttpRequestFactory() {{
                     setConnectTimeout(Duration.ofMillis(timeoutMillis));
                     setReadTimeout(Duration.ofMillis(timeoutMillis));
-                }}).build();
+                }};
+        // 新入口用整个响应流的剩余时间，持续小块响应不能重置截止；旧离线调用保留原读取语义。
+        // JDK客户端仅建立一次复用连接，显式HTTP/1.1避免既有Uvicorn的h2c正文兼容问题。
+        var boundedHttp=java.net.http.HttpClient.newBuilder().version(java.net.http.HttpClient.Version.HTTP_1_1)
+            .connectTimeout(Duration.ofMillis(timeoutMillis)).build();
+        this.client = RestClient.builder().baseUrl(baseUrl).requestFactory((uri,method)->{
+            if(!AgentRequestBudget.active())return legacyFactory.createRequest(uri,method);
+            var factory=new org.springframework.http.client.JdkClientHttpRequestFactory(boundedHttp);
+            factory.setReadTimeout(AgentRequestBudget.remaining(timeoutMillis));
+            return factory.createRequest(uri,method);
+        }).build();
     }
 
     /** 旧调用方保留默认 1.1；生产装配由带版本配置的构造器选择，避免改写历史测试。 */
@@ -150,7 +159,7 @@ class HttpAgentServiceClient implements AgentServiceClient {
                     streamedCards.add(card);
                 }
                 if (java.util.Set.of("run_completed", "error", "input_required", "confirmation_required").contains(eventType)) {
-                    return result(event, events, streamedCards);
+                    return fromTerminal(event, events, streamedCards);
                 }
             }
         }
@@ -187,8 +196,12 @@ class HttpAgentServiceClient implements AgentServiceClient {
                 string(payload.get("toolName")), String.valueOf(raw.get("status")), payload);
     }
 
-    /** 将终态事件转换成旧网关结果，保证 Android 暂不需要理解内部协议细节。 */
-    private AgentResult result(Map<String, Object> raw, List<AgentResult.Event> events, List<Map<String, Object>> streamedCards) {
+    /**
+     * 将已校验、已脱敏的终态和事件转换为公开结果，实时流与持久回执重放共用。
+     * 输入必须经过各自的归属及知识许可核验；此处只映射字段，不调用模型、工具或写数据库。
+     * 统一处理追问、确认和错误，避免恢复时丢失原输入字段或把原错误改成通用成功提示。
+     */
+    static AgentResult fromTerminal(Map<String, Object> raw, List<AgentResult.Event> events, List<Map<String, Object>> streamedCards) {
         Map<String, Object> payload = map(raw.get("payload"));
         String status = String.valueOf(raw.getOrDefault("status", "failed"));
         AgentResult.Status mapped = statusFromV1(status);
@@ -226,7 +239,7 @@ class HttpAgentServiceClient implements AgentServiceClient {
     }
 
     /** 将协议中的 JSON 对象安全转换为字符串键 Map。 */
-    private Map<String, Object> map(Object value) {
+    private static Map<String, Object> map(Object value) {
         if (!(value instanceof Map<?, ?> raw)) return Map.of();
         Map<String, Object> result = new LinkedHashMap<>();
         raw.forEach((key, item) -> result.put(String.valueOf(key), item));
@@ -234,14 +247,14 @@ class HttpAgentServiceClient implements AgentServiceClient {
     }
 
     /** 保留 JSON 空值，不把缺失协议字段拼接成字符串 null。 */
-    private String string(Object value) { return value == null ? null : String.valueOf(value); }
+    private static String string(Object value) { return value == null ? null : String.valueOf(value); }
 
     /** 使用配置中的内部共享密钥生成仅一分钟有效的 HS256 JWT。 */
     private String createInternalJwt(AgentRunRequest request) throws Exception {
         // 内外两个调用方向共享环境密钥，HS256 至少需要 32 字节；短开发凭据不得进入新业务路径。
         if (internalToken == null || internalToken.getBytes(StandardCharsets.UTF_8).length < 32) throw new AgentServiceUnavailableException("Agent 内部鉴权配置不足32字节");
         String header = encodeJson(Map.of("alg", "HS256", "typ", "JWT"));
-        String payload = encodeJson(Map.of("sub", request.userId(), "exp", Instant.now().getEpochSecond() + 60));
+        String payload = encodeJson(AgentRequestBudget.claims(Map.of("sub", request.userId(), "exp", Instant.now().getEpochSecond() + 60)));
         String input = header + "." + payload;
         Mac mac = Mac.getInstance("HmacSHA256");
         mac.init(new SecretKeySpec(internalToken.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));

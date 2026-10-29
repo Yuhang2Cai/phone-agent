@@ -38,12 +38,12 @@ class AgentTaskInputGatewayTest {
     @Autowired StoreRepository stores;
     @MockBean AgentTaskInputClient input;@MockBean AgentTaskControlClient control;@MockBean AgentServiceClient agent;
     // 归属原因是明确的组件输入，用于区分纯展示停点与普通字段继续，不冒称真实模型结果。
-    AgentTaskTestFixtures fixture;String action,ownershipReason,insertIntent,insertKind;long businessBefore;boolean explicitReturn,cancelReturnTarget;
+    AgentTaskTestFixtures fixture;String action,ownershipReason,insertIntent,insertKind,nonbusinessIntent;long businessBefore;boolean explicitReturn,cancelReturnTarget;
     // 两个闩锁只用于精确冻结真实后台认领与回执之间的时序，不模拟命令已经提交。
     java.util.concurrent.CountDownLatch dispatchEntered,dispatchRelease;
     /** 单scope隔离且每例业务表增量0；测试替身不创建真实订单/申请，不冒称完整业务链路。 */
     @BeforeEach void setup(){fixture=new AgentTaskTestFixtures(users,sessions,registry,jdbc);action="no_task";ownershipReason="reviewed_exact";
-        insertIntent="store_info";insertKind="lookup";explicitReturn=false;cancelReturnTarget=false;
+        insertIntent="store_info";insertKind="lookup";nonbusinessIntent=null;explicitReturn=false;cancelReturnTarget=false;
         dispatchEntered=null;dispatchRelease=null;
         businessBefore=jdbc.queryForObject("SELECT COUNT(*) FROM agent_tool_executions",Long.class);
         when(input.interpret(anyLong(),anyString(),anyMap())).thenAnswer(call->{
@@ -55,7 +55,9 @@ class AgentTaskInputGatewayTest {
             result.put("newRequest","insert".equals(action)?newQuery:null);
             result.put("returnTo",explicitReturn?Map.of("targetTaskId",front.get("conversationTaskId"),"targetTaskVersion",front.get("taskVersion"),
                 "focusVersion",directory.get("focusVersion"),"sourceStart",newQuery.codePointCount(0,newQuery.length()),"sourceEnd",query.codePointCount(0,query.length())):null);
-            result.put("intent","insert".equals(action)?insertIntent:null);result.put("purpose","insert".equals(action)?"query":null);
+            // 无业务任务也保留真实分类标签，覆盖重型回退问候而非只测审核整句原因。
+            result.put("intent","insert".equals(action)?insertIntent:nonbusinessIntent);
+            result.put("purpose","insert".equals(action)?"query":nonbusinessIntent==null?null:"out_of_scope".equals(nonbusinessIntent)?"unsupported":"chat");
             result.put("taskKind","insert".equals(action)?insertKind:null);result.put("reasonCode",ownershipReason);result.put("question","请选择要继续的任务。");
             result.put("bodySha256",sha256(query));result.put("executionQuerySha256",sha256("insert".equals(action)?newQuery:query));return result;});
         when(control.dispatch(anyMap())).thenAnswer(call->{Map<String,Object> wire=call.getArgument(0);var receipts=new ArrayList<Map<String,Object>>();
@@ -99,6 +101,20 @@ class AgentTaskInputGatewayTest {
         assertEquals(200,send(request("你好")).getStatus());assertTaskStateUnchanged(before,fixture.directory());
         assertEquals(trace,sessions.owned(fixture.user,fixture.session).getTraceId());verifyNoInteractions(agent,control);
         assertEquals(200,send(request("你好")).getStatus());verify(input,times(1)).interpret(anyLong(),anyString(),anyMap());
+    }
+    /** 真实UI首败：模型已正确识别问候，网关却只看reasonCode而误报范围外；不能靠放宽UI断言掩盖。 */
+    @ParameterizedTest
+    @CsvSource({"greeting,你好", "chitchat,聊聊", "out_of_scope,暂不支持"})
+    void classifiedNonbusinessReplyKeepsIntentWithoutInventingTask(String intent,String expected) throws Exception {
+        ownershipReason="nonbusiness_or_unsupported";nonbusinessIntent=intent;
+        var before=fixture.directory();
+        var response=send(request("你好"));
+        assertEquals(200,response.getStatus());
+        String message=json.readTree(response.getContentAsString()).path("message").asText();
+        assertTrue(message.contains(expected),"无业务回复必须保留十三类分类语义："+message);
+        assertFalse(message.contains("当前任务保留原停点"),"空目录不能声称存在原任务停点");
+        if(!"out_of_scope".equals(intent))assertFalse(message.contains("范围外"),"问候和闲聊不是越界请求");
+        assertTaskStateUnchanged(before,fixture.directory());verifyNoInteractions(agent,control);
     }
     @Test void ambiguousPausedTasksDoNotGuessOrActivate() throws Exception {
         fixture.seedPaused();fixture.seedPaused();action="clarify";var before=fixture.directory();

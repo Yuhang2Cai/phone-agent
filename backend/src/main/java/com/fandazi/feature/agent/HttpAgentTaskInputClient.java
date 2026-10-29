@@ -27,9 +27,10 @@ public class HttpAgentTaskInputClient implements AgentTaskInputClient {
     @Override public Map<String,Object> interpret(Long user,String sessionId,Map<String,Object> request) {
         try {
             if(secret.getBytes(StandardCharsets.UTF_8).length<32)throw new IllegalStateException("内部凭据未配置");
-            String token=Jwts.builder().subject(String.valueOf(user)).expiration(Date.from(Instant.now().plusSeconds(60)))
+            String token=Jwts.builder().claims(AgentRequestBudget.claims(Map.of())).subject(String.valueOf(user)).expiration(Date.from(Instant.now().plusSeconds(60)))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)),Jwts.SIG.HS256).compact();
-            var message=HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(110)).header("Authorization","Bearer "+token)
+            // 归属解释消耗入口同一余额；后续运行继续原截止，不再获得第二个110秒。
+            var message=HttpRequest.newBuilder(uri).timeout(AgentRequestBudget.remaining(110000)).header("Authorization","Bearer "+token)
                 .header("Content-Type","application/json").POST(HttpRequest.BodyPublishers.ofString(mapper.writeValueAsString(request))).build();
             var response=http.send(message,HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
             // 输入解释和后续执行均可能被独立防御限流；仅传递固定状态/等待秒，不暴露上游正文。

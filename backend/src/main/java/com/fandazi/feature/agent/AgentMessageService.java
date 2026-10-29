@@ -69,6 +69,12 @@ public class AgentMessageService {
         Map<String, Object> content = new java.util.LinkedHashMap<>(payload(event));
         content.putIfAbsent("runId", request.runId());
         content.putIfAbsent("traceId", request.traceId());
+        // 知识交付许可和事件必须提交后才能让HTTP客户端组装成功结果。
+        // 该调用在可忽略审计catch之外，事务提交失败也不能被吞掉后继续发送旧正文。
+        if (events.requiresKnowledgeDelivery(userId,request.sessionId(),type,content)) {
+            events.record(userId,request.sessionId(),type,summary,toolName,status,content);
+            return normalized;
+        }
         try {
             events.record(userId, request.sessionId(), type, summary, toolName, status, content);
         } catch (RuntimeException exception) {

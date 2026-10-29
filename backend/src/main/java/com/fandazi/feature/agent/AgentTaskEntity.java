@@ -144,6 +144,15 @@ public class AgentTaskEntity {
     void bindPaymentOrder(String orderId){
         if(pendingPaymentOrderId!=null&&!pendingPaymentOrderId.equals(orderId))throw new ToolBoundaryException("CONFLICT","任务已有不同支付停点");pendingPaymentOrderId=orderId;
     }
+
+    /**
+     * 复合任务可依次处理多笔订单，支付停点必须来自本轮已校验确认卡片而非最后一次建单。
+     * 仅完成事务调用；非支付停点传null清除绑定，暂停/恢复控制不调用本方法，故仍保留原停点。
+     */
+    void bindCompositePaymentStop(String orderId) {
+        if(!"composite".equals(taskKind))throw new IllegalStateException("仅复合任务可替换当前支付停点");
+        pendingPaymentOrderId=orderId;
+    }
     /** 返回停点类型供内部恢复核验，调度暂停不把原停点改成running。 */
     String stopKind(){return stopKind;}
     /** 返回最近暂停时间，仅影响目录显示排序，不能用于语义目标猜测。 */

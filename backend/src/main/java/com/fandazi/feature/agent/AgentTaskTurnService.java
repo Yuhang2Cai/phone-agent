@@ -12,12 +12,13 @@ public class AgentTaskTurnService {
     private final AgentConversationSourceService sources;private final AgentTaskEventOutbox outbox;private final AgentProtocolValidator contracts;
     private final AgentConversationSourceRepository sourceRows;
     private final AgentCardEnrichmentService cards;private final AgentTaskExecutionContext execution;private final AgentGoalService goals;
+    private final AgentToolExecutionRepository toolRows;
     /** 注入同库持久组件；不依赖HTTP/模型/业务工具，保证受理和完成为短事务。 */
     public AgentTaskTurnService(AgentTaskRegistryService registry,AgentTaskTurnRepository turns,AgentTaskRunRepository runs,
             AgentConversationSourceService sources,AgentTaskEventOutbox outbox,ObjectMapper mapper,AgentConversationSourceRepository sourceRows,
-            AgentCardEnrichmentService cards,AgentTaskExecutionContext execution,AgentGoalService goals) {
+            AgentCardEnrichmentService cards,AgentTaskExecutionContext execution,AgentGoalService goals,AgentToolExecutionRepository toolRows) {
         this.registry=registry;this.turns=turns;this.runs=runs;this.sources=sources;this.outbox=outbox;this.sourceRows=sourceRows;
-        this.cards=cards;this.execution=execution;this.goals=goals;contracts=new AgentProtocolValidator(mapper);
+        this.cards=cards;this.execution=execution;this.goals=goals;this.toolRows=toolRows;contracts=new AgentProtocolValidator(mapper);
     }
     /** 内部输入对象由鉴权网关构造；task与版本仍须服务重新核验，不能相信模型身份。 */
     public record Input(String requestId,String body,String taskId,long taskVersion,long focusVersion,boolean executable) {}
@@ -138,6 +139,7 @@ public class AgentTaskTurnService {
         if(!turn.runId().equals(result.get("runId"))||!turn.traceId().equals(result.get("traceId")))throw AgentTaskRegistryService.conflict("完成运行身份不一致");
         @SuppressWarnings("unchecked") var events=(List<Map<String,Object>>)result.get("events");String field=null,goal=null;
         int inputStops=0,confirmationStops=0,goalEvents=0;Map<String,Object> goalPayload=null;String status=(String)result.get("status");
+        String compositePaymentOrder=null;
         for(var event:events) {
             @SuppressWarnings("unchecked") var context=(Map<String,Object>)event.get("taskContext");
             var expected=new LinkedHashMap<>(fence);expected.remove("scope");expected.remove("runId");
@@ -156,6 +158,8 @@ public class AgentTaskTurnService {
                 // 只保存服务端规范摘要，确保随后按钮提交的已展示内容与领域校验结果一致；缺grant时整个完成事务回滚。
                 var canonical=execution.within(fence,()->cards.enrichSummary(user,sessionId,summary));
                 session.awaitTaskConfirmation(task.id(),canonical);
+                // 只在真实领域/grant核验之后记原支付对象，不能用Agent任意声明的orderId建立恢复资格。
+                if("pay_mock_order".equals(canonical.get("action")))compositePaymentOrder=(String)canonical.get("resourceId");
             }
             if("goal_outcomes".equals(event.get("eventType"))){
                 goalEvents++;goalPayload=payload;
@@ -165,7 +169,7 @@ public class AgentTaskTurnService {
         // 等待停点必须恰有一个对应事件；重复/缺失不能任取一个摘要或伪造可恢复状态。
         if(("waiting_input".equals(status)&&inputStops!=1)||("waiting_confirmation".equals(status)&&confirmationStops!=1))
             throw AgentTaskRegistryService.conflict("等待停点缺失或重复");
-        if("2.3".equals(raw.get("schemaVersion"))){
+        if("2.3".equals(raw.get("schemaVersion"))&&!uninitializedStop(task,result,events)){
             if(goalEvents!=1||goalPayload==null)throw AgentTaskRegistryService.conflict("2.3轮次缺少唯一目标结果");
             String aggregate=String.valueOf(goalPayload.get("aggregateStatus"));String expected=switch(aggregate){
                 case "all_satisfied" -> "succeeded";case "waiting_confirmation" -> "waiting_confirmation";
@@ -175,8 +179,41 @@ public class AgentTaskTurnService {
             if(!expected.equals(status))throw AgentTaskRegistryService.conflict("目标聚合状态与轮次终态矛盾");
         }
         // 停点与完成回执/outbox共用本事务；失败时一起回滚，不产生只改目录未保存结果的状态。
+        // 复合图可轮流等待购买、支付和售后；非支付停点清除旧绑定，防止借旧订单越过当前确认。
+        if("composite".equals(task.kind()))task.bindCompositePaymentStop(compositePaymentOrder);
         var projection=registry.recordRunStop(user,sessionId,task.id(),turn.runId(),(String)result.get("status"),field,goal);
         if(goalPayload!=null)goals.commitTurnProjection(task,goalPayload);
         turn.complete(raw,hash);outbox.append(session,"task_projection",projection);return raw;
+    }
+
+    /**
+     * 在原scope/task事务锁下验证初始化前停点，不根据Agent自称“无副作用”放行。
+     * 仅1/1/0、无投影、无任何工具账本可保留原错误或目标/城市追问；已提交目标仍须同版结果。
+     * 本方法不创建目标、不生成成功正文、不授予新执行资格，重放继续走原完整结果指纹。
+     */
+    private boolean uninitializedStop(AgentTaskEntity task,Map<String,Object> result,List<Map<String,Object>> events) {
+        if(!Set.of("failed","waiting_input").contains(result.get("status"))||task.goalRevision()!=1||task.planRevision()!=1||task.effectVersion()!=0
+                ||task.goalProjection()!=null||events.size()<2||events.size()>5||toolRows.countByConversationTaskId(task.id())!=0)return false;
+        var first=events.get(0);var last=events.get(events.size()-1);
+        if(!"run_started".equals(first.get("eventType"))||!"running".equals(first.get("status"))
+                ||!result.get("status").equals(last.get("status")))return false;
+        if("failed".equals(result.get("status"))){
+            if(!"error".equals(last.get("eventType"))||!(result.get("error") instanceof Map<?,?> error)
+                    ||error.isEmpty()||!error.equals(last.get("payload")))return false;
+        }else{
+            // 空图只追问未明确目标或可信城市，不能展示候选、索取退款原因或产生确认授权。
+            if(!"input_required".equals(last.get("eventType"))||!(last.get("payload") instanceof Map<?,?> payload)
+                    ||!Set.of("query","cityCode").contains(payload.get("inputKey"))
+                    ||!List.of().equals(payload.get("candidates"))||result.containsKey("error"))return false;
+        }
+        // 分类进度属于模型前置，工具进度、正文、卡片和确认均不属于空初始化停点。
+        for(var event:events.subList(1,events.size()-1)) {
+            if(!"running".equals(event.get("status")))return false;
+            if("intent_decided".equals(event.get("eventType")))continue;
+            if("progress".equals(event.get("eventType"))&&event.get("payload") instanceof Map<?,?> payload
+                    &&"classify".equals(payload.get("stepId")))continue;
+            return false;
+        }
+        return true;
     }
 }

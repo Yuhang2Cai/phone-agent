@@ -17,6 +17,12 @@ class AgentEventShutdownTest {
         var repository=mock(AgentEventRepository.class);
         when(repository.findByUserIdAndSessionIdOrderByIdAsc(1L,"synthetic")).thenReturn(List.of());
         var context=new AnnotationConfigApplicationContext();
+        // 本测试只验证容器关闭订阅；显式提供知识边界替身，不削弱生产装配的必需依赖。
+        context.registerBean(AgentKnowledgeDelivery.class,()->{
+            var knowledge=mock(AgentKnowledgeDelivery.class);
+            when(knowledge.replay(any(),any(),any())).thenAnswer(call->call.getArgument(2));
+            return knowledge;
+        });
         context.registerBean(AgentEventService.class,()->new AgentEventService(repository));context.refresh();
         var service=context.getBean(AgentEventService.class);
         service.subscribe(1L,"synthetic",null,AgentGatewayController.EventResponse::from);

@@ -30,7 +30,8 @@ public class AgentTaskPaymentPreparationService {
         String protocol=(String)raw.get("schemaVersion");
         if(!turn.protocolVersion().equals(protocol))throw new ToolBoundaryException("CONFLICT","支付重准备协议与原轮次不一致");
         var current=fences.requireCurrent(fence,turn.traceId());String orderId=(String)raw.get("orderId");
-        if(!"transaction".equals(current.task().kind())||!"waiting_confirmation".equals(current.task().stopKind())||!orderId.equals(current.task().pendingPaymentOrderId()))
+        // 复合图的绑定由完成事务对真实支付卡片核验后设置；仍必须匹配当前原停点，不能借同账号任意订单。
+        if(!Set.of("transaction","composite").contains(current.task().kind())||!"waiting_confirmation".equals(current.task().stopKind())||!orderId.equals(current.task().pendingPaymentOrderId()))
             throw new ToolBoundaryException("CONFLICT","支付重准备必须绑定原订单确认停点");
         int version=Math.toIntExact(AgentTaskFingerprint.version(raw.get("actionVersion")));String node="internal-payment-"+orderId;
         String key=current.run().id()+":"+node+":"+version;if(key.length()>255)throw new ToolBoundaryException("VALIDATION_ERROR","支付恢复身份过长");

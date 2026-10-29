@@ -7,11 +7,14 @@ import java.util.Map;
 
 /** 无状态字段适配器；不改变业务金额、资源归属、确认资格或写入结果。 */
 final class AgentContractCompatibility {
-    /** 内部凭证与鉴权字段不属于公开事件；包含历史别名以保护已有数据库事件的重放。 */
+    /** 内部凭证与原始知识结果不属于公开事件；历史别名及旧审计均在同一出口过滤。 */
     private static final java.util.Set<String> PRIVATE_FIELDS = java.util.Set.of(
             "confirmationgrantid", "confirmationgrant", "grantid", "token", "accesstoken", "refreshtoken",
             "authorization", "password", "secret", "apikey", "jwt", "redemptiontoken", "paymentconfirmationgrantid",
-            "autoauthorize", "autoauthorization", "istaskauto", "taskautogrant");
+            "autoauthorize", "autoauthorization", "istaskauto", "taskautogrant",
+            // FAQ工具结果只是检索事实，公开原文必须经过最终交付许可；不能从嵌套审计data绕过。
+            // 内部HTTP工具响应不使用本脱敏器，真实消费者仍能收到完整原文和既有三个字段。
+            "faqs");
     /** 禁止实例化，避免在每个工具分支建立各自的兼容规则。 */
     private AgentContractCompatibility() {}
 

@@ -36,6 +36,15 @@ class AgentEventShutdownHttpTest {
             registration.setAsyncSupported(true);return registration;
         }
         @Bean AgentEventRepository repository(){return mock(AgentEventRepository.class);}
+        /**
+         * 真实 HTTP 关闭夹具只验证 SSE 生命周期，因此用最小知识交付替身补齐生产必需依赖。
+         * 回放保持原列表不变，避免夹具把知识许可逻辑误带入关闭时序断言。
+         */
+        @Bean AgentKnowledgeDelivery knowledge(){
+            var knowledge=mock(AgentKnowledgeDelivery.class);
+            when(knowledge.replay(any(),any(),any())).thenAnswer(call->call.getArgument(2));
+            return knowledge;
+        }
         @Bean AgentEventService events(AgentEventRepository rows){return new AgentEventService(rows);}
         @Bean SyntheticController controller(AgentEventService events){return new SyntheticController(events);}
     }
