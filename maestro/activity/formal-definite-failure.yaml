@@ -1,0 +1,10 @@
+# 已显示的任务在服务端停用后，实际领取返回409，页面不得显示成功或增加金币。
+appId: com.fandazi.app
+---
+- tapOn: 领取任务
+- assertVisible: 暂时无法领取
+- assertVisible: 该任务当前不可领取。
+- assertVisible: '0'
+- assertNotVisible: 金币已到账！
+- takeScreenshot: formal-definite-failure
+- tapOn: 返回活动

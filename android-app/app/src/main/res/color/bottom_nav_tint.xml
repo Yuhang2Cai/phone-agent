@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:color="@color/brand_orange" android:state_checked="true" />
+    <!-- 五 Tab 选中颜色对应已确认的活动 r2 组件，不影响其他业务按钮品牌色。 -->
+    <item android:color="@color/group_buy_orange" android:state_checked="true" />
     <item android:color="@color/bottom_nav_unselected" />
 </selector>

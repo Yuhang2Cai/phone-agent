@@ -67,6 +67,20 @@ class SecurityErrorDispatchTest {
         mvc.perform(get("/api/group-orders")).andExpect(status().isUnauthorized());
     }
 
+    /** 合并活动与秒杀后，仅两个明确的目录读取入口允许匿名访问，不能因规则顺序互相覆盖。 */
+    @Test
+    void publicActivityCatalogRoutesRemainAnonymous() throws Exception {
+        mvc.perform(get("/api/seckill-activities/probe")).andExpect(status().isNoContent());
+        mvc.perform(get("/api/activities/tasks")).andExpect(status().isNoContent());
+    }
+
+    /** 匿名放行必须停在精确路径；秒杀个人资格与活动实例子资源仍由统一身份链保护。 */
+    @Test
+    void personalActivitySubresourcesRemainProtected() throws Exception {
+        mvc.perform(get("/api/seckill-activities/probe/eligibility")).andExpect(status().isUnauthorized());
+        mvc.perform(get("/api/activities/tasks/probe/instance")).andExpect(status().isUnauthorized());
+    }
+
     /** 已停用接口即使携带有效用户身份也拒绝，不恢复旧订单/外卖路径。 */
     @Test
     void retiredOrdersRemainDeniedForAuthenticatedUser() throws Exception {
@@ -82,5 +96,15 @@ class SecurityErrorDispatchTest {
         @GetMapping("/api/private/error-probe")
         @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
         public void failed() { }
+
+        /** 同一个无业务副作用的探针承接公开及私有路径，状态差异只由真实安全链决定。 */
+        @GetMapping({
+                "/api/seckill-activities/probe",
+                "/api/activities/tasks",
+                "/api/seckill-activities/probe/eligibility",
+                "/api/activities/tasks/probe/instance"
+        })
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+        public void activityRouteProbe() { }
     }
 }

@@ -19,10 +19,13 @@ public class RefundService {
     private final VoucherRepository vouchers;
     private final RefundRequestRepository requests;
     private final ConfirmationGrantService grants;
+    /** 与活动领奖共用账户互斥，申请提交后新领奖必须看到冻结事实。 */
+    private final com.fandazi.feature.activity.ActivityService activities;
 
     /** 注入券、申请和确认凭证仓储。 */
-    public RefundService(VoucherRepository vouchers, RefundRequestRepository requests, ConfirmationGrantService grants) {
-        this.vouchers = vouchers; this.requests = requests; this.grants = grants;
+    public RefundService(VoucherRepository vouchers, RefundRequestRepository requests, ConfirmationGrantService grants,
+                         com.fandazi.feature.activity.ActivityService activities) {
+        this.vouchers = vouchers; this.requests = requests; this.grants = grants; this.activities = activities;
     }
 
     /** 查询本人已支付、未使用、未过期且无申请的券，返回实际分摊金额和页面摘要；不合资格抛出领域异常。 */
@@ -52,6 +55,8 @@ public class RefundService {
         if (reason == null || reason.isBlank() || reason.length() > 500) throw new DomainException("退款原因长度不合法");
         // 在券行锁前识别任务凭证，旧入口不得与任务grant消费形成反向等待。
         grants.requireDomainEntry(userId,sessionId,grantId);
+        // 活动/退款统一先锁账户再锁券；不能先锁券后等待领奖持有的账户，避免反向等待。
+        activities.lockBeforeRefundRequest(userId);
         VoucherEntity voucher = vouchers.findOwnedForUpdate(userId, voucherId)
                 .orElseThrow(() -> new DomainException("团购券不存在"));
         assertEligible(voucher);

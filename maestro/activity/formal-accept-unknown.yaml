@@ -1,0 +1,16 @@
+# 原请求故障前验证代理可读取真实列表，再显式领取每日三单任务。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: 金币游乐园
+- assertVisible: '10'
+- assertVisible: 已领取
+- scrollUntilVisible:
+    element:
+      text: 领取任务
+    direction: DOWN
+- tapOn: 领取任务
+- assertVisible: 查询领取结果
+- assertNotVisible: 金币已到账！
+- takeScreenshot: formal-accept-unknown

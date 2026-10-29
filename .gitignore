@@ -15,6 +15,11 @@ __pycache__/
 .env
 # 本地生成的内部 JWT 与共享服务密钥只留在开发机，禁止提交。
 .runtime/
+# RN 安装依赖及打包输出由固定锁文件重建，不混入源码提交。
+node_modules/
+activity-rn/build/
+# Android 原生依赖的 CMake 中间产物由构建重建，不提交绝对路径和本机缓存。
+**/.cxx/
 *.onnx.zip
 # Keep model files that are packaged into the Android APK.
 !android-app/app/src/main/assets/

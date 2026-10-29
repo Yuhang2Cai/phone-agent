@@ -1,0 +1,14 @@
+# 游客空态使用真实库停用任务前置，界面不伪造列表。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/profileFragment
+- tapOn:
+    id: com.fandazi.app:id/profile_logout
+- tapOn:
+    id: com.fandazi.app:id/skip_login_button
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: 暂时没有可领取的任务
+- assertNotVisible: 暂时无法加载活动
+- takeScreenshot: formal-empty

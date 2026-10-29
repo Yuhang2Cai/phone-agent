@@ -1,0 +1,10 @@
+# 真实依赖故障时显示可重试错误，不把503显示成空任务或成功。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/homeFragment
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: 暂时无法加载活动
+- assertVisible: 活动服务暂不可用，请稍后重试。
+- takeScreenshot: formal-service-unavailable

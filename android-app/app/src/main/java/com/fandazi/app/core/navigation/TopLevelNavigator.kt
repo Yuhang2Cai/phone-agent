@@ -16,6 +16,7 @@ object TopLevelNavigator {
         R.id.homeFragment->R.id.homeFragment
         R.id.agentAssistantTab->R.id.agentChatFragment
         R.id.ordersFragment->R.id.ordersFragment
+        R.id.activityFragment->R.id.activityFragment
         R.id.profileFragment->R.id.profileFragment
         else->null
     }
@@ -24,25 +25,26 @@ object TopLevelNavigator {
         R.id.homeFragment,R.id.searchFragment,R.id.storeFragment->R.id.homeFragment
         R.id.agentChatFragment->R.id.agentChatFragment
         R.id.ordersFragment->R.id.ordersFragment
+        R.id.activityFragment->R.id.activityFragment
         R.id.profileFragment->R.id.profileFragment
         else->null
     }
     /** 正式根页面反查菜单ID；受保护入口登录回来时复用同一路径，非根页面返回null。 */
     fun menuForRoot(destination:Int):Int?=when(destination) {
-        R.id.homeFragment,R.id.ordersFragment,R.id.profileFragment->destination
+        R.id.homeFragment,R.id.ordersFragment,R.id.activityFragment,R.id.profileFragment->destination
         R.id.agentChatFragment->R.id.agentAssistantTab
         else->null
     }
     /**
      * 处理真实菜单选择并返回是否已处理；当前所属Tab重选保持查询/位置，不追加条目。
      * 输入当前控制器及真实菜单；返回是否已处理，非法导航图仍由NavController拒绝。
-     * 使用图根作为弹栈锚点，四条业务根都完整保存；避免以认证起点或未弹出的首页映射另一Tab快照。
+     * 使用图根作为弹栈锚点，五条业务根都完整保存；避免以认证起点或未弹出的首页映射另一Tab快照。
      */
     fun select(controller:NavController,menu:Int,discardBusinessLeaf:Boolean=false):Boolean {
         val target=destinationForMenu(menu)?:return false
         if(discardBusinessLeaf) {
             // 明确离开支付结果等交易流程时先删除交易叶子，不把旧报价/确认页保存为首页浏览位置。
-            val origin=listOf(R.id.homeFragment,R.id.agentChatFragment,R.id.ordersFragment,R.id.profileFragment)
+            val origin=listOf(R.id.homeFragment,R.id.agentChatFragment,R.id.ordersFragment,R.id.activityFragment,R.id.profileFragment)
                 .firstOrNull{runCatching{controller.getBackStackEntry(it)}.isSuccess}
             if(origin!=null)controller.popBackStack(origin,false,false)else reset(controller,R.id.homeFragment)
         }

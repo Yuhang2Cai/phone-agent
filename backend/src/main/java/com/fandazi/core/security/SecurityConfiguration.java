@@ -57,6 +57,8 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.GET, "/api/stores/**", "/api/deals/**").permitAll()
                         // 仅公开活动详情这一层路径；eligibility等子资源仍须登录，不能使用递归通配放开。
                         .requestMatchers(HttpMethod.GET, "/api/seckill-activities/*").permitAll()
+                        // 游客活动页只开放任务定义列表；实例、金币及所有写入仍要求有效认证。
+                        .requestMatchers(HttpMethod.GET, "/api/activities/tasks").permitAll()
                         .anyRequest().authenticated())
                 .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint((request, response, exception) -> {
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

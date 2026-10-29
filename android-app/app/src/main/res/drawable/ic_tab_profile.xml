@@ -1,3 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 已确认 Figma e1d6b.svg 自动转换；描边颜色由底栏选中态统一着色。 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
-    <path android:fillColor="@android:color/transparent" android:strokeColor="@color/brand_ink" android:strokeWidth="1.8" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M12,12A4,4 0,1 0,12 4A4,4 0,0 0,12 12 M4,21C4.8,17.5 7.5,15.5 12,15.5C16.5,15.5 19.2,17.5 20,21"/>
+    <path android:pathData="M16 8C16 10.2091 14.2091 12 12 12C9.79086 12 8 10.2091 8 8C8 5.79086 9.79086 4 12 4C14.2091 4 16 5.79086 16 8Z" android:fillColor="#00000000" android:strokeColor="#6B7585" android:strokeWidth="2" />
+    <path android:pathData="M4 21C4.8 16.8 7.5 15 12 15C16.5 15 19.2 16.8 20 21" android:fillColor="#00000000" android:strokeColor="#6B7585" android:strokeWidth="2" android:strokeLineCap="round" />
 </vector>

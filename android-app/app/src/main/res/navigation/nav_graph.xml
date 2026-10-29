@@ -9,6 +9,8 @@
 
     <fragment android:id="@+id/searchFragment" android:name="com.fandazi.app.feature.search.SearchFragment" android:label="@string/search_page" />
     <fragment android:id="@+id/ordersFragment" android:name="com.fandazi.app.feature.order.OrdersFragment" android:label="@string/orders_page" />
+    <!-- 活动是正式第五根体系中的第四入口，内部 RN 页面不增加第二套底栏。 -->
+    <fragment android:id="@+id/activityFragment" android:name="com.fandazi.app.feature.activity.ActivityHostFragment" android:label="活动" />
     <fragment android:id="@+id/profileFragment" android:name="com.fandazi.app.feature.profile.ProfileFragment" android:label="@string/profile_page" />
     <fragment android:id="@+id/storeFragment" android:name="com.fandazi.app.feature.store.StoreFragment" android:label="门店详情">
         <argument android:name="storePublicId" app:argType="string" />

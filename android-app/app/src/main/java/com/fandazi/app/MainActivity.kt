@@ -26,8 +26,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import com.fandazi.app.feature.auth.SessionState
 
-/** 主导航宿主：协调会话/四Tab/明确认证返回，并处理真实键盘遮挡安全区；不保存令牌或重放交易。 */
-class MainActivity : AppCompatActivity() {
+/** 主导航宿主：协调会话/五Tab/明确认证返回，并处理真实键盘遮挡安全区；不保存令牌或重放交易。 */
+class MainActivity : AppCompatActivity(), com.facebook.react.modules.core.DefaultHardwareBackBtnHandler {
     private lateinit var navHost: NavHostFragment
     private lateinit var bottomNavigation: com.google.android.material.bottomnavigation.BottomNavigationView
     private var pendingProtectedDestination: Int? = null
@@ -45,7 +45,11 @@ class MainActivity : AppCompatActivity() {
     /** 顶层业务栈完整保存后，非首页根页的系统返回恢复首页；详情仍由NavHost正常逐级返回。 */
     private val topLevelBack = object : OnBackPressedCallback(false) {
         /** 只在非首页根页启用；恢复公开浏览栈，其余返回由原NavHost及系统处理。 */
-        override fun handleOnBackPressed() { TopLevelNavigator.select(navHost.navController, R.id.homeFragment) }
+        override fun handleOnBackPressed() {
+            // 活动内页先交给 RN 返回栈；未消费时恢复原生首页，不退出整个应用。
+            val activityPage = navHost.childFragmentManager.primaryNavigationFragment as? com.fandazi.app.feature.activity.ActivityHostFragment
+            if (activityPage?.handleBack() != true) invokeDefaultOnBackPressed()
+        }
     }
 
     /**
@@ -94,7 +98,12 @@ class MainActivity : AppCompatActivity() {
         navHost = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         bottomNavigation = findViewById(R.id.bottom_navigation)
         bottomNavigation.setOnItemSelectedListener { item: MenuItem ->
-            // AI和三个普通菜单统一走明确映射，返回true让实际选中状态与正式目的地保持一致。
+            // 性能起点在导航和运行时初始化之前；只记录单调时间，不记录用户或任务数据。
+            if (item.itemId == R.id.activityFragment) {
+                val clickedAt = android.os.SystemClock.elapsedRealtime()
+                (application as FandaziApplication).activityRuntime.beginEntry(clickedAt)
+            }
+            // AI和四个普通菜单统一走明确映射，返回true让实际选中状态与正式目的地保持一致。
             TopLevelNavigator.select(navHost.navController, item.itemId)
         }
         bottomNavigation.setOnItemReselectedListener { item ->
@@ -107,7 +116,7 @@ class MainActivity : AppCompatActivity() {
             // 比较输入显式发送后进入聊天属于业务子链，系统返回须回原输入/对比，而不是被Tab根返回吞掉。
             val fromCompareInput = destination.id == R.id.agentChatFragment &&
                 navHost.navController.previousBackStackEntry?.destination?.id == R.id.compareQuestionFragment
-            topLevelBack.isEnabled = !fromCompareInput && destination.id in setOf(R.id.ordersFragment, R.id.profileFragment, R.id.agentChatFragment)
+            topLevelBack.isEnabled = !fromCompareInput && destination.id in setOf(R.id.ordersFragment, R.id.activityFragment, R.id.profileFragment, R.id.agentChatFragment)
             if (destination.id != R.id.authFragment && pendingProtectedDestination != null) {
                 pendingProtectedDestination = null
                 pendingProtectedArguments = null
@@ -121,7 +130,8 @@ class MainActivity : AppCompatActivity() {
                 R.id.storeFragment,
                 R.id.agentChatFragment,
                 R.id.ordersFragment,
-                R.id.profileFragment
+                R.id.profileFragment,
+                R.id.activityFragment
             )
             if (bottomNavigation.isVisible) {
                 val selectedItem = if (destination.id in setOf(R.id.searchFragment, R.id.storeFragment)) {
@@ -150,7 +160,7 @@ class MainActivity : AppCompatActivity() {
         // 仅保存目的地ID，不沿用旧订单、聊天、授权或失败语句；登录后新身份重新读取，不重放业务写入。
         val rejectedRoot = navHost.navController.currentDestination?.id
         if (state == SessionState.Unauthenticated &&
-            rejectedRoot in setOf(R.id.agentChatFragment, R.id.ordersFragment)) {
+            rejectedRoot in setOf(R.id.agentChatFragment, R.id.ordersFragment, R.id.activityFragment)) {
             pendingProtectedDestination = rejectedRoot
             pendingProtectedArguments = null
             pendingReturnDestination = null
@@ -176,7 +186,7 @@ class MainActivity : AppCompatActivity() {
             // 同账号明确重新登录的新sid也不能沿用旧确认/SSE/恢复任务；正常续期的同sid不进入此分支。
             agent.bindAuthenticatedOwner(null)
             val keepIntent = (state is SessionState.Authenticated && controller.currentDestination?.id == R.id.authFragment) ||
-                (state == SessionState.Unauthenticated && controller.currentDestination?.id in setOf(R.id.agentChatFragment, R.id.ordersFragment))
+                (state == SessionState.Unauthenticated && controller.currentDestination?.id in setOf(R.id.agentChatFragment, R.id.ordersFragment, R.id.activityFragment))
             val pending = if (keepIntent) pendingProtectedDestination else null
             val pendingArgs = if (keepIntent) pendingProtectedArguments else null
             val returnTo = if (keepIntent) pendingReturnDestination else null
@@ -192,7 +202,7 @@ class MainActivity : AppCompatActivity() {
         val current = when (navHost.navController.currentDestination?.id) {
             R.id.authFragment -> SessionRoute.AUTH
             R.id.homeFragment, R.id.searchFragment, R.id.storeFragment, R.id.ordersFragment,
-            R.id.profileFragment,
+            R.id.profileFragment, R.id.activityFragment,
             R.id.agentChatFragment, R.id.dealDetailFragment, R.id.dealCheckoutBottomSheetFragment,
             // 秒杀公开入口与交易结果复用同一页面，身份更新由页面清确认并回读，不能误判为未知路由。
             R.id.seckillFragment, R.id.seckillStoreFragment,
@@ -297,6 +307,19 @@ class MainActivity : AppCompatActivity() {
 // 打开login。
     fun openLogin() {
         navHost.navController.navigate(R.id.authFragment, bundleOf("require_login" to true))
+    }
+
+    /** RN 未消费系统返回时恢复首页；只操作原生根导航，不再递归派发给 RN。 */
+    override fun invokeDefaultOnBackPressed() { TopLevelNavigator.select(navHost.navController, R.id.homeFragment) }
+
+    /** 活动桥的固定导航表；登录只保存活动根引用，业务写操作不会随登录重放。 */
+    fun openActivityDestination(destination: String) {
+        when (destination) {
+            "login" -> openProtectedDestination(R.id.activityFragment)
+            "home" -> TopLevelNavigator.select(navHost.navController, R.id.homeFragment)
+            "orders" -> TopLevelNavigator.select(navHost.navController, R.id.ordersFragment)
+            else -> throw IllegalArgumentException("不支持的活动导航")
+        }
     }
 
 /** 保存公开身份标记和明确导航引用；完整认证令牌与业务正文仍不进入Activity保存树。 */

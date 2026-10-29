@@ -1,15 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- AI 助手底部导航图标：使用机器人轮廓，避免圆点或纯色圆形占位。 -->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="24dp"
-    android:height="24dp"
-    android:viewportWidth="24"
-    android:viewportHeight="24">
-    <path
-        android:fillColor="@android:color/transparent"
-        android:pathData="M4,7C4,5.9 4.9,5 6,5H18C19.1,5 20,5.9 20,7V18C20,19.1 19.1,20 18,20H6C4.9,20 4,19.1 4,18ZM12,2V5M8,12H8.01M16,12H16.01M8,16H16M2,11H4M20,11H22"
-        android:strokeColor="@color/brand_ink"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:strokeWidth="1.8" />
+<!-- 已确认 Figma 677c9.svg 自动转换；描边颜色由底栏选中态统一着色。 -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="24dp" android:height="24dp" android:viewportWidth="24" android:viewportHeight="24">
+    <path android:pathData="M8 6H16C18.2091 6 20 7.79086 20 10V16C20 18.2091 18.2091 20 16 20H8C5.79086 20 4 18.2091 4 16V10C4 7.79086 5.79086 6 8 6Z" android:fillColor="#00000000" android:strokeColor="#6B7585" android:strokeWidth="2" />
+    <path android:pathData="M12 2V6M8 12H8.01M16 12H16.01M8 16H16M2 11H4M20 11H22" android:fillColor="#00000000" android:strokeColor="#6B7585" android:strokeWidth="2" android:strokeLineCap="round" />
 </vector>

@@ -5,6 +5,20 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
+    id("com.facebook.react")
+}
+
+// 所有变体均携带 Hermes 字节码；开发和验收不依赖 Metro 在线服务。
+react {
+    root.set(file("../../activity-rn"))
+    reactNativeDir.set(file("../../activity-rn/node_modules/react-native"))
+    codegenDir.set(file("../../activity-rn/node_modules/@react-native/codegen"))
+    cliFile.set(file("../../activity-rn/node_modules/react-native/cli.js"))
+    entryFile.set(file("../../activity-rn/index.js"))
+    debuggableVariants.set(emptyList())
+    // 固定打包并发，避免本机同时运行模拟器时 Metro 按全部 CPU 启动过多工作进程。
+    extraPackagerArgs.set(listOf("--max-workers", "2"))
+    autolinkLibrariesWithApp()
 }
 
 val debugApiBaseUrl = providers.gradleProperty("debugApiBaseUrl")
@@ -21,7 +35,8 @@ val releaseApiBaseUrl = providers.gradleProperty("releaseApiBaseUrl")
 
 android {
     namespace = "com.fandazi.app"
-    compileSdk = 35
+    compileSdk = 36
+    ndkVersion = "27.1.12297006"
 
     defaultConfig {
         applicationId = "com.fandazi.app"
@@ -36,6 +51,12 @@ android {
         buildConfigField("boolean", "AG04_GOAL_RECOVERY_ENABLED", "false")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        // Ninja 有独立于 Gradle 的并发池；限制 C++ 编译/链接，避免模拟器与原生编译争抢内存。
+        externalNativeBuild.cmake.arguments += listOf(
+            "-DCMAKE_JOB_POOLS=activity_compile=1",
+            "-DCMAKE_JOB_POOL_COMPILE=activity_compile",
+            "-DCMAKE_JOB_POOL_LINK=activity_compile"
+        )
     }
 
     buildTypes {
@@ -87,6 +108,9 @@ android {
 }
 
 dependencies {
+    // 版本由固定 RN Gradle 插件统一解析，防止 Java 与 Hermes 原生库错配。
+    implementation("com.facebook.react:react-android")
+    implementation("com.facebook.react:hermes-android")
     // 固定来源AAR仅负责本地推理，不迁移Hilt、网络音频或redBook消息依赖。
     implementation(files("libs/sherpa-onnx-1.12.39.aar"))
     // 设备测试依赖版本固定；ASR入口本轮只构建，普通聊天状态测试可实际执行。
