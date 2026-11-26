@@ -1,0 +1,12 @@
+# 服务端撤销当前原生会话后，活动读取必须进入登录页，旧余额与任务不可继续操作。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/homeFragment
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible:
+    id: com.fandazi.app:id/username_input
+- assertNotVisible: 查看金币明细
+- assertNotVisible: 领取金币
+- takeScreenshot: formal-session-revoked

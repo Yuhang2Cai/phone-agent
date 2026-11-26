@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀用户端确认稿原生布局；业务文字和状态由服务器快照绑定。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/sk_activity_card" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingBottom="24dp" android:clickable="true" android:focusable="true">
+    <FrameLayout android:id="@+id/sk_hero" android:layout_width="match_parent" android:layout_height="178dp">
+        <include layout="@layout/include_seckill_photo"/>
+    </FrameLayout>
+    <LinearLayout android:id="@+id/sk_price_section" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginTop="12dp">
+        <TextView android:id="@+id/sk_title" style="@style/SkTitle"/>
+        <LinearLayout android:id="@+id/sk_price_row" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
+            <TextView android:id="@+id/sk_price" style="@style/SkTitle" android:layout_width="wrap_content" android:textSize="40sp" android:textColor="@color/group_buy_orange"/>
+            <TextView android:id="@+id/sk_original" style="@style/SkMuted" android:layout_width="wrap_content" android:textSize="14sp" android:layout_marginStart="10dp"/>
+            <TextView android:id="@+id/sk_saving" style="@style/SkMuted" android:layout_width="wrap_content" android:textSize="11sp" android:textColor="@color/group_buy_orange" android:background="@drawable/sk_bg_badge" android:padding="8dp" android:layout_marginStart="10dp"/>
+        </LinearLayout>
+        <TextView android:id="@+id/sk_description" style="@style/SkMuted" android:textSize="13sp" android:layout_marginTop="3dp"/>
+    </LinearLayout>
+    <include layout="@layout/include_seckill_timer"/>
+    <TextView android:id="@+id/sk_stock" style="@style/SkText" android:layout_marginTop="12dp" android:textSize="12sp" android:textColor="@color/group_buy_orange"/>
+    <ProgressBar android:id="@+id/sk_stock_bar" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="6dp" android:layout_marginTop="8dp" android:progressTint="@color/group_buy_orange" android:progressBackgroundTint="#FFEADF"/>
+</LinearLayout>

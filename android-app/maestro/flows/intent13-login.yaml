@@ -1,0 +1,29 @@
+appId: com.fandazi.app
+---
+# 仅使用运行环境注入的隔离开发账号；清空旧客户端状态后核对真实后端登录。
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/username_input
+    timeout: 60000
+- tapOn:
+    id: com.fandazi.app:id/username_input
+- setClipboard: ${MAESTRO_USERNAME}
+- pasteText
+- tapOn:
+    id: com.fandazi.app:id/password_input
+- setClipboard: ${MAESTRO_PASSWORD}
+- pasteText
+- setClipboard: ""
+- hideKeyboard
+- tapOn:
+    id: com.fandazi.app:id/submit_button
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input

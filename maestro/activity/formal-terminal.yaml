@@ -1,0 +1,21 @@
+# 受控退款终态由内部服务补偿，UI从真实API读取撤回流水与历史领奖过期，不冒充渠道退款。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: '0'
+- tapOn: 查看金币明细
+- assertVisible: 任务奖励撤回
+- assertVisible: '−10'
+- assertVisible: '+10'
+- takeScreenshot: formal-reversal-ledger
+- back
+- scrollUntilVisible:
+    element:
+      text: 查看任务记录
+    direction: DOWN
+- tapOn: 查看任务记录
+- assertVisible: 奖励已撤回
+- assertVisible: 领奖已过期
+- takeScreenshot: formal-reversed-and-claim-expired
+- tapOn: 返回活动，查看新任务

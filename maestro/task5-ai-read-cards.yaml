@@ -1,0 +1,71 @@
+# Task5 D/F 卡片：只读推荐与本任务待支付展示夹具，不点击购买、支付、退款、评价。
+appId: com.fandazi.app
+---
+- launchApp
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "recommend nearby restaurants"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      text: ".*请提供所在城市代码.*"
+    timeout: 90000
+- takeScreenshot: "task5-B-store-pause"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "${TASK5_CITY}"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_store_card"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: "task5-D-store"
+- tapOn:
+    id: "com.fandazi.app:id/agent_store_action"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/store_back"
+    timeout: 15000
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "show my group buying orders"
+- pressKey: BACK
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- runFlow:
+    when:
+      visible: ".*请明确回复.*"
+    commands:
+      - tapOn:
+          id: "com.fandazi.app:id/agent_chat_input"
+      - inputText: "query"
+      - pressKey: BACK
+      - tapOn:
+          id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_order_card"
+    timeout: 90000
+- assertVisible: "待支付.*"
+- takeScreenshot: "task5-F-order"
+- tapOn:
+    id: "com.fandazi.app:id/agent_order_action"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_detail_title"
+    timeout: 15000
+- takeScreenshot: "task5-order-click-only"
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"

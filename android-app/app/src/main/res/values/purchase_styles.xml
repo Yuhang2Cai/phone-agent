@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Task6 购买视觉样式：沿用已确认 Figma 字号与团购颜色，不影响其他任务样式。 -->
+<resources>
+    <style name="Task6.Text" parent="">
+        <item name="android:layout_width">match_parent</item><item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/group_buy_green</item><item name="android:textSize">16sp</item>
+    </style>
+    <style name="Task6.Title" parent="Task6.Text"><item name="android:textSize">23sp</item><item name="android:textStyle">bold</item></style>
+    <style name="Task6.Muted" parent="Task6.Text"><item name="android:textColor">@color/group_buy_muted</item><item name="android:textSize">14sp</item></style>
+    <style name="Task6.Amount" parent="Task6.Text"><item name="android:textColor">@color/group_buy_orange</item><item name="android:textSize">22sp</item><item name="android:textStyle">bold</item></style>
+    <style name="Task6.Action" parent="Task6.Text">
+        <item name="android:layout_height">48dp</item><item name="android:background">@drawable/after_sale_primary</item>
+        <item name="android:gravity">center</item><item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">17sp</item><item name="android:textStyle">bold</item>
+        <item name="android:clickable">true</item><item name="android:focusable">true</item>
+    </style>
+</resources>

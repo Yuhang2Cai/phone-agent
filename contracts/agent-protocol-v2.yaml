@@ -1,0 +1,1075 @@
+# 十三类单标签内部入口和事件；卡片与业务工具继续使用原独立契约。
+schemaVersion: '2.0'
+protocolName: fandazi-agent-protocol
+$schema: http://json-schema.org/draft-07/schema#
+runIdentity:
+  runId:
+    allocatedBy: SPRING
+    reusedOn:
+    - input_resume
+    - confirmation_resume
+  traceId:
+    allocatedBy: SPRING
+    newOnEveryInput: true
+transport:
+  request: POST /internal/v1/agent/runs
+  internalAuthentication: SHORT_LIVED_JWT
+  upstreamStream: NDJSON
+  clientStream: SSE
+  invalidStructure: ERROR_FAILED
+  interruptedStream: ERROR_FAILED
+  timestampTimezone: UTC
+  displayTimezone: Asia/Shanghai
+fieldTypes:
+  nonEmptyString: &id002
+    type: string
+    minLength: 1
+  publicId: &id001
+    type: string
+    minLength: 1
+    description: 后端签发的公开资源标识，不是数据库主键
+  cents: &id003
+    type: integer
+    minimum: 0
+    description: 整数分，不接受浮点金额
+  timestamp: &id004
+    type: string
+    format: date-time
+  date: &id007
+    type: string
+    format: date
+  catalogImageUrl: &id006
+    oneOf:
+    - type: 'null'
+    - type: string
+      format: uri
+      pattern: '^[A-Za-z][A-Za-z0-9+.-]*:'
+    - type: string
+      pattern: ^/catalog-images/v[0-9]+/(full|thumb)/[a-z0-9-]+-[a-f0-9]{12}\.jpg$
+agentRunRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - userId
+  - sessionId
+  - traceId
+  - runId
+  - query
+  - context
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.0'
+    userId: *id001
+    sessionId: *id001
+    traceId: *id002
+    runId: *id002
+    query:
+      type: string
+      minLength: 1
+      description: 本轮用户输入；旧 text 只能在集中适配器转换
+    context:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        page: *id002
+        cityCode: *id002
+        timezone:
+          type: string
+          const: Asia/Shanghai
+        selectedStoreId:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        selectedDealId:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        comparisonDeals:
+          type: array
+          minItems: 2
+          maxItems: 3
+          uniqueItems: true
+          items:
+            $ref: '#/compareDealFacts'
+        mode:
+          type: string
+          enum:
+          - confirm
+          - this_task_auto
+          - recommend
+        confirmationAccepted:
+          type: boolean
+        clientCapabilities:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - TEXT
+            - CARD_V1
+            - CONFIRMATION_V1
+        latitude:
+          type:
+          - number
+          - 'null'
+          minimum: -90
+          maximum: 90
+        longitude:
+          type:
+          - number
+          - 'null'
+          minimum: -180
+          maximum: 180
+runLifecycle:
+  running:
+    terminal: false
+    stopActivity: false
+  waiting_input:
+    terminal: false
+    stopActivity: true
+  waiting_confirmation:
+    terminal: false
+    stopActivity: true
+  succeeded:
+    terminal: true
+    stopActivity: true
+  failed:
+    terminal: true
+    stopActivity: true
+  cancelled:
+    terminal: true
+    stopActivity: true
+eventSemantics:
+  input_required:
+    status: waiting_input
+    endsRound: true
+    endsRun: false
+    roundDisposition: paused
+  confirmation_required:
+    status: waiting_confirmation
+    endsRound: true
+    endsRun: false
+    roundDisposition: paused
+  run_completed:
+    statuses:
+    - succeeded
+    - cancelled
+    endsRound: true
+    endsRun: true
+    roundDisposition: completed
+  error:
+    status: failed
+    endsRound: true
+    endsRun: true
+    roundDisposition: failed
+agentEvent:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - eventId
+  - eventType
+  - traceId
+  - runId
+  - sequence
+  - status
+  - payload
+  eventTypes:
+  - run_started
+  - intent_decided
+  - progress
+  - text_delta
+  - card
+  - input_required
+  - confirmation_required
+  - tool_result
+  - run_completed
+  - error
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.0'
+    eventId: *id002
+    eventType:
+      type: string
+      enum:
+      - run_started
+      - intent_decided
+      - progress
+      - text_delta
+      - card
+      - input_required
+      - confirmation_required
+      - tool_result
+      - run_completed
+      - error
+    traceId: *id002
+    runId: *id002
+    planId:
+      type:
+      - string
+      - 'null'
+      minLength: 1
+      description: 仅复合任务包含 DAG 计划标识
+    sequence:
+      type: integer
+      minimum: 0
+    status:
+      type: string
+      enum:
+      - running
+      - waiting_input
+      - waiting_confirmation
+      - succeeded
+      - failed
+      - cancelled
+    payload:
+      type: object
+  allOf:
+  - if:
+      properties:
+        eventType:
+          const: input_required
+    then:
+      properties:
+        status:
+          const: waiting_input
+        payload:
+          $ref: '#/inputRequiredPayload'
+  - if:
+      properties:
+        eventType:
+          const: confirmation_required
+    then:
+      properties:
+        status:
+          const: waiting_confirmation
+        payload:
+          $ref: '#/confirmationRequiredPayload'
+  - if:
+      properties:
+        eventType:
+          const: run_completed
+    then:
+      properties:
+        status:
+          enum:
+          - succeeded
+          - cancelled
+        payload:
+          $ref: '#/completionPayload'
+  - if:
+      properties:
+        eventType:
+          const: error
+    then:
+      properties:
+        status:
+          const: failed
+        payload:
+          $ref: '#/errorPayload'
+  - if:
+      properties:
+        eventType:
+          const: run_started
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/startPayload'
+  - if:
+      properties:
+        eventType:
+          const: intent_decided
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/intentPayload'
+  - if:
+      properties:
+        eventType:
+          const: progress
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/progressPayload'
+  - if:
+      properties:
+        eventType:
+          const: text_delta
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/textPayload'
+  - if:
+      properties:
+        eventType:
+          const: card
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/cardPayload'
+  - if:
+      properties:
+        eventType:
+          const: tool_result
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/toolResultPayload'
+agentRunResult:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - traceId
+  - runId
+  - status
+  - events
+  - intent
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.0'
+    traceId: *id002
+    runId: *id002
+    planId:
+      type:
+      - string
+      - 'null'
+      minLength: 1
+    status:
+      type: string
+      enum:
+      - waiting_input
+      - waiting_confirmation
+      - succeeded
+      - failed
+      - cancelled
+    intent: &id005
+      type: string
+      enum:
+      - greeting
+      - chitchat
+      - store_recommendation
+      - deal_recommendation
+      - store_info
+      - review_query
+      - group_buy_order
+      - coupon
+      - refund_after_sale
+      - complaint
+      - faq
+      - out_of_scope
+      - composite
+    events:
+      type: array
+      minItems: 1
+      items:
+        $ref: '#/agentEvent'
+    error:
+      oneOf:
+      - $ref: '#/errorPayload'
+      - type: 'null'
+  allOf:
+  - if:
+      properties:
+        status:
+          const: failed
+    then:
+      required:
+      - error
+      properties:
+        error:
+          $ref: '#/errorPayload'
+    else:
+      properties:
+        error:
+          type: 'null'
+agentCard:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - cardType
+  - resourceId
+  - data
+  - actions
+  cardTypes:
+  - store
+  - deal
+  - order
+  - voucher
+  - coupon
+  - review
+  - confirmation
+  - error
+  properties:
+    schemaVersion:
+      type: string
+      const: '1.1'
+    cardType:
+      type: string
+      enum:
+      - store
+      - deal
+      - order
+      - voucher
+      - coupon
+      - review
+      - confirmation
+      - error
+    resourceId: *id001
+    data:
+      type: object
+    actions:
+      type: array
+      items:
+        $ref: '#/cardAction'
+  allOf:
+  - if:
+      properties:
+        cardType:
+          const: store
+    then:
+      properties:
+        data:
+          $ref: '#/storeCardData'
+  - if:
+      properties:
+        cardType:
+          const: deal
+    then:
+      properties:
+        data:
+          $ref: '#/dealCardData'
+  - if:
+      properties:
+        cardType:
+          const: order
+    then:
+      properties:
+        data:
+          $ref: '#/orderCardData'
+  - if:
+      properties:
+        cardType:
+          const: voucher
+    then:
+      properties:
+        data:
+          $ref: '#/voucherCardData'
+  - if:
+      properties:
+        cardType:
+          const: coupon
+    then:
+      properties:
+        data:
+          $ref: '#/couponCardData'
+  - if:
+      properties:
+        cardType:
+          const: review
+    then:
+      properties:
+        data:
+          $ref: '#/reviewCardData'
+  - if:
+      properties:
+        cardType:
+          const: confirmation
+    then:
+      properties:
+        data:
+          $ref: '#/confirmationSummary'
+  - if:
+      properties:
+        cardType:
+          const: error
+    then:
+      properties:
+        data:
+          $ref: '#/errorPayload'
+cardAction:
+  type: object
+  additionalProperties: false
+  required:
+  - actionId
+  - actionType
+  - label
+  - resourceId
+  - enabled
+  properties:
+    actionId: *id002
+    actionType:
+      type: string
+      enum:
+      - open_store
+      - open_deal
+      - open_order
+      - open_voucher
+      - select_voucher
+      - create_group_buy_order
+      - pay_mock_order
+      - request_refund
+      - submit_complaint
+      - cancel
+      - retry
+    label: *id002
+    resourceId: *id001
+    enabled:
+      type: boolean
+      description: 后端权威资格决定是否可点击
+    payload:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        query: *id002
+        storeId: *id001
+        dealId: *id001
+        orderId: *id001
+        voucherId: *id001
+inputRequiredPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - question
+  - inputKey
+  - candidates
+  properties:
+    question: *id002
+    inputKey:
+      type: string
+      enum:
+      - cityCode
+      - storeId
+      - voucherId
+      - orderId
+      - reason
+      - subject
+      - description
+      - dealId
+      - quantity
+      - query
+    candidates:
+      type: array
+      items:
+        $ref: '#/agentCard'
+confirmationRequiredPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - summary
+  - actions
+  properties:
+    summary:
+      $ref: '#/confirmationSummary'
+    actions:
+      type: array
+      minItems: 1
+      items:
+        $ref: '#/cardAction'
+confirmationSummary:
+  type: object
+  additionalProperties: false
+  required:
+  - action
+  - resourceId
+  - title
+  - amountCents
+  - ruleVersion
+  properties:
+    action:
+      type: string
+      enum:
+      - create_group_buy_order
+      - pay_mock_order
+      - request_refund
+      - submit_complaint
+    resourceId: *id001
+    title: *id002
+    amountCents: *id003
+    ruleVersion: *id002
+    dealTitle: *id002
+    storeName: *id002
+    quantity:
+      type: integer
+      minimum: 1
+    reason:
+      type: string
+      minLength: 1
+      maxLength: 500
+    subject:
+      type: string
+      minLength: 1
+      maxLength: 255
+    description:
+      type: string
+      minLength: 1
+      maxLength: 2000
+    expiresAt: *id004
+  allOf:
+  - if:
+      properties:
+        action:
+          const: create_group_buy_order
+    then:
+      required:
+      - dealTitle
+      - quantity
+  - if:
+      properties:
+        action:
+          const: request_refund
+    then:
+      required:
+      - dealTitle
+      - reason
+  - if:
+      properties:
+        action:
+          const: submit_complaint
+    then:
+      required:
+      - subject
+      - description
+confirmationGrant:
+  type: object
+  additionalProperties: false
+  required:
+  - confirmationGrantId
+  - userId
+  - sessionId
+  - action
+  - resourceId
+  - amountCents
+  - ruleVersion
+  - expiresAt
+  - consumed
+  properties:
+    confirmationGrantId: *id002
+    userId: *id001
+    sessionId: *id001
+    action:
+      type: string
+      enum:
+      - create_group_buy_order
+      - pay_mock_order
+      - request_refund
+      - submit_complaint
+    resourceId: *id001
+    amountCents: *id003
+    ruleVersion: *id002
+    expiresAt: *id004
+    consumed:
+      type: boolean
+startPayload:
+  type: object
+  additionalProperties: false
+  required: []
+  properties: {}
+intentPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - intent
+  properties:
+    intent: *id005
+progressPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - stepId
+  - label
+  - stepStatus
+  properties:
+    stepId: *id002
+    label: *id002
+    stepStatus:
+      type: string
+      enum:
+      - running
+      - succeeded
+      - failed
+textPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - delta
+  properties:
+    delta: *id002
+cardPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - card
+  properties:
+    card:
+      $ref: '#/agentCard'
+toolResultPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - toolName
+  - ok
+  - data
+  - error
+  properties:
+    toolName: *id002
+    ok:
+      type: boolean
+    data:
+      type: object
+      additionalProperties:
+        type:
+        - string
+        - integer
+        - boolean
+        - 'null'
+      propertyNames:
+        not:
+          enum:
+          - confirmationGrantId
+          - confirmationGrant
+          - grantId
+          - token
+    error:
+      oneOf:
+      - $ref: '#/errorPayload'
+      - type: 'null'
+completionPayload:
+  type: object
+  additionalProperties: false
+  required: []
+  properties:
+    message: *id002
+errorPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - code
+  - message
+  - retryable
+  properties:
+    code:
+      type: string
+      enum:
+      - VALIDATION_ERROR
+      - NOT_FOUND
+      - FORBIDDEN
+      - CONFLICT
+      - EXPIRED
+      - RATE_LIMITED
+      - DEPENDENCY_UNAVAILABLE
+      - INTERNAL_ERROR
+    message: *id002
+    retryable:
+      type: boolean
+storeCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - storeId
+  - name
+  - address
+  - category
+  - averageSpendCents
+  - open
+  - openingHours
+  properties:
+    storeId: *id001
+    name: *id002
+    address: *id002
+    category: *id002
+    averageSpendCents: *id003
+    open:
+      type: boolean
+    openingHours: *id002
+    imageUrl: *id006
+    imageAlt:
+      type:
+      - string
+      - 'null'
+dealCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - dealId
+  - storeId
+  - title
+  - priceCents
+  - originalPriceCents
+  - inventory
+  - validFrom
+  - validTo
+  - purchaseLimit
+  properties:
+    dealId: *id001
+    storeId: *id001
+    title: *id002
+    description:
+      type: string
+    priceCents: *id003
+    originalPriceCents: *id003
+    inventory:
+      type: integer
+      minimum: 0
+    validFrom: *id007
+    validTo: *id007
+    purchaseLimit:
+      type: integer
+      minimum: 1
+    imageUrl: *id006
+    imageAlt:
+      type:
+      - string
+      - 'null'
+orderCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - orderId
+  - dealId
+  - storeId
+  - quantity
+  - totalCents
+  - status
+  - createdAt
+  - canReview
+  properties:
+    orderId: *id001
+    dealId: *id001
+    storeId: *id001
+    quantity:
+      type: integer
+      minimum: 1
+    totalCents: *id003
+    status:
+      type: string
+      enum:
+      - PENDING_PAYMENT
+      - PAID
+      - PARTIALLY_USED
+      - USED
+      - REFUNDED
+      - EXPIRED
+      - CANCELLED
+      - CLOSED_TIMEOUT
+    createdAt: *id004
+    canReview:
+      type: boolean
+    storeName: *id002
+    dealTitle: *id002
+    imageUrl: *id006
+    imageAlt:
+      type:
+      - string
+      - 'null'
+    # 秒杀订单按后端截止展示；关闭可空，不以券期限推断支付资格。
+    activityId: {type: string, minLength: 1}
+    paymentExpiresAt: {type: string, format: date-time}
+    serverTime: {type: string, format: date-time}
+    closedAt: {type: [string, "null"], format: date-time}
+    closeReason: {type: [string, "null"], enum: [PAYMENT_EXPIRED, null]}
+voucherCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - voucherId
+  - orderId
+  - dealTitle
+  - storeName
+  - status
+  - canRefund
+  - expiresAt
+  properties:
+    voucherId: *id001
+    orderId: *id001
+    dealTitle: *id002
+    storeName: *id002
+    status:
+      type: string
+      enum:
+      - UNUSED
+      - REDEEMED
+      - EXPIRED
+      - REFUNDED
+      - PENDING_PAYMENT
+      - CLOSED_TIMEOUT
+      - NOT_YET_VALID
+      - UNAVAILABLE
+    canRefund:
+      type: boolean
+    expiresAt: *id004
+    redeemedAt:
+      type:
+      - string
+      - 'null'
+      format: date-time
+    dealId: *id001
+    storeId: *id001
+    amountCents:
+      type:
+      - integer
+      - 'null'
+      minimum: 0
+    createdAt: *id004
+    imageUrl: *id006
+    imageAlt:
+      type:
+      - string
+      - 'null'
+    # 秒杀未支付或未到使用日期不可用，资格由后端返回。
+    canUse: {type: boolean}
+    validFrom: {type: [string, "null"], format: date}
+couponCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - couponId
+  - name
+  - status
+  - thresholdCents
+  - discountCents
+  - validTo
+  - scopeDescription
+  properties:
+    couponId: *id001
+    name: *id002
+    status: *id002
+    thresholdCents: *id003
+    discountCents: *id003
+    validTo: *id004
+    scopeDescription: *id002
+reviewCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - storeId
+  - reviewerName
+  - rating
+  - content
+  - createdAt
+  properties:
+    storeId: *id001
+    reviewerName: *id002
+    rating:
+      type: number
+      minimum: 1
+      maximum: 5
+    content: *id002
+    createdAt: *id004
+compatibility:
+  adapterOnly: true
+  canonicalFields:
+    query: query
+    cardType: cardType
+    confirmationGrantId: confirmationGrantId
+  legacyAliases:
+    text: query
+    type: cardType
+    confirmationGrant: confirmationGrantId
+    grantId: confirmationGrantId
+compareDealFacts:
+  type: object
+  additionalProperties: false
+  required:
+  - publicId
+  - storePublicId
+  - storeName
+  - title
+  - description
+  - priceCents
+  - originalPriceCents
+  - inventory
+  - active
+  - purchaseLimit
+  - validFrom
+  - validTo
+  - peopleCount
+  - contents
+  - usageRules
+  properties:
+    publicId:
+      type: string
+      format: uuid
+    storePublicId:
+      type: string
+      format: uuid
+    storeName:
+      type: string
+      minLength: 1
+    title:
+      type: string
+      minLength: 1
+    description:
+      type: string
+    priceCents:
+      type: integer
+      minimum: 0
+    originalPriceCents:
+      type: integer
+      minimum: 0
+    inventory:
+      type: integer
+      minimum: 0
+    active:
+      type: boolean
+    purchaseLimit:
+      type: integer
+      minimum: 1
+    validFrom:
+      type: string
+      format: date
+    validTo:
+      type: string
+      format: date
+    peopleCount:
+      type:
+      - integer
+      - 'null'
+      minimum: 1
+      maximum: 10000
+    usageRules:
+      type:
+      - string
+      - 'null'
+      maxLength: 2000
+    contents:
+      type:
+      - array
+      - 'null'
+      maxItems: 100
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - name
+        - quantity
+        properties:
+          name:
+            type: string
+            minLength: 1
+            maxLength: 255
+          quantity:
+            type: integer
+            minimum: 1
+            maximum: 10000

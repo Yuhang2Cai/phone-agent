@@ -1,0 +1,51 @@
+# 秒杀真实购买旅程：前置为隔离后端合成账号已登录，活动有库存；凭据不进入流程。
+appId: com.fandazi.app
+name: 秒杀购买与模拟支付
+---
+- launchApp:
+    clearState: false
+# 从正常目录进入，验证活动入口与既有导航衔接。
+- extendedWaitUntil:
+    visible: "秒杀体验小馆"
+    timeout: 15000
+- tapOn: "秒杀体验小馆"
+- tapOn:
+    id: "store_seckill_open"
+- assertVisible:
+    id: "sk_activity_list"
+- takeScreenshot: "${EVIDENCE_DIR}/u01-list"
+- tapOn:
+    id: "sk_primary"
+- extendedWaitUntil:
+    visible:
+      text: "立即抢购.*"
+      enabled: true
+    timeout: 15000
+- takeScreenshot: "${EVIDENCE_DIR}/u03-live"
+# 报价只展示，不自动预留；必须再次明确提交。
+- tapOn:
+    id: "sk_primary"
+- extendedWaitUntil:
+    visible:
+      id: "sk_sheet_confirm"
+      enabled: true
+    timeout: 15000
+- assertVisible: "当前尚未预留库存"
+- takeScreenshot: "${EVIDENCE_DIR}/u04-confirm"
+- tapOn:
+    id: "sk_sheet_confirm"
+    retryTapIfNoChange: false
+- extendedWaitUntil:
+    visible: "已为你保留1份"
+    timeout: 15000
+- takeScreenshot: "${EVIDENCE_DIR}/u05-pending"
+# 模拟支付是独立点击，不以页面进入或倒计时变化触发。
+- tapOn:
+    id: "sk_primary"
+    retryTapIfNoChange: false
+- extendedWaitUntil:
+    visible: "这份好味道，抢到了"
+    timeout: 15000
+- takeScreenshot: "${EVIDENCE_DIR}/u06-paid"
+- tapOn:
+    id: "sk_primary"

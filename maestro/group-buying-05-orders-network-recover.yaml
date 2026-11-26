@@ -1,0 +1,10 @@
+appId: com.fandazi.app
+---
+# 运行器恢复原网络设置后点击原地重连，要求真实列表成功，不跳到别的Tab。
+- tapOn: "重新连接"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_title"
+    timeout: 30000
+- assertNotVisible: "网络连接异常"
+- takeScreenshot: orders-network-recovered

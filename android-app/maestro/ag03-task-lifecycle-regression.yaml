@@ -1,0 +1,61 @@
+# TL-10/S06真实界面补充：全新合成账号取消等待确认的购买，再发起同类购买。
+# 账号/套餐均由本轮私有环境提供；本文件不点击确认，不创建订单，不伪造服务端返回。
+# 驱动必须另外关联两个task/run/准备身份、旧授权撤销、业务计数和旧run不可恢复证据；截图不足以验收通过。
+appId: com.fandazi.app
+---
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 购买套餐${AG03_DEAL_ID}，数量1份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- takeScreenshot: ag03-s06-before-cancel
+# 只明确取消当前任务；不能用返回、关面板或取消后台对象代替本场景。
+- tapOn:
+    id: com.fandazi.app:id/agent_task_cancel_action
+    enabled: true
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_task_panel
+    timeout: 30000
+- assertVisible:
+    text: 旧确认已失效
+    enabled: false
+- assertNotVisible:
+    id: com.fandazi.app:id/agent_order_action
+    text: 确认
+    enabled: true
+- takeScreenshot: ag03-s06-cancelled-confirmation
+# 无前台时通过已实现的更多菜单查看终态目录；终态行不得提供恢复按钮。
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_close
+- tapOn: 任务列表
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_item_status
+      text: 已取消.*
+    timeout: 30000
+- assertNotVisible:
+    id: com.fandazi.app:id/agent_task_item_resume
+- takeScreenshot: ag03-s06-terminal-directory
+- back
+# 相同套餐和份数仍是新任务；服务端驱动核对身份不同，而不是靠文案不同猜测新建成功。
+- runFlow:
+    file: flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 购买套餐${AG03_DEAL_ID}，数量1份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- assertVisible:
+    id: com.fandazi.app:id/agent_task_title
+    text: 当前任务.*团购订单.*
+- takeScreenshot: ag03-s06-new-task-new-confirmation

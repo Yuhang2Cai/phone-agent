@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀操作文字状态色：禁用保留可读性，可用时沿用确认稿橙底白字。 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:color="#6B7585"/>
+    <item android:color="#FFFFFF"/>
+</selector>

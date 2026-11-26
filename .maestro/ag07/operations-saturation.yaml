@@ -1,0 +1,36 @@
+# AG07-08唯一第八输入；外层已持有本实例普通许可，必须拒绝且不得调用模型。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_input
+- eraseText
+- setClipboard: 查询门店${AG07_STORE_ID}的团购套餐
+- pasteText
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input
+    text: 查询门店${AG07_STORE_ID}的团购套餐
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_send
+- runFlow:
+    when:
+      visible:
+        id: com.google.android.inputmethod.latin:id/keyboard_holder
+    commands:
+      - hideKeyboard
+# 原APK将安全HTTP错误转换为既有失败文案，不能显示订单成功或自动重发。
+- extendedWaitUntil:
+    visible: 这次没有完成，请调整需求后重试
+    timeout: 30000
+- takeScreenshot: ag07-live-saturation
+# 同一普通槽被占时，真实任务取消仍走控制通道，不创建退款或订单。
+- assertVisible:
+    id: com.fandazi.app:id/agent_task_cancel_action
+    enabled: true
+- tapOn:
+    id: com.fandazi.app:id/agent_task_cancel_action
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 暂停
+    timeout: 30000
+- takeScreenshot: ag07-live-control-after-reject

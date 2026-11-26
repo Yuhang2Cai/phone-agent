@@ -1,0 +1,126 @@
+# 聊天恢复实际UI：运行器控制真正进程死亡/网络路径/后台继续执行；本流程不操作录音或ASR。
+appId: com.fandazi.app
+---
+# 系统恢复的IME由运行器读取真实mInputShown后收起；不能在已无键盘的下一阶段发送Back而退出页面。
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "prepare"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: hello
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - extendedWaitUntil:
+          visible: ".*你好.*|.*您好.*"
+          timeout: 60000
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: ${HISTORY_DRAFT}
+      - hideKeyboard
+      - takeScreenshot: history-initial-real-reply-and-draft
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "restored" || HISTORY_PHASE == "retry-restored"}
+    commands:
+      - runFlow:
+          when:
+            true: ${HISTORY_PHASE == "retry-restored"}
+          commands:
+            - tapOn:
+                id: com.fandazi.app:id/agent_error_retry
+      - scrollUntilVisible:
+          element: "历史已恢复，历史卡片仅供查看"
+          direction: DOWN
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+          text: ${HISTORY_DRAFT}
+      - assertVisible: ".*O7恢复第${HISTORY_SIZE}条.*"
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_error_card
+      - assertNotVisible: 确认退款
+      - assertNotVisible: 确认支付
+      - takeScreenshot: history-restored-${HISTORY_SIZE}
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "offline"}
+    commands:
+      - extendedWaitUntil:
+          visible: ".*聊天历史需联网恢复.*"
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+          text: ${HISTORY_DRAFT}
+      - assertVisible:
+          id: com.fandazi.app:id/agent_error_retry
+      - assertNotVisible: ".*O7恢复第${HISTORY_SIZE}条.*"
+      - takeScreenshot: history-offline-no-invented-messages
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "unfinished"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - eraseText
+      - inputText: hello
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_progress_card
+          timeout: 15000
+      - takeScreenshot: history-unfinished-before-process-death
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "unfinished-restored"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_progress_card
+          timeout: 30000
+      - assertVisible: "历史已恢复，历史卡片仅供查看"
+      - takeScreenshot: history-unfinished-restored-read-only
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "unfinished-completed"}
+    commands:
+      - extendedWaitUntil:
+          visible: ".*你好.*|.*您好.*"
+          timeout: 60000
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_error_card
+      - takeScreenshot: history-unfinished-server-completed
+- runFlow:
+    when:
+      true: ${HISTORY_PHASE == "logout"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn:
+          id: com.fandazi.app:id/profile_logout
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 15000
+      - tapOn:
+          id: com.fandazi.app:id/skip_login_button
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - assertVisible:
+          id: com.fandazi.app:id/agent_login_gate
+      - assertNotVisible: ".*O7恢复第200条.*"
+      # 已确认UI-15H保留禁用输入区；退出登录必须清草稿、禁用发送，不能要求隐藏设计中的控件。
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+          enabled: false
+      - assertNotVisible: O7 draft retained
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_send
+          enabled: false
+      - takeScreenshot: history-logout-clears-private-state

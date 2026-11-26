@@ -1,0 +1,37 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_fab"
+- assertVisible:
+    id: "com.fandazi.app:id/home_merchant_one"
+- assertVisible:
+    id: "com.fandazi.app:id/home_floating_assistant"
+- takeScreenshot: ticket-02-home
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- assertVisible:
+    id: "com.fandazi.app:id/home_search_button"
+- takeScreenshot: ticket-02-home-search-entry
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- assertVisible:
+    id: "com.fandazi.app:id/search_input"
+- pressKey: BACK
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/agent_fab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_fab"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_composer"
+- tapOn:
+    id: "com.fandazi.app:id/close_agent_button"
+- assertVisible:
+    id: "com.fandazi.app:id/home_merchant_one"

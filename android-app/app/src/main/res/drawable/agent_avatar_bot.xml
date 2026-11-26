@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 助手头像背景：使用暖色圆形承载机器人图标，和聊天页品牌色保持一致。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#FFE2D8" />
+    <corners android:radius="24dp" />
+</shape>

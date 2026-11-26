@@ -1,0 +1,1861 @@
+# AG03任务生命周期2.2：普通轮次与控制分离，私有授权不得进入公开目录/事件。
+# 结构通过不表示授权；scope/版本/证据/候选差值仍须任务注册表和解释器核验。
+schemaVersion: '2.2'
+protocolName: fandazi-agent-protocol
+$schema: http://json-schema.org/draft-07/schema#
+runIdentity:
+  runId:
+    allocatedBy: SPRING
+    reusedOn:
+    - unfinished_run_resume
+    terminalImmutable: true
+  traceId:
+    allocatedBy: SPRING
+    newOnEveryInput: true
+  conversationTaskId:
+    allocatedBy: SPRING
+    relationship: ONE_TASK_MANY_RUNS
+transport:
+  request: POST /internal/v2/agent/runs
+  internalAuthentication: SHORT_LIVED_JWT
+  upstreamStream: NDJSON
+  clientStream: SSE
+  invalidStructure: ERROR_FAILED
+  interruptedStream: ERROR_FAILED
+  timestampTimezone: UTC
+  displayTimezone: Asia/Shanghai
+fieldTypes:
+  nonEmptyString: &id002
+    type: string
+    minLength: 1
+  publicId: &id001
+    type: string
+    minLength: 1
+    description: 后端签发的公开资源标识，不是数据库主键
+  cents: &id003
+    type: integer
+    minimum: 0
+    description: 整数分，不接受浮点金额
+  timestamp: &id004
+    type: string
+    format: date-time
+  date: &id007
+    type: string
+    format: date
+  catalogImageUrl: &id006
+    oneOf:
+    - type: 'null'
+    - type: string
+      format: uri
+      pattern: '^[A-Za-z][A-Za-z0-9+.-]*:'
+    - type: string
+      pattern: ^/catalog-images/v[0-9]+/(full|thumb)/[a-z0-9-]+-[a-f0-9]{12}\.jpg$
+agentRunRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - userId
+  - sessionId
+  - traceId
+  - runId
+  - query
+  - context
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    userId: *id001
+    sessionId: *id001
+    traceId: *id002
+    runId: *id002
+    query:
+      type: string
+      minLength: 1
+      description: 本轮用户输入；旧 text 只能在集中适配器转换
+    context:
+      type: object
+      additionalProperties: false
+      required:
+      - conversationSource
+      - taskAdmission
+      properties:
+        page: *id002
+        cityCode: *id002
+        timezone:
+          type: string
+          const: Asia/Shanghai
+        selectedStoreId:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        selectedDealId:
+          type:
+          - string
+          - 'null'
+          minLength: 1
+        comparisonDeals:
+          type: array
+          minItems: 2
+          maxItems: 3
+          uniqueItems: true
+          items:
+            $ref: '#/compareDealFacts'
+        mode:
+          type: string
+          enum:
+          - confirm
+          - this_task_auto
+          - recommend
+        confirmationAccepted:
+          type: boolean
+        clientCapabilities:
+          type: array
+          uniqueItems: true
+          items:
+            type: string
+            enum:
+            - TEXT
+            - CARD_V1
+            - CONFIRMATION_V1
+        latitude:
+          type:
+          - number
+          - 'null'
+          minimum: -90
+          maximum: 90
+        longitude:
+          type:
+          - number
+          - 'null'
+          minimum: -180
+          maximum: 180
+        conversationSource:
+          $ref: '#/conversationSource'
+        selectionRef:
+          $ref: '#/selectionRef'
+        clarificationRef:
+          $ref: '#/clarificationRef'
+        presentationEvidence:
+          type: array
+          maxItems: 20
+          items:
+            $ref: '#/presentationEvidence'
+        taskAdmission:
+          $ref: '#/turnAdmission'
+runLifecycle:
+  running:
+    terminal: false
+    stopActivity: false
+  waiting_input:
+    terminal: false
+    stopActivity: true
+  waiting_confirmation:
+    terminal: false
+    stopActivity: true
+  succeeded:
+    terminal: true
+    stopActivity: true
+  failed:
+    terminal: true
+    stopActivity: true
+  cancelled:
+    terminal: true
+    stopActivity: true
+eventSemantics:
+  input_required:
+    status: waiting_input
+    endsRound: true
+    endsRun: false
+    roundDisposition: paused
+  confirmation_required:
+    status: waiting_confirmation
+    endsRound: true
+    endsRun: false
+    roundDisposition: paused
+  run_completed:
+    statuses:
+    - succeeded
+    - cancelled
+    endsRound: true
+    endsRun: true
+    roundDisposition: completed
+  error:
+    status: failed
+    endsRound: true
+    endsRun: true
+    roundDisposition: failed
+agentEvent:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - eventId
+  - eventType
+  - traceId
+  - runId
+  - sequence
+  - status
+  - payload
+  - taskContext
+  eventTypes:
+  - run_started
+  - intent_decided
+  - progress
+  - text_delta
+  - card
+  - input_required
+  - confirmation_required
+  - tool_result
+  - run_completed
+  - error
+  - control_reply
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    eventId: *id002
+    eventType:
+      type: string
+      enum:
+      - run_started
+      - intent_decided
+      - progress
+      - text_delta
+      - card
+      - input_required
+      - confirmation_required
+      - tool_result
+      - run_completed
+      - error
+      - control_reply
+    traceId: *id002
+    runId: *id002
+    planId:
+      type:
+      - string
+      - 'null'
+      minLength: 1
+      description: 仅复合任务包含 DAG 计划标识
+    sequence:
+      type: integer
+      minimum: 0
+    status:
+      type: string
+      enum:
+      - running
+      - waiting_input
+      - waiting_confirmation
+      - succeeded
+      - failed
+      - cancelled
+    payload:
+      type: object
+    taskContext:
+      $ref: '#/taskEventContext'
+  allOf:
+  - if:
+      properties:
+        eventType:
+          const: input_required
+    then:
+      properties:
+        status:
+          const: waiting_input
+        payload:
+          $ref: '#/inputRequiredPayload'
+  - if:
+      properties:
+        eventType:
+          const: confirmation_required
+    then:
+      properties:
+        status:
+          const: waiting_confirmation
+        payload:
+          $ref: '#/confirmationRequiredPayload'
+  - if:
+      properties:
+        eventType:
+          const: run_completed
+    then:
+      properties:
+        status:
+          enum:
+          - succeeded
+          - cancelled
+        payload:
+          $ref: '#/completionPayload'
+  - if:
+      properties:
+        eventType:
+          const: error
+    then:
+      properties:
+        status:
+          const: failed
+        payload:
+          $ref: '#/errorPayload'
+  - if:
+      properties:
+        eventType:
+          const: run_started
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/startPayload'
+  - if:
+      properties:
+        eventType:
+          const: intent_decided
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/intentPayload'
+  - if:
+      properties:
+        eventType:
+          const: progress
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/progressPayload'
+  - if:
+      properties:
+        eventType:
+          const: text_delta
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/textPayload'
+  - if:
+      properties:
+        eventType:
+          const: card
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/cardPayload'
+  - if:
+      properties:
+        eventType:
+          const: tool_result
+    then:
+      properties:
+        status:
+          const: running
+        payload:
+          $ref: '#/toolResultPayload'
+  - if:
+      properties:
+        eventType:
+          const: control_reply
+    then:
+      properties:
+        status:
+          type: string
+          const: running
+        payload:
+          $ref: '#/controlReplyPayload'
+agentRunResult:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - traceId
+  - runId
+  - status
+  - events
+  - intent
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    traceId: *id002
+    runId: *id002
+    planId:
+      type:
+      - string
+      - 'null'
+      minLength: 1
+    status:
+      type: string
+      enum:
+      - waiting_input
+      - waiting_confirmation
+      - succeeded
+      - failed
+      - cancelled
+    intent: &id005
+      type: string
+      enum:
+      - greeting
+      - chitchat
+      - store_recommendation
+      - deal_recommendation
+      - store_info
+      - review_query
+      - group_buy_order
+      - coupon
+      - refund_after_sale
+      - complaint
+      - faq
+      - out_of_scope
+      - composite
+    events:
+      type: array
+      minItems: 1
+      items:
+        $ref: '#/agentEvent'
+    error:
+      oneOf:
+      - $ref: '#/errorPayload'
+      - type: 'null'
+  allOf:
+  - if:
+      properties:
+        status:
+          const: failed
+    then:
+      required:
+      - error
+      properties:
+        error:
+          $ref: '#/errorPayload'
+    else:
+      properties:
+        error:
+          type: 'null'
+agentCard:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - cardType
+  - resourceId
+  - data
+  - actions
+  cardTypes:
+  - store
+  - deal
+  - order
+  - voucher
+  - coupon
+  - review
+  - confirmation
+  - error
+  properties:
+    schemaVersion:
+      type: string
+      const: '1.1'
+    cardType:
+      type: string
+      enum:
+      - store
+      - deal
+      - order
+      - voucher
+      - coupon
+      - review
+      - confirmation
+      - error
+    resourceId: *id001
+    data:
+      type: object
+    actions:
+      type: array
+      items:
+        $ref: '#/cardAction'
+  allOf:
+  - if:
+      properties:
+        cardType:
+          const: store
+    then:
+      properties:
+        data:
+          $ref: '#/storeCardData'
+  - if:
+      properties:
+        cardType:
+          const: deal
+    then:
+      properties:
+        data:
+          $ref: '#/dealCardData'
+  - if:
+      properties:
+        cardType:
+          const: order
+    then:
+      properties:
+        data:
+          $ref: '#/orderCardData'
+  - if:
+      properties:
+        cardType:
+          const: voucher
+    then:
+      properties:
+        data:
+          $ref: '#/voucherCardData'
+  - if:
+      properties:
+        cardType:
+          const: coupon
+    then:
+      properties:
+        data:
+          $ref: '#/couponCardData'
+  - if:
+      properties:
+        cardType:
+          const: review
+    then:
+      properties:
+        data:
+          $ref: '#/reviewCardData'
+  - if:
+      properties:
+        cardType:
+          const: confirmation
+    then:
+      properties:
+        data:
+          $ref: '#/confirmationSummary'
+  - if:
+      properties:
+        cardType:
+          const: error
+    then:
+      properties:
+        data:
+          $ref: '#/errorPayload'
+cardAction:
+  type: object
+  additionalProperties: false
+  required:
+  - actionId
+  - actionType
+  - label
+  - resourceId
+  - enabled
+  properties:
+    actionId: *id002
+    actionType:
+      type: string
+      enum:
+      - open_store
+      - open_deal
+      - open_order
+      - open_voucher
+      - select_voucher
+      - create_group_buy_order
+      - pay_mock_order
+      - request_refund
+      - submit_complaint
+      - cancel
+      - retry
+    label: *id002
+    resourceId: *id001
+    enabled:
+      type: boolean
+      description: 后端权威资格决定是否可点击
+    payload:
+      type: object
+      additionalProperties: false
+      required: []
+      properties:
+        query: *id002
+        storeId: *id001
+        dealId: *id001
+        orderId: *id001
+        voucherId: *id001
+inputRequiredPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - question
+  - inputKey
+  - candidates
+  properties:
+    question: *id002
+    inputKey:
+      type: string
+      enum:
+      - cityCode
+      - storeId
+      - voucherId
+      - orderId
+      - reason
+      - subject
+      - description
+      - dealId
+      - quantity
+      - query
+      - context_reference
+    candidates:
+      type: array
+      items:
+        $ref: '#/agentCard'
+confirmationRequiredPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - summary
+  - actions
+  properties:
+    summary:
+      $ref: '#/confirmationSummary'
+    actions:
+      type: array
+      minItems: 1
+      items:
+        $ref: '#/cardAction'
+confirmationSummary:
+  type: object
+  additionalProperties: false
+  required:
+  - action
+  - resourceId
+  - title
+  - amountCents
+  - ruleVersion
+  properties:
+    action:
+      type: string
+      enum:
+      - create_group_buy_order
+      - pay_mock_order
+      - request_refund
+      - submit_complaint
+    resourceId: *id001
+    title: *id002
+    amountCents: *id003
+    ruleVersion: *id002
+    dealTitle: *id002
+    storeName: *id002
+    quantity:
+      type: integer
+      minimum: 1
+    reason:
+      type: string
+      minLength: 1
+      maxLength: 500
+    subject:
+      type: string
+      minLength: 1
+      maxLength: 255
+    description:
+      type: string
+      minLength: 1
+      maxLength: 2000
+    expiresAt: *id004
+  allOf:
+  - if:
+      properties:
+        action:
+          const: create_group_buy_order
+    then:
+      required:
+      - dealTitle
+      - quantity
+  - if:
+      properties:
+        action:
+          const: request_refund
+    then:
+      required:
+      - dealTitle
+      - reason
+  - if:
+      properties:
+        action:
+          const: submit_complaint
+    then:
+      required:
+      - subject
+      - description
+confirmationGrant:
+  type: object
+  additionalProperties: false
+  required:
+  - confirmationGrantId
+  - userId
+  - sessionId
+  - action
+  - resourceId
+  - amountCents
+  - ruleVersion
+  - expiresAt
+  - consumed
+  - conversationTaskId
+  - executionGeneration
+  properties:
+    confirmationGrantId: *id002
+    userId: *id001
+    sessionId: *id001
+    action:
+      type: string
+      enum:
+      - create_group_buy_order
+      - pay_mock_order
+      - request_refund
+      - submit_complaint
+    resourceId: *id001
+    amountCents: *id003
+    ruleVersion: *id002
+    expiresAt: *id004
+    consumed:
+      type: boolean
+    conversationTaskId:
+      type: string
+      minLength: 1
+    executionGeneration:
+      type: integer
+      minimum: 1
+startPayload:
+  type: object
+  additionalProperties: false
+  required: []
+  properties: {}
+intentPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - intent
+  properties:
+    intent: *id005
+progressPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - stepId
+  - label
+  - stepStatus
+  properties:
+    stepId: *id002
+    label: *id002
+    stepStatus:
+      type: string
+      enum:
+      - running
+      - succeeded
+      - failed
+textPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - delta
+  properties:
+    delta: *id002
+cardPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - card
+  properties:
+    card:
+      $ref: '#/agentCard'
+toolResultPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - toolName
+  - ok
+  - data
+  - error
+  properties:
+    toolName: *id002
+    ok:
+      type: boolean
+    data:
+      type: object
+      additionalProperties:
+        type:
+        - string
+        - integer
+        - boolean
+        - 'null'
+      propertyNames:
+        not:
+          enum:
+          - confirmationGrantId
+          - confirmationGrant
+          - grantId
+          - token
+    error:
+      oneOf:
+      - $ref: '#/errorPayload'
+      - type: 'null'
+completionPayload:
+  type: object
+  additionalProperties: false
+  required: []
+  properties:
+    message: *id002
+errorPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - code
+  - message
+  - retryable
+  properties:
+    code:
+      type: string
+      enum:
+      - VALIDATION_ERROR
+      - NOT_FOUND
+      - FORBIDDEN
+      - CONFLICT
+      - EXPIRED
+      - RATE_LIMITED
+      - DEPENDENCY_UNAVAILABLE
+      - INTERNAL_ERROR
+    message: *id002
+    retryable:
+      type: boolean
+storeCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - storeId
+  - name
+  - address
+  - category
+  - averageSpendCents
+  - open
+  - openingHours
+  properties:
+    storeId: *id001
+    name: *id002
+    address: *id002
+    category: *id002
+    averageSpendCents: *id003
+    open:
+      type: boolean
+    openingHours: *id002
+    imageUrl: *id006
+    imageAlt:
+      type:
+      - string
+      - 'null'
+dealCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - dealId
+  - storeId
+  - title
+  - priceCents
+  - originalPriceCents
+  - inventory
+  - validFrom
+  - validTo
+  - purchaseLimit
+  properties:
+    dealId: *id001
+    storeId: *id001
+    title: *id002
+    description:
+      type: string
+    priceCents: *id003
+    originalPriceCents: *id003
+    inventory:
+      type: integer
+      minimum: 0
+    validFrom: *id007
+    validTo: *id007
+    purchaseLimit:
+      type: integer
+      minimum: 1
+    imageUrl: *id006
+    imageAlt:
+      type:
+      - string
+      - 'null'
+orderCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - orderId
+  - dealId
+  - storeId
+  - quantity
+  - totalCents
+  - status
+  - createdAt
+  - canReview
+  properties:
+    orderId: *id001
+    dealId: *id001
+    storeId: *id001
+    quantity:
+      type: integer
+      minimum: 1
+    totalCents: *id003
+    status:
+      type: string
+      enum:
+      - PENDING_PAYMENT
+      - PAID
+      - PARTIALLY_USED
+      - USED
+      - REFUNDED
+      - EXPIRED
+      - CANCELLED
+      - CLOSED_TIMEOUT
+    createdAt: *id004
+    canReview:
+      type: boolean
+    storeName: *id002
+    dealTitle: *id002
+    imageUrl: *id006
+    imageAlt:
+      type:
+      - string
+      - 'null'
+    # 秒杀订单按后端截止展示；关闭可空，不以券期限推断支付资格。
+    activityId: {type: string, minLength: 1}
+    paymentExpiresAt: {type: string, format: date-time}
+    serverTime: {type: string, format: date-time}
+    closedAt: {type: [string, "null"], format: date-time}
+    closeReason: {type: [string, "null"], enum: [PAYMENT_EXPIRED, null]}
+voucherCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - voucherId
+  - orderId
+  - dealTitle
+  - storeName
+  - status
+  - canRefund
+  - expiresAt
+  properties:
+    voucherId: *id001
+    orderId: *id001
+    dealTitle: *id002
+    storeName: *id002
+    status:
+      type: string
+      enum:
+      - UNUSED
+      - REDEEMED
+      - EXPIRED
+      - REFUNDED
+      - PENDING_PAYMENT
+      - CLOSED_TIMEOUT
+      - NOT_YET_VALID
+      - UNAVAILABLE
+    canRefund:
+      type: boolean
+    expiresAt: *id004
+    redeemedAt:
+      type:
+      - string
+      - 'null'
+      format: date-time
+    dealId: *id001
+    storeId: *id001
+    amountCents:
+      type:
+      - integer
+      - 'null'
+      minimum: 0
+    createdAt: *id004
+    imageUrl: *id006
+    imageAlt:
+      type:
+      - string
+      - 'null'
+    # 秒杀未支付或未到使用日期不可用，资格由后端返回。
+    canUse: {type: boolean}
+    validFrom: {type: [string, "null"], format: date}
+couponCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - couponId
+  - name
+  - status
+  - thresholdCents
+  - discountCents
+  - validTo
+  - scopeDescription
+  properties:
+    couponId: *id001
+    name: *id002
+    status: *id002
+    thresholdCents: *id003
+    discountCents: *id003
+    validTo: *id004
+    scopeDescription: *id002
+reviewCardData:
+  type: object
+  additionalProperties: false
+  required:
+  - storeId
+  - reviewerName
+  - rating
+  - content
+  - createdAt
+  properties:
+    storeId: *id001
+    reviewerName: *id002
+    rating:
+      type: number
+      minimum: 1
+      maximum: 5
+    content: *id002
+    createdAt: *id004
+compatibility:
+  adapterOnly: true
+  canonicalFields:
+    query: query
+    cardType: cardType
+    confirmationGrantId: confirmationGrantId
+  legacyAliases:
+    text: query
+    type: cardType
+    confirmationGrant: confirmationGrantId
+    grantId: confirmationGrantId
+compareDealFacts:
+  type: object
+  additionalProperties: false
+  required:
+  - publicId
+  - storePublicId
+  - storeName
+  - title
+  - description
+  - priceCents
+  - originalPriceCents
+  - inventory
+  - active
+  - purchaseLimit
+  - validFrom
+  - validTo
+  - peopleCount
+  - contents
+  - usageRules
+  properties:
+    publicId:
+      type: string
+      format: uuid
+    storePublicId:
+      type: string
+      format: uuid
+    storeName:
+      type: string
+      minLength: 1
+    title:
+      type: string
+      minLength: 1
+    description:
+      type: string
+    priceCents:
+      type: integer
+      minimum: 0
+    originalPriceCents:
+      type: integer
+      minimum: 0
+    inventory:
+      type: integer
+      minimum: 0
+    active:
+      type: boolean
+    purchaseLimit:
+      type: integer
+      minimum: 1
+    validFrom:
+      type: string
+      format: date
+    validTo:
+      type: string
+      format: date
+    peopleCount:
+      type:
+      - integer
+      - 'null'
+      minimum: 1
+      maximum: 10000
+    usageRules:
+      type:
+      - string
+      - 'null'
+      maxLength: 2000
+    contents:
+      type:
+      - array
+      - 'null'
+      maxItems: 100
+      items:
+        type: object
+        additionalProperties: false
+        required:
+        - name
+        - quantity
+        properties:
+          name:
+            type: string
+            minLength: 1
+            maxLength: 255
+          quantity:
+            type: integer
+            minimum: 1
+            maximum: 10000
+conversationSource:
+  type: object
+  additionalProperties: false
+  required:
+  - sourceMessageId
+  - conversationEpoch
+  - turnSequence
+  - historyRecorded
+  properties:
+    sourceMessageId:
+      type: string
+      minLength: 1
+      maxLength: 100
+    conversationEpoch:
+      type: string
+      minLength: 1
+      maxLength: 100
+    turnSequence:
+      type: integer
+      minimum: 1
+    historyRecorded:
+      type: boolean
+selectionRef:
+  type: object
+  additionalProperties: false
+  required:
+  - presentationId
+  - version
+  properties:
+    presentationId:
+      type: string
+      minLength: 1
+      maxLength: 100
+    version:
+      type: integer
+      minimum: 1
+    ordinal:
+      type: integer
+      minimum: 1
+clarificationRef:
+  type: object
+  additionalProperties: false
+  required:
+  - clarificationId
+  - version
+  - presentationId
+  - ordinal
+  properties:
+    clarificationId:
+      type: string
+      minLength: 1
+      maxLength: 100
+    version:
+      type: integer
+      minimum: 1
+    presentationId:
+      type: string
+      minLength: 1
+      maxLength: 100
+    ordinal:
+      type: integer
+      minimum: 1
+presentationEvidence:
+  type: object
+  additionalProperties: false
+  required:
+  - presentationId
+  - version
+  - resourceType
+  - orderedIds
+  - sourceMessageId
+  properties:
+    presentationId:
+      type: string
+      minLength: 1
+      maxLength: 100
+    version:
+      type: integer
+      minimum: 1
+    resourceType:
+      type: string
+      enum:
+      - store
+      - deal
+      - order
+      - voucher
+      - coupon
+    orderedIds:
+      type: array
+      minItems: 1
+      maxItems: 100
+      uniqueItems: true
+      items:
+        type: string
+        minLength: 1
+        maxLength: 100
+    sourceMessageId:
+      type: string
+      minLength: 1
+      maxLength: 100
+publicCardPresentation:
+  type: object
+  additionalProperties: false
+  required:
+  - presentationId
+  - version
+  - ordinal
+  - resourceType
+  - sourceMessageId
+  properties:
+    presentationId:
+      type: string
+      minLength: 1
+      maxLength: 100
+    version:
+      type: integer
+      minimum: 1
+    ordinal:
+      type: integer
+      minimum: 1
+    resourceType:
+      type: string
+      enum:
+      - store
+      - deal
+      - order
+      - voucher
+      - coupon
+    sourceMessageId:
+      type: string
+      minLength: 1
+      maxLength: 100
+taskScope:
+  type: object
+  additionalProperties: false
+  required:
+  - userId
+  - sessionId
+  - conversationEpoch
+  properties:
+    userId: &id008
+      type: string
+      minLength: 1
+      maxLength: 100
+    sessionId: *id008
+    conversationEpoch: *id008
+  description: 可信归属三元组；不得由模型或客户端指定其他用户/会话。
+taskFence:
+  type: object
+  additionalProperties: false
+  required:
+  - scope
+  - conversationTaskId
+  - runId
+  - turnId
+  - focusVersion
+  - taskVersion
+  - executionGeneration
+  properties:
+    scope:
+      $ref: '#/taskScope'
+    conversationTaskId: *id008
+    runId: *id008
+    turnId: *id008
+    focusVersion: &id010
+      type: integer
+      minimum: 0
+      description: 会话焦点版本，目录交换与控制提交时核验。
+    taskVersion: &id009
+      type: integer
+      minimum: 1
+      description: 单任务持久版本，不能与焦点或动作版本互换。
+    executionGeneration: *id009
+  description: 执行前后均核验任务、轮次、焦点、版本及代次；结构合法不代表获准执行。
+turnAdmission:
+  type: object
+  additionalProperties: false
+  required:
+  - fence
+  - sourceMessageId
+  - protocolVersion
+  - admissionState
+  - mayExecuteTools
+  - commandId
+  properties:
+    fence:
+      $ref: '#/taskFence'
+    sourceMessageId: *id008
+    protocolVersion:
+      type: string
+      const: '2.2'
+    admissionState:
+      type: string
+      enum:
+      - admitted
+      - completed
+      - rejected
+    mayExecuteTools:
+      type: boolean
+    commandId: &id011
+      type:
+      - string
+      - 'null'
+      minLength: 1
+      maxLength: 100
+  description: 普通受理与控制分离；commandId可为空，不自动撤销已有确认。
+taskEventContext:
+  type: object
+  additionalProperties: false
+  required:
+  - conversationTaskId
+  - turnId
+  - taskVersion
+  - focusVersion
+  - executionGeneration
+  properties:
+    conversationTaskId: *id008
+    turnId: *id008
+    taskVersion: *id009
+    focusVersion: *id010
+    executionGeneration: *id009
+controlReplyPayload:
+  type: object
+  additionalProperties: false
+  required:
+  - message
+  - sourceMessageId
+  properties:
+    message:
+      type: string
+      minLength: 1
+      maxLength: 1000
+    sourceMessageId: *id008
+taskStopPoint:
+  type: object
+  additionalProperties: false
+  required:
+  - kind
+  - awaitingField
+  - goalId
+  properties:
+    kind:
+      type: string
+      enum:
+      - running
+      - waiting_input
+      - waiting_confirmation
+      - awaiting_followup
+      - terminal
+      - needs_attention
+    awaitingField: *id011
+    goalId: *id011
+publicTask:
+  type: object
+  additionalProperties: false
+  required:
+  - conversationTaskId
+  - taskKind
+  - intent
+  - lifecycle
+  - taskVersion
+  - executionGeneration
+  - title
+  - stopPoint
+  - activeRunId
+  - lastRunId
+  - availableActions
+  properties:
+    conversationTaskId: *id008
+    taskKind:
+      type: string
+      enum:
+      - selection
+      - lookup
+      - transaction
+      - composite
+      - chat
+    intent:
+      type: string
+      enum:
+      - greeting
+      - chitchat
+      - store_recommendation
+      - deal_recommendation
+      - store_info
+      - review_query
+      - group_buy_order
+      - coupon
+      - refund_after_sale
+      - complaint
+      - faq
+      - out_of_scope
+      - composite
+    lifecycle:
+      type: string
+      enum:
+      - active
+      - paused
+      - completed
+      - cancelled
+      - failed
+    taskVersion: *id009
+    executionGeneration: *id009
+    title:
+      type: string
+      minLength: 1
+      maxLength: 120
+    stopPoint:
+      $ref: '#/taskStopPoint'
+    activeRunId: *id011
+    lastRunId: *id011
+    availableActions:
+      type: array
+      items:
+        type: string
+        enum:
+        - pause
+        - cancel
+        - resume
+        - switch
+      uniqueItems: true
+      maxItems: 4
+  allOf:
+  - if:
+      properties:
+        lifecycle:
+          enum:
+          - completed
+          - cancelled
+          - failed
+    then:
+      properties:
+        availableActions:
+          type: array
+          maxItems: 0
+  description: 公开任务摘要，不包含私有grant、完整槽位、准备结果或用户敏感数据。
+taskDirectory:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - focusVersion
+  - throughTaskEventId
+  - currentTask
+  - pausedTasks
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    focusVersion: *id010
+    throughTaskEventId: *id010
+    currentTask:
+      oneOf:
+      - allOf:
+        - $ref: '#/publicTask'
+        - properties:
+            lifecycle:
+              const: active
+      - type: 'null'
+    pausedTasks:
+      type: array
+      items:
+        allOf:
+        - $ref: '#/publicTask'
+        - properties:
+            lifecycle:
+              const: paused
+      maxItems: 5
+  description: 单一数据库快照目录；throughTaskEventId以前的事件已纳入投影。
+taskCommandRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - requestId
+  - action
+  - targetTaskId
+  - expectedTaskVersion
+  - expectedFocusVersion
+  properties:
+    requestId: *id008
+    action:
+      type: string
+      enum:
+      - pause
+      - cancel
+      - resume
+      - switch
+    targetTaskId: *id008
+    expectedTaskVersion: *id009
+    expectedFocusVersion: *id010
+  description: 用户控制入口；预期版本不匹配拒绝，不把目标ID当访问凭证。
+taskCommandView:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - commandId
+  - action
+  - state
+  - reconcileStatus
+  - reasonCode
+  - focusVersion
+  - affectedTaskIds
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    commandId: *id008
+    action:
+      type: string
+      enum:
+      - pause
+      - cancel
+      - resume
+      - switch
+      - insert
+    state:
+      type: string
+      enum:
+      - prepared
+      - agent_acknowledged
+      - committed
+      - aborting
+      - aborted
+      - rejected
+    reconcileStatus:
+      type: string
+      enum:
+      - idle
+      - retrying
+      - needs_attention
+    reasonCode: *id011
+    focusVersion: *id010
+    affectedTaskIds:
+      type: array
+      items: *id008
+      minItems: 1
+      maxItems: 2
+      uniqueItems: true
+  description: 提交/安全退出状态；needs_attention仅表示需对账，不证明写入未发生。
+taskControlTarget:
+  type: object
+  additionalProperties: false
+  required:
+  - conversationTaskId
+  - runId
+  - expectedTaskVersion
+  - expectedGeneration
+  - checkpointRef
+  properties:
+    conversationTaskId: *id008
+    runId: *id011
+    expectedTaskVersion: *id009
+    expectedGeneration: *id009
+    checkpointRef: *id011
+taskControlRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - commandId
+  - scope
+  - action
+  - decision
+  - focusVersion
+  - targets
+  - sourceMessageId
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    commandId: *id008
+    scope:
+      $ref: '#/taskScope'
+    action:
+      type: string
+      enum:
+      - pause
+      - cancel
+      - resume
+      - switch
+      - insert
+    decision:
+      type: string
+      enum:
+      - apply
+      - abort
+    focusVersion: *id010
+    targets:
+      type: array
+      items:
+        $ref: '#/taskControlTarget'
+      minItems: 1
+      maxItems: 2
+    sourceMessageId: *id008
+  description: 内部可信控制指令；targets仅列出受影响任务，不持锁等待Agent。
+checkpointReceipt:
+  type: object
+  additionalProperties: false
+  required:
+  - conversationTaskId
+  - runId
+  - checkpointVersion
+  properties:
+    conversationTaskId: *id008
+    runId: *id011
+    checkpointVersion: *id010
+controlAck:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - commandId
+  - scope
+  - status
+  - writeOutcome
+  - checkpoints
+  - reasonCode
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    commandId: *id008
+    scope:
+      $ref: '#/taskScope'
+    status:
+      type: string
+      enum:
+      - checkpoint_saved
+      - processing
+      - uncertain
+      - aborted
+      - rejected
+    writeOutcome:
+      type: string
+      enum:
+      - pending
+      - uncertain
+      - settled
+      - none
+    checkpoints:
+      type: array
+      items:
+        $ref: '#/checkpointReceipt'
+      maxItems: 2
+    reasonCode: *id011
+  description: 持久停点回执；uncertain不允许安全退出或盲目重放。
+taskPaymentPreparationRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - requestId
+  - fence
+  - orderId
+  - actionVersion
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    requestId: *id008
+    fence:
+      $ref: '#/taskFence'
+    orderId: *id008
+    actionVersion: *id009
+  description: 内部支付重准备，仅原订单停点签发新凭证，不创建订单或支付。
+taskPaymentPreparationResult:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - requestId
+  - summary
+  - grant
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    requestId: *id008
+    summary:
+      $ref: '#/confirmationSummary'
+    grant:
+      $ref: '#/confirmationGrant'
+  description: 内部私有结果；公开事件只能投影summary，不输出grant。
+turnCompletionRequest:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - turnId
+  - fence
+  - sourceMessageId
+  - result
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    turnId: *id008
+    fence:
+      $ref: '#/taskFence'
+    sourceMessageId: *id008
+    result:
+      $ref: '#/agentRunResult'
+  description: 持久完成补交；结果已生成时不得再次执行业务工作流。
+taskDecisionCandidate:
+  type: object
+  additionalProperties: false
+  required:
+  - controlAction
+  - targetTaskId
+  - targetTaskVersion
+  - score
+  - evidence
+  properties:
+    controlAction:
+      type: string
+      enum:
+      - continue
+      - revise
+      - insert
+      - pause
+      - cancel
+      - resume
+      - switch
+      - clarify
+      - no_task
+    targetTaskId: *id011
+    targetTaskVersion:
+      type:
+      - integer
+      - 'null'
+      minimum: 1
+    score:
+      type: number
+      minimum: 0
+      maximum: 1
+    evidence:
+      oneOf:
+      - &id012
+        type: object
+        additionalProperties: false
+        required:
+        - kind
+        - start
+        - end
+        properties:
+          kind:
+            type: string
+            const: text_span
+          start: *id010
+          end: *id009
+      - type: object
+        additionalProperties: false
+        required:
+        - kind
+        - taskId
+        - taskVersion
+        properties:
+          kind:
+            type: string
+            const: task_button
+          taskId: *id008
+          taskVersion: *id009
+taskDecision:
+  type: object
+  additionalProperties: false
+  required:
+  - candidates
+  - newRequestSpan
+  - reasonCode
+  properties:
+    candidates:
+      type: array
+      items:
+        $ref: '#/taskDecisionCandidate'
+      minItems: 2
+      maxItems: 2
+    newRequestSpan:
+      oneOf:
+      - *id012
+      - type: 'null'
+    reasonCode: *id008
+  description: 两个评分候选及原文Unicode码点跨度；阈值/差值/目标归属由解释器复核。
+taskEvent:
+  type: object
+  additionalProperties: false
+  required:
+  - schemaVersion
+  - taskEventId
+  - scope
+  - focusVersion
+  - eventType
+  - payload
+  properties:
+    schemaVersion:
+      type: string
+      const: '2.2'
+    taskEventId: *id009
+    scope:
+      $ref: '#/taskScope'
+    focusVersion: *id010
+    eventType:
+      type: string
+      enum:
+      - task_projection
+      - control_reply
+      - command_status
+    payload:
+      type: object
+  allOf:
+  - if:
+      properties:
+        eventType:
+          const: task_projection
+    then:
+      properties:
+        payload:
+          $ref: '#/publicTask'
+  - if:
+      properties:
+        eventType:
+          const: control_reply
+    then:
+      properties:
+        payload:
+          $ref: '#/controlReplyPayload'
+  - if:
+      properties:
+        eventType:
+          const: command_status
+    then:
+      properties:
+        payload:
+          $ref: '#/taskCommandView'
+  description: 认证目录事件；按taskEventId补读，重复忽略、缺口或过期游标重读目录。
+taskLifecyclePolicy:
+  maxActive: 1
+  maxPaused: 5
+  terminalRunReopen: false
+  legacyProtocolFallback: false
+  controlDoesNotAuthorizeBusinessWrite: true
+  ordinaryTurnDoesNotRequireControlCommand: true

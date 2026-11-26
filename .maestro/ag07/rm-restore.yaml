@@ -1,0 +1,20 @@
+# 只恢复本机已保存身份与原任务，禁止clearState、登录、发送文本或点击订单确认。
+appId: com.fandazi.app
+---
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agentAssistantTab
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 暂停
+      enabled: true
+    timeout: 60000
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input
+- takeScreenshot: ag07-rm-restored-task

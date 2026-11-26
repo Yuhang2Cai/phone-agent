@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 团购首页 UI-01：只保留位置、搜索、分类、排序筛选和门店列表。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/group_buy_background"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="84dp"
+        android:background="@color/group_buy_green"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="16dp"
+        android:paddingTop="18dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="10dp">
+
+        <LinearLayout android:id="@+id/home_location" android:layout_width="88dp" android:layout_height="match_parent" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:orientation="vertical">
+            <TextView android:id="@+id/home_location_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="●  附近⌄" android:textColor="@color/surface_card" android:textSize="16sp" android:textStyle="bold" />
+            <!-- 城市从实际目录选择；初始未选择时不制造北京市或任何默认所在城市。 -->
+            <TextView android:id="@+id/home_city" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:text="选择城市" android:textColor="#D1E5DE" android:textSize="11sp" />
+        </LinearLayout>
+
+        <LinearLayout android:id="@+id/home_search_button" android:layout_width="0dp" android:layout_height="44dp" android:layout_marginStart="4dp" android:layout_weight="1" android:background="@drawable/group_buy_search_background" android:clickable="true" android:focusable="true" android:gravity="center_vertical" android:paddingStart="14dp" android:paddingEnd="12dp">
+            <ImageView android:layout_width="22dp" android:layout_height="22dp" android:contentDescription="搜索" android:src="@drawable/ic_home_search" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="10dp" android:ellipsize="end" android:maxLines="1" android:text="搜索餐厅、菜品或商家" android:textColor="@color/group_buy_muted" android:textSize="14sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <HorizontalScrollView android:layout_width="match_parent" android:layout_height="58dp" android:scrollbars="none">
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="center_vertical" android:orientation="horizontal" android:paddingStart="16dp" android:paddingEnd="16dp">
+            <TextView android:id="@+id/category_recommend" style="@style/GroupBuyCategory" android:text="推荐" android:textColor="@color/group_buy_orange" android:textStyle="bold" />
+            <TextView android:id="@+id/category_drink" style="@style/GroupBuyCategory" android:text="奶茶咖啡" />
+            <TextView android:id="@+id/category_fast_food" style="@style/GroupBuyCategory" android:text="快餐小吃" />
+            <TextView android:id="@+id/category_hotpot" style="@style/GroupBuyCategory" android:text="火锅" />
+            <TextView android:id="@+id/category_barbecue" style="@style/GroupBuyCategory" android:text="烧烤烤肉" />
+            <TextView android:id="@+id/category_local" style="@style/GroupBuyCategory" android:text="地方菜系" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="44dp" android:gravity="end|center_vertical" android:orientation="horizontal" android:paddingEnd="14dp">
+        <TextView android:id="@+id/sort_average" style="@style/GroupBuyFilter" android:text="人均⌄" />
+        <TextView android:id="@+id/sort_distance" style="@style/GroupBuyFilter" android:text="距离⌄" />
+        <TextView android:id="@+id/open_filter" style="@style/GroupBuyFilter" android:drawableEnd="@drawable/ic_filter" android:drawablePadding="5dp" android:text="筛选" />
+    </LinearLayout>
+
+    <!-- 公开缓存来源提示位于现有内容区之外，不增加新的回收列表类型。 -->
+    <include layout="@layout/include_catalog_cache_banner" />
+    <!-- 固定视图身份供返回恢复滚动状态，内容仍由真实目录绑定。 -->
+    <!-- 有界纵向回收列表保留原结果区内边距，固定筛选控件不进入重复业务行。 -->
+    <androidx.recyclerview.widget.RecyclerView android:id="@+id/home_store_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="12dp" android:paddingEnd="12dp" android:paddingBottom="16dp" />
+</LinearLayout>

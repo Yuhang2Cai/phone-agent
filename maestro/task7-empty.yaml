@@ -1,0 +1,18 @@
+# Task7 新空账号：真实订单为空，浏览返回与底栏可用，不借旧账号或故障夹具。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- runFlow: task7-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- extendedWaitUntil:
+    visible: "暂无订单"
+    timeout: 30000
+- assertNotVisible:
+    id: "com.fandazi.app:id/orders_error_retry"
+- takeScreenshot: "orders-real-empty"
+- tapOn: "去逛逛"
+- assertVisible:
+    id: "com.fandazi.app:id/home_search_button"
+- takeScreenshot: "empty-browse-return"

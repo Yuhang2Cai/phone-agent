@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI16A/B：有界RecyclerView绘真实目录；底部计数与开始不随滚动消失。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/group_buy_background" android:paddingHorizontal="20dp" android:paddingTop="24dp" android:paddingBottom="16dp"><TextView android:id="@+id/compare_back" style="@style/CompareText" android:layout_height="44dp" android:gravity="center_vertical" android:text="‹   选择套餐" android:textColor="@color/group_buy_green" android:textSize="18sp" android:textStyle="bold" android:contentDescription="返回选择" />
+<TextView android:id="@+id/compare_selection_status" style="@style/CompareText" android:textColor="@color/group_buy_muted" android:layout_marginBottom="12dp" />
+<TextView android:id="@+id/compare_selection_retry" style="@style/CompareButton" android:text="重试" android:visibility="gone" />
+<androidx.recyclerview.widget.RecyclerView android:id="@+id/compare_selection_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" />
+<TextView android:id="@+id/compare_start" style="@style/CompareButton" android:layout_marginTop="12dp" />
+<TextView style="@style/CompareCaption" android:text="返回后保留已选套餐。最多对比3个不同套餐。" android:layout_marginTop="12dp" />
+</LinearLayout>

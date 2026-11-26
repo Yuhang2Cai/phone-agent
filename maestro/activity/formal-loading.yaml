@@ -1,0 +1,11 @@
+# 只延迟真实列表响应，确认加载期间不呈现样例任务或空态。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: 正在加载活动
+- assertNotVisible: 暂时没有可领取的任务
+- takeScreenshot: formal-loading
+- extendedWaitUntil:
+    visible: 登录领取
+    timeout: 30000

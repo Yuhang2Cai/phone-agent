@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-07，Figma 29:41：套餐详情遮罩上的确认弹窗，数量改动重新请求报价。 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/purchase_sheet" android:fillViewport="true">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="24dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical">
+        <TextView style="@style/Task6.Title" android:layout_width="0dp" android:layout_weight="1" android:text="确认订单"/>
+        <TextView android:id="@+id/checkout_close" style="@style/Task6.Text" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="×" android:textSize="28sp" android:contentDescription="取消购买"/>
+    </LinearLayout>
+    <!-- 套餐图片与名称是当前后端报价资源，长标题可换行，不能压住右侧数量按钮。 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center_vertical">
+        <ImageView android:id="@+id/checkout_image" android:layout_width="102dp" android:layout_height="102dp" android:scaleType="centerCrop" android:contentDescription="套餐图片"/>
+        <LinearLayout android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="18dp" android:orientation="vertical">
+            <TextView android:id="@+id/checkout_deal" style="@style/Task6.Text" android:textSize="19sp" android:textStyle="bold"/>
+            <TextView android:id="@+id/checkout_rules" style="@style/Task6.Muted" android:layout_marginTop="8dp"/>
+            <TextView android:id="@+id/checkout_price" style="@style/Task6.Amount" android:layout_marginTop="8dp"/>
+        </LinearLayout>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:layout_marginTop="8dp" android:gravity="center_vertical">
+        <TextView style="@style/Task6.Text" android:layout_width="0dp" android:layout_weight="1" android:text="购买数量"/>
+        <TextView android:id="@+id/checkout_minus" style="@style/Task6.Text" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="−" android:textSize="24sp" android:contentDescription="减少数量"/>
+        <TextView android:id="@+id/checkout_quantity" style="@style/Task6.Text" android:layout_width="40dp" android:gravity="center"/>
+        <TextView android:id="@+id/checkout_plus" style="@style/Task6.Text" android:layout_width="48dp" android:layout_height="48dp" android:gravity="center" android:text="+" android:textSize="24sp" android:contentDescription="增加数量"/>
+    </LinearLayout>
+    <!-- 总价、优惠和实付分别来自服务器，失败或数量变化期间清空旧金额。 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical">
+        <TextView android:id="@+id/checkout_subtotal_label" style="@style/Task6.Text" android:layout_width="0dp" android:layout_weight="1" android:text="商品总价"/>
+        <TextView android:id="@+id/checkout_subtotal" style="@style/Task6.Text" android:layout_width="wrap_content"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="48dp" android:gravity="center_vertical">
+        <TextView style="@style/Task6.Text" android:layout_width="0dp" android:layout_weight="1" android:text="活动优惠"/>
+        <TextView android:id="@+id/checkout_discount" style="@style/Task6.Text" android:layout_width="wrap_content"/>
+    </LinearLayout>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="52dp" android:gravity="center_vertical">
+        <TextView style="@style/Task6.Text" android:layout_width="0dp" android:layout_weight="1" android:text="实付金额" android:textStyle="bold" android:textSize="18sp"/>
+        <TextView android:id="@+id/checkout_total" style="@style/Task6.Amount" android:layout_width="wrap_content"/>
+    </LinearLayout>
+    <TextView android:id="@+id/checkout_summary" style="@style/Task6.Muted" android:textColor="@color/warning_red"/>
+    <TextView android:id="@+id/checkout_action" style="@style/Task6.Action" android:layout_marginTop="12dp" android:enabled="false" android:text="提交订单"/>
+</LinearLayout>
+</ScrollView>

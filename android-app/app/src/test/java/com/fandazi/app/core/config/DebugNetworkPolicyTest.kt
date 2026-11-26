@@ -1,0 +1,34 @@
+// 构建配置模块：验证关键行为与边界条件。
+package com.fandazi.app.core.config
+
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+import java.io.File
+
+class DebugNetworkPolicyTest {
+    @Test
+// 验证 `cleartextIsEnabledOnlyByDebugManifest` 覆盖场景的预期行为与边界。
+    fun cleartextIsEnabledOnlyByDebugManifest() {
+        val appRoot = findAppRoot()
+        val mainManifest = File(appRoot, "src/main/AndroidManifest.xml").readText()
+        val debugManifest = File(appRoot, "src/debug/AndroidManifest.xml").readText()
+
+        assertFalse(mainManifest.contains("usesCleartextTraffic=\"true\""))
+        assertTrue(debugManifest.contains("usesCleartextTraffic=\"true\""))
+    }
+
+// 验证 `findAppRoot` 覆盖场景的预期行为与边界。
+    private fun findAppRoot(): File {
+        var directory = File(
+            DebugNetworkPolicyTest::class.java.protectionDomain.codeSource.location.toURI()
+        ).absoluteFile
+        if (directory.isFile) directory = directory.parentFile
+        while (true) {
+            val candidate = File(directory, "app/src/main/AndroidManifest.xml")
+            if (candidate.isFile) return File(directory, "app")
+            directory = directory.parentFile ?: break
+        }
+        error("Unable to locate Android app root from test classes")
+    }
+}

@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AG03确认稿Task/StatusCard：白底16dp圆角，内容由服务端任务投影动态填充。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@color/surface_card"/><corners android:radius="16dp"/></shape>

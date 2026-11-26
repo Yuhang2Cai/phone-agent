@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ASR明确操作使用深绿圆角胶囊，按钮不代表发送或交易确认。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/group_buy_green" />
+    <corners android:radius="22dp" />
+</shape>

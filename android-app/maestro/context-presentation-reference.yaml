@@ -1,0 +1,36 @@
+# CC-04 展示传输验收：真实 Spring 目录，模型端为显式只读传输探针；不计在线指代准确率。
+appId: com.fandazi.app
+---
+- runFlow: flows/intent13-login.yaml
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 查询展示列表
+- extendedWaitUntil:
+    visible: 展示引用验收：目录来自真实后端。
+    timeout: 90000
+- assertVisible:
+    text: 查看详情
+    enabled: true
+- takeScreenshot: cc04-registered-list
+# 冷重启只读取真实历史，不重发首轮查询；元数据必须由服务端最终事件恢复。
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/bottom_navigation
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible: 展示引用验收：目录来自真实后端。
+    timeout: 30000
+- runFlow:
+    file: flows/refund-greeting-send.yaml
+    env:
+      CHAT_TEXT: 第二个
+- extendedWaitUntil:
+    visible: 展示引用已传回，列表顺序保持不变。
+    timeout: 90000
+- takeScreenshot: cc04-reference-returned
+- assertNotVisible: 处理进度

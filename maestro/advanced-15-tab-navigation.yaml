@@ -1,0 +1,245 @@
+# O8正式四Tab验收：公开规模与实际Spring订单分阶段，明确401注入，不触发语音或自动业务写入。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "guest"}
+    commands:
+      - launchApp:
+          clearState: true
+      - tapOn:
+          id: com.fandazi.app:id/skip_login_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/home_search_button
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_login_gate
+          timeout: 30000
+      - takeScreenshot: tab-guest-ai-guide
+      - tapOn:
+          id: com.fandazi.app:id/agent_login_action
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - takeScreenshot: tab-guest-ai-login
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "guest-return"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/username_input
+      - setClipboard: "${MAESTRO_USERNAME}"
+      - pasteText
+      - tapOn:
+          id: com.fandazi.app:id/password_input
+      - setClipboard: "${MAESTRO_PASSWORD}"
+      - pasteText
+      - setClipboard: ""
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/submit_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_chat_input
+          timeout: 30000
+      - takeScreenshot: tab-guest-login-formal-ai
+      - back
+      - assertVisible:
+          id: com.fandazi.app:id/home_search_button
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "rounds"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - repeat:
+          times: 20
+          commands:
+            - tapOn:
+                id: com.fandazi.app:id/ordersFragment
+            - extendedWaitUntil:
+                visible: "order-card-${ORDER_ID}"
+                timeout: 30000
+            - tapOn:
+                id: com.fandazi.app:id/ordersFragment
+            - assertVisible: "order-card-${ORDER_ID}"
+            - tapOn:
+                id: com.fandazi.app:id/profileFragment
+            - assertVisible: "退出登录"
+            - tapOn:
+                id: com.fandazi.app:id/agentAssistantTab
+            - extendedWaitUntil:
+                visible:
+                  id: com.fandazi.app:id/agent_chat_input
+                timeout: 30000
+            - tapOn:
+                id: com.fandazi.app:id/homeFragment
+            - assertVisible:
+                id: com.fandazi.app:id/home_search_button
+      - takeScreenshot: tab-real-twenty-rounds
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "public-prepare"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/home_search_button
+      - tapOn:
+          id: com.fandazi.app:id/search_input
+      - inputText: advanced-match
+      - tapOn:
+          id: com.fandazi.app:id/search_button
+      - extendedWaitUntil:
+          visible: "找到相关门店 500 个"
+          timeout: 30000
+      - scrollUntilVisible:
+          element: store-card-00000000-0000-0000-0000-000000000020
+          direction: DOWN
+          timeout: 30000
+      - takeScreenshot: tab-public-query-anchor-before
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "public-return"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible: "order-card-${ORDER_ID}"
+          timeout: 30000
+      - tapOn: "已完成"
+      - assertVisible: "该状态暂无订单"
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - assertVisible: advanced-match
+      - assertVisible: "找到相关门店 500 个"
+      - assertVisible: store-card-00000000-0000-0000-0000-000000000020
+      - takeScreenshot: tab-public-query-anchor-restored
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "qualification"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible: "该状态暂无订单"
+          timeout: 30000
+      - takeScreenshot: tab-order-segment-retained
+      - tapOn: "待使用"
+      - extendedWaitUntil:
+          visible: "order-card-${ORDER_ID}"
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/group_order_state
+          text: "待使用"
+      - takeScreenshot: tab-real-payment-refreshed
+      - tapOn: "order-card-${ORDER_ID}"
+      - extendedWaitUntil:
+          visible: "订单号 ${ORDER_ID}"
+          timeout: 30000
+      - scrollUntilVisible:
+          element:
+            id: com.fandazi.app:id/group_order_refund
+          direction: DOWN
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/group_order_refund
+      - takeScreenshot: tab-real-refund-qualification
+      - back
+      - back
+      - assertVisible: advanced-match
+      - tapOn:
+          id: com.fandazi.app:id/search_back
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "401-prepare"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - assertVisible:
+          id: com.fandazi.app:id/home_search_button
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "inject-401"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - assertNotVisible: "order-card-${ORDER_ID}"
+      - takeScreenshot: tab-401-private-stack-cleared
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "401-return"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/username_input
+      - setClipboard: "${MAESTRO_USERNAME}"
+      - pasteText
+      - tapOn:
+          id: com.fandazi.app:id/password_input
+      - setClipboard: "${MAESTRO_PASSWORD}"
+      - pasteText
+      - setClipboard: ""
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/submit_button
+      - extendedWaitUntil:
+          visible: "order-card-${ORDER_ID}"
+          timeout: 30000
+      - takeScreenshot: tab-401-login-original-orders
+      - back
+      - assertVisible:
+          id: com.fandazi.app:id/home_search_button
+      - assertNotVisible: advanced-match
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn: "退出登录"
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 30000
+      - assertNotVisible: "order-card-${ORDER_ID}"
+      - takeScreenshot: tab-logout-cleared
+- runFlow:
+    when:
+      true: ${TAB_PHASE == "account-change"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/username_input
+      - setClipboard: "${MAESTRO_USERNAME}"
+      - pasteText
+      - tapOn:
+          id: com.fandazi.app:id/password_input
+      - setClipboard: "${MAESTRO_PASSWORD}"
+      - pasteText
+      - setClipboard: ""
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/submit_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/home_search_button
+          timeout: 30000
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - extendedWaitUntil:
+          visible: "暂无订单"
+          timeout: 30000
+      - assertNotVisible: "order-card-${ORDER_ID}"
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_chat_input
+          timeout: 30000
+      - takeScreenshot: tab-new-owner-empty-chat
+      - tapOn:
+          id: com.fandazi.app:id/ordersFragment
+      - assertVisible: "暂无订单"
+      - takeScreenshot: tab-new-owner-empty-orders

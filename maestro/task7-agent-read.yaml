@@ -1,0 +1,57 @@
+# 新Agent实际只读订单/券：响应后仍留聊天，显式点击才导航；不选择售后确认动作。
+appId: com.fandazi.app
+---
+- launchApp
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "show my group buying orders"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/agent_order_action"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- assertNotVisible:
+    id: "com.fandazi.app:id/group_order_detail_title"
+- takeScreenshot: "agent-orders-no-auto-navigation"
+- tapOn:
+    id: "com.fandazi.app:id/agent_order_action"
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/group_order_detail_title"
+    timeout: 30000
+- assertVisible: ".*(${TASK7_ORDER_A}|${TASK7_ORDER_B}|${TASK7_ORDER_PENDING}).*"
+- takeScreenshot: "agent-order-explicit-navigation"
+- back
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- inputText: "show my group buying vouchers"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: "查看团购券"
+    timeout: 90000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- assertNotVisible:
+    id: "com.fandazi.app:id/voucher_detail_info"
+- takeScreenshot: "agent-vouchers-no-auto-navigation"
+- tapOn: "查看团购券"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/voucher_detail_info"
+    timeout: 30000
+- assertVisible: ".*(${TASK7_VOUCHER_A}|${TASK7_VOUCHER_B}|${TASK7_VOUCHER_C}|${TASK7_PENDING_VOUCHER}).*"
+- assertNotVisible: "展示核销二维码"
+- takeScreenshot: "agent-voucher-explicit-navigation"
+- back
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: "agent-return-keeps-history"

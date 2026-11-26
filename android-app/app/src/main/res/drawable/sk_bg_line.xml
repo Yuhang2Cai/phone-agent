@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀用户端确认稿原生布局；业务文字和状态由服务器快照绑定。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#E5E5DE"/>
+    <corners android:radius="3dp"/>
+</shape>

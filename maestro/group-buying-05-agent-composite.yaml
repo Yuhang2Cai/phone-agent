@@ -1,0 +1,50 @@
+appId: com.fandazi.app
+---
+# 复合只读请求：退款帮助分支与火锅推荐分支独立执行，完整聊天页保持不跳转。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "查退款规则并推荐火锅套餐"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: ".*城市.*"
+    timeout: 60000
+- extendedWaitUntil:
+    notVisible: "进行中"
+    timeout: 60000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_text"
+# 城市由运行器读取真实目录并注入；用户明确补充后恢复同一会话，不以默认城市绕过安全校验。
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "${MAESTRO_CITY_CODE}"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+# 真实目录可能返回多张套餐卡，聊天自动定位到末尾；向上查找原始规则正文，不能只等当前视口。
+- scrollUntilVisible:
+    element:
+      text: "(?s).*退款.*未核销.*|(?s).*未核销.*退款.*"
+    direction: UP
+    timeout: 60000
+    centerElement: true
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_text"
+# 成功步骤允许作为聊天历史保留，不将其误当作仍在运行的动画。
+- assertNotVisible: "进行中"
+# 火锅目录可能真实为空，不能强要求伪造套餐卡；实际回复/卡片由截图和目录事实逐项核对。
+- runFlow:
+    when:
+      visible:
+        id: "com.fandazi.app:id/agent_deal_name"
+    commands:
+      - takeScreenshot: composite-real-deal-result
+- takeScreenshot: agent-composite-independent-read

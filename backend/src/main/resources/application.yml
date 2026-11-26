@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: fandazi-backend
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/fandazi_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai}
+    username: ${DB_USERNAME:fandazi}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+security:
+  jwt:
+    secret: ${JWT_SECRET}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:60}
+  session:
+    # 刷新成功后移动空闲截止；超过此天数未续期需重新输入密码。
+    idle-days: ${AUTH_SESSION_IDLE_DAYS:30}
+    # 自明确密码登录起固定上限，持续使用也不能无限延长同一会话。
+    absolute-days: ${AUTH_SESSION_ABSOLUTE_DAYS:180}
+
+seed:
+  # 正常启动不导入开发数据或旧外卖历史；显式开发夹具另行准备。
+  enabled: ${SEED_ENABLED:false}
+  path: ${SEED_PATH:../data/seed}
+
+seckill:
+  expiry:
+    # 生产每秒补偿到期订单；关闭仅用于受控维护/验收，不改变已建订单原支付截止。
+    enabled: ${SECKILL_EXPIRY_ENABLED:true}
+
+agent:
+  goal-recovery:
+    # AG04新2.3任务默认关闭；旧2.2任务继续按持久版本处理，不能由请求字段开启。
+    enabled: ${AGENT_GOAL_RECOVERY_ENABLED:false}
+  task-lifecycle:
+    # 双服务执行栅栏/许可未装配前默认关闭；只读目录和历史不会因此自动执行业务。
+    enabled: ${AGENT_TASK_LIFECYCLE_ENABLED:false}
+    # 自动协调只派发同一持久命令；六次/60秒后停止apply，仅允许回读权威事实。
+    reconcile-enabled: ${AGENT_TASK_RECONCILE_ENABLED:true}
+    # 网关插入与后台派发竞争时只读等待同一持久命令；限1至10000毫秒，不重发模型/控制或自动执行业务。
+    # 未提交/待核查返回503并保留原请求摘要，后续显式同键只接续原目标，读取目录和重连不触发接续。
+    insert-wait-ms: ${AGENT_TASK_INSERT_WAIT_MS:10000}
+  internal-token: ${AGENT_INTERNAL_TOKEN:}
+  service:
+    base-url: ${AGENT_SERVICE_URL:http://127.0.0.1:8091}
+    # Spring 对远端 Agent 2.3 能力的受控部署认知；必须与 Agent 自身开关同时发布，客户端字段不能修改。
+    goal-recovery-enabled: ${AGENT_SERVICE_GOAL_RECOVERY_ENABLED:false}
+    # B2 使用内部 2.0 单标签协议；回退时由受控部署变量显式选择旧版。
+    protocol-version: ${AGENT_SERVICE_PROTOCOL_VERSION:2.0}
+    # 新服务真实模型/DAG 可能超过旧 5 秒限制；优先采用新脚本毫秒变量，历史变量仍兼容。
+    timeout-millis: ${AGENT_SERVICE_TIMEOUT_MS:${AGENT_SERVICE_TIMEOUT_MILLIS:90000}}

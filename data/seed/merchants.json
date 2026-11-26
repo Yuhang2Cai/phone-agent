@@ -1,0 +1,14 @@
+[
+  {"name":"饭搭子盖饭社","category":"盖饭","minimumOrder":15,"deliveryFee":3,"deliveryMinutes":28,"open":true,"discountThreshold":30,"discountAmount":5},
+  {"name":"热辣快餐站","category":"快餐","minimumOrder":12,"deliveryFee":2,"deliveryMinutes":25,"open":true,"discountThreshold":25,"discountAmount":3},
+  {"name":"牛气面馆","category":"面食","minimumOrder":16,"deliveryFee":3,"deliveryMinutes":30,"open":true,"discountThreshold":35,"discountAmount":5},
+  {"name":"暖胃粥铺","category":"粥汤","minimumOrder":10,"deliveryFee":2,"deliveryMinutes":22,"open":true,"discountThreshold":20,"discountAmount":2},
+  {"name":"轻享沙拉","category":"轻食","minimumOrder":18,"deliveryFee":3,"deliveryMinutes":26,"open":true,"discountThreshold":40,"discountAmount":6},
+  {"name":"元气茶饮","category":"饮品","minimumOrder":10,"deliveryFee":2,"deliveryMinutes":20,"open":true,"discountThreshold":25,"discountAmount":3},
+  {"name":"街角小吃铺","category":"地方小吃","minimumOrder":12,"deliveryFee":3,"deliveryMinutes":32,"open":true,"discountThreshold":30,"discountAmount":4},
+  {"name":"川味下饭菜","category":"盖饭","minimumOrder":15,"deliveryFee":3,"deliveryMinutes":29,"open":true,"discountThreshold":35,"discountAmount":5},
+  {"name":"北方面点屋","category":"面食","minimumOrder":14,"deliveryFee":2,"deliveryMinutes":27,"open":true,"discountThreshold":28,"discountAmount":3},
+  {"name":"清润汤饭","category":"粥汤","minimumOrder":12,"deliveryFee":2,"deliveryMinutes":24,"open":true,"discountThreshold":25,"discountAmount":3},
+  {"name":"果蔬能量碗","category":"轻食","minimumOrder":20,"deliveryFee":3,"deliveryMinutes":31,"open":true,"discountThreshold":45,"discountAmount":6},
+  {"name":"夜宵小馆","category":"地方小吃","minimumOrder":15,"deliveryFee":4,"deliveryMinutes":35,"open":false,"discountThreshold":35,"discountAmount":5}
+]

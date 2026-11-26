@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- API27开始支持浅色系统导航栏；基础主题共享原设计，避免API26资源误用。 -->
+<resources>
+    <style name="Theme.FandaziAi" parent="Theme.FandaziAi.Base">
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+</resources>

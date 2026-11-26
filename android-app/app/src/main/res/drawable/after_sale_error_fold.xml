@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI21B右上角折页，尺寸和颜色来自已读取的39:9设计上下文。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#D4DBE7" />
+    <corners android:radius="5dp" />
+</shape>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Figma UI22A/G/H：白底导航、24dp边距、真实记录纵向列表与显式失败重试。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
+    android:background="@color/surface_card" android:paddingHorizontal="24dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="72dp" android:gravity="center_vertical">
+        <TextView android:id="@+id/memory_back" android:layout_width="48dp" android:layout_height="48dp"
+            android:gravity="center" android:text="‹" android:textSize="30sp" android:textColor="@color/group_buy_text" android:contentDescription="返回" />
+        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI记忆"
+            android:textSize="22sp" android:textStyle="bold" android:textColor="@color/group_buy_text" />
+    </LinearLayout>
+    <TextView android:id="@+id/memory_status" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:layout_marginTop="32dp" android:textSize="16sp" android:textColor="@color/group_buy_muted" />
+    <Button android:id="@+id/memory_retry" android:layout_width="match_parent" android:layout_height="48dp" android:text="重试"
+        android:background="@drawable/group_buy_primary_button" android:textColor="@color/surface_card" android:visibility="gone" />
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+        <LinearLayout android:id="@+id/memory_items" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+    </ScrollView>
+</LinearLayout>

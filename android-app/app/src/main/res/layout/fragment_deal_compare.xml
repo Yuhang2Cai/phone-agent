@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI16C–H：纵向事实可滚动、三项横滑；每列局部失败不抹掉其他事实，底部操作固定。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/group_buy_background" android:paddingHorizontal="20dp" android:paddingTop="24dp" android:paddingBottom="16dp"><TextView android:id="@+id/compare_back" style="@style/CompareText" android:layout_height="44dp" android:gravity="center_vertical" android:text="‹   套餐对比" android:textColor="@color/group_buy_green" android:textSize="18sp" android:textStyle="bold" android:contentDescription="返回选择" />
+<TextView android:id="@+id/compare_hint" style="@style/CompareText" android:textColor="@color/group_buy_muted" android:layout_marginBottom="12dp" />
+<ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true">
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+<LinearLayout android:id="@+id/compare_loading" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone" />
+<LinearLayout android:id="@+id/compare_error" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:visibility="gone">
+<TextView android:id="@+id/compare_error_message" style="@style/CompareText" android:text="网络请求失败。已选套餐仍保留，重试只重新读取事实。" />
+<TextView android:id="@+id/compare_retry_all" style="@style/CompareButton" android:text="重试" android:layout_marginTop="12dp" />
+<TextView android:id="@+id/compare_return" style="@style/CompareButton" android:text="返回选择" android:background="@drawable/compare_secondary" android:layout_marginTop="12dp" />
+<TextView style="@style/CompareCaption" android:text="部分套餐读取失败时，可单独重试。" android:layout_marginTop="12dp" />
+</LinearLayout>
+<HorizontalScrollView android:id="@+id/compare_horizontal" android:layout_width="match_parent" android:layout_height="wrap_content" android:scrollbars="none">
+<LinearLayout android:id="@+id/compare_columns" android:layout_width="wrap_content" android:layout_height="wrap_content" android:orientation="horizontal" />
+</HorizontalScrollView></LinearLayout></ScrollView>
+<LinearLayout android:id="@+id/compare_actions" android:layout_width="match_parent" android:layout_height="44dp" android:layout_marginTop="12dp">
+<TextView android:id="@+id/compare_ask" style="@style/CompareButton" android:layout_width="110dp" android:text="问AI" android:background="@drawable/compare_secondary" />
+<TextView android:id="@+id/compare_buy" style="@style/CompareButton" android:layout_width="0dp" android:layout_weight="1" android:layout_marginStart="12dp" android:text="查看购买" />
+</LinearLayout>
+<TextView android:id="@+id/compare_footer_note" style="@style/CompareCaption" android:text="选择套餐后，到详情核对最新报价。" android:layout_marginTop="12dp" />
+</LinearLayout>

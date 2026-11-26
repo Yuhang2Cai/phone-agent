@@ -1,0 +1,26 @@
+# AG07获批复验分段；父驱动在每段后核真实来源和账本，失败不得执行下一文件。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/agent_order_action
+    text: 确认
+    enabled: true
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_progress_card
+    timeout: 180000
+# 进度卡消失也可能是429/503失败；必须看见当前待支付订单卡才允许发后续退款输入。
+# 此断言只阻止继续，最终唯一写仍须数据库回读；不把UI订单卡代替业务事实。
+# 建单返回支付授权时，实际停在“确认模拟支付”；先核服务驱动的待支付订单卡。
+# 金额/唯一执行仍由父驱动账本核验，不能再点击支付确认。
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_meta
+      text: "待支付.*"
+    timeout: 30000
+- assertVisible:
+    id: com.fandazi.app:id/agent_order_action
+    text: 查看订单
+- assertNotVisible: 本次执行暂不可用，请稍后再试；已有任务进度保留
+
+- takeScreenshot: ag07-rv-order-confirmed

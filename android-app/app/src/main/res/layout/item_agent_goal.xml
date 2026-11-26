@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AG04 目标结果卡：只绑定服务端公开描述、条件标签和资源摘要，不显示目标ID或内部版本。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp"
+    android:background="@drawable/agent_task_card"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/agent_goal_item_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/group_buy_text"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/agent_goal_item_status"
+        style="@style/AgentTaskCaption"
+        android:layout_marginTop="7dp"
+        android:textColor="@color/group_buy_orange" />
+
+    <TextView
+        android:id="@+id/agent_goal_item_description"
+        style="@style/AgentTaskBody"
+        android:layout_marginTop="12dp" />
+
+    <TextView
+        android:id="@+id/agent_goal_item_resource"
+        style="@style/AgentTaskCaption"
+        android:layout_marginTop="10dp"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/agent_goal_item_completed"
+        style="@style/AgentTaskCaption"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/success_green"
+        android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/agent_goal_item_missing"
+        style="@style/AgentTaskCaption"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/warning_red"
+        android:visibility="gone" />
+</LinearLayout>

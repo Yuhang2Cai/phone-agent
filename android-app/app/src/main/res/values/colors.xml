@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_yellow">#FFB347</color>
+    <color name="brand_orange">#FF6A2A</color>
+    <color name="brand_orange_soft">#FFF0E9</color>
+    <color name="ai_purple">#635BFF</color>
+    <color name="ai_purple_soft">#F0EEFF</color>
+    <color name="brand_muted">#68707D</color>
+    <color name="brand_weak">#9AA1AB</color>
+    <color name="brand_divider">#EEF0F2</color>
+    <color name="brand_ink">#1F2329</color>
+    <color name="surface_background">#F7F8FA</color>
+    <color name="surface_card">#FFFFFF</color>
+    <color name="success_green">#18A058</color>
+    <color name="warning_red">#E5484D</color>
+    <!-- 已确认五 Tab 的未选中图标与文字颜色。 -->
+    <color name="bottom_nav_unselected">#6B7585</color>
+    <color name="home_background">#FFF9F3</color>
+    <color name="home_ink">#281713</color>
+    <color name="home_secondary">#766B70</color>
+    <color name="home_warm_muted">#A48476</color>
+    <color name="home_orange">#FF6426</color>
+    <color name="home_purple">#7657E8</color>
+    <!-- 团购改版的基础色与 Figma Design Tokens 保持一致。 -->
+    <color name="group_buy_green">#092E29</color>
+    <color name="group_buy_orange">#FF4F2E</color>
+    <color name="group_buy_background">#FAF7F0</color>
+    <color name="group_buy_text">#141A1F</color>
+    <color name="group_buy_muted">#6B7585</color>
+    <color name="group_buy_line">#E5E8EB</color>
+    <color name="group_buy_discount">#FFEAE3</color>
+    <!-- 售后页面从已确认 Figma 画板提取，分别用于背景、正文和次级说明。 -->
+    <color name="after_sale_background">#FBFAF8</color>
+    <color name="after_sale_ink">#091D24</color>
+    <color name="after_sale_muted">#768398</color>
+    <color name="after_sale_input">#F5F6F8</color>
+</resources>

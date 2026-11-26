@@ -1,0 +1,10 @@
+# 原券重试读取恢复后仍核对真实编号和金额。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: "com.fandazi.app:id/voucher_detail_retry"
+- extendedWaitUntil:
+    visible: ".*${TASK7_VOUCHER_A}.*"
+    timeout: 30000
+- assertVisible: ".*本券实付.*71.23.*"
+- takeScreenshot: "voucher-network-recovered"

@@ -1,0 +1,17 @@
+# 数量2当前卡仍可合法取消；滚回当前摘要，结束后只读核对同run已取消，不执行任何确认交易。
+appId: com.fandazi.app
+---
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/agent_order_meta"
+      text: "(?s).*数量：2.*"
+    direction: DOWN
+    timeout: 15000
+- takeScreenshot: "task5-fixround1-current-actions"
+- tapOn: "取消本次操作"
+- extendedWaitUntil:
+    visible: ".*已取消.*"
+    timeout: 90000
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_card"
+- takeScreenshot: "task5-fixround1-current-cancelled"

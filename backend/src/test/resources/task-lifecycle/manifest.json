@@ -1,0 +1,18 @@
+{
+  "fixture_version": 2,
+  "spec_version": "ag03-task-lifecycle-r2",
+  "spec_sha256": "1af650659868e21803cfb8c93b3e88317c0bec6ceef6a317a2f424f57fc52a55",
+  "agent_master": "58a3314973c611e1482612a1863b5f9d8352afe8",
+  "phone_master": "0b057716667b183677682e225153b8c513df1ca5",
+  "scenario_count": 26,
+  "intent_count": 13,
+  "component_count": 78,
+  "synthetic_only": true,
+  "identity_policy": "既有task冻结ID，新task验证服务端创建/不同身份，不让客户端指定新ID",
+  "files": {
+    "scenarios.yaml": "64701aca2064c768f4f12f22315bc75e83984d65fbc8e5d93138a1834044326e",
+    "intent13_matrix.yaml": "e6bbf9132a6a8b08b14211707b78ad3e9a4c87888e13c74516c41abef134461a"
+  },
+  "previous_spec_sha256": "301f8219ecf7500e33a3e724c8dc24ee0060c7f80fe01339cf5501857ad226e2",
+  "revision_note": "TL09退出r3冻结后补充原S07唯一公开目标与零误切安全说明；仅更新规格摘要，26场景和十三类矩阵金标原始摘要保持；旧TL00/r3冻结及结果不覆盖。"
+}

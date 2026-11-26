@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 发送状态仅由手动发送资格决定，录音/识别/空草稿期间呈现灰色，避免暗示自动提交。 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="true"><shape android:shape="oval"><solid android:color="@color/group_buy_orange" /></shape></item>
+    <item><shape android:shape="oval"><solid android:color="@color/group_buy_muted" /></shape></item>
+</selector>

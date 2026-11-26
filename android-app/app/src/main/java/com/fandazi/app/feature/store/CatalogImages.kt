@@ -1,0 +1,76 @@
+// 浏览缩略图模块：复用 Glide 和售后大图加载器，小尺寸区域使用清晰符号而非无法容纳的两行状态文字。
+package com.fandazi.app.feature.store
+
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.widget.ImageView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.signature.ObjectKey
+import com.fandazi.app.core.image.CatalogImageRequestOptions
+import com.fandazi.app.core.image.CatalogImageRequestPolicy
+import com.fandazi.app.core.image.CatalogImageRequestMode
+import com.fandazi.app.core.image.CatalogImageAccess
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
+import com.fandazi.app.core.image.CatalogImageUrls
+
+/** 48dp 套餐缩略图专用适配，不生成业务餐图；大图沿用既有实际 URL 加载行为。 */
+object CatalogImages {
+    /** 实际图片成功后显示原图；缺图刷新元数据，加载失败只重试同一 URL。 */
+    fun thumbnail(image: ImageView, url: String?, alt: String?, refresh: () -> Unit) {
+        thumbnail(image,url,alt,CatalogImageRequestOptions(),refresh)
+    }
+
+    /** 小图同样支持稳定版本与归属；普通请求保留已有默认缓存，不增加无依据尺寸覆盖。 */
+    fun thumbnail(image:ImageView,url:String?,alt:String?,options:CatalogImageRequestOptions,refresh:()->Unit) {
+        // 取消旧请求和点击监听，后续缺图/失败分支只绑定当前条目的局部刷新。
+        Glide.with(image).clear(image)
+        image.setOnClickListener(null)
+        image.isClickable=false
+        // 公开站内小图选择Task13固定派生；私人访问保持原资源路径，不按公开目录约定改写。
+        val source = if(options.access==CatalogImageAccess.Public) CatalogImageUrls.thumbnail(url) else CatalogImageUrls.resolve(url)
+        if (source == null) {
+            state(image, if(options.onlyFromCache)"图片未缓存"else "暂无图片，点击刷新", android.R.drawable.ic_menu_gallery)
+            if(!options.onlyFromCache)image.setOnClickListener { refresh() }
+            return
+        }
+        state(image, "图片加载中", android.R.drawable.ic_menu_gallery)
+        image.setOnClickListener(null)
+        // 占位只使用图库符号，状态通过无障碍文本表达；小区域不缩放文字或叠放两行说明。
+        val plan=CatalogImageRequestPolicy.resolve(options)
+        Glide.with(image).load(source).onlyRetrieveFromCache(options.onlyFromCache).placeholder(image.drawable)
+            .signature(ObjectKey(plan.signature))
+            .skipMemoryCache(!plan.cacheEnabled)
+            .diskCacheStrategy(if(plan.cacheEnabled) DiskCacheStrategy.AUTOMATIC else DiskCacheStrategy.NONE)
+            .listener(object : RequestListener<Drawable> {
+                /** 失败保留中性告警符号，用户点击再请求，避免自动重试循环。 */
+                override fun onLoadFailed(error: GlideException?, model: Any?, target: Target<Drawable>, first: Boolean): Boolean {
+                    if(options.onlyFromCache)com.fandazi.app.core.cache.CatalogCacheBanner.imageMissing(image)
+                    state(image, if(options.onlyFromCache)"图片未缓存"else "图片加载失败，点击重试", android.R.drawable.ic_dialog_alert)
+                    if(!options.onlyFromCache)image.setOnClickListener { thumbnail(image, source, alt, options.copy(mode=CatalogImageRequestMode.RETRY), refresh) }
+                    return true
+                }
+                /** 原始图片不应用占位灰色滤镜；图片描述来自当前套餐，不借用其他餐图。 */
+                override fun onResourceReady(resource: Drawable, model: Any, target: Target<Drawable>?, dataSource: DataSource, first: Boolean): Boolean {
+                    image.imageTintList = null
+                    image.scaleType = ImageView.ScaleType.CENTER_CROP
+                    image.contentDescription = alt?.takeUnless { it.isBlank() } ?: "套餐图片"
+                    image.setOnClickListener(null); image.isClickable = false
+                    return false
+                }
+            }).into(image)
+    }
+
+    /** 图库/告警符号与中性底明确表示未知或失败，不当作真实业务照片。 */
+    private fun state(image: ImageView, description: String, icon: Int) {
+        image.setBackgroundColor(Color.rgb(238, 241, 244))
+        image.scaleType = ImageView.ScaleType.CENTER_INSIDE
+        image.imageTintList = ColorStateList.valueOf(Color.rgb(137, 147, 157))
+        image.setImageResource(icon)
+        image.contentDescription = description
+    }
+}

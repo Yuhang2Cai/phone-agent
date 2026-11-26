@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI17来源组件：固定70dp与原12dp边距，白底8dp圆角；动态文本不含演示业务事实。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/catalog_cache_banner" android:layout_width="match_parent" android:layout_height="70dp" android:layout_marginHorizontal="12dp" android:layout_marginTop="2dp" android:layout_marginBottom="10dp" android:background="@drawable/catalog_cache_banner" android:orientation="vertical" android:paddingHorizontal="12dp" android:paddingVertical="10dp" android:visibility="gone">
+    <TextView android:id="@+id/catalog_cache_title" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="14sp" android:textStyle="bold" android:textColor="@color/group_buy_green" />
+    <TextView android:id="@+id/catalog_cache_subtitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:textSize="12sp" android:maxLines="2" android:textColor="@color/group_buy_muted" />
+</LinearLayout>

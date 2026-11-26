@@ -1,0 +1,18 @@
+appId: com.fandazi.app
+---
+# 使用本轮真实服务的复合只读请求，截取完成前的进度状态并对照已确认设计。
+- runFlow: flows/intent13-login.yaml
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_input
+- setClipboard: 查询我的团购订单，另外告诉我团购券退款规则。
+- pasteText
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_send
+- extendedWaitUntil:
+    visible: 任务进度
+    timeout: 30000
+- takeScreenshot: intent13-b2-active-progress
+- extendedWaitUntil:
+    visible: ".*查询到.*订单记录.*"
+    timeout: 90000
+- assertNotVisible: 任务进度

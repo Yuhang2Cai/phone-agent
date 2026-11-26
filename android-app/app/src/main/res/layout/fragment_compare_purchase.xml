@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI16J只展示重新读取的事实并明确进入详情；此页无报价或订单写入代码。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/group_buy_background" android:paddingHorizontal="20dp" android:paddingTop="24dp" android:paddingBottom="16dp"><TextView android:id="@+id/compare_back" style="@style/CompareText" android:layout_height="44dp" android:gravity="center_vertical" android:text="‹   查看购买" android:textColor="@color/group_buy_green" android:textSize="18sp" android:textStyle="bold" android:contentDescription="返回选择" />
+<TextView style="@style/CompareText" android:textColor="@color/group_buy_muted" android:text="选择套餐，查看最新详情与报价。" android:layout_marginBottom="12dp" />
+<androidx.recyclerview.widget.RecyclerView android:id="@+id/compare_purchase_list" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" />
+<TextView android:id="@+id/compare_purchase_notice" style="@style/CompareCaption" android:text="请在套餐详情核对最新信息并确认购买。" android:layout_marginTop="12dp" />
+<TextView android:id="@+id/compare_purchase_return" style="@style/CompareButton" android:text="返回对比 · 保留选择" android:background="@drawable/compare_secondary" android:layout_marginTop="12dp" />
+</LinearLayout>

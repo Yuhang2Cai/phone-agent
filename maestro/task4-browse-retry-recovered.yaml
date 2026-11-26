@@ -1,0 +1,10 @@
+# Task4 原地重试阶段：保持上一流程错误页面，Spring恢复后点原入口查询，不重新启动App绕过重试。
+appId: com.fandazi.app
+---
+- tapOn: "门店加载失败，点击重试"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/store_name"
+    timeout: 30000
+- assertNotVisible: "门店加载失败，点击重试"
+- takeScreenshot: "browse-network-recovered"

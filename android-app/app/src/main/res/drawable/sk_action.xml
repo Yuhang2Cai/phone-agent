@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀用户端确认稿原生布局；业务文字和状态由服务器快照绑定。 -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false" android:drawable="@drawable/sk_bg_disabled"/>
+    <item android:drawable="@drawable/sk_bg_orange"/>
+</selector>

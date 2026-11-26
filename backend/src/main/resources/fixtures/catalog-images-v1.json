@@ -1,0 +1,3728 @@
+{
+  "schemaVersion": 1,
+  "catalogVersion": "2026-10-04-demo-photo-v1",
+  "dataSnapshotSha256": "43F365548561164E36A26C46D1E04EE2CC9279007521A1E66C26C8878172D547",
+  "auditSha256": "6795E9887DCE806FB54B22AEC01E96C034B107E5DC26271524F4FE5038678668",
+  "scope": "当前活动目录；保留 inactive 历史隔离夹具原值",
+  "images": [
+    {
+      "imageId": "avocado-bowl",
+      "url": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/avocado-bowl-d522dfaa354d.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3A-365%20power%20bowl%20%2826679400346%29.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/b/b5/-365_power_bowl_%2826679400346%29.jpg",
+      "photographer": "terri_bateman",
+      "licenseName": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 原图",
+      "sourceSha256": "D522DFAA354D6283E470602F749C1C9DAC1EE3B63F9726C1B69ED5D906E11C6F",
+      "sourceWidth": 528,
+      "sourceHeight": 960,
+      "sourceFilename": "avocado-bowl.jpg",
+      "visualReview": "牛油果和蔬菜可见；原摄影说明为藜麦能量碗，藜麦被其他食材遮挡。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "beef-noodle",
+      "url": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/beef-noodle-42f34ebef0e9.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://unsplash.com/photos/bowl-of-beef-noodle-soup-with-scallions-miKf7cxk53o",
+      "sourceUrl": "https://images.unsplash.com/photo-1766375884856-94b00dc91276?fm=jpg&w=1200&q=82",
+      "photographer": "Lee Milo",
+      "licenseName": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "1200px JPEG 固定派生源",
+      "sourceSha256": "42F34EBEF0E9DCD84242429D1B0C5BE4B8C7BC18578BF237C046E35B0758EFC0",
+      "sourceWidth": 1200,
+      "sourceHeight": 800,
+      "sourceFilename": "beef-noodle.jpg",
+      "visualReview": "牛肉汤面可见；鲜椒调味无法仅从照片证明。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "chicken-leg-rice",
+      "url": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/chicken-leg-rice-96290f2ebb70.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://unsplash.com/photos/grilled-chicken-leg-with-rice-and-stir-fried-vegetables-pvqcYluq7UI",
+      "sourceUrl": "https://images.unsplash.com/photo-1772693471187-6e7d364f99ee?fm=jpg&w=1200&q=82",
+      "photographer": "Mohammad Fahim",
+      "licenseName": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "1200px JPEG 固定派生源",
+      "sourceSha256": "96290F2EBB70510C97BE72A961CD6593F371B2F182765853410D5D0882C1A289",
+      "sourceWidth": 1200,
+      "sourceHeight": 800,
+      "sourceFilename": "chicken-leg-rice.jpg",
+      "visualReview": "鸡腿、米饭和时蔬可见；辣味无法仅从照片证明。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "chicken-skewers",
+      "url": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/chicken-skewers-d5a950e3b8a6.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3ADak-kkochi%202.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/fa/Dak-kkochi_2.jpg",
+      "photographer": "Ajumeoni",
+      "licenseName": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 原图",
+      "sourceSha256": "D5A950E3B8A6236BB59A144880FCDA7D15F48A0C0033742CC913B6D280300453",
+      "sourceWidth": 2759,
+      "sourceHeight": 3863,
+      "sourceFilename": "chicken-skewers.jpg",
+      "visualReview": "烤鸡肉串可见；孜然和辣度不以照片证明。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "chili-chicken-rice",
+      "url": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/chili-chicken-rice-5ec12eff9907.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://unsplash.com/photos/spicy-chicken-and-rice-bowl-with-cucumber-and-onion-KnIeqQyEi2E",
+      "sourceUrl": "https://images.unsplash.com/photo-1775039984426-544b16dc2993?fm=jpg&w=1200&q=82",
+      "photographer": "Zayed Ahmed Zadu",
+      "licenseName": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "1200px JPEG 固定派生源",
+      "sourceSha256": "5EC12EFF990789BD0DE44437259E7A8C365CF3A341DC17AC4C5BFC9B86748093",
+      "sourceWidth": 1200,
+      "sourceHeight": 800,
+      "sourceFilename": "chili-chicken-rice.jpg",
+      "visualReview": "鸡肉、米饭和青椒可见；拍摄菜式含额外配菜。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "chili-oil-dumplings",
+      "url": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/chili-oil-dumplings-f23e6309e573.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://unsplash.com/photos/a-plate-of-food-on-a-table-with-a-bowl-of-soup-YI7OdGvcudc",
+      "sourceUrl": "https://images.unsplash.com/photo-1707895601261-d436b178b50e?fm=jpg&w=1200&q=82",
+      "photographer": "Inna Safa",
+      "licenseName": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "1200px JPEG 固定派生源",
+      "sourceSha256": "F23E6309E573FBE0CF5B628B311B0CFBD1781A88761247014D172EABA2EF9783",
+      "sourceWidth": 1200,
+      "sourceHeight": 2243,
+      "sourceFilename": "chili-oil-dumplings.jpg",
+      "visualReview": "摄影者说明为红油饺形面食；作为红油抄手主体示意。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "dim-sum",
+      "url": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/dim-sum-7b62b7c9c192.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3ADim%20Sum%20Breakfast.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/f/f6/Dim_Sum_Breakfast.jpg",
+      "photographer": "afterdog",
+      "licenseName": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 原图",
+      "sourceSha256": "7B62B7C9C1922CB0CB39F6720D84CDE872BD3D673D530E46AB0A6E3E1C9D5A6F",
+      "sourceWidth": 4032,
+      "sourceHeight": 3024,
+      "sourceFilename": "dim-sum.jpg",
+      "visualReview": "多种蒸点可见；套餐饮品不在这张主菜照片中。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "grilled-chicken-salad",
+      "url": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://unsplash.com/photos/chicken-salad-with-croutons-and-pomegranate-seeds-M3cNCGLf2NE",
+      "sourceUrl": "https://images.unsplash.com/photo-1760888549075-0b9727e07735?fm=jpg&w=1200&q=82",
+      "photographer": "Rodrigo Rodrigues",
+      "licenseName": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "1200px JPEG 固定派生源",
+      "sourceSha256": "661B8CE0FA07493C369D77E2E0A5D3EBE7416EF98F14BD4A7A463F4D03F4C6C4",
+      "sourceWidth": 1200,
+      "sourceHeight": 1800,
+      "sourceFilename": "grilled-chicken-salad.jpg",
+      "visualReview": "鸡肉、生菜和沙拉可见；配菜与演示配方不必完全相同。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "hot-pot",
+      "url": "/catalog-images/v1/full/hot-pot-d9d6e6ba4370.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/hot-pot-d9d6e6ba4370.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3AHot%20pot%202.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/8/81/Hot_pot_2.jpg",
+      "photographer": "3steph14",
+      "licenseName": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 原图",
+      "sourceSha256": "D9D6E6BA43702D332661FB9AC7CC3C157E764FE55152A1C96D9671C9B3FBEB2D",
+      "sourceWidth": 4032,
+      "sourceHeight": 3024,
+      "sourceFilename": "hot-pot.jpg",
+      "visualReview": "火锅锅体与食材可见；具体锅底调味不以照片证明。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "lemongrass-chicken-soup",
+      "url": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File:Lemongrass_chicken_soup_(4428214852).jpg",
+      "sourceUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Lemongrass_chicken_soup_%284428214852%29.jpg/960px-Lemongrass_chicken_soup_%284428214852%29.jpg",
+      "photographer": "jeffreyw",
+      "licenseName": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 官方 960px 派生源",
+      "sourceSha256": "B3E2697BAD3A445C33F738834AA306455C76655AAB6704A1256F66A1CC0EB6FB",
+      "sourceWidth": 960,
+      "sourceHeight": 638,
+      "sourceFilename": "lemongrass-chicken-soup.jpg",
+      "visualReview": "鸡肉、菌菇、米饭和汤汁可见；来源菜式另含香茅。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "mapo-tofu-rice",
+      "url": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3A%E9%BA%BB%E5%A9%86%E8%B1%86%E8%85%90%E9%85%8D%E9%A5%AD%20Mapo%20Tofu%20with%20Rice%20-%20Dumplings%20Plus%20%282953285492%29.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/6/64/%E9%BA%BB%E5%A9%86%E8%B1%86%E8%85%90%E9%85%8D%E9%A5%AD_Mapo_Tofu_with_Rice_-_Dumplings_Plus_%282953285492%29.jpg",
+      "photographer": "Alpha from Melbourne, Australia",
+      "licenseName": "CC BY-SA 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 原图",
+      "sourceSha256": "C36B3FAC60B616C3226039FF2132A3B974F95FB6C09037A5E97CF3F82CE38171",
+      "sourceWidth": 2048,
+      "sourceHeight": 1536,
+      "sourceFilename": "mapo-tofu-rice.jpg",
+      "visualReview": "麻婆豆腐和米饭可见；来源说明与照片主体一致。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "milk-tea",
+      "url": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/milk-tea-7d6607552ce5.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3AFresh%20Milk%20Tea%201.jpg",
+      "sourceUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9b/Fresh_Milk_Tea_1.jpg/960px-Fresh_Milk_Tea_1.jpg",
+      "photographer": "Gaurav Dhwaj Khadka",
+      "licenseName": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 官方 960px 派生源",
+      "sourceSha256": "7D6607552CE5263550305175E2C665EA27553269E24906EBC5B8BD9AAD80A103",
+      "sourceWidth": 960,
+      "sourceHeight": 1280,
+      "sourceFilename": "milk-tea.jpg",
+      "visualReview": "奶茶可见；桂花与乌龙茶底不能仅从照片证明。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "pumpkin-millet",
+      "url": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/pumpkin-millet-b8963b53efce.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3A%D0%93%D0%B0%D1%80%D0%B1%D1%83%D0%B7%D0%BE%D0%B2%D0%BE-%D0%BF%D1%88%D0%BE%D0%BD%D1%8F%D0%BD%D0%B0%20%D0%BA%D0%B0%D1%88%D0%B0.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/4/44/%D0%93%D0%B0%D1%80%D0%B1%D1%83%D0%B7%D0%BE%D0%B2%D0%BE-%D0%BF%D1%88%D0%BE%D0%BD%D1%8F%D0%BD%D0%B0_%D0%BA%D0%B0%D1%88%D0%B0.jpg",
+      "photographer": "Samurai2593",
+      "licenseName": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 原图",
+      "sourceSha256": "B8963B53EFCE45C31CC419D03E6A67C675D7D4781FC87AB5A66FF0835F357D04",
+      "sourceWidth": 4608,
+      "sourceHeight": 3072,
+      "sourceFilename": "pumpkin-millet.jpg",
+      "visualReview": "南瓜小米粥可见；来源说明与照片主体一致。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "tomato-egg-noodles",
+      "url": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/tomato-egg-noodles-aaec774a72d9.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3ATomato%20scrambled%20eggs%20noodles.jpg",
+      "sourceUrl": "https://upload.wikimedia.org/wikipedia/commons/d/d4/Tomato_scrambled_eggs_noodles.jpg",
+      "photographer": "Fumikas Sagisavas",
+      "licenseName": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 原图",
+      "sourceSha256": "AAEC774A72D9591E73B88AEE30E5CC3BC5979799CF434C9B34EF50F4FDBF80F6",
+      "sourceWidth": 4096,
+      "sourceHeight": 3072,
+      "sourceFilename": "tomato-egg-noodles.jpg",
+      "visualReview": "番茄、鸡蛋和面条可见；来源说明与照片主体一致。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    },
+    {
+      "imageId": "vegetable-rice",
+      "url": "/catalog-images/v1/full/vegetable-rice-de2d10fae70e.jpg",
+      "thumbnailUrl": "/catalog-images/v1/thumb/vegetable-rice-de2d10fae70e.jpg",
+      "contentReviewed": true,
+      "sourcePage": "https://commons.wikimedia.org/wiki/File%3AVegetable%20rice%20image.jpg",
+      "sourceUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/9/92/Vegetable_rice_image.jpg/960px-Vegetable_rice_image.jpg",
+      "photographer": "safaritravelplus",
+      "licenseName": "CC0",
+      "licenseUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "acquiredAt": "2026-10-04",
+      "acquiredVariant": "Commons 官方 960px 派生源",
+      "sourceSha256": "DE2D10FAE70E518A60FF1D7784E09C94F253A76981EFC2F5D6B39194F1F49A9A",
+      "sourceWidth": 960,
+      "sourceHeight": 640,
+      "sourceFilename": "vegetable-rice.jpg",
+      "visualReview": "蔬菜米饭可见；套餐其他小菜不在这张主菜照片中。",
+      "reviewDecision": "菜品主体匹配；调味或未入镜配菜不以照片证明"
+    }
+  ],
+  "entities": [
+    {
+      "entityType": "dish",
+      "entityId": "1",
+      "expectedName": "招牌辣椒鸡盖饭 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "10",
+      "expectedName": "招牌辣椒鸡盖饭 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "100",
+      "expectedName": "菌菇鸡汤饭 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "101",
+      "expectedName": "牛油果能量碗 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "102",
+      "expectedName": "牛油果能量碗 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "103",
+      "expectedName": "牛油果能量碗 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "104",
+      "expectedName": "牛油果能量碗 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "105",
+      "expectedName": "牛油果能量碗 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "106",
+      "expectedName": "牛油果能量碗 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "107",
+      "expectedName": "牛油果能量碗 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "108",
+      "expectedName": "牛油果能量碗 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "109",
+      "expectedName": "牛油果能量碗 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "11",
+      "expectedName": "香辣鸡腿套餐 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "110",
+      "expectedName": "牛油果能量碗 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛油果与蔬菜碗；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "111",
+      "expectedName": "炭烤小串 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "112",
+      "expectedName": "炭烤小串 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "113",
+      "expectedName": "炭烤小串 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "114",
+      "expectedName": "炭烤小串 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "115",
+      "expectedName": "炭烤小串 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "116",
+      "expectedName": "炭烤小串 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "117",
+      "expectedName": "炭烤小串 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "118",
+      "expectedName": "炭烤小串 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "119",
+      "expectedName": "炭烤小串 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "12",
+      "expectedName": "香辣鸡腿套餐 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "120",
+      "expectedName": "炭烤小串 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉烤串；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "13",
+      "expectedName": "香辣鸡腿套餐 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "14",
+      "expectedName": "香辣鸡腿套餐 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "15",
+      "expectedName": "香辣鸡腿套餐 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "16",
+      "expectedName": "香辣鸡腿套餐 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "17",
+      "expectedName": "香辣鸡腿套餐 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "18",
+      "expectedName": "香辣鸡腿套餐 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "19",
+      "expectedName": "香辣鸡腿套餐 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "2",
+      "expectedName": "招牌辣椒鸡盖饭 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "20",
+      "expectedName": "香辣鸡腿套餐 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡腿、米饭和时蔬；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "21",
+      "expectedName": "鲜椒牛肉面 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "22",
+      "expectedName": "鲜椒牛肉面 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "23",
+      "expectedName": "鲜椒牛肉面 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "24",
+      "expectedName": "鲜椒牛肉面 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "25",
+      "expectedName": "鲜椒牛肉面 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "26",
+      "expectedName": "鲜椒牛肉面 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "27",
+      "expectedName": "鲜椒牛肉面 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "28",
+      "expectedName": "鲜椒牛肉面 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "29",
+      "expectedName": "鲜椒牛肉面 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "3",
+      "expectedName": "招牌辣椒鸡盖饭 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "30",
+      "expectedName": "鲜椒牛肉面 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：牛肉汤面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "31",
+      "expectedName": "南瓜小米粥 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "32",
+      "expectedName": "南瓜小米粥 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "33",
+      "expectedName": "南瓜小米粥 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "34",
+      "expectedName": "南瓜小米粥 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "35",
+      "expectedName": "南瓜小米粥 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "36",
+      "expectedName": "南瓜小米粥 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "37",
+      "expectedName": "南瓜小米粥 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "38",
+      "expectedName": "南瓜小米粥 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "39",
+      "expectedName": "南瓜小米粥 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "4",
+      "expectedName": "招牌辣椒鸡盖饭 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "40",
+      "expectedName": "南瓜小米粥 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库菜品实拍示意：南瓜小米粥；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "41",
+      "expectedName": "香煎鸡胸沙拉 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "42",
+      "expectedName": "香煎鸡胸沙拉 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "43",
+      "expectedName": "香煎鸡胸沙拉 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "44",
+      "expectedName": "香煎鸡胸沙拉 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "45",
+      "expectedName": "香煎鸡胸沙拉 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "46",
+      "expectedName": "香煎鸡胸沙拉 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "47",
+      "expectedName": "香煎鸡胸沙拉 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "48",
+      "expectedName": "香煎鸡胸沙拉 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "49",
+      "expectedName": "香煎鸡胸沙拉 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "5",
+      "expectedName": "招牌辣椒鸡盖饭 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "50",
+      "expectedName": "香煎鸡胸沙拉 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_4.jpg",
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉蔬菜沙拉；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "51",
+      "expectedName": "桂花乌龙奶茶 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "52",
+      "expectedName": "桂花乌龙奶茶 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "53",
+      "expectedName": "桂花乌龙奶茶 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "54",
+      "expectedName": "桂花乌龙奶茶 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "55",
+      "expectedName": "桂花乌龙奶茶 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "56",
+      "expectedName": "桂花乌龙奶茶 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "57",
+      "expectedName": "桂花乌龙奶茶 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "58",
+      "expectedName": "桂花乌龙奶茶 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "59",
+      "expectedName": "桂花乌龙奶茶 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "6",
+      "expectedName": "招牌辣椒鸡盖饭 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "60",
+      "expectedName": "桂花乌龙奶茶 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_5.jpg",
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库菜品实拍示意：奶茶；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "61",
+      "expectedName": "红油抄手 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "62",
+      "expectedName": "红油抄手 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "63",
+      "expectedName": "红油抄手 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "64",
+      "expectedName": "红油抄手 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "65",
+      "expectedName": "红油抄手 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "66",
+      "expectedName": "红油抄手 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "67",
+      "expectedName": "红油抄手 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "68",
+      "expectedName": "红油抄手 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "69",
+      "expectedName": "红油抄手 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "7",
+      "expectedName": "招牌辣椒鸡盖饭 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "70",
+      "expectedName": "红油抄手 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库菜品实拍示意：红油饺形面食；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "71",
+      "expectedName": "麻婆豆腐盖饭 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "72",
+      "expectedName": "麻婆豆腐盖饭 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "73",
+      "expectedName": "麻婆豆腐盖饭 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "74",
+      "expectedName": "麻婆豆腐盖饭 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "75",
+      "expectedName": "麻婆豆腐盖饭 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "76",
+      "expectedName": "麻婆豆腐盖饭 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "77",
+      "expectedName": "麻婆豆腐盖饭 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "78",
+      "expectedName": "麻婆豆腐盖饭 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "79",
+      "expectedName": "麻婆豆腐盖饭 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "8",
+      "expectedName": "招牌辣椒鸡盖饭 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "80",
+      "expectedName": "麻婆豆腐盖饭 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_1.jpg",
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库菜品实拍示意：豆腐和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "81",
+      "expectedName": "番茄鸡蛋面 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "82",
+      "expectedName": "番茄鸡蛋面 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "83",
+      "expectedName": "番茄鸡蛋面 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "84",
+      "expectedName": "番茄鸡蛋面 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "85",
+      "expectedName": "番茄鸡蛋面 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "86",
+      "expectedName": "番茄鸡蛋面 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "87",
+      "expectedName": "番茄鸡蛋面 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "88",
+      "expectedName": "番茄鸡蛋面 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "89",
+      "expectedName": "番茄鸡蛋面 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "9",
+      "expectedName": "招牌辣椒鸡盖饭 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉、米饭和青椒；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "90",
+      "expectedName": "番茄鸡蛋面 10",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_2.jpg",
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库菜品实拍示意：番茄鸡蛋面；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "91",
+      "expectedName": "菌菇鸡汤饭 1",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "92",
+      "expectedName": "菌菇鸡汤饭 2",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "93",
+      "expectedName": "菌菇鸡汤饭 3",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "94",
+      "expectedName": "菌菇鸡汤饭 4",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "95",
+      "expectedName": "菌菇鸡汤饭 5",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "96",
+      "expectedName": "菌菇鸡汤饭 6",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "97",
+      "expectedName": "菌菇鸡汤饭 7",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "98",
+      "expectedName": "菌菇鸡汤饭 8",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "dish",
+      "entityId": "99",
+      "expectedName": "菌菇鸡汤饭 9",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_3.jpg",
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库菜品实拍示意：鸡肉菌菇汤和米饭；非演示门店实拍"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "009e9254-d4ff-4408-b2d8-44b01d938ebc",
+      "storePublicId": "cf0cbf6c-8e5f-48c9-b24e-c93d10bf2a2f",
+      "storeName": "夜色烧烤宝山店",
+      "expectedName": "四人夜宵烧烤套餐 4",
+      "expectedDescription": "四人烧烤组合，营业时间内到店使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉烤串；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡肉烤串×4",
+        "烤时蔬×4"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "0230a0d7-8e03-4b85-ba83-cdf21da4074b",
+      "storePublicId": "dda51e5c-b8a8-4cde-98db-5fd061844900",
+      "storeName": "椒香里长宁店",
+      "expectedName": "双人椒香套餐 1",
+      "expectedDescription": "双人川味套餐，支持堂食核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：椒香麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "椒香麻婆豆腐配饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "034e33bc-7dbe-43ad-85a6-9cea56a05b3d",
+      "storePublicId": "bb445c6e-dc91-4a38-83d9-2faee8029a98",
+      "storeName": "北岸蒸味闵行店",
+      "expectedName": "双人点心套餐 3",
+      "expectedDescription": "两人点心组合，限营业时间使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "dim-sum",
+      "imageUrl": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：蒸点；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "蒸点×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "0445b85f-cf8b-4e2d-bf4e-9f7cd09c586c",
+      "storePublicId": "97baea6e-3dc9-4251-bb8a-e0593018e223",
+      "storeName": "北岸蒸味虹口店",
+      "expectedName": "早餐点心套餐 4",
+      "expectedDescription": "两人蒸点和饮品组合，限营业时段使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "dim-sum",
+      "imageUrl": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：蒸点；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "蒸点×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "04b7529c-69bd-4af9-a8bb-e4a0087a4e12",
+      "storePublicId": "43b43c27-610c-4cd1-9322-a4ae43364e32",
+      "storeName": "清汤本味杨浦店",
+      "expectedName": "双人汤饭套餐 4",
+      "expectedDescription": "两份汤饭和配菜，固定套餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "065c9fd9-f805-427b-b586-77a2dc41a378",
+      "storePublicId": "4a0eaf28-98d3-4fd6-99f3-ce45f192402e",
+      "storeName": "茶里见徐汇店",
+      "expectedName": "双人饮品套餐 4",
+      "expectedDescription": "两杯茶饮，支持到店兑换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "茶饮×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "07f856ce-21a2-4e41-9e1c-6da38f7cc9f8",
+      "storePublicId": "8ffe11fe-b516-4856-bb3e-188977da9c78",
+      "storeName": "一碗人间黄浦店",
+      "expectedName": "双人粥铺套餐 3",
+      "expectedDescription": "两人粥品和小菜组合。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "0833bc54-b9db-4a49-94cf-f185b42bed2e",
+      "storePublicId": "fa71aa5c-b411-4fa4-9941-481029cc14ff",
+      "storeName": "面见江湖杨浦店",
+      "expectedName": "双人牛肉面套餐 1",
+      "expectedDescription": "两份牛肉面和小菜，堂食使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛肉汤面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛肉面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "091000e1-25fc-4de2-a98c-a60320ee612c",
+      "storePublicId": "b6c00d30-d51c-4c1d-b832-6aea6fc3e468",
+      "storeName": "白桃茶舍虹桥店",
+      "expectedName": "下午茶双杯套餐 2",
+      "expectedDescription": "两杯茶饮和小食，限下午时段使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "茶饮×2",
+        "点心×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "0cce1b5e-bf60-42bd-9646-39a78024a609",
+      "storePublicId": "8ffe11fe-b516-4856-bb3e-188977da9c78",
+      "storeName": "一碗人间黄浦店",
+      "expectedName": "双人粥铺套餐 4",
+      "expectedDescription": "两人粥品和小菜组合。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "0fd42eea-1a29-439b-8704-824d12beacef",
+      "storePublicId": "947e4b94-f9aa-411d-802b-f0d2d60440fb",
+      "storeName": "绿意餐桌浦东店",
+      "expectedName": "双人蔬食套餐 1",
+      "expectedDescription": "双人蔬食套餐，适合午间到店。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "vegetable-rice",
+      "imageUrl": "/catalog-images/v1/full/vegetable-rice-de2d10fae70e.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：时蔬米饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "时蔬米饭×2",
+        "鲜蔬小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "1966b0a4-d3a4-4918-9933-dc7e9aecd977",
+      "storePublicId": "2ab12bba-a2cf-49eb-8418-dc6c4623c4da",
+      "storeName": "南巷小馆长宁店",
+      "expectedName": "小吃分享套餐 2",
+      "expectedDescription": "三人小吃组合，固定内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×3",
+        "鸡肉小串×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "1a5d7e10-2448-4254-a80d-a24673fe8a4d",
+      "storePublicId": "97baea6e-3dc9-4251-bb8a-e0593018e223",
+      "storeName": "北岸蒸味虹口店",
+      "expectedName": "早餐点心套餐 2",
+      "expectedDescription": "两人蒸点和饮品组合，限营业时段使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "dim-sum",
+      "imageUrl": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：蒸点；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "蒸点×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "1e5ade23-16b3-493e-844c-24ae3b2e147c",
+      "storePublicId": "9c0e47d3-a26e-4ab3-8ef1-ccec04003e3f",
+      "storeName": "云上火锅静安店",
+      "expectedName": "双人火锅套餐 3",
+      "expectedDescription": "双人火锅固定套餐，需提前查看使用须知。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "hot-pot",
+      "imageUrl": "/catalog-images/v1/full/hot-pot-d9d6e6ba4370.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：清汤火锅；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "清汤火锅锅底",
+        "鸡肉",
+        "菌菇",
+        "时蔬"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "22717841-7fbe-4fa3-adb8-212c630d2b17",
+      "storePublicId": "382571af-d243-4a38-8b60-3d761636feec",
+      "storeName": "山海食集春风店-集成验收e3a9f1",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "27fd0949-d6fc-4b81-b278-3e7225ca6c23",
+      "storePublicId": "e76264e4-c242-4975-997b-68a583800ead",
+      "storeName": "山海食集虹口店",
+      "expectedName": "双人盖饭套餐 4",
+      "expectedDescription": "两份招牌盖饭，堂食核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "281afc47-8ff6-4cee-abeb-a61c33815c58",
+      "storePublicId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "storeName": "山海食集春风店",
+      "expectedName": "双人招牌盖饭套餐 3",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "29c27fba-16d9-42d4-af06-97e299880fca",
+      "storePublicId": "cf0cbf6c-8e5f-48c9-b24e-c93d10bf2a2f",
+      "storeName": "夜色烧烤宝山店",
+      "expectedName": "四人夜宵烧烤套餐 3",
+      "expectedDescription": "四人烧烤组合，营业时间内到店使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉烤串；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡肉烤串×4",
+        "烤时蔬×4"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "2dcdf771-ff4e-4aa8-ab82-f0e004cb14e1",
+      "storePublicId": "0800c094-346f-44ad-b880-9949f5311631",
+      "storeName": "山海食集春风店-集成验收08e61a",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "3080f688-4f5e-4bd8-97b0-e2e32ea02fb2",
+      "storePublicId": "fab2e1ee-1538-418b-8a4f-6d0f3b1ec7b4",
+      "storeName": "一碗人间徐汇店",
+      "expectedName": "双人暖胃粥套餐 3",
+      "expectedDescription": "两人粥品与点心组合，适合早餐和晚餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×2",
+        "蒸点×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "32725ab7-2c6c-457c-86e2-50b052056b78",
+      "storePublicId": "ffd74376-276d-48cf-8611-ce70225433b1",
+      "storeName": "川味里人民广场店",
+      "expectedName": "双人川味套餐 3",
+      "expectedDescription": "两人川味热菜套餐，固定内容不可拆换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "麻婆豆腐",
+        "辣椒鸡",
+        "米饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "37a25651-e5ff-4ea8-8463-44dd5698ae7d",
+      "storePublicId": "9e4b6cd3-0a9c-4dc5-9719-2d84800b2f00",
+      "storeName": "面见江湖浦东店",
+      "expectedName": "双人面食套餐 2",
+      "expectedDescription": "两份面食和小菜，到店核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：番茄鸡蛋面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "番茄鸡蛋面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "38907563-49ba-4979-8d77-9ac0b37b605f",
+      "storePublicId": "b6c00d30-d51c-4c1d-b832-6aea6fc3e468",
+      "storeName": "白桃茶舍虹桥店",
+      "expectedName": "下午茶双杯套餐 3",
+      "expectedDescription": "两杯茶饮和小食，限下午时段使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "茶饮×2",
+        "点心×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "3a0887bf-8e94-4fc3-81ef-2e839c5e7d2e",
+      "storePublicId": "947e4b94-f9aa-411d-802b-f0d2d60440fb",
+      "storeName": "绿意餐桌浦东店",
+      "expectedName": "双人蔬食套餐 4",
+      "expectedDescription": "双人蔬食套餐，适合午间到店。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "vegetable-rice",
+      "imageUrl": "/catalog-images/v1/full/vegetable-rice-de2d10fae70e.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：时蔬米饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "时蔬米饭×2",
+        "鲜蔬小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "3cf99552-fd1f-46c7-ba0b-08dffba71795",
+      "storePublicId": "2513b113-308f-4b89-bc14-dee74a05dc50",
+      "storeName": "山海食集春风店-集成验收aebadf",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "3d00e2cc-a865-44a6-b7b5-816a5850cb9e",
+      "storePublicId": "e76264e4-c242-4975-997b-68a583800ead",
+      "storeName": "山海食集虹口店",
+      "expectedName": "双人盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，堂食核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "3d4df9c7-271a-4782-8a22-535765e693b3",
+      "storePublicId": "72dac663-de83-4452-bb70-18d617ad78c7",
+      "storeName": "果见自然闵行店",
+      "expectedName": "双人能量碗套餐 2",
+      "expectedDescription": "两份能量碗和饮品，适合轻食需求。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛油果能量碗；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛油果能量碗×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "3d933c16-0437-4608-a2a7-e29e279c6b2d",
+      "storePublicId": "c5aad2d5-c46b-4d7c-8152-72a1aacb58c5",
+      "storeName": "山海食集春风店-集成验收dcb6eb",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "3ddc59e3-dd17-4f48-aef0-7e60101f9ad6",
+      "storePublicId": "e350ce8c-2fc0-40b1-b853-38ec9240977a",
+      "storeName": "茶里见长宁店",
+      "expectedName": "双杯茶饮套餐 2",
+      "expectedDescription": "两杯当季茶饮，可到店兑换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "桂花乌龙奶茶×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "4612be52-f6f9-4339-9313-829d29f2959f",
+      "storePublicId": "c2b77d15-039f-4cc0-ba2a-3c06aad98549",
+      "storeName": "小炉灶宝山店",
+      "expectedName": "单人快餐套餐 3",
+      "expectedDescription": "单人快餐组合，工作日可用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡腿配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡腿配饭",
+        "小菜"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "46e7cc61-be67-4447-b0f0-5b21014e27d7",
+      "storePublicId": "e043bde9-aae6-4b7d-b190-66e4c25de7a6",
+      "storeName": "山海食集春风店-集成验收bf6bb9",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "4c6cf26d-3315-41da-b7e1-5daaa0b66138",
+      "storePublicId": "cf0cbf6c-8e5f-48c9-b24e-c93d10bf2a2f",
+      "storeName": "夜色烧烤宝山店",
+      "expectedName": "四人夜宵烧烤套餐 1",
+      "expectedDescription": "四人烧烤组合，营业时间内到店使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉烤串；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡肉烤串×4",
+        "烤时蔬×4"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "5087da06-96aa-44c8-a464-86b77b222e28",
+      "storePublicId": "105ddf44-36f2-4d1a-8b7f-54694cb9570e",
+      "storeName": "禾下有约黄浦店",
+      "expectedName": "双人家常菜套餐 1",
+      "expectedDescription": "两人家常菜组合，固定菜品到店使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "辣椒鸡盖饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "54b50254-a405-4fa5-b71e-6f325f433c97",
+      "storePublicId": "72dac663-de83-4452-bb70-18d617ad78c7",
+      "storeName": "果见自然闵行店",
+      "expectedName": "双人能量碗套餐 1",
+      "expectedDescription": "两份能量碗和饮品，适合轻食需求。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛油果能量碗；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛油果能量碗×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "559407d4-8663-4bee-9a49-fc4525b67e5d",
+      "storePublicId": "4a0eaf28-98d3-4fd6-99f3-ce45f192402e",
+      "storeName": "茶里见徐汇店",
+      "expectedName": "双人饮品套餐 1",
+      "expectedDescription": "两杯茶饮，支持到店兑换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "茶饮×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "55aa6e22-3b2b-4c1e-b7a5-ad2d14c7dc55",
+      "storePublicId": "fa71aa5c-b411-4fa4-9941-481029cc14ff",
+      "storeName": "面见江湖杨浦店",
+      "expectedName": "双人牛肉面套餐 4",
+      "expectedDescription": "两份牛肉面和小菜，堂食使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛肉汤面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛肉面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "56545cb7-f6d3-4495-b8d4-021def8f2318",
+      "storePublicId": "2ab12bba-a2cf-49eb-8418-dc6c4623c4da",
+      "storeName": "南巷小馆长宁店",
+      "expectedName": "小吃分享套餐 1",
+      "expectedDescription": "三人小吃组合，固定内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×3",
+        "鸡肉小串×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "5910801a-f14f-4b42-9658-e95e6d82d7ef",
+      "storePublicId": "33246729-d65d-4a73-9708-7c874f562d2d",
+      "storeName": "川味里闵行店",
+      "expectedName": "双人川菜套餐 1",
+      "expectedDescription": "双人川菜团购套餐，需按规则使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "麻婆豆腐配饭×2",
+        "辣椒鸡×1"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "5a234b01-dc6c-4e35-85a8-0157b2dfdd15",
+      "storePublicId": "33246729-d65d-4a73-9708-7c874f562d2d",
+      "storeName": "川味里闵行店",
+      "expectedName": "双人川菜套餐 3",
+      "expectedDescription": "双人川菜团购套餐，需按规则使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "麻婆豆腐配饭×2",
+        "辣椒鸡×1"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "5d017253-0c5e-4bc9-8004-61ec7fc85157",
+      "storePublicId": "cf0cbf6c-8e5f-48c9-b24e-c93d10bf2a2f",
+      "storeName": "夜色烧烤宝山店",
+      "expectedName": "四人夜宵烧烤套餐 2",
+      "expectedDescription": "四人烧烤组合，营业时间内到店使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-skewers",
+      "imageUrl": "/catalog-images/v1/full/chicken-skewers-d5a950e3b8a6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉烤串；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡肉烤串×4",
+        "烤时蔬×4"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "5e04707e-f57b-4f07-8993-cab3a7fa6e90",
+      "storePublicId": "fa71aa5c-b411-4fa4-9941-481029cc14ff",
+      "storeName": "面见江湖杨浦店",
+      "expectedName": "双人牛肉面套餐 3",
+      "expectedDescription": "两份牛肉面和小菜，堂食使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛肉汤面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛肉面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "60dd611a-5675-493b-a63f-f56d68e4db73",
+      "storePublicId": "b98e686f-91b7-4d60-9a6a-bfdf2837011f",
+      "storeName": "小炉灶静安店",
+      "expectedName": "单人热辣套餐 4",
+      "expectedDescription": "单人主食与小菜组合，适合工作日午餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡腿配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡腿配饭",
+        "红油抄手小份"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "61b13860-c836-4c4c-a521-e4dad71bed48",
+      "storePublicId": "e10afb57-f197-49af-ac46-e6492f25d202",
+      "storeName": "米香小院徐汇店",
+      "expectedName": "三人粥品套餐 4",
+      "expectedDescription": "三人粥品和点心组合，固定套餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×3",
+        "蒸点×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "667b24fb-3cef-4ffb-8b65-66929dba29a0",
+      "storePublicId": "e5341019-0f4f-4d5d-aefd-7586fdef239c",
+      "storeName": "青禾轻食静安店",
+      "expectedName": "双人沙拉套餐 4",
+      "expectedDescription": "两份沙拉和饮品，适合轻食到店。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡胸沙拉；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡胸沙拉×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "69e0512f-30d8-45cd-b2be-ed3a8863c477",
+      "storePublicId": "ffd74376-276d-48cf-8611-ce70225433b1",
+      "storeName": "川味里人民广场店",
+      "expectedName": "双人川味套餐 4",
+      "expectedDescription": "两人川味热菜套餐，固定内容不可拆换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "麻婆豆腐",
+        "辣椒鸡",
+        "米饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "6c277024-97ab-4d19-904d-88662df0e487",
+      "storePublicId": "e5341019-0f4f-4d5d-aefd-7586fdef239c",
+      "storeName": "青禾轻食静安店",
+      "expectedName": "双人沙拉套餐 3",
+      "expectedDescription": "两份沙拉和饮品，适合轻食到店。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡胸沙拉；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡胸沙拉×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "6dd2fd71-57da-4498-9e5b-30a14a3e5026",
+      "storePublicId": "9c0e47d3-a26e-4ab3-8ef1-ccec04003e3f",
+      "storeName": "云上火锅静安店",
+      "expectedName": "双人火锅套餐 1",
+      "expectedDescription": "双人火锅固定套餐，需提前查看使用须知。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "hot-pot",
+      "imageUrl": "/catalog-images/v1/full/hot-pot-d9d6e6ba4370.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：清汤火锅；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "清汤火锅锅底",
+        "鸡肉",
+        "菌菇",
+        "时蔬"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "6e379094-6980-4784-b97a-94372a19cfb8",
+      "storePublicId": "97baea6e-3dc9-4251-bb8a-e0593018e223",
+      "storeName": "北岸蒸味虹口店",
+      "expectedName": "早餐点心套餐 1",
+      "expectedDescription": "两人蒸点和饮品组合，限营业时段使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "dim-sum",
+      "imageUrl": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：蒸点；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "蒸点×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "72a775f0-f71e-49a2-b1a0-10c231fdc9cb",
+      "storePublicId": "9759c2b7-5543-4deb-928d-750a6a1ccabe",
+      "storeName": "青禾轻食虹桥店",
+      "expectedName": "双人轻食套餐 3",
+      "expectedDescription": "两份鸡胸沙拉和饮品，酱料独立提供。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡胸沙拉；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡胸沙拉×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "73ceb06f-6bfa-4100-906a-5c330f4ab365",
+      "storePublicId": "9759c2b7-5543-4deb-928d-750a6a1ccabe",
+      "storeName": "青禾轻食虹桥店",
+      "expectedName": "双人轻食套餐 2",
+      "expectedDescription": "两份鸡胸沙拉和饮品，酱料独立提供。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡胸沙拉；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡胸沙拉×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "748dcf3f-69b7-4b20-ab3a-d4fdb4f45140",
+      "storePublicId": "947e4b94-f9aa-411d-802b-f0d2d60440fb",
+      "storeName": "绿意餐桌浦东店",
+      "expectedName": "双人蔬食套餐 3",
+      "expectedDescription": "双人蔬食套餐，适合午间到店。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "vegetable-rice",
+      "imageUrl": "/catalog-images/v1/full/vegetable-rice-de2d10fae70e.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：时蔬米饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "时蔬米饭×2",
+        "鲜蔬小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "7490664d-c007-4c9c-ae49-af3d043b3474",
+      "storePublicId": "e5341019-0f4f-4d5d-aefd-7586fdef239c",
+      "storeName": "青禾轻食静安店",
+      "expectedName": "双人沙拉套餐 2",
+      "expectedDescription": "两份沙拉和饮品，适合轻食到店。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡胸沙拉；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡胸沙拉×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "74a011ae-518a-4cfc-bcfe-d2ee6d537b7d",
+      "storePublicId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "storeName": "山海食集春风店",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "76c8b7d1-82b5-45f2-886e-a638e162e38f",
+      "storePublicId": "43b43c27-610c-4cd1-9322-a4ae43364e32",
+      "storeName": "清汤本味杨浦店",
+      "expectedName": "双人汤饭套餐 3",
+      "expectedDescription": "两份汤饭和配菜，固定套餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "76df4450-583b-4aef-b8b7-e775ebc24663",
+      "storePublicId": "ef498386-7e05-44bc-8377-e1eb9281f0eb",
+      "storeName": "南巷小馆浦东店",
+      "expectedName": "双人小吃分享套餐 4",
+      "expectedDescription": "多人分享小吃组合，固定套餐内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×2",
+        "鸡肉小串×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "77970fee-293b-4b2a-af40-9f2ba9ea32ad",
+      "storePublicId": "bb445c6e-dc91-4a38-83d9-2faee8029a98",
+      "storeName": "北岸蒸味闵行店",
+      "expectedName": "双人点心套餐 4",
+      "expectedDescription": "两人点心组合，限营业时间使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "dim-sum",
+      "imageUrl": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：蒸点；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "蒸点×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "77c6bbe1-d7ae-43e9-b229-ef100c9875d2",
+      "storePublicId": "9e4b6cd3-0a9c-4dc5-9719-2d84800b2f00",
+      "storeName": "面见江湖浦东店",
+      "expectedName": "双人面食套餐 3",
+      "expectedDescription": "两份面食和小菜，到店核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：番茄鸡蛋面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "番茄鸡蛋面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "7b5a48ce-8d4b-4a4e-9858-c9752011685d",
+      "storePublicId": "0d6a0de2-03e9-4731-bd8e-6610b72a6af5",
+      "storeName": "清汤本味普陀店",
+      "expectedName": "双人汤饭套餐 3",
+      "expectedDescription": "两份汤饭和时蔬，清淡口味。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "7d7c18ef-9675-4f28-b72f-c2843bbf1a75",
+      "storePublicId": "fab2e1ee-1538-418b-8a4f-6d0f3b1ec7b4",
+      "storeName": "一碗人间徐汇店",
+      "expectedName": "双人暖胃粥套餐 2",
+      "expectedDescription": "两人粥品与点心组合，适合早餐和晚餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×2",
+        "蒸点×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "7e2e58aa-a4fb-4617-af30-37c0d8fb2149",
+      "storePublicId": "72dac663-de83-4452-bb70-18d617ad78c7",
+      "storeName": "果见自然闵行店",
+      "expectedName": "双人能量碗套餐 3",
+      "expectedDescription": "两份能量碗和饮品，适合轻食需求。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛油果能量碗；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛油果能量碗×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "7f809faa-f640-4fdc-806d-395be6bca099",
+      "storePublicId": "dda51e5c-b8a8-4cde-98db-5fd061844900",
+      "storeName": "椒香里长宁店",
+      "expectedName": "双人椒香套餐 4",
+      "expectedDescription": "双人川味套餐，支持堂食核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：椒香麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "椒香麻婆豆腐配饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "7fc3e3ca-403c-4044-85bf-58b4d0c5d616",
+      "storePublicId": "e350ce8c-2fc0-40b1-b853-38ec9240977a",
+      "storeName": "茶里见长宁店",
+      "expectedName": "双杯茶饮套餐 4",
+      "expectedDescription": "两杯当季茶饮，可到店兑换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "桂花乌龙奶茶×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8068d552-0061-46d5-a7ed-c3dfee8ad3e0",
+      "storePublicId": "2ab12bba-a2cf-49eb-8418-dc6c4623c4da",
+      "storeName": "南巷小馆长宁店",
+      "expectedName": "小吃分享套餐 3",
+      "expectedDescription": "三人小吃组合，固定内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×3",
+        "鸡肉小串×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "81eed691-b796-4aa0-86ee-ecb17b4af829",
+      "storePublicId": "8ffe11fe-b516-4856-bb3e-188977da9c78",
+      "storeName": "一碗人间黄浦店",
+      "expectedName": "双人粥铺套餐 2",
+      "expectedDescription": "两人粥品和小菜组合。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8633e93c-5913-432e-8356-6190ac7fa040",
+      "storePublicId": "bb445c6e-dc91-4a38-83d9-2faee8029a98",
+      "storeName": "北岸蒸味闵行店",
+      "expectedName": "双人点心套餐 1",
+      "expectedDescription": "两人点心组合，限营业时间使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "dim-sum",
+      "imageUrl": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：蒸点；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "蒸点×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8735f4ee-bec2-4504-9d4f-11c07c530e7a",
+      "storePublicId": "dda51e5c-b8a8-4cde-98db-5fd061844900",
+      "storeName": "椒香里长宁店",
+      "expectedName": "双人椒香套餐 3",
+      "expectedDescription": "双人川味套餐，支持堂食核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：椒香麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "椒香麻婆豆腐配饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "87e534a3-8622-4a26-98cf-863b035bfb76",
+      "storePublicId": "ef498386-7e05-44bc-8377-e1eb9281f0eb",
+      "storeName": "南巷小馆浦东店",
+      "expectedName": "双人小吃分享套餐 3",
+      "expectedDescription": "多人分享小吃组合，固定套餐内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×2",
+        "鸡肉小串×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8aa3f29a-9675-47af-acd0-94e928f2a349",
+      "storePublicId": "72dac663-de83-4452-bb70-18d617ad78c7",
+      "storeName": "果见自然闵行店",
+      "expectedName": "双人能量碗套餐 4",
+      "expectedDescription": "两份能量碗和饮品，适合轻食需求。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "avocado-bowl",
+      "imageUrl": "/catalog-images/v1/full/avocado-bowl-d522dfaa354d.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛油果能量碗；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛油果能量碗×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8b09c0f8-45ef-47c9-a3be-204d77907598",
+      "storePublicId": "43b43c27-610c-4cd1-9322-a4ae43364e32",
+      "storeName": "清汤本味杨浦店",
+      "expectedName": "双人汤饭套餐 2",
+      "expectedDescription": "两份汤饭和配菜，固定套餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8d7faaa6-b37c-464b-8483-386bda248560",
+      "storePublicId": "fab2e1ee-1538-418b-8a4f-6d0f3b1ec7b4",
+      "storeName": "一碗人间徐汇店",
+      "expectedName": "双人暖胃粥套餐 4",
+      "expectedDescription": "两人粥品与点心组合，适合早餐和晚餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×2",
+        "蒸点×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8e50906a-505b-48ec-a776-8a08f205bbe8",
+      "storePublicId": "fddf47fc-6714-4e0c-bbd0-4546570975ae",
+      "storeName": "汤面有光普陀店",
+      "expectedName": "双人汤面套餐 4",
+      "expectedDescription": "两份汤面和小菜，固定内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛肉汤面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛肉汤面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8e5c3c36-2af2-4405-bd40-c8999391a5cc",
+      "storePublicId": "ffd74376-276d-48cf-8611-ce70225433b1",
+      "storeName": "川味里人民广场店",
+      "expectedName": "双人川味套餐 1",
+      "expectedDescription": "两人川味热菜套餐，固定内容不可拆换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "麻婆豆腐",
+        "辣椒鸡",
+        "米饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "8f15e8d4-e7fa-4d53-9ac6-7b4538f6373d",
+      "storePublicId": "c2b77d15-039f-4cc0-ba2a-3c06aad98549",
+      "storeName": "小炉灶宝山店",
+      "expectedName": "单人快餐套餐 2",
+      "expectedDescription": "单人快餐组合，工作日可用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡腿配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡腿配饭",
+        "小菜"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "913fd3b3-2dde-4b15-a577-f13be371cb0d",
+      "storePublicId": "b6c00d30-d51c-4c1d-b832-6aea6fc3e468",
+      "storeName": "白桃茶舍虹桥店",
+      "expectedName": "下午茶双杯套餐 1",
+      "expectedDescription": "两杯茶饮和小食，限下午时段使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "茶饮×2",
+        "点心×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "94e812cf-2f6e-45fd-9109-418b9c5bc2af",
+      "storePublicId": "9759c2b7-5543-4deb-928d-750a6a1ccabe",
+      "storeName": "青禾轻食虹桥店",
+      "expectedName": "双人轻食套餐 1",
+      "expectedDescription": "两份鸡胸沙拉和饮品，酱料独立提供。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡胸沙拉；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡胸沙拉×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "954db281-4c86-48f2-a86d-aca5820a9796",
+      "storePublicId": "e350ce8c-2fc0-40b1-b853-38ec9240977a",
+      "storeName": "茶里见长宁店",
+      "expectedName": "双杯茶饮套餐 1",
+      "expectedDescription": "两杯当季茶饮，可到店兑换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "桂花乌龙奶茶×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "968c4a62-dbdf-43a5-9246-53101ad24f78",
+      "storePublicId": "b98e686f-91b7-4d60-9a6a-bfdf2837011f",
+      "storeName": "小炉灶静安店",
+      "expectedName": "单人热辣套餐 1",
+      "expectedDescription": "单人主食与小菜组合，适合工作日午餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡腿配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡腿配饭",
+        "红油抄手小份"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "98d71ff4-8c87-4dfb-95b4-842fb125324a",
+      "storePublicId": "22b97568-566e-41eb-9101-5930f7abef13",
+      "storeName": "山海食集春风店-集成验收25e57e",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "999cb508-d004-45c3-9e3f-27c42cc9d396",
+      "storePublicId": "ef498386-7e05-44bc-8377-e1eb9281f0eb",
+      "storeName": "南巷小馆浦东店",
+      "expectedName": "双人小吃分享套餐 1",
+      "expectedDescription": "多人分享小吃组合，固定套餐内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×2",
+        "鸡肉小串×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "9d6ba620-7260-4a36-a5fa-5077d2dae847",
+      "storePublicId": "ef498386-7e05-44bc-8377-e1eb9281f0eb",
+      "storeName": "南巷小馆浦东店",
+      "expectedName": "双人小吃分享套餐 2",
+      "expectedDescription": "多人分享小吃组合，固定套餐内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×2",
+        "鸡肉小串×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "9f3e8781-43bd-4432-9479-8f499f298afd",
+      "storePublicId": "e76264e4-c242-4975-997b-68a583800ead",
+      "storeName": "山海食集虹口店",
+      "expectedName": "双人盖饭套餐 3",
+      "expectedDescription": "两份招牌盖饭，堂食核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "a0dbbf1b-3fe6-4bcc-9668-ec5095fa2c4f",
+      "storePublicId": "0d6a0de2-03e9-4731-bd8e-6610b72a6af5",
+      "storeName": "清汤本味普陀店",
+      "expectedName": "双人汤饭套餐 2",
+      "expectedDescription": "两份汤饭和时蔬，清淡口味。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "a1eb4f6e-e7be-4080-9983-177cc41ee8e5",
+      "storePublicId": "97baea6e-3dc9-4251-bb8a-e0593018e223",
+      "storeName": "北岸蒸味虹口店",
+      "expectedName": "早餐点心套餐 3",
+      "expectedDescription": "两人蒸点和饮品组合，限营业时段使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "dim-sum",
+      "imageUrl": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：蒸点；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "蒸点×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "a3baeb49-67b5-40a5-948d-1bc4a433c6f7",
+      "storePublicId": "8ffe11fe-b516-4856-bb3e-188977da9c78",
+      "storeName": "一碗人间黄浦店",
+      "expectedName": "双人粥铺套餐 1",
+      "expectedDescription": "两人粥品和小菜组合。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "a5e9af36-f359-451e-a23c-9b19ca2be818",
+      "storePublicId": "fab2e1ee-1538-418b-8a4f-6d0f3b1ec7b4",
+      "storeName": "一碗人间徐汇店",
+      "expectedName": "双人暖胃粥套餐 1",
+      "expectedDescription": "两人粥品与点心组合，适合早餐和晚餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×2",
+        "蒸点×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "a8e7351d-5bee-4b7b-af1d-ccc01fa1a020",
+      "storePublicId": "9759c2b7-5543-4deb-928d-750a6a1ccabe",
+      "storeName": "青禾轻食虹桥店",
+      "expectedName": "双人轻食套餐 4",
+      "expectedDescription": "两份鸡胸沙拉和饮品，酱料独立提供。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡胸沙拉；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡胸沙拉×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "aa1e3e32-b41a-42c4-94d5-f857491a2aa7",
+      "storePublicId": "e350ce8c-2fc0-40b1-b853-38ec9240977a",
+      "storeName": "茶里见长宁店",
+      "expectedName": "双杯茶饮套餐 3",
+      "expectedDescription": "两杯当季茶饮，可到店兑换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "桂花乌龙奶茶×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "aa660965-16d6-4dca-99cc-5a8971e88cae",
+      "storePublicId": "105ddf44-36f2-4d1a-8b7f-54694cb9570e",
+      "storeName": "禾下有约黄浦店",
+      "expectedName": "双人家常菜套餐 4",
+      "expectedDescription": "两人家常菜组合，固定菜品到店使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "辣椒鸡盖饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "ad9041e5-8ad7-48f7-a33b-1f30be7da85b",
+      "storePublicId": "16a80ffd-b43a-4c4d-9550-1cefc94c644c",
+      "storeName": "烟火巷口杨浦店",
+      "expectedName": "三人巷口小吃套餐 4",
+      "expectedDescription": "三人小吃分享组合，适合朋友聚餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×3",
+        "鸡肉小串×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "b3c2db5c-b805-4d5e-aca5-7b7a79125728",
+      "storePublicId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "storeName": "山海食集春风店",
+      "expectedName": "双人招牌盖饭套餐 4",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "b3f75287-419e-4b0c-bdd7-36870b0b5912",
+      "storePublicId": "16a80ffd-b43a-4c4d-9550-1cefc94c644c",
+      "storeName": "烟火巷口杨浦店",
+      "expectedName": "三人巷口小吃套餐 3",
+      "expectedDescription": "三人小吃分享组合，适合朋友聚餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×3",
+        "鸡肉小串×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "b5c82ad5-b2d1-4f35-b862-100eaa07e6e9",
+      "storePublicId": "e10afb57-f197-49af-ac46-e6492f25d202",
+      "storeName": "米香小院徐汇店",
+      "expectedName": "三人粥品套餐 3",
+      "expectedDescription": "三人粥品和点心组合，固定套餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×3",
+        "蒸点×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "b6bbf24c-8e12-47c2-b936-a2af04722549",
+      "storePublicId": "fddf47fc-6714-4e0c-bbd0-4546570975ae",
+      "storeName": "汤面有光普陀店",
+      "expectedName": "双人汤面套餐 1",
+      "expectedDescription": "两份汤面和小菜，固定内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛肉汤面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛肉汤面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "bc4d1350-a6ac-4184-a079-ba51df21721b",
+      "storePublicId": "e10afb57-f197-49af-ac46-e6492f25d202",
+      "storeName": "米香小院徐汇店",
+      "expectedName": "三人粥品套餐 2",
+      "expectedDescription": "三人粥品和点心组合，固定套餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×3",
+        "蒸点×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "bf16b021-71a9-4994-9d9d-4c08fbadcd46",
+      "storePublicId": "447d78f2-1c74-4ecf-8e41-7e73b8ddd90b",
+      "storeName": "山海食集春风店",
+      "expectedName": "双人招牌盖饭套餐 2",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "bfe91282-107a-459d-9258-57bd3d5a7bf3",
+      "storePublicId": "fddf47fc-6714-4e0c-bbd0-4546570975ae",
+      "storeName": "汤面有光普陀店",
+      "expectedName": "双人汤面套餐 3",
+      "expectedDescription": "两份汤面和小菜，固定内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛肉汤面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛肉汤面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "c1651280-6686-4fba-b5ea-a7f2952f4313",
+      "storePublicId": "33246729-d65d-4a73-9708-7c874f562d2d",
+      "storeName": "川味里闵行店",
+      "expectedName": "双人川菜套餐 2",
+      "expectedDescription": "双人川菜团购套餐，需按规则使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "麻婆豆腐配饭×2",
+        "辣椒鸡×1"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "c171b749-0501-46ff-84b4-1372b7d8130b",
+      "storePublicId": "b98e686f-91b7-4d60-9a6a-bfdf2837011f",
+      "storeName": "小炉灶静安店",
+      "expectedName": "单人热辣套餐 2",
+      "expectedDescription": "单人主食与小菜组合，适合工作日午餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡腿配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡腿配饭",
+        "红油抄手小份"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "c2959b54-ee39-4175-9f31-2c7ba733fe9e",
+      "storePublicId": "e5341019-0f4f-4d5d-aefd-7586fdef239c",
+      "storeName": "青禾轻食静安店",
+      "expectedName": "双人沙拉套餐 1",
+      "expectedDescription": "两份沙拉和饮品，适合轻食到店。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "grilled-chicken-salad",
+      "imageUrl": "/catalog-images/v1/full/grilled-chicken-salad-661b8ce0fa07.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡胸沙拉；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡胸沙拉×2",
+        "饮品×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "c62980a0-298b-429a-84f5-3d5e6b1976ea",
+      "storePublicId": "b98e686f-91b7-4d60-9a6a-bfdf2837011f",
+      "storeName": "小炉灶静安店",
+      "expectedName": "单人热辣套餐 3",
+      "expectedDescription": "单人主食与小菜组合，适合工作日午餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡腿配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡腿配饭",
+        "红油抄手小份"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "c6b7ae87-5814-486f-9cf6-3b67692a62e7",
+      "storePublicId": "cae83948-73f1-4717-859e-a2d1a5bcf738",
+      "storeName": "山海食集春风店-集成验收d05389",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "c9611943-1e4f-40cf-99de-099e396c3aa8",
+      "storePublicId": "0d6a0de2-03e9-4731-bd8e-6610b72a6af5",
+      "storeName": "清汤本味普陀店",
+      "expectedName": "双人汤饭套餐 1",
+      "expectedDescription": "两份汤饭和时蔬，清淡口味。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "cb29114b-c4ec-4b66-93e6-282e02a9f2dc",
+      "storePublicId": "bb445c6e-dc91-4a38-83d9-2faee8029a98",
+      "storeName": "北岸蒸味闵行店",
+      "expectedName": "双人点心套餐 2",
+      "expectedDescription": "两人点心组合，限营业时间使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "dim-sum",
+      "imageUrl": "/catalog-images/v1/full/dim-sum-7b62b7c9c192.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：蒸点；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "蒸点×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "cdc4a8ae-9c89-4d7b-916f-310b3f42cf36",
+      "storePublicId": "b6c00d30-d51c-4c1d-b832-6aea6fc3e468",
+      "storeName": "白桃茶舍虹桥店",
+      "expectedName": "下午茶双杯套餐 4",
+      "expectedDescription": "两杯茶饮和小食，限下午时段使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "茶饮×2",
+        "点心×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "d3cd2da9-7301-4a1d-8360-5285b8c581bc",
+      "storePublicId": "c2b77d15-039f-4cc0-ba2a-3c06aad98549",
+      "storeName": "小炉灶宝山店",
+      "expectedName": "单人快餐套餐 4",
+      "expectedDescription": "单人快餐组合，工作日可用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡腿配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡腿配饭",
+        "小菜"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "d81a876c-0712-412c-8932-5f5e6a9cd441",
+      "storePublicId": "0d6a0de2-03e9-4731-bd8e-6610b72a6af5",
+      "storeName": "清汤本味普陀店",
+      "expectedName": "双人汤饭套餐 4",
+      "expectedDescription": "两份汤饭和时蔬，清淡口味。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "d853611e-cc0f-491f-8080-f43c6fe5c8c3",
+      "storePublicId": "4a0eaf28-98d3-4fd6-99f3-ce45f192402e",
+      "storeName": "茶里见徐汇店",
+      "expectedName": "双人饮品套餐 2",
+      "expectedDescription": "两杯茶饮，支持到店兑换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "茶饮×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "d874b209-c0bc-4fa9-9743-0d863d780718",
+      "storePublicId": "43b43c27-610c-4cd1-9322-a4ae43364e32",
+      "storeName": "清汤本味杨浦店",
+      "expectedName": "双人汤饭套餐 1",
+      "expectedDescription": "两份汤饭和配菜，固定套餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "d8931737-2b27-42a2-9617-0553c52558f8",
+      "storePublicId": "33246729-d65d-4a73-9708-7c874f562d2d",
+      "storeName": "川味里闵行店",
+      "expectedName": "双人川菜套餐 4",
+      "expectedDescription": "双人川菜团购套餐，需按规则使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "麻婆豆腐配饭×2",
+        "辣椒鸡×1"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "dc10a69a-d8c6-4269-a576-b017e9fbade6",
+      "storePublicId": "2ab12bba-a2cf-49eb-8418-dc6c4623c4da",
+      "storeName": "南巷小馆长宁店",
+      "expectedName": "小吃分享套餐 4",
+      "expectedDescription": "三人小吃组合，固定内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×3",
+        "鸡肉小串×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "dd748c86-2f7a-4158-9159-619b81d09968",
+      "storePublicId": "947e4b94-f9aa-411d-802b-f0d2d60440fb",
+      "storeName": "绿意餐桌浦东店",
+      "expectedName": "双人蔬食套餐 2",
+      "expectedDescription": "双人蔬食套餐，适合午间到店。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "vegetable-rice",
+      "imageUrl": "/catalog-images/v1/full/vegetable-rice-de2d10fae70e.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：时蔬米饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "时蔬米饭×2",
+        "鲜蔬小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "de45ef61-3885-4bca-a0a6-d6f386c164bc",
+      "storePublicId": "fddf47fc-6714-4e0c-bbd0-4546570975ae",
+      "storeName": "汤面有光普陀店",
+      "expectedName": "双人汤面套餐 2",
+      "expectedDescription": "两份汤面和小菜，固定内容。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛肉汤面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛肉汤面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "dfc3379a-4d18-4901-b40e-385a7adbd21b",
+      "storePublicId": "105ddf44-36f2-4d1a-8b7f-54694cb9570e",
+      "storeName": "禾下有约黄浦店",
+      "expectedName": "双人家常菜套餐 3",
+      "expectedDescription": "两人家常菜组合，固定菜品到店使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "辣椒鸡盖饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "e1b50d3d-d132-42c5-ae78-fa1d3cc265dd",
+      "storePublicId": "ffd74376-276d-48cf-8611-ce70225433b1",
+      "storeName": "川味里人民广场店",
+      "expectedName": "双人川味套餐 2",
+      "expectedDescription": "两人川味热菜套餐，固定内容不可拆换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "麻婆豆腐",
+        "辣椒鸡",
+        "米饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "e26deb55-2d39-4851-9a4d-8b41b808cf38",
+      "storePublicId": "31253ba4-0fd8-4855-b40d-5f302323da92",
+      "storeName": "山海食集春风店-集成验收564957",
+      "expectedName": "双人招牌盖饭套餐 1",
+      "expectedDescription": "两份招牌盖饭，支持到店使用。",
+      "expectedOldImageUrl": "https://redbook-hang.oss-cn-shanghai.aliyuncs.com/fandazi/seed-food/2026-09-14/seed_food_0.jpg",
+      "expectedOldImageAlt": "招牌鸡肉盖饭，套餐主食实拍",
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "e68584be-72f6-475c-9bd9-ef0e46290023",
+      "storePublicId": "dda51e5c-b8a8-4cde-98db-5fd061844900",
+      "storeName": "椒香里长宁店",
+      "expectedName": "双人椒香套餐 2",
+      "expectedDescription": "双人川味套餐，支持堂食核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "mapo-tofu-rice",
+      "imageUrl": "/catalog-images/v1/full/mapo-tofu-rice-c36b3fac60b6.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：椒香麻婆豆腐配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "椒香麻婆豆腐配饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "e6b3c6c1-7105-471b-b381-8dc10b41b4ce",
+      "storePublicId": "9e4b6cd3-0a9c-4dc5-9719-2d84800b2f00",
+      "storeName": "面见江湖浦东店",
+      "expectedName": "双人面食套餐 4",
+      "expectedDescription": "两份面食和小菜，到店核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：番茄鸡蛋面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "番茄鸡蛋面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "e93f1807-cc8f-4b81-a677-908b57a20a97",
+      "storePublicId": "16a80ffd-b43a-4c4d-9550-1cefc94c644c",
+      "storeName": "烟火巷口杨浦店",
+      "expectedName": "三人巷口小吃套餐 2",
+      "expectedDescription": "三人小吃分享组合，适合朋友聚餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×3",
+        "鸡肉小串×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "eb27161b-7dbb-430a-92cc-26a79251b8cc",
+      "storePublicId": "e10afb57-f197-49af-ac46-e6492f25d202",
+      "storeName": "米香小院徐汇店",
+      "expectedName": "三人粥品套餐 1",
+      "expectedDescription": "三人粥品和点心组合，固定套餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "pumpkin-millet",
+      "imageUrl": "/catalog-images/v1/full/pumpkin-millet-b8963b53efce.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：南瓜小米粥；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "南瓜小米粥×3",
+        "蒸点×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "f007f578-d375-4843-b6ba-5ffc09728159",
+      "storePublicId": "fa71aa5c-b411-4fa4-9941-481029cc14ff",
+      "storeName": "面见江湖杨浦店",
+      "expectedName": "双人牛肉面套餐 2",
+      "expectedDescription": "两份牛肉面和小菜，堂食使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "beef-noodle",
+      "imageUrl": "/catalog-images/v1/full/beef-noodle-42f34ebef0e9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：牛肉汤面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "牛肉面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "f45004b7-6792-4c3b-8e48-df8486cf600f",
+      "storePublicId": "16a80ffd-b43a-4c4d-9550-1cefc94c644c",
+      "storeName": "烟火巷口杨浦店",
+      "expectedName": "三人巷口小吃套餐 1",
+      "expectedDescription": "三人小吃分享组合，适合朋友聚餐。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-oil-dumplings",
+      "imageUrl": "/catalog-images/v1/full/chili-oil-dumplings-f23e6309e573.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：红油抄手；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "红油抄手×3",
+        "鸡肉小串×3"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "f4e1636b-6017-4fbb-862d-f9f6acc09079",
+      "storePublicId": "105ddf44-36f2-4d1a-8b7f-54694cb9570e",
+      "storeName": "禾下有约黄浦店",
+      "expectedName": "双人家常菜套餐 2",
+      "expectedDescription": "两人家常菜组合，固定菜品到店使用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "辣椒鸡盖饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "f5763e65-f7c8-490b-b4bb-06645580c04e",
+      "storePublicId": "9c0e47d3-a26e-4ab3-8ef1-ccec04003e3f",
+      "storeName": "云上火锅静安店",
+      "expectedName": "双人火锅套餐 4",
+      "expectedDescription": "双人火锅固定套餐，需提前查看使用须知。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "hot-pot",
+      "imageUrl": "/catalog-images/v1/full/hot-pot-d9d6e6ba4370.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：清汤火锅；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "清汤火锅锅底",
+        "鸡肉",
+        "菌菇",
+        "时蔬"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "f9994bf0-176c-4c73-b7b3-26f5335476c3",
+      "storePublicId": "00000000-a617-446b-9c36-05e3fea1b1c7",
+      "storeName": "Task10导航隔离门店",
+      "expectedName": "Task10导航隔离套餐",
+      "expectedDescription": "两份汤饭和时蔬，清淡口味。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "lemongrass-chicken-soup",
+      "imageUrl": "/catalog-images/v1/full/lemongrass-chicken-soup-b3e2697bad3a.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡肉菌菇汤饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "菌菇鸡汤饭×2",
+        "时蔬×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "f9f53d34-118a-428f-9810-57b77e8c42b6",
+      "storePublicId": "e76264e4-c242-4975-997b-68a583800ead",
+      "storeName": "山海食集虹口店",
+      "expectedName": "双人盖饭套餐 2",
+      "expectedDescription": "两份招牌盖饭，堂食核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chili-chicken-rice",
+      "imageUrl": "/catalog-images/v1/full/chili-chicken-rice-5ec12eff9907.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：招牌辣椒鸡盖饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "招牌辣椒鸡盖饭×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "fbd899eb-96bf-48a0-8a8b-edfcccabae6f",
+      "storePublicId": "4a0eaf28-98d3-4fd6-99f3-ce45f192402e",
+      "storeName": "茶里见徐汇店",
+      "expectedName": "双人饮品套餐 3",
+      "expectedDescription": "两杯茶饮，支持到店兑换。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "milk-tea",
+      "imageUrl": "/catalog-images/v1/full/milk-tea-7d6607552ce5.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：奶茶；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "茶饮×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "fe06c03b-37a7-45a0-a481-89f64913758e",
+      "storePublicId": "9e4b6cd3-0a9c-4dc5-9719-2d84800b2f00",
+      "storeName": "面见江湖浦东店",
+      "expectedName": "双人面食套餐 1",
+      "expectedDescription": "两份面食和小菜，到店核销。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "tomato-egg-noodles",
+      "imageUrl": "/catalog-images/v1/full/tomato-egg-noodles-aaec774a72d9.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：番茄鸡蛋面；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "番茄鸡蛋面×2",
+        "小菜×2"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "ff97ee13-ef74-4f55-93e1-80a8d5b70a02",
+      "storePublicId": "c2b77d15-039f-4cc0-ba2a-3c06aad98549",
+      "storeName": "小炉灶宝山店",
+      "expectedName": "单人快餐套餐 1",
+      "expectedDescription": "单人快餐组合，工作日可用。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "chicken-leg-rice",
+      "imageUrl": "/catalog-images/v1/full/chicken-leg-rice-96290f2ebb70.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：鸡腿配饭；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "鸡腿配饭",
+        "小菜"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    },
+    {
+      "entityType": "deal",
+      "entityId": "ff9929bd-6fbb-4a43-ab46-7a469968592a",
+      "storePublicId": "9c0e47d3-a26e-4ab3-8ef1-ccec04003e3f",
+      "storeName": "云上火锅静安店",
+      "expectedName": "双人火锅套餐 2",
+      "expectedDescription": "双人火锅固定套餐，需提前查看使用须知。",
+      "expectedOldImageUrl": null,
+      "expectedOldImageAlt": null,
+      "imageId": "hot-pot",
+      "imageUrl": "/catalog-images/v1/full/hot-pot-d9d6e6ba4370.jpg",
+      "imageAlt": "授权图库套餐主菜实拍示意：清汤火锅；不展示完整套餐，非演示门店实拍",
+      "demoComposition": [
+        "清汤火锅锅底",
+        "鸡肉",
+        "菌菇",
+        "时蔬"
+      ],
+      "compositionSource": "用户授权的版本化演示审图清单；非交易条款"
+    }
+  ],
+  "excludedInactiveDeals": [
+    {
+      "entityId": "2bfac536-f2ff-4e9d-8525-7485b3d2af39",
+      "title": "查询任务套餐乙",
+      "reason": "当前 inactive，历史隔离夹具不进入活动目录"
+    },
+    {
+      "entityId": "4e298da6-39b1-475b-8be6-0b4d040a62cc",
+      "title": "双人招牌盖饭套餐 1",
+      "reason": "当前 inactive，历史隔离夹具不进入活动目录"
+    },
+    {
+      "entityId": "55d561c9-c67c-4a86-8ca8-2ed59a60d7ae",
+      "title": "查询任务套餐甲",
+      "reason": "当前 inactive，历史隔离夹具不进入活动目录"
+    },
+    {
+      "entityId": "65571da2-10cd-4ed0-be7f-56663560d428",
+      "title": "独立验收套餐甲",
+      "reason": "当前 inactive，历史隔离夹具不进入活动目录"
+    },
+    {
+      "entityId": "90ddcb5a-034d-472f-918a-236562d4d14e",
+      "title": "查询任务套餐甲",
+      "reason": "当前 inactive，历史隔离夹具不进入活动目录"
+    },
+    {
+      "entityId": "afddbb90-29a6-4b31-adc2-0c67add4575d",
+      "title": "查询任务套餐乙",
+      "reason": "当前 inactive，历史隔离夹具不进入活动目录"
+    },
+    {
+      "entityId": "bcfc11f6-a8d9-469a-b1e1-0783c4e3db86",
+      "title": "独立验收套餐乙",
+      "reason": "当前 inactive，历史隔离夹具不进入活动目录"
+    },
+    {
+      "entityId": "cb29a395-0164-436d-accd-1294144bf51b",
+      "title": "Task8隔离边界-cb29a395-0164-436d-accd-1294144bf51b",
+      "reason": "当前 inactive，历史隔离夹具不进入活动目录"
+    }
+  ]
+}

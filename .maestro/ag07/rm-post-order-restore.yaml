@@ -1,0 +1,28 @@
+# 只恢复原会话，读取既有待支付订单；历史确认只能查看，禁止点击支付或重新建单。
+appId: com.fandazi.app
+---
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agentAssistantTab
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 暂停
+      enabled: true
+    timeout: 60000
+- assertVisible:
+    id: com.fandazi.app:id/agent_order_meta
+    text: "待支付.*"
+- assertVisible:
+    text: 旧确认已失效
+    enabled: false
+- assertNotVisible:
+    id: com.fandazi.app:id/agent_order_action
+    text: 确认
+    enabled: true
+- takeScreenshot: ag07-rm-existing-order-before

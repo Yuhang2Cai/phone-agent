@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 秒杀用户端确认稿原生布局；业务文字和状态由服务器快照绑定。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/sk_timer" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:padding="12dp" android:background="@drawable/sk_bg_green" android:layout_marginTop="12dp">
+    <LinearLayout android:id="@+id/sk_timer_labels" android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1">
+        <TextView android:id="@+id/sk_timer_title" style="@style/SkText" android:textColor="#FFFFFF" android:textStyle="bold" android:textSize="14sp"/>
+        <TextView android:id="@+id/sk_timer_caption" style="@style/SkMuted" android:textColor="#FFFFFF" android:textSize="10sp" android:layout_marginTop="4dp"/>
+    </LinearLayout>
+    <TextView android:id="@+id/sk_hours" style="@style/SkDigit"/>
+    <!-- 支付倒计时使用分秒两段；小时及其分隔符在支付页一起隐藏。 -->
+    <TextView android:id="@+id/sk_hour_separator" style="@style/SkText" android:layout_width="10dp" android:text=":" android:gravity="center" android:textColor="#FFFFFF"/>
+    <TextView android:id="@+id/sk_minutes" style="@style/SkDigit"/>
+    <TextView style="@style/SkText" android:layout_width="10dp" android:text=":" android:gravity="center" android:textColor="#FFFFFF"/>
+    <TextView android:id="@+id/sk_seconds" style="@style/SkDigit"/>
+</LinearLayout>

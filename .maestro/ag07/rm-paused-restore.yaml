@@ -1,0 +1,23 @@
+# 只打开已有会话的唯一暂停任务，禁止清空状态、重新登录、文本输入或业务确认。
+appId: com.fandazi.app
+---
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agentAssistantTab
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 恢复任务
+      enabled: true
+    timeout: 60000
+- assertVisible:
+    text: 旧确认已失效
+    enabled: false
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input
+- takeScreenshot: ag07-rm-paused-before

@@ -1,0 +1,108 @@
+# Task7 真实只读链：三个订单、四张券、分段和真实资格；不签发QR、不提交退款、不核销。
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- runFlow: task7-login.yaml
+- tapOn: "订单"
+- extendedWaitUntil:
+    visible: "order-card-${TASK7_ORDER_A}"
+    timeout: 30000
+- assertVisible: "order-card-${TASK7_ORDER_B}"
+- assertVisible: "order-card-${TASK7_ORDER_PENDING}"
+- assertVisible: ".*待支付.*71.23"
+- takeScreenshot: "UI10-orders-three-real"
+# 已完成/售后没有伪造已核销资源，真实空分段仍允许切回全部。
+- tapOn: "已完成"
+- assertVisible: "该状态暂无订单"
+- takeScreenshot: "completed-segment-empty"
+- tapOn: "退款/售后"
+- assertVisible: "该状态暂无订单"
+- tapOn: "待使用"
+- assertNotVisible: "order-card-${TASK7_ORDER_PENDING}"
+- assertVisible: "order-card-${TASK7_ORDER_A}"
+- takeScreenshot: "available-segment-two"
+- tapOn: "order-card-${TASK7_ORDER_A}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_ORDER_A}.*"
+    timeout: 30000
+- assertVisible: ".*实付.*142.46"
+- takeScreenshot: "UI11-order-two-vouchers"
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/group_order_show_vouchers"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- scrollUntilVisible:
+    element:
+      text: "团购券 1 ${TASK7_VOUCHER_A}"
+    direction: DOWN
+- tapOn: "团购券 1 ${TASK7_VOUCHER_A}"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/voucher_detail_info"
+    timeout: 30000
+- assertVisible: ".*${TASK7_VOUCHER_A}.*"
+- assertVisible: ".*${TASK7_ORDER_A}.*"
+- assertVisible: ".*本券实付.*71.23.*"
+- assertNotVisible: "展示核销二维码"
+- takeScreenshot: "UI12-voucher-first"
+- back
+- scrollUntilVisible:
+    element:
+      text: "团购券 2 ${TASK7_VOUCHER_B}"
+    direction: DOWN
+- tapOn: "团购券 2 ${TASK7_VOUCHER_B}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_VOUCHER_B}.*"
+    timeout: 30000
+- takeScreenshot: "voucher-second-distinct"
+# 退款只检查后端canRefund资格与入口导航，返回即可，不触发售后写入。
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/voucher_refund"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/voucher_refund"
+- assertVisible: "申请退款"
+- takeScreenshot: "eligible-refund-navigation-only"
+- back
+- back
+- back
+- tapOn: "全部"
+- tapOn: "order-card-${TASK7_ORDER_B}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_ORDER_B}.*"
+    timeout: 30000
+- assertVisible: ".*实付.*96.47"
+- takeScreenshot: "order-different-real"
+- back
+- tapOn: "order-card-${TASK7_ORDER_PENDING}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_ORDER_PENDING}.*"
+    timeout: 30000
+- assertVisible: ".*待支付.*71.23"
+- assertNotVisible: ".*实付.*71.23"
+- takeScreenshot: "pending-no-payment-snapshot"
+- scrollUntilVisible:
+    element:
+      id: "com.fandazi.app:id/group_order_show_vouchers"
+    direction: DOWN
+- tapOn:
+    id: "com.fandazi.app:id/group_order_show_vouchers"
+- scrollUntilVisible:
+    element:
+      text: "团购券 1 ${TASK7_PENDING_VOUCHER}"
+    direction: DOWN
+- tapOn: "团购券 1 ${TASK7_PENDING_VOUCHER}"
+- extendedWaitUntil:
+    visible: ".*${TASK7_PENDING_VOUCHER}.*"
+    timeout: 30000
+- assertVisible: ".*尚无付款记录.*"
+- assertNotVisible:
+    id: "com.fandazi.app:id/voucher_refund"
+- takeScreenshot: "pending-voucher-no-eligibility"
+- back
+- back
+- assertVisible: "order-card-${TASK7_ORDER_A}"

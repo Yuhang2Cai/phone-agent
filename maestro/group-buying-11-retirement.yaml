@@ -1,0 +1,20 @@
+# 退役设备回归：真实账号由私有运行器传入，公开菜单不能再包含旧外卖入口。
+appId: com.fandazi.app
+---
+- runFlow: group-buying-05-login.yaml
+- tapOn: 我的
+- assertVisible:
+    id: profile_memory_entry
+- assertNotVisible: 收货地址
+- assertNotVisible: 自动下单
+- tapOn:
+    id: profile_memory_entry
+- extendedWaitUntil:
+    visible: AI记忆
+    timeout: 30000
+- back
+- assertVisible:
+    id: profile_settings_entry
+- tapOn: 首页
+- assertNotVisible: 购物车
+- takeScreenshot: retirement-home

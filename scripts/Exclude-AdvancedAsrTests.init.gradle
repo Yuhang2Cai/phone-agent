@@ -1,0 +1,14 @@
+// 本轮用户授权是ASR仅实现/编译、不验证；适用全量回归明确排除语音与识别单测。
+// 源码仍完整编译，不改变生产实现或依赖；此脚本不授权运行任何ASR设备测试。
+import org.gradle.api.tasks.testing.Test
+allprojects {
+    tasks.withType(Test).configureEach {
+        filter {
+            excludeTestsMatching '*Asr*'
+            excludeTestsMatching '*ASR*'
+            excludeTestsMatching '*Speech*'
+            excludeTestsMatching '*VoiceInput*'
+            excludeTestsMatching '*asr*'
+        }
+    }
+}

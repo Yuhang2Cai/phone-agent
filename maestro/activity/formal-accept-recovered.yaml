@@ -1,0 +1,14 @@
+# 重建后读取原领取请求；三单任务仍为进行中，不能产生第二次领取写入。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/activityFragment
+- assertVisible: 金币游乐园
+- assertVisible: '10'
+- scrollUntilVisible:
+    element:
+      text: 今日下单 3 次，查看任务详情
+    direction: DOWN
+- tapOn: 今日下单 3 次，查看任务详情
+- assertVisible: 去首页下单
+- takeScreenshot: formal-accept-recovered

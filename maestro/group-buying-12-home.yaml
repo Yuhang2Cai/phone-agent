@@ -1,0 +1,9 @@
+# 错误注入前只切换首页，不提前读取本人订单，避免消耗一次性503。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: "com.fandazi.app:id/homeFragment"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/home_search_button"
+    timeout: 30000

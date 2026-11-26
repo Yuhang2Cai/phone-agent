@@ -1,0 +1,22 @@
+# 只打开原退款等待原因页面；不重新输入、不恢复购买、不点击确认。
+appId: com.fandazi.app
+---
+- launchApp:
+    stopApp: true
+# 与当前APK资源及已通过恢复流程一致，先等导航完成，避免启动过渡误判。
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agentAssistantTab
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_status
+      text: .*退款原因.*
+    timeout: 30000
+- assertVisible:
+    id: com.fandazi.app:id/agent_task_primary_action
+    text: 暂停
+    enabled: true
+- takeScreenshot: ag07-rm-refund-wait-before

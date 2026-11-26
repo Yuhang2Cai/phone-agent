@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.FandaziAi.Base" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_yellow</item>
+        <item name="colorOnPrimary">@color/brand_ink</item>
+        <item name="android:colorAccent">@color/brand_orange</item>
+        <item name="android:navigationBarColor">@color/surface_background</item>
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/surface_background</item>
+    </style>
+    <!-- API26基础主题；v27再启用浅色导航栏。底Tab不叠加圆形背景，与确认图标保持一致。 -->
+    <style name="Theme.FandaziAi" parent="Theme.FandaziAi.Base" />
+    <style name="Widget.FandaziAi.BottomNavigation.ActiveIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@android:color/transparent</item>
+    </style>
+    <!-- 五 Tab 确认稿统一 12sp，选中只改变颜色，避免默认主题放大标签导致横向挤压。 -->
+    <style name="TextAppearance.Fandazi.BottomTab" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="android:textSize">12sp</item>
+        <item name="android:fontFamily">sans-serif</item>
+    </style>
+</resources>

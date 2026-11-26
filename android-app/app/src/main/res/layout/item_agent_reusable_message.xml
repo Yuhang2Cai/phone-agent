@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 消息、错误和上下文共用一个骨架；标题/头像/动作由Holder完整绑定互斥切换。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/agent_message_root" android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:layout_marginBottom="12dp" android:orientation="vertical" android:gravity="start">
+    <TextView android:id="@+id/agent_message_avatar" android:layout_width="0dp" android:layout_height="0dp"
+        android:text="AI" android:background="@drawable/agent_avatar_bot" android:textColor="@color/group_buy_orange" />
+    <TextView android:id="@+id/agent_reusable_message_title" android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:textColor="@color/group_buy_green" android:textStyle="bold" android:visibility="gone" />
+    <TextView android:id="@+id/agent_message_text" android:layout_width="wrap_content" android:layout_height="wrap_content"
+        android:minHeight="46dp" android:maxWidth="322dp" android:paddingHorizontal="16dp" android:paddingVertical="12dp"
+        android:textColor="@color/group_buy_text" android:textSize="14sp" android:background="@drawable/agent_chat_bot_bubble" />
+    <TextView android:id="@+id/agent_error_retry" android:layout_width="match_parent" android:layout_height="40dp"
+        android:layout_marginTop="8dp" android:gravity="center" android:text="重新尝试" android:textSize="14sp"
+        android:textColor="@color/group_buy_orange" android:visibility="gone" />
+</LinearLayout>

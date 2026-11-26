@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 结果区域局部状态，固定字体及间距沿用原目录状态；只有当前错误可点击重试。 -->
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:paddingHorizontal="12dp" android:paddingVertical="24dp"
+    android:textColor="@color/group_buy_muted" android:textSize="15sp" />

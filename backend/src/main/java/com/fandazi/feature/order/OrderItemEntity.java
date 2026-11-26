@@ -1,0 +1,11 @@
+// 订单模块：定义持久化数据结构。
+package com.fandazi.feature.order;
+import jakarta.persistence.*; import java.math.BigDecimal; import java.util.*;
+// 初始化对象依赖与默认状态。
+// 获取菜品、id。
+// 获取菜品、name。
+// 获取quantity。
+// 获取unit、价格。
+// 获取option、ids。
+// 获取option、summary。
+@Entity @Table(name="order_items") public class OrderItemEntity { @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id; @ManyToOne(optional=false) private OrderEntity order; @Column(nullable=false) private Long dishId; @Column(nullable=false) private String dishName; @Column(nullable=false) private int quantity; @Column(nullable=false,precision=12,scale=2) private BigDecimal unitPrice; @ElementCollection @CollectionTable(name="order_item_options",joinColumns=@JoinColumn(name="item_id")) @Column(name="option_id",nullable=false) private List<Long> optionIds=new ArrayList<>(); @Column(nullable=false) private String optionSummary; protected OrderItemEntity(){} public OrderItemEntity(OrderEntity order,Long dishId,String dishName,int quantity,List<Long> optionIds,String optionSummary,BigDecimal unitPrice){this.order=order;this.dishId=dishId;this.dishName=dishName;this.quantity=quantity;this.optionIds=new ArrayList<>(optionIds);this.optionSummary=optionSummary;this.unitPrice=unitPrice;} public Long getDishId(){return dishId;} public String getDishName(){return dishName;} public int getQuantity(){return quantity;} public BigDecimal getUnitPrice(){return unitPrice;} public List<Long> getOptionIds(){return List.copyOf(optionIds);} public String getOptionSummary(){return optionSummary;} }

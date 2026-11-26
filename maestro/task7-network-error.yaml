@@ -1,0 +1,16 @@
+# 真实断网：列表及原订单详情必须失败可重试，不能把旧内容留作成功。
+appId: com.fandazi.app
+---
+- tapOn: "order-card-${TASK7_ORDER_A}"
+- extendedWaitUntil:
+    visible: "订单详情加载失败，请重试"
+    timeout: 45000
+- assertVisible:
+    id: "com.fandazi.app:id/group_order_retry"
+- takeScreenshot: "order-real-network-error"
+- back
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/orders_network_retry"
+    timeout: 45000
+- takeScreenshot: "list-real-network-error"

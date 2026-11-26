@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/nav_graph" app:startDestination="@id/authFragment">
+
+    <fragment android:id="@+id/authFragment" android:name="com.fandazi.app.feature.auth.AuthFragment" android:label="@string/login" />
+
+    <fragment android:id="@+id/homeFragment" android:name="com.fandazi.app.feature.home.HomeFragment" android:label="@string/home" />
+
+    <fragment android:id="@+id/agentChatFragment" android:name="com.fandazi.app.feature.agent.AgentChatFragment" android:label="AI 助手" />
+
+    <fragment android:id="@+id/searchFragment" android:name="com.fandazi.app.feature.search.SearchFragment" android:label="@string/search_page" />
+    <fragment android:id="@+id/ordersFragment" android:name="com.fandazi.app.feature.order.OrdersFragment" android:label="@string/orders_page" />
+    <!-- 活动是正式第五根体系中的第四入口，内部 RN 页面不增加第二套底栏。 -->
+    <fragment android:id="@+id/activityFragment" android:name="com.fandazi.app.feature.activity.ActivityHostFragment" android:label="活动" />
+    <fragment android:id="@+id/profileFragment" android:name="com.fandazi.app.feature.profile.ProfileFragment" android:label="@string/profile_page" />
+    <fragment android:id="@+id/storeFragment" android:name="com.fandazi.app.feature.store.StoreFragment" android:label="门店详情">
+        <argument android:name="storePublicId" app:argType="string" />
+    </fragment>
+    <fragment android:id="@+id/dealDetailFragment" android:name="com.fandazi.app.feature.deal.DealDetailFragment" android:label="团购套餐">
+        <argument android:name="dealPublicId" app:argType="string" />
+        <argument android:name="storePublicId" app:argType="string" />
+    </fragment>
+    <!-- UI-07 是套餐详情上的浮动底部弹窗；导航到支付页时自动移除该确认窗口。 -->
+    <dialog android:id="@+id/dealCheckoutBottomSheetFragment" android:name="com.fandazi.app.feature.purchase.DealCheckoutBottomSheetFragment" android:label="确认购买">
+        <argument android:name="dealPublicId" app:argType="string" />
+        <argument android:name="storePublicId" app:argType="string" android:defaultValue="" />
+        <argument android:name="quantity" app:argType="integer" />
+    </dialog>
+    <fragment android:id="@+id/groupBuyPaymentFragment" android:name="com.fandazi.app.feature.purchase.GroupBuyPaymentFragment" android:label="模拟支付" />
+    <fragment android:id="@+id/paymentSuccessFragment" android:name="com.fandazi.app.feature.purchase.PaymentSuccessFragment" android:label="支付成功" />
+    <!-- Task7 只读入口：订单和券身份从用户显式点击透传；下面原 dirty QR/售后路由不归本任务。 -->
+    <fragment android:id="@+id/groupOrderDetailFragment" android:name="com.fandazi.app.feature.voucher.GroupOrderDetailFragment" android:label="订单详情">
+        <argument android:name="orderId" app:argType="string" />
+    </fragment>
+    <fragment android:id="@+id/voucherDetailFragment" android:name="com.fandazi.app.feature.voucher.VoucherDetailFragment" android:label="团购券详情">
+        <argument android:name="voucherId" app:argType="string" />
+    </fragment>
+    <!-- 售后页面使用公开订单或券 ID，绝不把后端内部主键放入导航参数。 -->
+    <fragment android:id="@+id/refundRequestFragment" android:name="com.fandazi.app.feature.refund.RefundRequestFragment" android:label="申请退款">
+        <argument android:name="voucherId" app:argType="string" />
+    </fragment>
+    <fragment android:id="@+id/refundProgressFragment" android:name="com.fandazi.app.feature.refund.RefundProgressFragment" android:label="退款进度">
+        <argument android:name="requestId" app:argType="string" />
+        <argument android:name="dealTitle" app:argType="string" android:defaultValue="" />
+    </fragment>
+    <fragment android:id="@+id/reviewFragment" android:name="com.fandazi.app.feature.review.ReviewFragment" android:label="发布评价">
+        <argument android:name="orderId" app:argType="string" />
+    </fragment>
+    <fragment android:id="@+id/helpFaqFragment" android:name="com.fandazi.app.feature.support.HelpFaqFragment" android:label="帮助与客服" />
+    <fragment android:id="@+id/complaintFragment" android:name="com.fandazi.app.feature.support.ComplaintFragment" android:label="投诉与反馈">
+        <argument android:name="orderId" app:argType="string" android:defaultValue="" />
+    </fragment>
+    <!-- 本人记忆正式入口；延期核销节点不纳入Task10提交。 -->
+    <fragment android:id="@+id/memoryFragment" android:name="com.fandazi.app.feature.memory.MemoryFragment" android:label="AI记忆" />
+    <!-- 已确认套餐对比四个只读页面；共享Activity仅保存有序公开ID。 -->
+    <fragment android:id="@+id/compareSelectionFragment" android:name="com.fandazi.app.feature.compare.CompareSelectionFragment" android:label="选择套餐" />
+    <fragment android:id="@+id/dealCompareFragment" android:name="com.fandazi.app.feature.compare.DealCompareFragment" android:label="套餐对比" />
+    <fragment android:id="@+id/compareQuestionFragment" android:name="com.fandazi.app.feature.compare.CompareQuestionFragment" android:label="问AI" />
+    <fragment android:id="@+id/comparePurchaseFragment" android:name="com.fandazi.app.feature.compare.ComparePurchaseFragment" android:label="查看购买" />
+    <!-- 秒杀用户端只接受公开资源ID，登录返回不携带报价授权或自动提交指令。 -->
+    <fragment android:id="@+id/seckillFragment" android:name="com.fandazi.app.feature.seckill.SeckillFragment" android:label="限时秒杀">
+        <argument android:name="activityId" app:argType="string" />
+        <!-- 可选原订单用于跨设备恢复；仅ID，仍需后端本人权限核对。 -->
+        <argument android:name="orderId" app:argType="string" app:nullable="true" android:defaultValue="@null" />
+    </fragment>
+    <fragment android:id="@+id/seckillStoreFragment" android:name="com.fandazi.app.feature.seckill.SeckillStoreFragment" android:label="限时好券">
+        <argument android:name="storePublicId" app:argType="string" />
+    </fragment>
+</navigation>

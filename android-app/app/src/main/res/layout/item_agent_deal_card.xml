@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 套餐推荐卡：套餐名称和价格只从服务端返回，不设置客户端默认套餐。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/agent_deal_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="14dp"
+    android:background="@drawable/group_buy_card_background"
+    android:orientation="horizontal"
+    android:padding="16dp">
+    <ImageView
+        android:id="@+id/agent_deal_image"
+        android:layout_width="92dp"
+        android:layout_height="92dp"
+        android:contentDescription="套餐图片"
+        android:scaleType="centerCrop"
+        android:src="@drawable/merchant_cover_placeholder" />
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/agent_deal_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/group_buy_text"
+            android:textSize="17sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/agent_deal_meta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:maxLines="2"
+            android:textColor="@color/group_buy_muted"
+            android:textSize="12sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+            <TextView
+                android:id="@+id/agent_deal_price"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="@color/group_buy_orange"
+                android:textSize="19sp"
+                android:textStyle="bold" />
+            <TextView
+                android:id="@+id/agent_deal_action"
+                android:layout_width="wrap_content"
+                android:layout_height="36dp"
+                android:gravity="center"
+                android:paddingHorizontal="16dp"
+                android:text="查看详情"
+                android:textColor="@color/group_buy_orange"
+                android:textSize="14sp" />
+        </LinearLayout>
+        <!-- 原价与折扣来自真实价格字段；缺值由渲染器明确标识，不放演示金额。 -->
+        <TextView android:id="@+id/agent_deal_original_discount" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" android:textSize="12sp" android:textColor="@color/group_buy_muted" />
+    </LinearLayout>
+</LinearLayout>

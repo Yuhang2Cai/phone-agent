@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-10 团购订单卡片：字段由后端订单摘要填充。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginBottom="12dp" android:background="@drawable/group_buy_card_background" android:orientation="vertical" android:padding="18dp">
+    <!-- 长门店名换行，状态保留自己的空间，真实数量与时间不能只以券数替代。 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
+        <TextView android:id="@+id/group_order_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/group_buy_text" android:textSize="17sp" android:textStyle="bold" />
+        <TextView android:id="@+id/group_order_state" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="12dp" android:textColor="@color/group_buy_orange" android:textSize="12sp" />
+    </LinearLayout>
+    <TextView android:id="@+id/group_order_deal" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="@color/group_buy_text" android:textSize="14sp" />
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:orientation="horizontal" android:gravity="center_vertical">
+        <TextView android:id="@+id/group_order_time" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textColor="@color/group_buy_muted" android:textSize="12sp" />
+        <TextView android:id="@+id/group_order_total" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/group_buy_orange" android:textSize="16sp" android:textStyle="bold" />
+    </LinearLayout>
+    <TextView android:id="@+id/group_order_summary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:textColor="@color/group_buy_muted" android:textSize="11sp" />
+</LinearLayout>

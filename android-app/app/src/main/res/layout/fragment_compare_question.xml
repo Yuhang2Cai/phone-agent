@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI16I保留原草稿，用户编辑后手动发送；状态恢复只保存公开选择ID。 -->
+<!-- 表单使用实际可滚动容器，横屏或键盘占用高度时发送/返回仍可到达。 -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:background="@color/group_buy_background"><LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="20dp" android:paddingBottom="16dp"><TextView android:id="@+id/compare_back" style="@style/CompareText" android:layout_height="44dp" android:gravity="center_vertical" android:text="‹   问AI" android:textColor="@color/group_buy_green" android:textSize="18sp" android:textStyle="bold" android:contentDescription="返回选择" />
+<TextView android:id="@+id/compare_question_status" style="@style/CompareText" android:textColor="@color/group_buy_muted" />
+<TextView android:id="@+id/compare_question_names" style="@style/CompareText" android:textColor="@color/group_buy_green" android:layout_marginTop="12dp" />
+<EditText android:id="@+id/compare_question_input" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:maxLines="6" android:inputType="textMultiLine" android:saveEnabled="false" android:padding="16dp" android:background="@color/surface_card" android:textColor="@color/group_buy_text" android:textSize="14sp" android:hint="输入想比较的问题" android:layout_marginTop="12dp" />
+<TextView android:id="@+id/compare_question_send" style="@style/CompareButton" android:text="发送" android:layout_marginTop="12dp" />
+<TextView android:id="@+id/compare_question_return" style="@style/CompareButton" android:text="返回对比" android:background="@drawable/compare_secondary" android:layout_marginTop="12dp" />
+<TextView style="@style/CompareCaption" android:text="保留原草稿，编辑后再发送。回复不会自动购买。" android:layout_marginTop="12dp" />
+</LinearLayout></ScrollView>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 通过AppCompat着色兼容API26；图标及Figma色值不变。 -->
+<!-- 状态栏安全区域固定在非滚动根容器，防止Header离屏后业务行与系统图标重叠。 -->
+<!-- 24dp仅作为首次布局的设计占位，Fragment收到系统Insets后使用实际状态栏高度。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/group_buy_green" android:paddingTop="24dp">
+    <!-- 仍只有一个有界纵向滚动容器，摘要/页签/评分/业务行都由同一Adapter回收。 -->
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:background="@color/group_buy_background">
+    <!-- 套餐列表的显式对比入口，实际选择/数量在已确认选择页管理。 -->
+    <TextView android:id="@+id/store_compare_open" style="@style/CompareButton" android:text="选择套餐对比" android:layout_marginHorizontal="12dp" android:layout_marginVertical="8dp" />
+    <!-- 仅有真实活动时显示入口；是否可购仍需秒杀详情核对服务器。 -->
+    <TextView android:id="@+id/store_seckill_open" style="@style/SkAction" android:text="限时好券 · 查看秒杀活动" android:layout_marginHorizontal="12dp" android:layout_marginBottom="8dp" android:visibility="gone" />
+    <!-- 公开缓存来源提示位于现有内容区之外，不增加新的回收列表类型。 -->
+    <include layout="@layout/include_catalog_cache_banner" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/store_content" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1"
+        android:background="@color/group_buy_background" android:clipToPadding="false" android:paddingBottom="16dp" />
+</LinearLayout>
+</FrameLayout>

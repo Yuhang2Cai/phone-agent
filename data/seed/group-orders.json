@@ -1,0 +1,8 @@
+[
+  {"publicId":"group-order-pending","deal":"deal-001-1","status":"PENDING_PAYMENT","quantity":1,"totalCents":8800,"idempotencyKey":"seed-group-pending","expiresAt":"2027-12-31T23:59:59"},
+  {"publicId":"group-order-paid","deal":"deal-002-1","status":"PAID","quantity":2,"totalCents":25600,"idempotencyKey":"seed-group-paid","expiresAt":"2027-12-31T23:59:59"},
+  {"publicId":"group-order-partial","deal":"deal-003-1","status":"PARTIALLY_USED","quantity":3,"totalCents":14400,"idempotencyKey":"seed-group-partial","expiresAt":"2027-12-31T23:59:59"},
+  {"publicId":"group-order-used","deal":"deal-004-1","status":"USED","quantity":1,"totalCents":6800,"idempotencyKey":"seed-group-used","expiresAt":"2027-12-31T23:59:59"},
+  {"publicId":"group-order-refunded","deal":"deal-005-1","status":"REFUNDED","quantity":1,"totalCents":10800,"idempotencyKey":"seed-group-refunded","expiresAt":"2027-12-31T23:59:59"},
+  {"publicId":"group-order-expired","deal":"deal-006-1","status":"EXPIRED","quantity":1,"totalCents":5800,"idempotencyKey":"seed-group-expired","expiresAt":"2026-01-01T00:00:00"}
+]

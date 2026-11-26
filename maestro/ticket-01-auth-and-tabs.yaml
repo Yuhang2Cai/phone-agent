@@ -1,0 +1,31 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- assertVisible:
+    id: "com.fandazi.app:id/submit_button"
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- assertVisible:
+    id: "com.fandazi.app:id/homeFragment"
+- tapOn:
+    id: "com.fandazi.app:id/merchantFragment"
+- assertVisible:
+    id: "com.fandazi.app:id/merchant_cover"
+- assertVisible:
+    id: "com.fandazi.app:id/category_list"
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/homeFragment"
+- tapOn:
+    id: "com.fandazi.app:id/ordersFragment"
+- assertVisible:
+    id: "com.fandazi.app:id/ordersFragment"
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- assertVisible:
+    id: "com.fandazi.app:id/profileFragment"
+- tapOn:
+    id: "com.fandazi.app:id/homeFragment"
+- assertVisible:
+    id: "com.fandazi.app:id/homeFragment"

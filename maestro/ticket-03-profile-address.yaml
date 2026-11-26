@@ -1,0 +1,14 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/profileFragment"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_title"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_address_entry"
+- assertVisible:
+    id: "com.fandazi.app:id/profile_automation_entry"

@@ -1,0 +1,41 @@
+# AG03明确输入驱动：草稿填入后才检查发送资格，发送后等待正式进度行消失，不以空草稿按钮判断完成。
+appId: com.fandazi.app
+---
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_input
+- eraseText
+- setClipboard: ${CHAT_TEXT}
+- pasteText
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input
+    text: ${CHAT_TEXT}
+# 普通业务尚在执行时允许编辑草稿，必须等前轮结束后才能明确发送下一轮。
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_chat_send
+      enabled: true
+    timeout: 180000
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_send
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_chat_input
+      text: ${CHAT_TEXT}
+    timeout: 10000
+# 固定验收设备使用Gboard；仅实际键盘容器可见才收起，避免Maestro在键盘已隐藏时发返回退出聊天页。
+- runFlow:
+    when:
+      visible:
+        id: com.google.android.inputmethod.latin:id/keyboard_holder
+    commands:
+      - hideKeyboard
+# 真实业务结束、等待字段或等待确认后进度行消失；异常也可能结束，所以另行拒绝错误画面。
+- extendedWaitUntil:
+    notVisible:
+      id: com.fandazi.app:id/agent_progress_card
+    timeout: 180000
+- assertNotVisible: 暂时无法完成请求
+# 固定合成输入的必要来源应完整；安全追问虽然关闭进度，也不能当作业务成功。
+- assertNotVisible: 上下文来源或预算暂不可用，请缩小范围或重新选择对象。
+- assertVisible:
+    id: com.fandazi.app:id/agent_chat_input

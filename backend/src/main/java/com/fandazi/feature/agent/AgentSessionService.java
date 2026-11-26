@@ -1,0 +1,135 @@
+// 助手会话服务：保存会话归属和上下文状态。
+package com.fandazi.feature.agent;
+
+import com.fandazi.feature.DomainException;
+import com.fandazi.feature.auth.UserRepository;
+import java.math.BigDecimal;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+@Service
+public class AgentSessionService {
+    private final AgentSessionRepository sessions; private final UserRepository users;
+// 初始化对象依赖与默认状态。
+    public AgentSessionService(AgentSessionRepository sessions, UserRepository users) { this.sessions = sessions; this.users = users; }
+    /**
+     * 准入前只读检查会话所有者，允许合法用户的新会话；不创建占位、不锁行、不升级协议。
+     * 后续原写事务仍复核归属与并发创建，不能用这次预读替代唯一键/行锁保护。
+     */
+    @Transactional(readOnly=true) public void preflightStart(Long userId,String sessionId) {
+        if(userId==null||sessionId==null||sessionId.isBlank()||sessionId.length()>100)
+            throw AgentTaskRegistryService.bad("会话身份无效");
+        var existing=sessions.findBySessionId(sessionId);
+        if(existing.isPresent()) {
+            if(!existing.get().ownerId().equals(userId))throw AgentTaskRegistryService.missing();
+        } else if(users.findById(userId).isEmpty())throw AgentTaskRegistryService.missing();
+    }
+    /** 创建2.2空目录会话；只供受控任务入口，绝不把旧活动会话静默迁移到新协议。 */
+    @Transactional public AgentSession startTaskSession(Long userId,String sessionId,String traceId) {
+        if(sessionId==null||sessionId.isBlank()||sessionId.length()>100)
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.BAD_REQUEST,"会话身份无效");
+        var session=createMissingAndLock(userId,sessionId,AgentMode.CONFIRM,traceId,true);
+        // 冲突创建不得更新所有者；锁读后再按原404契约拒绝越权。
+        if(!session.ownerId().equals(userId))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,"会话不存在");
+        if(!"2.2".equals(session.getContextProtocolVersion())) {
+            String status=session.getActiveRunStatus();
+            if(status!=null&&!java.util.Set.of("succeeded","cancelled","failed").contains(status))
+                throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,"旧活动run必须按原协议完成");
+            session.enterTaskProtocol(traceId);
+        }
+        return session;
+    }
+// 处理 `start` 相关逻辑。
+    @Transactional public AgentSession start(Long userId, String sessionId, AgentMode mode, String traceId) {
+        // 旧调用方保持 B2 版本；只有新受控入口显式要求 2.1。
+        return start(userId,sessionId,mode,traceId,"2.0");
+    }
+
+    /** 原子建立任务及固定协议；等待中的旧任务沿用原版本直至结束。 */
+    @Transactional public AgentSession start(Long userId,String sessionId,AgentMode mode,String traceId,String requestedVersion) {
+        if(!java.util.Set.of("2.0","2.1").contains(requestedVersion))throw new DomainException("任务协议版本不受支持");
+        if (sessionId == null || sessionId.isBlank()) throw new DomainException("会话不能为空");
+        return startLocked(createMissingAndLock(userId,sessionId,mode,traceId,false),userId,mode,traceId,requestedVersion);
+    }
+
+    /**
+     * 加入外层事务建立可锁行：普通存在性查询不取间隙锁，缺失时以数据库唯一键仲裁创建竞争。
+     * 不开新事务、不做应用锁或失败重试；后续来源/消息失败时占位行必须同事务撤销。
+     * 新占位没有活动run，之后由原协议转换分配；已存在记录不执行无意义更新。
+     */
+    private AgentSession createMissingAndLock(Long userId,String sessionId,AgentMode mode,String traceId,boolean taskProtocol) {
+        // 普通查询只是减少既有会话的重复写；即使两个实例同时读到缺失，原子插入仍只能留一行。
+        if(!sessions.existsBySessionId(sessionId)) {
+            if(users.findById(userId).isEmpty()) {
+                if(taskProtocol)throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.NOT_FOUND,"用户不存在");
+                throw new DomainException("用户不存在");
+            }
+            sessions.createIfAbsent(userId,sessionId,mode.name(),traceId);
+        }
+        // 在创建完成之后才做当前读，跨实例并发以实际已提交/本事务创建的行核验，不信旧快照的归属。
+        return sessions.findBySessionIdForUpdate(sessionId).orElseThrow(()->new IllegalStateException("会话创建后未找到记录"));
+    }
+
+    /**
+     * 复用调用方已持有悲观锁的会话执行与 start 完全相同的归属、版本和运行状态转换。
+     * 该方法只在同包事务服务中调用；传入未锁实体会破坏串行来源顺序，因此不作为公开接口。
+     */
+    AgentSession startLocked(AgentSession session,Long userId,AgentMode mode,String traceId,String requestedVersion) {
+        if(!java.util.Set.of("2.0","2.1").contains(requestedVersion))throw new DomainException("任务协议版本不受支持");
+        if(!session.ownerId().equals(userId))throw new DomainException("会话不属于当前用户");
+        // 旧消息入口不能覆盖2.2目录/停点；新协议必须经任务轮次受理服务进入。
+        if("2.2".equals(session.getContextProtocolVersion()))
+            throw new org.springframework.web.server.ResponseStatusException(org.springframework.http.HttpStatus.CONFLICT,"请通过任务协议入口继续当前会话");
+        boolean resume="waiting_input".equals(session.getActiveRunStatus()) || "waiting_confirmation".equals(session.getActiveRunStatus());
+        if(!resume)session.bindContextProtocol(requestedVersion);
+        session.update(mode,traceId);
+        return session;
+    }
+// 处理 `owned` 相关逻辑。
+    @Transactional(readOnly = true) public AgentSession owned(Long userId, String sessionId) {
+        return sessions.findBySessionIdAndUserId(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在"));
+    }
+// 处理 `trusted` 相关逻辑。
+    @Transactional(readOnly = true) public AgentSession trusted(String sessionId) {
+        return sessions.findBySessionId(sessionId).orElseThrow(() -> new DomainException("会话不存在"));
+    }
+// 处理 `trustedForUpdate` 相关逻辑。
+    @Transactional public AgentSession trustedForUpdate(String sessionId) {
+        return sessions.findBySessionIdForUpdate(sessionId).orElseThrow(() -> new DomainException("会话不存在"));
+    }
+    /** 旧协议泛化确认只用于旧任务；2.2必须经明确task/turn/展示摘要校验，不能绕过新门禁。 */
+    @Transactional public void confirm(Long userId, String sessionId) {
+        var session=sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在"));
+        if("2.2".equals(session.getContextProtocolVersion()))throw new ToolBoundaryException("FORBIDDEN","任务协议必须确认当前轮次摘要");session.confirm();
+    }
+// 处理 `bindAuthorizedCart` 相关逻辑。
+    @Transactional public void bindAuthorizedCart(Long userId, String sessionId, String workflowId, Long cartDraftId, Long addressId, BigDecimal total) {
+        sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在")).bindAuthorizedCart(workflowId, cartDraftId, addressId, total);
+    }
+// 处理 `bindAuthorizedCart` 相关逻辑。
+    @Transactional public void bindAuthorizedCart(AgentSession session, String workflowId, Long cartDraftId, Long addressId, BigDecimal total) {
+        session.bindAuthorizedCart(workflowId, cartDraftId, addressId, total);
+    }
+// 处理 `bindWorkflow` 相关逻辑。
+    @Transactional public void bindWorkflow(AgentSession session, String workflowId) { session.bindWorkflow(workflowId); }
+// 处理 `bindCreatedOrder` 相关逻辑。
+    @Transactional public void bindCreatedOrder(AgentSession session, Long orderId, String workflowId) { session.bindCreatedOrder(orderId, workflowId); }
+// 处理 `consumeConfirmation` 相关逻辑。
+    @Transactional public void consumeConfirmation(AgentSession session) { session.consumeConfirmation(); }
+// 处理 `settleCreatedOrder` 相关逻辑。
+    @Transactional public void settleCreatedOrder(AgentSession session) { session.settleCreatedOrder(); }
+
+    /** 保存暂停或终态；归属与行锁校验保证任务标识在跨输入和服务重启后可恢复。 */
+    @Transactional public void finishRun(Long userId, String sessionId, String runId, AgentResult.Status status) {
+        sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId)
+                .orElseThrow(() -> new DomainException("会话不存在")).finishRun(runId, status);
+    }
+
+    /** 把 Spring 已重查的待确认摘要绑定当前任务，下一次明确确认只能消费该动作和正文。 */
+    @Transactional public void bindPendingConfirmation(Long userId, String sessionId, String runId, java.util.Map<String, Object> summary) {
+        var session = sessions.findBySessionIdAndUserIdForUpdate(sessionId, userId).orElseThrow(() -> new DomainException("会话不存在"));
+        if (!runId.equals(session.getActiveRunId())) throw new DomainException("任务已经变化");
+        session.awaitConfirmation(summary);
+    }
+}

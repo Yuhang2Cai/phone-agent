@@ -1,0 +1,168 @@
+# SSE最新APK场景：运行器按阶段控制隔离Agent服务，真实Spring/Agent提供全部业务数据。
+# SSE_PHASE只允许运行器定义的阶段；暂停用于观察进度，停止用于网络错误，恢复后验证终态/确认取消。
+appId: com.fandazi.app
+---
+- runFlow:
+    when:
+      true: ${SSE_PHASE == "progress" || SSE_PHASE == "error" || SSE_PHASE == "confirmation"}
+    commands:
+      - runFlow: group-buying-05-login.yaml
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_chat_input
+          timeout: 30000
+
+- runFlow:
+    when:
+      true: ${SSE_PHASE == "progress" || SSE_PHASE == "error"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - inputText: hello
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+
+- runFlow:
+    when:
+      true: ${SSE_PHASE == "progress"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_progress_card
+          timeout: 15000
+      # 进度标题随业务类型变化，Figma中的餐厅文案是业务例；这里检查真实进度结构及进行中状态。
+      - assertVisible:
+          id: com.fandazi.app:id/agent_progress_title
+      - assertVisible: 进行中
+      - takeScreenshot: SSE-progress-paused-backend
+
+- runFlow:
+    when:
+      true: ${SSE_PHASE == "error"}
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/agent_error_card
+          timeout: 30000
+      - assertVisible:
+          id: com.fandazi.app:id/agent_error_retry
+          enabled: true
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_order_action
+          enabled: true
+      - takeScreenshot: SSE-error-stopped-backend
+
+- runFlow:
+    when:
+      true: ${SSE_PHASE == "retry"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/agent_error_retry
+
+- runFlow:
+    when:
+      true: ${SSE_PHASE == "terminal" || SSE_PHASE == "retry"}
+    commands:
+      - extendedWaitUntil:
+          visible: 你好，我是饭搭子助手。
+          timeout: 90000
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_error_card
+      - assertNotVisible: 进行中
+      - assertVisible:
+          id: com.fandazi.app:id/agent_chat_input
+      - takeScreenshot: SSE-completed-after-recovery
+      # Tab返回只恢复历史，不再次发送原语句；旧连接释放/双通道去重由真实仓库和状态层测试共同校验。
+      - tapOn:
+          id: com.fandazi.app:id/homeFragment
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - assertVisible: 你好，我是饭搭子助手。
+      - assertNotVisible: 进行中
+
+- runFlow:
+    when:
+      true: ${SSE_PHASE == "confirmation"}
+    commands:
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - setClipboard: 我想申请退款
+      - pasteText
+      - setClipboard: ""
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - extendedWaitUntil:
+          visible:
+            text: 选择此券
+            enabled: true
+          timeout: 60000
+      - tapOn:
+          text: 选择此券
+          enabled: true
+      - extendedWaitUntil:
+          visible: .*退款原因.*
+          timeout: 60000
+      - assertNotVisible: 进行中
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_input
+      - setClipboard: 行程变更
+      - pasteText
+      - setClipboard: ""
+      - hideKeyboard
+      - tapOn:
+          id: com.fandazi.app:id/agent_chat_send
+      - extendedWaitUntil:
+          visible:
+            text: 确认退款
+            enabled: true
+          timeout: 60000
+      - assertVisible: .*金额：¥[0-9]+\.[0-9]{2}.*
+      - assertNotVisible: .*confirmationGrant.*
+      - assertNotVisible: 进行中
+      - takeScreenshot: SSE-explicit-confirmation
+      # 明确取消准备摘要，验证暂停/终态不改变资格；本流程不点击确认退款或其他交易按钮。
+      - tapOn:
+          text: 取消本次申请
+          enabled: true
+      - extendedWaitUntil:
+          visible: 已取消本次操作
+          timeout: 60000
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_order_action
+          enabled: true
+      - assertNotVisible: 进行中
+      - takeScreenshot: SSE-confirmation-cancelled
+
+- runFlow:
+    when:
+      true: ${SSE_PHASE == "logout"}
+    commands:
+      # 退出账号后原会话/确认卡不能残留；SSE活动Call释放另由饱和取消和真实身份回归交叉证明。
+      - tapOn:
+          id: com.fandazi.app:id/profileFragment
+      - tapOn:
+          id: com.fandazi.app:id/profile_logout
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/username_input
+          timeout: 15000
+      # 正式会话注销清空旧栈并进入认证页，点击游客返回才显示Tab；不能假定仍停在我的页。
+      - tapOn:
+          id: com.fandazi.app:id/skip_login_button
+      - extendedWaitUntil:
+          visible:
+            id: com.fandazi.app:id/bottom_navigation
+          timeout: 15000
+      - tapOn:
+          id: com.fandazi.app:id/agentAssistantTab
+      - assertVisible:
+          id: com.fandazi.app:id/agent_login_gate
+      - assertNotVisible: 已取消本次操作
+      - assertNotVisible: 确认退款
+      - assertNotVisible:
+          id: com.fandazi.app:id/agent_error_card
+      - takeScreenshot: SSE-owner-logout-clears-private-state

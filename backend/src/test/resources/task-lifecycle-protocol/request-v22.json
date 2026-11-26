@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.2",
+  "userId": "910001",
+  "sessionId": "synthetic-session",
+  "traceId": "synthetic-trace",
+  "runId": "synthetic-run",
+  "query": "继续",
+  "context": {
+    "conversationSource": {
+      "sourceMessageId": "synthetic-source",
+      "conversationEpoch": "synthetic-epoch",
+      "turnSequence": 1,
+      "historyRecorded": true
+    },
+    "taskAdmission": {
+      "fence": {
+        "scope": {
+          "userId": "910001",
+          "sessionId": "synthetic-session",
+          "conversationEpoch": "synthetic-epoch"
+        },
+        "conversationTaskId": "synthetic-conversation-task",
+        "runId": "synthetic-run",
+        "turnId": "synthetic-turn",
+        "focusVersion": 10,
+        "taskVersion": 7,
+        "executionGeneration": 3
+      },
+      "sourceMessageId": "synthetic-source",
+      "protocolVersion": "2.2",
+      "admissionState": "admitted",
+      "mayExecuteTools": true,
+      "commandId": null
+    }
+  }
+}

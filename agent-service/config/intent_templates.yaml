@@ -1,0 +1,41 @@
+# 团购 Agent 的意图定义配置。
+# 本文件只描述可识别的业务边界，具体模型提示词和运行时路由仍由服务代码管理。
+version: group-buying-intent-v1
+
+intents:
+  # 用户打招呼或询问助手身份，不应被解释成业务检索。
+  greeting:
+    description: "问候、寒暄、询问助手身份"
+  # 与当前团购业务无直接操作目标的自然交流。
+  chitchat:
+    description: "普通闲聊和情绪表达"
+  # 按位置、品类、预算或偏好寻找可购买的团购门店。
+  restaurant_recommendation:
+    description: "餐厅推荐与找店"
+  # 寻找菜品、套餐或具体口味的团购内容。
+  dish_recommendation:
+    description: "菜品和套餐推荐"
+  # 查询门店的营业时间、地址、电话、人均和设施。
+  restaurant_info:
+    description: "门店基础信息"
+  # 查询用户评价、评分和口碑。
+  review_query:
+    description: "评价、评分和口碑查询"
+  # 查询团购订单及其状态。
+  order:
+    description: "订单查询"
+  # 查询团购、优惠券、会员和积分权益。
+  coupon:
+    description: "团购、优惠券、会员积分"
+  # 处理退款、核销失败等售后事项。
+  refund_after_sale:
+    description: "退款和售后"
+  # 用户表达对平台、门店或服务的投诉。
+  complaint:
+    description: "投诉"
+  # 查询平台规则、使用方式和常见问题。
+  faq:
+    description: "平台规则和使用帮助"
+  # 无法由当前团购 Agent 提供服务的请求。
+  out_of_scope:
+    description: "非平台能力范围"

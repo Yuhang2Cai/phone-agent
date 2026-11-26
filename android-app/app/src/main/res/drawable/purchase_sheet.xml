@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-07 的白色弹窗仅顶部圆角，尺寸由可滚动内容决定。 -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"><solid android:color="@android:color/white"/><corners android:topLeftRadius="20dp" android:topRightRadius="20dp"/></shape>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/home_background" android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="64dp" android:gravity="center_vertical" android:paddingStart="16dp" android:paddingEnd="16dp">
+        <ImageView android:id="@+id/cart_back" android:layout_width="40dp" android:layout_height="40dp" android:background="@drawable/home_icon_button_background" android:contentDescription="返回" android:padding="11dp" android:src="@drawable/ic_back" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="center" android:text="购物车" android:textColor="@color/brand_ink" android:textSize="22sp" android:textStyle="bold" />
+        <TextView android:id="@+id/cart_clear" android:layout_width="48dp" android:layout_height="40dp" android:contentDescription="清空购物车" android:gravity="center" android:text="清空" android:textColor="@color/brand_muted" android:textSize="14sp" />
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipToPadding="false" android:paddingStart="16dp" android:paddingEnd="16dp" android:paddingBottom="20dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/cart_banner_background" android:padding="14dp" android:text="🧡  好好吃饭，是今天最重要的小事" android:textColor="#8A4B2F" android:textSize="13sp" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:background="@drawable/search_merchant_card" android:orientation="vertical" android:padding="16dp">
+                <TextView android:id="@+id/cart_merchant_name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textColor="@color/brand_ink" android:textSize="17sp" android:textStyle="bold" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:layout_marginTop="12dp" android:background="@color/brand_divider" />
+                <LinearLayout android:id="@+id/cart_lines" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" />
+                <TextView android:id="@+id/cart_empty" android:layout_width="match_parent" android:layout_height="120dp" android:gravity="center" android:text="购物车还是空的，去挑点好吃的吧" android:textColor="@color/brand_muted" />
+            </LinearLayout>
+            <TextView android:id="@+id/cart_address" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:background="@drawable/cart_address_background" android:contentDescription="配送地址" android:padding="16dp" android:text="📍  结算时将校验默认收货地址  ›" android:textColor="#247A42" android:textSize="14sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="14dp" android:background="@drawable/search_merchant_card" android:orientation="vertical" android:padding="16dp">
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="费用明细" android:textColor="@color/brand_ink" android:textSize="16sp" android:textStyle="bold" />
+                <TextView android:id="@+id/cart_fee_summary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:lineSpacingExtra="8dp" android:textColor="@color/brand_muted" android:textSize="14sp" />
+            </LinearLayout>
+            <TextView android:id="@+id/cart_error" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:gravity="center" android:textColor="@color/warning_red" android:textSize="13sp" />
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout android:layout_width="match_parent" android:layout_height="82dp" android:background="#FFFFFF" android:gravity="center_vertical" android:paddingStart="20dp" android:paddingEnd="16dp">
+        <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical">
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="合计" android:textColor="@color/brand_muted" android:textSize="12sp" />
+            <TextView android:id="@+id/cart_total" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="¥0.00" android:textColor="@color/brand_orange" android:textSize="24sp" android:textStyle="bold" />
+        </LinearLayout>
+        <TextView android:id="@+id/cart_checkout" android:layout_width="156dp" android:layout_height="54dp" android:background="@drawable/search_button_background" android:contentDescription="去结算" android:gravity="center" android:text="去结算" android:textColor="#FFFFFF" android:textSize="16sp" android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,109 @@
+// TL-09在线合成前置桥：只准备真实身份、目录和目录对象；归属/控制/业务均走正式HTTP与产品Bean。
+package com.fandazi.feature.agent;
+
+import com.fandazi.feature.auth.UserRepository;
+import com.fandazi.feature.auth.UserEntity;
+import com.fandazi.feature.catalog.StoreRepository;
+import com.fandazi.feature.catalog.DealPackageRepository;
+import java.util.*;
+import org.springframework.context.ApplicationContext;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+/** 仅在测试classpath，不能进入生产JAR；直接种暂停行为只代表前置，不算控制成功证据。 */
+public final class AgentTaskOnlineFixtureBridge {
+    private final ApplicationContext context;
+    private final AgentTaskLiveFixtureBridge goalBridge;
+    /**
+     * 注入真实容器并复用目标恢复夹具边界。
+     *
+     * 两个桥都只存在于测试 classpath；复用已有目标夹具可避免在在线性能驱动中复制目标
+     * 投影、恢复记录或写入信封的构造逻辑，同时禁止请求替换实现、网络地址或数据库。
+     */
+    public AgentTaskOnlineFixtureBridge(ApplicationContext context){
+        this.context=context;
+        this.goalBridge=new AgentTaskLiveFixtureBridge(context);
+    }
+    /** 所有事务仍交给产品容器代理，不在桥中复制控制/订单实现。 */
+    private <T>T bean(Class<T> type){return context.getBean(type);}
+    /** 固定合成驱动主体并复用产品内部JWT校验；密钥不输出。 */
+    public void authorize(String authorization){bean(InternalV1JwtValidator.class).validate(authorization,"910000");}
+
+    /**
+     * 为已创建的合成门店或套餐登记真实页面展示证据。
+     *
+     * 对象必须按明确类型由对应真实目录仓储重查，来源顺序和 presentation 版本由产品
+     * 服务持久化；调用方不能传入 presentationId、version、ordinal、意图或期望结果，
+     * 因此该前置只能表达页面已经展示的权威对象，不能伪造测量结果或业务成功。
+     */
+    private Map<String,Object> registerPresentation(Map<String,Object> raw){
+        Long user=Long.valueOf((String)raw.get("userId"));String session=(String)raw.get("sessionId");
+        String resourceId=(String)raw.get("resourceId"),resourceType=(String)raw.get("resourceType");
+        if(resourceId==null||resourceId.isBlank())throw new IllegalArgumentException("展示资源不能为空");
+        if(resourceType==null||!Set.of("store","deal").contains(resourceType))
+            throw new IllegalArgumentException("展示资源类型不受支持");
+        // 每种类型都必须命中对应产品仓储；不能因另一张表存在同名 publicId 就制造可信引用。
+        if("store".equals(resourceType))bean(StoreRepository.class).findByPublicId(resourceId)
+            .orElseThrow(()->new IllegalArgumentException("展示门店不存在"));
+        else bean(DealPackageRepository.class).findByPublicId(resourceId)
+            .orElseThrow(()->new IllegalArgumentException("展示套餐不存在"));
+        var source=bean(AgentConversationSourceService.class).issue(user,session,
+            "AG05合成页面已展示"+resourceType+resourceId,"ag05-presentation-"+UUID.randomUUID());
+        // 卡片只携带已重查对象的类型和公开 ID；产品展示服务负责生成并持久化引用元数据。
+        var card=new LinkedHashMap<String,Object>();card.put("type",resourceType);card.put("resourceId",resourceId);
+        var cards=bean(AgentPresentationService.class).register(user,session,(String)source.get("sourceMessageId"),List.of(card));
+        return Map.of("cards",cards);
+    }
+
+    /** 按冻结前置创建合成scope；返回实际公开ID，不能接收金标动作或伪造模型答案。 */
+    @SuppressWarnings("unchecked") public Object call(Map<String,Object> raw){
+        String op=(String)raw.get("op");
+        if("database".equals(op))return bean(JdbcTemplate.class).queryForMap("SELECT DATABASE() AS database_name, VERSION() AS database_version");
+        if("presentation".equals(op))return registerPresentation(raw);
+        // AG05 性能旅程只复用目标夹具的真实前置和权威回读。恢复受理与业务写仍由
+        // 正式 HTTP 入口执行，不能通过测试桥直接制造性能样本的成功结果。
+        if("goalSeed".equals(op))return goalBridge.seed((String)raw.get("kind"));
+        if(Set.of("goalProjection","goalRecovery","goalRecoveryRead").contains(op))return goalBridge.call(raw);
+        if(!"seed".equals(op))throw new IllegalArgumentException("未知在线前置操作");
+        var setup=(Map<String,Object>)raw.get("setup");var registry=bean(AgentTaskRegistryService.class);var jdbc=bean(JdbcTemplate.class);
+        if(Boolean.TRUE.equals(setup.get("legacy"))) {
+            // 默认保留TL09的真实2.0隔离前置；TL10显式选择2.1时，必须同时提供随后真实输入的原文和防重键。
+            // 先经正式来源服务登记该输入身份以登记合成白名单，随后公开messages入口复用同键并真实保存原文。
+            // 此处不生成模型结果或购买停点；2.1停点只能由真实请求建立，不能先创建2.2再绕回旧入口。
+            if(!Boolean.FALSE.equals(setup.get("current"))||((Number)setup.getOrDefault("paused",0)).intValue()!=0)
+                throw new IllegalArgumentException("旧会话前置不能创建2.2任务");
+            String id=UUID.randomUUID().toString(),session="ag03-legacy-"+id;
+            var user=bean(UserRepository.class).saveAndFlush(new UserEntity("ag03-"+id,"ag03-"+id+"@example.invalid","synthetic-hash"));
+            String protocol=(String)setup.getOrDefault("legacyProtocol","2.0");
+            if(!java.util.Set.of("2.0","2.1").contains(protocol))throw new IllegalArgumentException("旧会话协议不受支持");
+            String body="2.1".equals(protocol) ? (String)setup.get("preludeText") : "合成旧会话前置";
+            String key="2.1".equals(protocol) ? (String)setup.get("preludeKey") : null;
+            if("2.1".equals(protocol)&&(body==null||key==null))throw new IllegalArgumentException("2.1前置须绑定真实输入");
+            bean(AgentSessionService.class).start(user.getId(),session,AgentMode.CONFIRM,"synthetic-legacy-trace",protocol);
+            var source=bean(AgentConversationSourceService.class).issue(user.getId(),session,body,key);
+            return Map.of("userId",String.valueOf(user.getId()),"sessionId",session,"conversationEpoch",source.get("conversationEpoch"),"roles",Map.of());
+        }
+        var f=new AgentTaskTestFixtures(bean(UserRepository.class),bean(AgentSessionService.class),registry,jdbc);
+        var result=new LinkedHashMap<String,Object>();var roles=new LinkedHashMap<String,String>();
+        String intent=(String)setup.getOrDefault("intent","deal_recommendation");
+        var kinds=Map.ofEntries(Map.entry("store_recommendation","selection"),Map.entry("deal_recommendation","selection"),
+            Map.entry("store_info","lookup"),Map.entry("review_query","lookup"),Map.entry("group_buy_order","transaction"),
+            Map.entry("coupon","lookup"),Map.entry("refund_after_sale","transaction"),Map.entry("complaint","transaction"),
+            Map.entry("faq","lookup"),Map.entry("chitchat","chat"),Map.entry("composite","composite"));
+        if(!kinds.containsKey(intent))throw new IllegalArgumentException("前置意图不能生成业务任务");
+        int paused=((Number)setup.getOrDefault("paused",0)).intValue();if(paused<0||paused>5)throw new IllegalArgumentException("前置暂停数量不合法");
+        // 这些暂停任务没有执行过业务；仅建立目录歧义/容量前置，后续真实控制不得引用种行作为ACK。
+        for(int index=0;index<paused;index++){
+            String id=AgentTaskTestFixtures.id(registry.create(f.user,f.session,kinds.get(intent),intent,"合成暂停任务"+(index+1)));
+            jdbc.update("UPDATE agent_conversation_tasks SET lifecycle='paused',active_scope_key=NULL,last_paused_at=CURRENT_TIMESTAMP,stop_kind='waiting_input' WHERE conversation_task_id=?",id);
+            jdbc.update("UPDATE agent_sessions SET current_conversation_task_id=NULL,task_focus_version=task_focus_version+1 WHERE session_id=?",f.session);
+            roles.put("paused_"+(index+1),id);
+        }
+        if(!Boolean.FALSE.equals(setup.get("current"))){
+            String id=AgentTaskTestFixtures.id(registry.create(f.user,f.session,kinds.get(intent),intent,"合成当前任务"));roles.put("current",id);
+            // stop_kind仅描述前置，不创建run/checkpoint/确认；真实字段/确认场景须从正式消息链路产生。
+            if("awaiting_followup".equals(setup.get("stop_kind")))jdbc.update("UPDATE agent_conversation_tasks SET stop_kind='awaiting_followup' WHERE conversation_task_id=?",id);
+        }
+        result.put("userId",String.valueOf(f.user));result.put("sessionId",f.session);result.put("conversationEpoch",f.epoch);
+        result.put("roles",roles);result.put("directory",f.directory());return result;
+    }
+}

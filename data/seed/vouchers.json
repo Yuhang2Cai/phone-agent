@@ -1,0 +1,9 @@
+[
+  {"order":"group-order-pending","status":"UNUSED","count":1},
+  {"order":"group-order-paid","status":"UNUSED","count":2},
+  {"order":"group-order-partial","status":"REDEEMED","count":1},
+  {"order":"group-order-partial","status":"UNUSED","count":2},
+  {"order":"group-order-used","status":"REDEEMED","count":1},
+  {"order":"group-order-refunded","status":"REFUNDED","count":1},
+  {"order":"group-order-expired","status":"EXPIRED","count":1}
+]

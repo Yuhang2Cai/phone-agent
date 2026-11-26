@@ -1,0 +1,47 @@
+appId: com.fandazi.app
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: "com.fandazi.app:id/skip_login_button"
+- tapOn:
+    id: "com.fandazi.app:id/home_header_search"
+- tapOn:
+    id: "com.fandazi.app:id/home_search_button"
+- tapOn:
+    text: "Cancel"
+    optional: true
+- pressKey: BACK
+- assertVisible:
+    id: "com.fandazi.app:id/search_input"
+- assertVisible:
+    id: "com.fandazi.app:id/ai_suggestion"
+- assertVisible:
+    id: "com.fandazi.app:id/filter_row"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_fab"
+- takeScreenshot: ticket-03-search
+- tapOn:
+    id: "com.fandazi.app:id/search_input"
+- inputText: "粥"
+- tapOn:
+    id: "com.fandazi.app:id/search_button"
+- pressKey: BACK
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/merchant_card"
+    timeout: 30000
+- takeScreenshot: ticket-03-search-results
+- tapOn:
+    id: "com.fandazi.app:id/merchant_card"
+- assertVisible:
+    id: "com.fandazi.app:id/merchant_cover"
+- assertVisible:
+    id: "com.fandazi.app:id/category_list"
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/dish_card"
+    timeout: 30000
+- assertVisible:
+    id: "com.fandazi.app:id/cart_summary"
+- takeScreenshot: ticket-03-merchant

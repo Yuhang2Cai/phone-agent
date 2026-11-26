@@ -1,0 +1,28 @@
+appId: com.fandazi.app
+---
+# 本人有订单夹具查询订单+FAQ独立成功分支；无新订单或写入，真实服务输出不足就保留失败。
+- runFlow: group-buying-05-login.yaml
+- tapOn:
+    id: "com.fandazi.app:id/agentAssistantTab"
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_input"
+- setClipboard: "查询我的订单并告诉我退款规则"
+- pasteText
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/agent_chat_send"
+- extendedWaitUntil:
+    visible: ".*退款.*未核销.*|.*未核销.*退款.*"
+    timeout: 60000
+- assertVisible:
+    id: "com.fandazi.app:id/agent_order_title"
+# 查看订单是允许的用户手动只读入口，不能以通用按钮ID误判为交易确认。
+# 已完成的进度可留作历史；只禁止仍在运行及未请求的写入确认，不删除真实结果。
+- assertNotVisible: "确认支付"
+- assertNotVisible: "确认退款"
+- assertNotVisible: "进行中"
+- assertNotVisible:
+    id: "com.fandazi.app:id/agent_error_text"
+- assertVisible:
+    id: "com.fandazi.app:id/agent_chat_input"
+- takeScreenshot: agent-own-orders-and-refund-faq

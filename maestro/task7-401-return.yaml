@@ -1,0 +1,34 @@
+# 普通JWT自然过期后onResume产生真实401，重新登录必须回原入口及参数，不能回首页或新订单。
+appId: com.fandazi.app
+---
+- launchApp:
+    stopApp: false
+- extendedWaitUntil:
+    visible:
+      id: "com.fandazi.app:id/username_input"
+    timeout: 30000
+- takeScreenshot: "natural401-login"
+- tapOn:
+    id: "com.fandazi.app:id/username_input"
+- inputText: "${MAESTRO_USERNAME}"
+- tapOn:
+    id: "com.fandazi.app:id/password_input"
+- inputText: "${MAESTRO_PASSWORD}"
+- hideKeyboard
+- tapOn:
+    id: "com.fandazi.app:id/submit_button"
+- extendedWaitUntil:
+    visible:
+      id: "${TASK7_RETURN_ID}"
+    timeout: 30000
+- runFlow:
+    when:
+      true: ${TASK7_ENTRY == "order"}
+    commands:
+      - assertVisible: ".*${TASK7_ORDER_A}.*"
+- runFlow:
+    when:
+      true: ${TASK7_ENTRY == "voucher"}
+    commands:
+      - assertVisible: ".*${TASK7_VOUCHER_A}.*"
+- takeScreenshot: "natural401-original-entry-restored"

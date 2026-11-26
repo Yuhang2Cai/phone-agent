@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- 公开浏览仅在用户明确点击距离排序时申请粗定位，拒绝权限仍可按城市/分类浏览。 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- 本地语音仅在已登录用户点击录音后申请权限，音频不上传，页面离开即取消。 -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
+    <!-- 公开缓存恢复监听只读连接状态，不申请定位、录音或后台写入能力。 -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <application
+        android:name=".FandaziApplication"
+        android:allowBackup="true"
+        android:label="饭搭子 AI"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.FandaziAi">
+        <!-- 聊天及表单需随真实IME缩小可用窗口，确保输入和发送不被键盘遮挡，不靠测试脚本收键盘掩盖。 -->
+        <activity
+            android:name=".MainActivity"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+</manifest>

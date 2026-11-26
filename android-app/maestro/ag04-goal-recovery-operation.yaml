@@ -1,0 +1,31 @@
+appId: com.fandazi.app
+---
+# 外层夹具先固定投影和原请求身份；本流程只执行一次明确动作并核对服务端受理提示。
+# 不在流程内重试按钮，避免把连接异常误变成第二次恢复请求。
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agentAssistantTab
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_chat_input
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_close
+- extendedWaitUntil:
+    visible: 目标状态
+    timeout: 10000
+- tapOn: 目标状态
+- extendedWaitUntil:
+    visible: ${AG04_GOAL_TITLE}
+    timeout: 30000
+- tapOn: ${AG04_GOAL_OPERATION}
+- extendedWaitUntil:
+    visible: ${AG04_GOAL_NOTICE}
+    timeout: 30000
+- assertVisible: ${AG04_PRESERVED_RESULT}
+- takeScreenshot: ${AG04_SCREENSHOT}

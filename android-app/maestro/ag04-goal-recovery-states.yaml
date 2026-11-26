@@ -1,0 +1,32 @@
+appId: com.fandazi.app
+---
+# 六状态共用同一条只读流程；状态、预期文案和截图名由外层夹具逐次注入。
+# 流程只打开真实服务端投影，不发送聊天、恢复动作或业务写入。
+- launchApp:
+    stopApp: true
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agentAssistantTab
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agentAssistantTab
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_chat_input
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agent_chat_close
+- extendedWaitUntil:
+    visible: 目标状态
+    timeout: 10000
+- tapOn: 目标状态
+- extendedWaitUntil:
+    visible: ${AG04_GOAL_TITLE}
+    timeout: 30000
+- assertVisible: ${AG04_GOAL_STATUS}
+- assertVisible: ${AG04_GOAL_CARD}
+- assertVisible: ${AG04_GOAL_ACTION}
+- assertNotVisible: goalRevision
+- assertNotVisible: planRevision
+- assertNotVisible: effectVersion
+- takeScreenshot: ${AG04_SCREENSHOT}

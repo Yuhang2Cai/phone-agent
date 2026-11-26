@@ -1,0 +1,22 @@
+# TL-10/S04前半段：主流程停在真实退款原因追问；明确暂停后交给驱动停止本任务双服务。
+# 此流程成功只证明暂停画面；完整验收须双服务按同版本重启并继续后半段和持久事实核查。
+appId: com.fandazi.app
+---
+- assertVisible:
+    id: com.fandazi.app:id/agent_task_status
+    text: .*退款原因.*
+- tapOn:
+    id: com.fandazi.app:id/agent_task_primary_action
+    text: 暂停
+    enabled: true
+- extendedWaitUntil:
+    visible: 请选择要继续的任务
+    timeout: 30000
+# 主流程还保留一个暂停的购买任务，必须在多候选目录确认退款为暂停，不能选择最近项。
+- assertVisible:
+    id: com.fandazi.app:id/agent_task_item_title
+    text: 退款售后
+- assertVisible:
+    id: com.fandazi.app:id/agent_task_item_status
+    text: 已暂停.*退款原因.*
+- takeScreenshot: ag03-s04-paused-before-services-restart

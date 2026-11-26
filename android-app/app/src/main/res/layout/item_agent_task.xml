@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- AG03-B/G任务列表项：恢复只交接焦点，取消只提交生命周期控制，终态隐藏全部动作。 -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:background="@drawable/agent_task_card">
+        <TextView android:id="@+id/agent_task_item_title" style="@style/AgentTaskTitle"/>
+        <TextView android:id="@+id/agent_task_item_status" style="@style/AgentTaskCaption" android:layout_marginTop="8dp"/>
+        <TextView android:id="@+id/agent_task_item_stop" style="@style/AgentTaskBody" android:layout_marginTop="16dp"/>
+    </LinearLayout>
+    <LinearLayout android:id="@+id/agent_task_item_actions" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp">
+        <TextView android:id="@+id/agent_task_item_resume" style="@style/AgentTaskAction" android:background="@drawable/agent_task_primary" android:textColor="@color/surface_card" android:text="@string/agent_task_resume"/>
+        <TextView android:id="@+id/agent_task_item_cancel" style="@style/AgentTaskAction" android:layout_marginStart="8dp" android:text="@string/agent_task_cancel"/>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,52 @@
+# AG07获批复验分段；父驱动在每段后核真实来源和账本，失败不得执行下一文件。
+appId: com.fandazi.app
+---
+- runFlow:
+    file: ../../android-app/maestro/flows/ag03-send.yaml
+    env:
+      CHAT_TEXT: 改成2份
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_order_action
+      text: 确认
+      enabled: true
+    timeout: 180000
+- tapOn:
+    id: com.fandazi.app:id/agent_task_primary_action
+    text: 暂停
+# 本旅程只有一个暂停对象，既有设计显示恢复卡；多个对象才进入歧义选择。
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 恢复任务
+      enabled: true
+    timeout: 30000
+- assertVisible:
+    text: 旧确认已失效
+    enabled: false
+- takeScreenshot: ag07-live-old-disabled
+# 显式打开目录后选择原任务，不按歧义页或关闭聊天的假设继续。
+- tapOn:
+    id: com.fandazi.app:id/agent_task_list_action
+    text: 任务列表
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_list_title
+      text: 任务列表 · 已暂停 1 项
+    timeout: 30000
+- tapOn:
+    id: com.fandazi.app:id/agent_task_item_resume
+    below:
+      id: com.fandazi.app:id/agent_task_item_title
+      text: 团购订单
+    index: 0
+- extendedWaitUntil:
+    visible:
+      id: com.fandazi.app:id/agent_task_primary_action
+      text: 暂停
+      enabled: true
+    timeout: 30000
+- assertVisible:
+    text: 旧确认已失效
+    enabled: false
+- takeScreenshot: ag07-live-resumed-old-disabled

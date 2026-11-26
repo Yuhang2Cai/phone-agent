@@ -1,0 +1,35 @@
+{
+  "name": "fandazi-activity",
+  "version": "0.1.0",
+  "private": true,
+  "description": "饭搭子活动与金币跨平台页面，由原生宿主管理认证、网络及顶层导航",
+  "engines": {
+    "node": "^24.3.0"
+  },
+  "scripts": {
+    "start": "react-native start",
+    "typecheck": "tsc --noEmit",
+    "test": "jest --runInBand",
+    "bundle:android": "react-native bundle --platform android --dev false --entry-file index.js --bundle-output build/index.android.bundle --assets-dest build/assets"
+  },
+  "dependencies": {
+    "react": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-svg": "15.16.0"
+  },
+  "devDependencies": {
+    "@babel/core": "7.28.0",
+    "@babel/runtime": "7.28.2",
+    "@react-native-community/cli": "20.1.0",
+    "@react-native-community/cli-platform-android": "20.1.0",
+    "@react-native/babel-preset": "0.86.3",
+    "@react-native/jest-preset": "0.86.3",
+    "@react-native/metro-config": "0.86.3",
+    "@react-native/typescript-config": "0.86.3",
+    "@types/jest": "29.5.14",
+    "@types/react": "19.2.2",
+    "jest": "29.7.0",
+    "react-native-svg-transformer": "1.5.3",
+    "typescript": "5.9.3"
+  }
+}

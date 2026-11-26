@@ -1,0 +1,75 @@
+// 浏览展示模块：将服务器目录投影为 UI01/UI02 共用卡片；依赖原 XML、真实图片加载器和导航。
+package com.fandazi.app.feature.store
+
+import android.graphics.Paint
+import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import com.fandazi.app.R
+import com.fandazi.app.core.image.CatalogImageMetadataRefresh
+import com.fandazi.app.FandaziApplication
+import com.fandazi.app.core.network.ApiResult
+import java.util.Locale
+
+/** 共享UI绑定；列表事实来自调用方，缺图仅读取对应对象图片元数据，不查询或重绘整个目录。 */
+object CatalogRenderer {
+    /** 重绑单个已创建骨架；事实和图片均属于当前公开资源，点击由当前生命周期Fragment接收。 */
+    fun bindStore(card:android.view.View,store:CatalogStore,query:CatalogQuery,open:()->Unit) {
+            card.findViewById<TextView>(R.id.store_name).text = store.name
+            card.findViewById<TextView>(R.id.store_rating).text = store.rating?.let { "★ $it" } ?: "暂无评分"
+            card.findViewById<TextView>(R.id.store_reviews).text = "${store.reviewCount}条评价"
+            card.findViewById<TextView>(R.id.store_distance).text = if(!com.fandazi.app.core.cache.CatalogNetworkAccess.available(card.context))"距离未知"else distance(store.distanceMeters)
+            // 缺图仅读取这一门店的图片字段，保留原列表、筛选条件与其他卡片文本。
+            val application=card.context.applicationContext as FandaziApplication
+            CatalogImageMetadataRefresh.bind(card.findViewById(R.id.store_image),store.imageUrl,store.imageAlt) {
+                when(val result=application.catalogRepository.store(store.publicId,query)) {
+                    is ApiResult.Success -> if(result.value.publicId==store.publicId)result.value.imageUrl to result.value.imageAlt else null
+                    is ApiResult.Failure -> null
+                }
+            }
+            val deal = store.featuredDeal
+            card.findViewById<TextView>(R.id.deal_name).text = deal?.title ?: "暂无可售套餐"
+            card.findViewById<TextView>(R.id.deal_price).text = deal?.priceText().orEmpty()
+            card.findViewById<TextView>(R.id.deal_original_price).apply {
+                text = deal?.originalPriceText().orEmpty()
+                paintFlags = paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
+            }
+            card.findViewById<TextView>(R.id.deal_discount).text = deal?.let { discount(it.priceCents, it.originalPriceCents) }.orEmpty()
+            // 套餐不存在时没有可刷新对象，不能用全页刷新或其他套餐照片伪装本图。
+            CatalogImageMetadataRefresh.bind(card.findViewById(R.id.deal_image),deal?.imageUrl,deal?.imageAlt,thumbnail=true) {
+                if(deal==null) null else when(val result=application.groupBuyingRepository.loadDeal(deal.publicId)) {
+                    is ApiResult.Success -> if(result.value.publicId==deal.publicId && result.value.storePublicId==store.publicId)result.value.imageUrl to result.value.imageAlt else null
+                    is ApiResult.Failure -> null
+                }
+            }
+        card.contentDescription="store-card-${store.publicId}"
+        card.setOnClickListener {open()}
+    }
+    /** 已附着及进入回收池的卡片共同释放两个图片任务与旧导航监听。 */
+    fun releaseStore(card:android.view.View) {
+        CatalogImageMetadataRefresh.release(card.findViewById(R.id.store_image))
+        CatalogImageMetadataRefresh.release(card.findViewById(R.id.deal_image))
+        card.setOnClickListener(null);card.contentDescription=null
+    }
+
+    /** 选中态使用设计规定的橙色及下划线，字号不随状态改变，避免横向布局跳动。 */
+    fun selection(view: TextView, selected: Boolean) {
+        view.setTextColor(ContextCompat.getColor(view.context, if (selected) R.color.group_buy_orange else R.color.group_buy_text))
+        view.setTypeface(null, if (selected) Typeface.BOLD else Typeface.NORMAL)
+        val density = view.resources.displayMetrics.density
+        val underline = if (selected) GradientDrawable().apply {
+            setColor(ContextCompat.getColor(view.context, R.color.group_buy_orange)); setSize((26 * density).toInt(), (3 * density).toInt())
+        } else null
+        view.setCompoundDrawablesWithIntrinsicBounds(null, null, null, underline)
+        view.compoundDrawablePadding = (8 * density).toInt()
+    }
+
+    /** 未知距离显示语义提示，不伪装为 0 米；值只格式化服务器提供的整数米。 */
+    fun distance(meters: Long?): String = meters?.let { if (it < 1000) "${it}m" else String.format(Locale.ROOT, "%.1fkm", it / 1000.0) } ?: "未定位"
+    /** 折扣只用于展示；价格校验仍使用整数分。 */
+    fun discount(price: Int, original: Int): String = if (original <= 0) "" else String.format(Locale.ROOT, "%.1f折", price * 10.0 / original)
+    /** 整数分精确格式化，不通过 Double 参与金额。 */
+    fun money(cents: Int): String = "¥" + java.math.BigDecimal.valueOf(cents.toLong(), 2).stripTrailingZeros().toPlainString()
+}

@@ -1,0 +1,290 @@
+# 六分量是固定金标结构，TL-06再逐项实测，不能把结构校验算作功能通过。
+spec_version: ag03-task-lifecycle-r2
+intents:
+- intent: greeting
+  components:
+    ownership:
+      expected:
+      - 纯问候为control_reply
+    objects:
+      expected_fields: []
+    constraints:
+      expected_fields: []
+    corrections:
+      expected:
+      - 不覆盖原任务条件
+    pending:
+      expected:
+      - 保留原待输入事项
+    tools:
+      catalog_subset: []
+      purpose_gate_required: true
+- intent: chitchat
+  components:
+    ownership:
+      expected:
+      - 闲聊不吞业务原因
+    objects:
+      expected_fields: []
+    constraints:
+      expected_fields: []
+    corrections:
+      expected:
+      - 纠正只属当前闲聊任务
+    pending:
+      expected:
+      - 明确插入才挂起业务
+    tools:
+      catalog_subset: []
+      purpose_gate_required: true
+- intent: store_recommendation
+  components:
+    ownership:
+      expected:
+      - 同任务条件跨run延续
+    objects:
+      expected_fields:
+      - storeId
+    constraints:
+      expected_fields:
+      - cityCode
+      - budget
+      - excludedStoreIds
+    corrections:
+      expected:
+      - 否定门店替代旧选择
+    pending:
+      expected:
+      - 待选择门店
+    tools:
+      catalog_subset:
+      - search_stores
+      purpose_gate_required: true
+- intent: deal_recommendation
+  components:
+    ownership:
+      expected:
+      - 第二个绑定本任务展示来源
+    objects:
+      expected_fields:
+      - storeId
+      - dealId
+    constraints:
+      expected_fields:
+      - people
+      - budget
+      - quantity
+    corrections:
+      expected:
+      - 预算和份数独立纠正
+    pending:
+      expected:
+      - 待选择套餐
+    tools:
+      catalog_subset:
+      - list_deal_packages
+      - get_deal_detail
+      purpose_gate_required: true
+- intent: store_info
+  components:
+    ownership:
+      expected:
+      - 仅本run的信息意图读取
+    objects:
+      expected_fields:
+      - storeId
+    constraints:
+      expected_fields:
+      - informationDimension
+    corrections:
+      expected:
+      - 明确门店更正
+    pending:
+      expected:
+      - 缺门店先澄清
+    tools:
+      catalog_subset:
+      - get_store_detail
+      purpose_gate_required: true
+- intent: review_query
+  components:
+    ownership:
+      expected:
+      - 查询不变发布
+    objects:
+      expected_fields:
+      - storeId
+    constraints:
+      expected_fields:
+      - rating
+      - pagination
+    corrections:
+      expected:
+      - 门店/筛选纠正
+    pending:
+      expected:
+      - 缺门店先澄清
+    tools:
+      catalog_subset:
+      - search_reviews
+      purpose_gate_required: true
+- intent: group_buy_order
+  components:
+    ownership:
+      expected:
+      - query目的禁prepare/write
+      - 购买与支付各需新确认
+    objects:
+      expected_fields:
+      - dealId
+      - orderId
+    constraints:
+      expected_fields:
+      - quantity
+      - purpose
+    corrections:
+      expected:
+      - 改份数撤销旧报价
+    pending:
+      expected:
+      - 购买/支付确认分别保留
+    tools:
+      catalog_subset:
+      - list_user_orders
+      - get_order_detail
+      - get_deal_detail
+      - create_purchase_quote
+      - create_group_buy_order
+      - pay_mock_order
+      purpose_gate_required: true
+- intent: coupon
+  components:
+    ownership:
+      expected:
+      - coupon不等于voucher
+    objects:
+      expected_fields:
+      - couponId
+    constraints:
+      expected_fields:
+      - queryScope
+    corrections:
+      expected:
+      - 优惠券对象纠正
+    pending:
+      expected:
+      - 只读查询缺对象则澄清
+    tools:
+      catalog_subset:
+      - query_coupon
+      purpose_gate_required: true
+- intent: refund_after_sale
+  components:
+    ownership:
+      expected:
+      - 咨询禁申请
+      - 只在apply_refund且有效确认允许request_refund
+    objects:
+      expected_fields:
+      - voucherId
+      - orderId
+    constraints:
+      expected_fields:
+      - purpose
+      - reason
+    corrections:
+      expected:
+      - 原因修订撤销旧摘要
+    pending:
+      expected:
+      - 待原因/资格/新确认
+    tools:
+      catalog_subset:
+      - list_user_vouchers
+      - prepare_refund
+      - request_refund
+      purpose_gate_required: true
+- intent: complaint
+  components:
+    ownership:
+      expected:
+      - 新问题不写正文
+      - 仅submit目的及确认允许写
+    objects:
+      expected_fields:
+      - orderId
+    constraints:
+      expected_fields:
+      - subject
+      - description
+    corrections:
+      expected:
+      - 正文修订撤销旧摘要
+    pending:
+      expected:
+      - 待正文/新确认
+    tools:
+      catalog_subset:
+      - prepare_complaint
+      - submit_complaint
+      purpose_gate_required: true
+- intent: faq
+  components:
+    ownership:
+      expected:
+      - FAQ插问建立新task
+    objects:
+      expected_fields: []
+    constraints:
+      expected_fields:
+      - topic
+    corrections:
+      expected:
+      - 问题纠正不改原业务条件
+    pending:
+      expected:
+      - 独立FAQ完成才结束自身task
+    tools:
+      catalog_subset:
+      - query_faq
+      purpose_gate_required: true
+- intent: out_of_scope
+  components:
+    ownership:
+      expected:
+      - 无业务工具control_reply
+    objects:
+      expected_fields: []
+    constraints:
+      expected_fields: []
+    corrections:
+      expected:
+      - 不覆盖原任务
+    pending:
+      expected:
+      - 保持原未完成事项
+    tools:
+      catalog_subset: []
+      purpose_gate_required: true
+- intent: composite
+  components:
+    ownership:
+      expected:
+      - 每goal工具交集门控
+      - 已完成写节点不重放
+    objects:
+      expected_fields:
+      - goalId
+      - resourceId
+    constraints:
+      expected_fields:
+      - goalScope
+    corrections:
+      expected:
+      - 已完成图修改需AG04则拒绝
+    pending:
+      expected:
+      - 第一个未完成节点/待确认
+    tools:
+      catalog_subset: []
+      purpose_gate_required: true

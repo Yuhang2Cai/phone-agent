@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- UI-19：订单摘要、可点击星级和可编辑正文；未取得真实套餐图片时不展示固定餐图。 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+<LinearLayout android:id="@+id/review_form"
+    android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical"
+    android:background="@color/after_sale_background">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="56dp" android:gravity="center_vertical" android:paddingHorizontal="16dp">
+        <TextView android:id="@+id/review_back" android:layout_width="44dp" android:layout_height="match_parent" android:gravity="center_vertical"
+            android:text="‹" android:textSize="34sp" android:textColor="@color/after_sale_ink" android:contentDescription="返回订单详情" />
+        <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+            android:gravity="center" android:text="发布评价" android:textSize="21sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+        <Space android:layout_width="44dp" android:layout_height="1dp" />
+    </LinearLayout>
+    <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingHorizontal="12dp">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@drawable/after_sale_card"
+                android:orientation="horizontal" android:padding="12dp">
+                <!-- 本人订单实际图片或统一缺图状态，固定区域避免异步加载改变布局。 -->
+                <ImageView android:id="@+id/review_image" android:layout_width="93dp" android:layout_height="93dp" android:scaleType="centerCrop" android:src="@drawable/after_sale_image_placeholder" android:contentDescription="图片信息加载中" />
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="12dp" android:orientation="vertical">
+                <TextView android:id="@+id/review_store" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:textSize="17sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                <TextView android:id="@+id/review_deal" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:textSize="15sp" android:textColor="@color/after_sale_muted" />
+                <TextView android:id="@+id/review_order" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp" android:textSize="11sp" android:textColor="@color/after_sale_muted" />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                android:background="@drawable/after_sale_card" android:orientation="vertical" android:padding="14dp">
+                <!-- 五星独立触摸区不做视图缩放，保证1至5星均可选且不挤出父容器。 -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="58dp" android:gravity="center_vertical">
+                    <TextView android:layout_width="108dp" android:layout_height="wrap_content" android:text="总体评分"
+                        android:textSize="18sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                    <LinearLayout android:id="@+id/review_rating" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:orientation="horizontal">
+                        <ImageButton android:id="@+id/review_star_1" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/btn_star_big_off" android:contentDescription="设置1星" />
+                        <ImageButton android:id="@+id/review_star_2" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/btn_star_big_off" android:contentDescription="设置2星" />
+                        <ImageButton android:id="@+id/review_star_3" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/btn_star_big_off" android:contentDescription="设置3星" />
+                        <ImageButton android:id="@+id/review_star_4" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/btn_star_big_off" android:contentDescription="设置4星" />
+                        <ImageButton android:id="@+id/review_star_5" android:layout_width="0dp" android:layout_height="48dp" android:layout_weight="1" android:background="?attr/selectableItemBackgroundBorderless" android:src="@android:drawable/btn_star_big_off" android:contentDescription="设置5星" />
+                    </LinearLayout>
+                </LinearLayout>
+                <TextView android:id="@+id/review_rating_caption" android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:gravity="end" android:text="请选择评分" android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp"
+                android:background="@drawable/after_sale_card" android:orientation="vertical" android:padding="14dp">
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"
+                        android:text="评价内容" android:textSize="18sp" android:textStyle="bold" android:textColor="@color/after_sale_ink" />
+                    <TextView android:id="@+id/review_count" android:layout_width="wrap_content" android:layout_height="wrap_content"
+                        android:text="0/500" android:textSize="12sp" android:textColor="@color/after_sale_muted" />
+                </LinearLayout>
+                <EditText android:id="@+id/review_content" android:layout_width="match_parent" android:layout_height="290dp"
+                    android:layout_marginTop="12dp" android:background="@drawable/after_sale_input" android:gravity="top|start"
+                    android:hint="分享一下这次用餐的感受吧～" android:inputType="textCapSentences|textMultiLine"
+                    android:maxLength="500" android:padding="12dp" android:textSize="13sp" android:textColor="@color/after_sale_ink" />
+            </LinearLayout>
+            <TextView android:id="@+id/review_error" android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:layout_marginTop="12dp" android:textColor="@color/warning_red" android:visibility="gone" />
+            <TextView android:id="@+id/review_retry" android:layout_width="match_parent" android:layout_height="40dp" android:gravity="center" android:text="重新加载订单资格" android:textColor="@color/after_sale_muted" android:visibility="gone" />
+        </LinearLayout>
+    </ScrollView>
+    <TextView android:id="@+id/review_submit" android:layout_width="match_parent" android:layout_height="50dp"
+        android:layout_marginHorizontal="16dp" android:layout_marginBottom="16dp" android:background="@drawable/after_sale_primary"
+        android:gravity="center" android:text="发布评价" android:textColor="@android:color/white" android:textSize="17sp" android:enabled="false" />
+</LinearLayout>
+    <!-- 成功后隐藏整个编辑表单，只呈现已确认结果；布局共享不共享任何业务事实。 -->
+    <include android:id="@+id/review_result" layout="@layout/after_sale_success_content"
+        android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+</FrameLayout>
